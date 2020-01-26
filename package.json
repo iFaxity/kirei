@@ -1,0 +1,10 @@
+{
+  "name": "lit-vue",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "lit-html": "^1.1.2"
+  }
+}
