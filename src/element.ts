@@ -258,7 +258,7 @@ export class FxElement extends HTMLElement {
 
     requestAnimationFrame(() => {
       this._callHooks(mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
-      run(); //run.call(this._fx);
+      run.call(this._fx);
 
       this._updating = false;
       this._mounted = true;

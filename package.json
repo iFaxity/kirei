@@ -1,8 +1,7 @@
 {
-  "name": "lit-vue",
+  "name": "@ifaxity/lit-fx",
   "version": "0.1.0",
   "license": "MIT",
-  "private": true,
   "module": "index.esm.js",
   "main": "index.cjs.js",
   "types": "src/index.d.ts",
