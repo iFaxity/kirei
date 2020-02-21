@@ -1,6 +1,5 @@
-export { Fx } from './fx';
 export * from './reactive';
-export * from './element';
+export { defineElement, html, svg } from './element';
 export * from './lifecycle';
 
 export { version } from '../package.json';

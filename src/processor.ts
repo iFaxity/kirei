@@ -20,8 +20,6 @@ const noop = () => {};
 // No need to use the commit function, we just assume the value is a static string
 // Detect if native element or custom element, if native then bind like vuejs does
 class SyncPart implements Part {
-  private readonly castNumber: boolean = false;
-  private readonly trimValue: boolean = false;
   private ref: FxRef;
   readonly element: Element;
   readonly value: unknown;
@@ -193,22 +191,24 @@ class FxNodePart extends NodePart {
 
 class FxAttributePart extends AttributePart {
   readonly name: string;
+  readonly mapValue: boolean;
 
   constructor(committer: AttributeCommitter, name: string) {
     super(committer);
     this.name = name;
+
+    this.mapValue = name == 'class' || name == 'style';
   }
 
   setValue(value: unknown): void {
     let raw = toRawValue(value);
 
-    if (this.name == 'class') {
+    if (this.mapValue) {
       if (Array.isArray(raw)) {
         raw = raw.filter(x => x).join(' ');
       } else if (isObject(raw)) {
         raw = Object.entries(raw).reduce((acc, [ key, value ]) => {
           value && acc.push(key);
-
           return acc;
         }, []).join(' ');
       }

@@ -1,4 +1,4 @@
-import * as Lit from 'lit-html';
+import { TemplateResult, RenderOptions, render, templateFactory } from 'lit-html';
 import { isFunction, mapObject, camelToKebab } from './shared';
 import { Fx } from './fx';
 import { templateProcessor } from './processor';
@@ -12,9 +12,9 @@ import {
   propDefaults,
 } from './props';
 
-export type LitTemplate = (strings: any, ...values: any[]) => Lit.TemplateResult;
-export const html = (strings, ...values) => new Lit.TemplateResult(strings, values, 'html', templateProcessor);
-export const svg = (strings, ...values) => new Lit.TemplateResult(strings, values, 'html', templateProcessor);
+export type LitTemplate = (strings: any, ...values: any[]) => TemplateResult;
+export const html = (strings, ...values) => new TemplateResult(strings, values, 'html', templateProcessor);
+export const svg = (strings, ...values) => new TemplateResult(strings, values, 'html', templateProcessor);
 
 export let activeElement = null;
 const activeElementStack = [];
@@ -38,7 +38,7 @@ export interface FxOptions<P = Props, T = Readonly<ResolvePropTypes<P>>> {
   private?: boolean;
   props?: P;
   model?: FxModel;
-  setup(this: void, props: T, ctx: FxContext): () => Lit.TemplateResult;
+  setup(this: void, props: T, ctx: FxContext): () => TemplateResult;
   styles?: string;
 }
 
@@ -119,15 +119,15 @@ export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>):
 }
 
 // HTMLElement needs es6 classes to instansiate properly
-class FxElement extends HTMLElement {
+export class FxElement extends HTMLElement {
   readonly _ctx: FxContext;
   readonly _styles?: string = null;
   readonly _hooks: Record<string, Function[]>;
-  readonly _renderOptions: Lit.RenderOptions;
+  readonly _renderOptions: RenderOptions;
   readonly _fx: Fx;
   readonly _private: boolean;
 
-  private _renderTemplate: () => Lit.TemplateResult;
+  private _renderTemplate: () => TemplateResult;
   private _updating: boolean = false;
   private _mounted: boolean = false;
   private _renderRoot: ShadowRoot;
@@ -142,7 +142,7 @@ class FxElement extends HTMLElement {
     this._hooks = instance.hooks;
     this._renderOptions = {
       //scopeName: this.tagName.toLowerCase(),
-      templateFactory: Lit.templateFactory,
+      templateFactory,
       eventContext: this,
     };
     this._fx = new Fx(this._render.bind(this), {
@@ -175,7 +175,7 @@ class FxElement extends HTMLElement {
     // Run setup function and gather reactive data
     activeElement = this;
     activeElementStack.push(this);
-    const renderTemplate = setup(toRefs(propsData), this._ctx);
+    const renderTemplate = setup.call(undefined, toRefs(propsData), this._ctx);
 
     if (!isFunction(renderTemplate)) {
       throw new TypeError('Setup functions must return a function which return a template literal');
@@ -238,7 +238,7 @@ class FxElement extends HTMLElement {
   /**
    * Calls the hooks on the Fx instance
    */
-  _callHooks(hook) {
+  _callHooks(hook: string) {
     const hooks = this._hooks[hook];
 
     if (hooks) {
@@ -250,7 +250,7 @@ class FxElement extends HTMLElement {
   /**
    * Schedules a run to render updated content
    */
-  _scheduleRender(run) {
+  _scheduleRender(run: () => void) {
     if (this._updating) return;
 
     const mounted = this._mounted;
@@ -258,7 +258,7 @@ class FxElement extends HTMLElement {
 
     requestAnimationFrame(() => {
       this._callHooks(mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
-      run.call(this._fx);
+      run(); //run.call(this._fx);
 
       this._updating = false;
       this._mounted = true;
@@ -273,7 +273,7 @@ class FxElement extends HTMLElement {
   _render() {
     let result = this._renderTemplate();
 
-    if (!(result instanceof Lit.TemplateResult)) {
+    if (!(result instanceof TemplateResult)) {
       throw new Error('FxElement.render() must return a TemplateResult');
     }
 
@@ -283,6 +283,6 @@ class FxElement extends HTMLElement {
       result = html`<style>${css}</style>${result}`;
     }
 
-    Lit.render(result, this._renderRoot, this._renderOptions);
+    render(result, this._renderRoot, this._renderOptions);
   }
 }
