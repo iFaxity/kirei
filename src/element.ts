@@ -151,6 +151,10 @@ export class FxElement extends HTMLElement {
       scheduler: this._scheduleRender.bind(this),
     });
 
+    // Create shadow root
+    const mode = this._private ? 'closed' : 'open';
+    this._renderRoot = this.attachShadow({ mode });
+
     const propsData = reactive(propDefaults(instance.props));
 
     // Set props as getters/setters on element
@@ -190,8 +194,6 @@ export class FxElement extends HTMLElement {
    */
   connectedCallback() {
     // Render element
-    const mode = this._private ? 'closed' : 'open';
-    this._renderRoot = this.attachShadow({ mode });
     this._fx.scheduleRun();
   }
 
