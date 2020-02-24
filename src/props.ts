@@ -10,8 +10,8 @@ interface PropInstance<T = any> {
   validator?(value: unknown): boolean;
   default?: DefaultFactory<T> | T;
 }
-type PropsData = { [key: string]: unknown };
 type Prop<T> = PropInstance<T> | PropType<T> | null;
+export type PropsData = { [key: string]: unknown };
 export type Props<P = PropsData> = { [K in keyof P]: Prop<P[K]> };
 
 interface NormalizedProp<T = any> extends PropInstance<T> {
@@ -102,7 +102,22 @@ export function validateProp(props: NormalizedProps, key: string, value: any): a
   }
 
   if (cast) {
-    
+    // Different parsing based on first (or only) type
+    if (type[0] === Boolean) {
+      // If primary type boolean, null is false, '' is true
+      if (value == null || value == 'false') {
+        value = false;
+      } else if (value === '' || value == 'true') {
+        value = true;
+      }
+    } else if (type[0] === Number) {
+      // If number as first type, try parse value as number
+      // Implicit better than parseFloat, ensures whole string is number
+      let n = +value;
+      if (!isNaN(n)) {
+        value = n;
+      }
+    }
   }
 
   // as the value might get casted we return it again

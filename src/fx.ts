@@ -1,7 +1,4 @@
-// The main WeakMap that stores {target -> key -> dep} connections.
-// Conceptually, it's easier to think of a dependency as a Dep class
-// which maintains a Set of subscribers, but we simply store them as
-// raw Sets to reduce memory overhead.
+
 const targetMap = new WeakMap<object, Map<any, Set<Fx>>>();
 export enum TriggerOpTypes {
   SET = 'set',

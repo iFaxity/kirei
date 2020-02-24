@@ -10,7 +10,8 @@
     "index.esm.js.map",
     "index.cjs.js",
     "index.cjs.js.map",
-    "src/*"
+    "src/*",
+    "directives/*"
   ],
   "scripts": {
     "build": "rollup -c",

@@ -20,7 +20,11 @@ export default {
   plugins: [
     resolve(),
     json(),
-    typescript({ typescript: require('typescript'), clean: true }),
+    typescript({
+      typescript: require('typescript'),
+      clean: true,
+      useTsconfigDeclarationDir: true,
+    }),
     terser({
       output: { comments: terserKeepComments }
     })

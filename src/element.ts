@@ -1,23 +1,21 @@
-import { TemplateResult, RenderOptions, render, templateFactory } from 'lit-html';
+import { TemplateResult, RenderOptions, render, templateFactory, html, directive, Template } from 'lit-html';
 import { isFunction, mapObject, camelToKebab } from './shared';
 import { Fx } from './fx';
-import { templateProcessor } from './processor';
 import { reactive, toRefs } from './reactive';
 import {
   Props,
+  PropsData,
   ResolvePropTypes,
   NormalizedProps,
   validateProp,
   normalizeProps,
   propDefaults,
 } from './props';
+import * as Queue from './queue';
 
-export type LitTemplate = (strings: any, ...values: any[]) => TemplateResult;
-export const html = (strings, ...values) => new TemplateResult(strings, values, 'html', templateProcessor);
-export const svg = (strings, ...values) => new TemplateResult(strings, values, 'html', templateProcessor);
-
-export let activeElement = null;
-const activeElementStack = [];
+export let activeElement: FxElement = null;
+const activeElementStack: FxElement[] = [];
+export const elementInstances = new WeakMap<FxElement, FxInstance>();
 
 export enum HookTypes {
   BEFORE_MOUNT = 'beforeMount',
@@ -34,17 +32,16 @@ interface FxModel {
 }
 
 export interface FxOptions<P = Props, T = Readonly<ResolvePropTypes<P>>> {
-  name: string,
-  private?: boolean;
+  name: string;
+  closed?: boolean;
   props?: P;
   model?: FxModel;
   setup(this: void, props: T, ctx: FxContext): () => TemplateResult;
   styles?: string;
 }
 
-interface FxInstance extends FxOptions {
-  props: NormalizedProps,
-  hooks: Record<string, Function[]>;
+interface NormalizedFxOptions extends FxOptions {
+  props: NormalizedProps;
   attrs: Record<string, string>;
 }
 
@@ -54,7 +51,7 @@ class FxContext {
   attrs: Record<string, string>;
   props: NormalizedProps;
 
-  constructor(el: FxElement, instance: FxInstance) {
+  constructor(el: FxElement, instance: NormalizedFxOptions) {
     this.el = el;
     this.model = instance.model;
     this.attrs = instance.attrs;
@@ -70,180 +67,52 @@ class FxContext {
   }
 }
 
-function parseOptions<T>(options: FxOptions<T>): FxInstance {
-  const { setup, model } = options;
-  const props = options.props ?? {};
+class FxInstance {
+  readonly options: NormalizedFxOptions;
+  readonly ctx: FxContext;
+  readonly hooks: Record<string, Function[]>;
+  readonly renderOptions: RenderOptions;
+  readonly fx: Fx;
+  readonly props: PropsData;
+  readonly shadowRoot: ShadowRoot;
+  readonly renderTemplate: () => TemplateResult;
+  rendering: boolean = false;
+  mounted: boolean = false;
 
-  return {
-    props: options.props ? normalizeProps(props) : props,
-    attrs: mapObject((key) => [camelToKebab(key), key], props),
-    private: options.private ?? false,
-    name: camelToKebab(options.name),
-    setup: setup ?? null,
-    styles: options.styles ?? null,
-    hooks: mapObject((_, value) => [ value, [] ], HookTypes),
-    model: {
-      prop: model?.prop ?? 'value',
-      event: model?.event ?? 'input',
-    }
-  } as FxInstance;
-}
-
-/**
- * Defines a new custom element
- */
-export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>): typeof FxElement {
-  const instance = parseOptions(options);
-  const attrs = Object.keys(instance.attrs);
-
-  if (!instance.name.includes('-')) {
-    console.warn('Fx: Component names should include a hyphen (-) or be camelised with at least 2 uppser case characters.');
-  }
-
-  const CustomElement = class extends FxElement {
-    static get is() {
-      return instance.name;
-    }
-
-    static get observedAttributes() {
-      return attrs;
-    }
-
-    constructor() {
-      super(instance);
-    }
-  };
-
-  window.customElements.define(instance.name, CustomElement);
-  return CustomElement;
-}
-
-// HTMLElement needs es6 classes to instansiate properly
-export class FxElement extends HTMLElement {
-  readonly _ctx: FxContext;
-  readonly _styles?: string = null;
-  readonly _hooks: Record<string, Function[]>;
-  readonly _renderOptions: RenderOptions;
-  readonly _fx: Fx;
-  readonly _private: boolean;
-
-  private _renderTemplate: () => TemplateResult;
-  private _updating: boolean = false;
-  private _mounted: boolean = false;
-  private _renderRoot: ShadowRoot;
-
-  constructor(instance: FxInstance) {
-    super();
-    const { setup } = instance;
-
-    this._ctx = new FxContext(this, instance);
-    this._private = instance.private;
-    this._styles = instance.styles;
-    this._hooks = instance.hooks;
-    this._renderOptions = {
-      //scopeName: this.tagName.toLowerCase(),
+  constructor(el: FxElement, options: NormalizedFxOptions) {
+    this.options = options;
+    this.ctx = new FxContext(el, options);
+    this.hooks = mapObject((_, value) => [ value, [] ], HookTypes);
+    this.renderOptions = {
+      //scopeName: this.localName,
       templateFactory,
-      eventContext: this,
+      eventContext: el,
     };
-    this._fx = new Fx(this._render.bind(this), {
+    this.fx = new Fx(this.render.bind(this), {
       lazy: true,
       computed: false,
-      scheduler: this._scheduleRender.bind(this),
+      scheduler: this.scheduleRender.bind(this),
     });
 
-    // Create shadow root
-    const mode = this._private ? 'closed' : 'open';
-    this._renderRoot = this.attachShadow({ mode });
-
-    const propsData = reactive(propDefaults(instance.props));
-
-    // Set props as getters/setters on element
-    // props should be a readonly reactive object
-    for (let key of Object.keys(propsData)) {
-      // If prop already exists, then we throw error
-      if (this.hasOwnProperty(key)) {
-        throw new Error(`Prop ${key} is reserved, please use another.`);
-      }
-
-      // Validate props default value
-      validateProp(instance.props, key, propsData[key]);
-
-      Object.defineProperty(this, key, {
-        get: () => propsData[key],
-        set: (newValue) => {
-          propsData[key] = validateProp(instance.props, key, newValue);
-        },
-      });
-    }
+    this.props = reactive(propDefaults(options.props));
+    this.shadowRoot = el.attachShadow({ mode: options.closed ? 'closed' : 'open' });
 
     // Run setup function and gather reactive data
-    activeElement = this;
-    activeElementStack.push(this);
-    const renderTemplate = setup.call(undefined, toRefs(propsData), this._ctx);
+    this.renderTemplate = options.setup.call(undefined, toRefs(this.props), this.ctx);
 
-    if (!isFunction(renderTemplate)) {
-      throw new TypeError('Setup functions must return a function which return a template literal');
-    }
-
-    activeElement = activeElementStack[activeElementStack.length - 1] ?? null;
-    this._renderTemplate = renderTemplate;
-  }
-
-  /**
-   * Runs when mounted to the dom
-   */
-  connectedCallback() {
-    // Render element
-    this._fx.scheduleRun();
-  }
-
-  /**
-   * Runs when unmounted from dom
-   */
-  disconnectedCallback() {
-    this._callHooks(HookTypes.BEFORE_UNMOUNT);
-    this._callHooks(HookTypes.UNMOUNTED);
-  }
-
-  /**
-   * Observed attribute changed
-   */
-  attributeChangedCallback(attr: string, oldValue: string, newValue: string) {
-    // newValue & oldValue null if not set, string if set, default to empty string
-    const key = this._ctx.attrs[attr];
-    const { type } = this._ctx.props[key];
-
-    if (oldValue !== newValue) {
-      let value: unknown = newValue;
-
-      // Different parsing based on first (or only) type
-      if (type[0] === Boolean) {
-        // If primary type boolean, null is false, '' is true
-        if (newValue == null || newValue == 'false') {
-          value = false;
-        } else if (newValue === '' || newValue == 'true') {
-          value = true;
-        }
-      } else if (type[0] === Number) {
-        // If number as first type, try parse value as number
-        // Implicit better than parseFloat, ensures whole string is number
-        let n = +value;
-        if (!isNaN(n)) {
-          value = n;
-        }
-      }
-
-      this[key] = value;
+    if (!isFunction(this.renderTemplate)) {
+      throw new TypeError('Setup functions must return a function which return a TemplateResult');
     }
   }
+
 
   /**
    * Calls the hooks on the Fx instance
    */
-  _callHooks(hook: string) {
-    const hooks = this._hooks[hook];
+  callHooks(hook: string): void {
+    const hooks = this.hooks[hook];
 
-    if (hooks) {
+    if (hooks?.length) {
       hooks.forEach(fn => isFunction(fn) && fn());
     }
   }
@@ -252,19 +121,19 @@ export class FxElement extends HTMLElement {
   /**
    * Schedules a run to render updated content
    */
-  _scheduleRender(run: () => void) {
-    if (this._updating) return;
+  scheduleRender(run: () => void): void {
+    // Prevent overlapping renders
+    if (this.rendering) return;
+    this.rendering = true;
 
-    const mounted = this._mounted;
-    this._updating = true;
+    // Queue the render
+    Queue.push(() => {
+      this.mounted && this.callHooks(HookTypes.BEFORE_UPDATE);
+      run.call(this.fx);
+      this.mounted && this.callHooks(HookTypes.UPDATED);
 
-    requestAnimationFrame(() => {
-      this._callHooks(mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
-      run.call(this._fx);
-
-      this._updating = false;
-      this._mounted = true;
-      this._callHooks(mounted ? HookTypes.UPDATED : HookTypes.MOUNTED);
+      this.rendering = false;
+      this.mounted = true;
     });
   }
 
@@ -272,19 +141,140 @@ export class FxElement extends HTMLElement {
   /**
    * Renders shadow root content
    */
-  _render() {
-    let result = this._renderTemplate();
+  render(): void {
+    const { shadowRoot, mounted, options } = this;
+    const result = this.renderTemplate();
 
     if (!(result instanceof TemplateResult)) {
       throw new Error('FxElement.render() must return a TemplateResult');
     }
 
-    // If any styles are provided, render it at the start of the html
-    if (typeof this._styles == 'string') {
-      const css = this._styles;
-      result = html`<style>${css}</style>${result}`;
+    render(result, shadowRoot, this.renderOptions);
+
+    if (!mounted && typeof options.styles == 'string') {
+      const $style = document.createElement('style');
+      $style.textContent = options.styles;
+      shadowRoot.insertBefore($style, shadowRoot.firstChild);
+    }
+  }
+}
+
+function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
+  const { setup, model } = options;
+  const props = options.props ?? {};
+
+  return {
+    name: camelToKebab(options.name),
+    closed: options.closed ?? false,
+    props: options.props ? normalizeProps(props) : props,
+    attrs: mapObject((key) => [ camelToKebab(key), key ], props),
+    model: {
+      prop: model?.prop ?? 'value',
+      event: model?.event ?? 'input',
+    },
+    setup: setup ?? null,
+    styles: options.styles ?? null,
+  } as NormalizedFxOptions;
+}
+
+/**
+ * Defines a new custom element
+ */
+export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>): typeof FxElement {
+  const normalized = normalizeOptions(options);
+  const attrs = Object.keys(normalized.attrs);
+
+  if (!normalized.name.includes('-')) {
+    console.warn('Fx: Component names should include a hyphen (-) or be camelised with at least 2 uppser case characters.');
+  }
+
+  const CustomElement = class extends FxElement {
+    static get is() {
+      return normalized.name;
     }
 
-    render(result, this._renderRoot, this._renderOptions);
+    static get observedAttributes() {
+      return attrs;
+    }
+
+    constructor() {
+      super(normalized);
+    }
+  };
+
+  window.customElements.define(normalized.name, CustomElement);
+  return CustomElement;
+}
+
+// HTMLElement needs es6 classes to instansiate properly
+export class FxElement extends HTMLElement {
+  constructor(options: NormalizedFxOptions) {
+    super();
+
+    // Run setup function and gather reactive data
+    activeElement = this;
+    activeElementStack.push(this);
+
+    const instance = new FxInstance(this, options);
+    elementInstances.set(this, instance);
+
+    activeElement = activeElementStack[activeElementStack.length - 1] ?? null;
+
+    const { props } = instance.options;
+    const propsData = instance.props;
+
+    // Set props as getters/setters on element
+    // props should be a readonly reactive object
+    for (let key of Object.keys(props)) {
+      // If prop already exists, then we throw error
+      if (this.hasOwnProperty(key)) {
+        throw new Error(`Prop ${key} is reserved, please use another.`);
+      }
+
+      // Validate props default value
+      validateProp(props, key, propsData[key]);
+
+      Object.defineProperty(this, key, {
+        get: () => propsData[key],
+        set: (newValue) => {
+          propsData[key] = validateProp(props, key, newValue);
+        },
+      });
+    }
+
+    // Queue the render Render element
+    instance.fx.scheduleRun();
+  }
+
+  /**
+   * Runs when mounted to the dom
+   */
+  connectedCallback() {
+    const instance = elementInstances.get(this);
+    instance.callHooks(HookTypes.BEFORE_MOUNT);
+    instance.callHooks(HookTypes.MOUNTED);
+  }
+
+  /**
+   * Runs when unmounted from dom
+   */
+  disconnectedCallback() {
+    const instance = elementInstances.get(this);
+    instance.callHooks(HookTypes.BEFORE_UNMOUNT);
+    instance.callHooks(HookTypes.UNMOUNTED);
+  }
+
+  /**
+   * Observes attribute changes
+   */
+  attributeChangedCallback(attr: string, oldValue: string, newValue: string) {
+    // newValue & oldValue null if not set, string if set, default to empty string
+    if (oldValue !== newValue) {
+      const instance = elementInstances.get(this);
+      const { attrs, props } = instance.options;
+      const key = attrs[attr];
+
+      this[key] = validateProp(props, key, newValue);
+    }
   }
 }

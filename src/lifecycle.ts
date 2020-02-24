@@ -1,39 +1,36 @@
-import { activeElement, HookTypes } from './element';
+import { activeElement, elementInstances, HookTypes } from './element';
 
 type HookCallback = () => void;
 
-export function onBeforeMount(fn: HookCallback): void {
+function mountHook(key: string, fn: HookCallback): void {
   if (activeElement) {
-    activeElement._hooks[HookTypes.BEFORE_MOUNT].push(fn);
+    throw new Error('No active element instance!');
   }
+
+  const instance = elementInstances.get(activeElement);
+  instance.hooks[key].push(fn);
+}
+
+export function onBeforeMount(fn: HookCallback): void {
+  mountHook(HookTypes.BEFORE_MOUNT, fn);
 }
 
 export function onMounted(fn: HookCallback): void {
-  if (activeElement) {
-    activeElement._hooks[HookTypes.MOUNTED].push(fn);
-  }
+  mountHook(HookTypes.MOUNTED, fn);
 }
 
 export function onBeforeUpdate(fn: HookCallback): void {
-  if (activeElement) {
-    activeElement._hooks[HookTypes.BEFORE_UPDATE].push(fn);
-  }
+  mountHook(HookTypes.BEFORE_UPDATE, fn);
 }
 
 export function onUpdated(fn: HookCallback): void {
-  if (activeElement) {
-    activeElement._hooks[HookTypes.UPDATED].push(fn);
-  }
+  mountHook(HookTypes.UPDATED, fn);
 }
 
 export function onBeforeUnmount(fn: HookCallback): void {
-  if (activeElement) {
-    activeElement._hooks[HookTypes.BEFORE_UNMOUNT].push(fn);
-  }
+  mountHook(HookTypes.BEFORE_UNMOUNT, fn);
 }
 
 export function onUnmounted(fn: HookCallback): void {
-  if (activeElement) {
-    activeElement._hooks[HookTypes.UNMOUNTED].push(fn);
-  }
+  mountHook(HookTypes.UNMOUNTED, fn);
 }

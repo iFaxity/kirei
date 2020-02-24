@@ -106,5 +106,7 @@ dist
 # Project specific
 test/
 router/
+
 webpack.config.js
-src/parts/
+*.d.ts
+*.d.ts.map
