@@ -1,10 +1,29 @@
 {
   "name": "@ifaxity/lit-fx",
   "version": "0.1.2",
+  "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "module": "index.esm.js",
   "main": "index.cjs.js",
   "types": "src/index.d.ts",
+  "keywords": [
+    "lit-html",
+    "vue",
+    "vue3",
+    "composition",
+    "frontend",
+    "web components",
+    "custom elements",
+    "shadow"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ifaxity/lit-fx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifaxity/lit-fx/issues"
+  },
+  "homepage": "https://github.com/ifaxity/lit-fx",
   "files": [
     "index.esm.js",
     "index.esm.js.map",
