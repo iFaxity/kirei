@@ -1,6 +1,6 @@
 {
   "name": "@ifaxity/lit-fx",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "module": "src/index.js",
