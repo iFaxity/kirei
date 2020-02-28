@@ -3,9 +3,26 @@
   "version": "0.1.2",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
-  "module": "index.esm.js",
-  "main": "index.cjs.js",
+  "module": "src/index.js",
+  "main": "src/index.js",
   "types": "src/index.d.ts",
+  "files": [
+    "src/*",
+    "directives/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "webpack-dev-server",
+    "test": "node test/index"
+  },
+  "homepage": "https://github.com/ifaxity/lit-fx",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ifaxity/lit-fx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifaxity/lit-fx/issues"
+  },
   "keywords": [
     "lit-html",
     "vue",
@@ -14,39 +31,13 @@
     "frontend",
     "web components",
     "custom elements",
-    "shadow"
+    "shadow dom"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ifaxity/lit-fx.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ifaxity/lit-fx/issues"
-  },
-  "homepage": "https://github.com/ifaxity/lit-fx",
-  "files": [
-    "index.esm.js",
-    "index.esm.js.map",
-    "index.cjs.js",
-    "index.cjs.js.map",
-    "src/*",
-    "directives/*"
-  ],
-  "scripts": {
-    "build": "rollup -c",
-    "dev": "webpack-dev-server",
-    "test": "node test/index"
-  },
   "dependencies": {
     "lit-html": "^1.1.2"
   },
   "devDependencies": {
-    "@rollup/plugin-json": "^4.0.1",
-    "@rollup/plugin-node-resolve": "^7.0.0",
     "file-loader": "^5.0.2",
-    "rollup": "^1.19.4",
-    "rollup-plugin-terser": "^5.1.1",
-    "rollup-plugin-typescript2": "^0.22.1",
     "ts-loader": "^6.2.1",
     "tslib": "^1.10.0",
     "typescript": "^3.5.3",

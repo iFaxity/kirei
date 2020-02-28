@@ -70,28 +70,6 @@ export class FxPropertyCommitter extends PropertyCommitter {
   }
 }
 
-export const parts: Map<string, Function> = new Map([
-  ['.', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    const committer = new FxPropertyCommitter(element, name, strings);
-    return committer.parts;
-  }],
-  ['@', (element: Element, name: string, strings: ReadonlyArray<string>, options: RenderOptions): readonly Part[] => {
-    return [new FxEventPart(element, name, options.eventContext)];
-  }],
-  ['?', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    return [new FxBooleanAttributePart(element, name, strings)];
-  }],
-  ['&', (element: Element, name: string): readonly Part[] => {
-    return [new FxSyncPart(element, name)];
-  }],
-  ['!', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    return [new FxConditionalPart(element, name, strings)];
-  }],
-  [':', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    return [new FxBindPart(element, name, strings)];
-  }],
-]);
-
 /**
  * Creates Parts when a template is instantiated.
  */
@@ -121,3 +99,24 @@ export class FxTemplateProcessor implements TemplateProcessor {
 }
 
 export const templateProcessor = new FxTemplateProcessor();
+export const parts: Map<string, Function> = new Map([
+  ['.', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+    const committer = new FxPropertyCommitter(element, name, strings);
+    return committer.parts;
+  }],
+  ['@', (element: Element, name: string, strings: ReadonlyArray<string>, options: RenderOptions): readonly Part[] => {
+    return [new FxEventPart(element, name, options.eventContext)];
+  }],
+  ['?', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+    return [new FxBooleanAttributePart(element, name, strings)];
+  }],
+  ['&', (element: Element, name: string): readonly Part[] => {
+    return [new FxSyncPart(element, name)];
+  }],
+  ['!', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+    return [new FxConditionalPart(element, name, strings)];
+  }],
+  [':', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+    return [new FxBindPart(element, name, strings)];
+  }],
+]);

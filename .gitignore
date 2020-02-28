@@ -109,4 +109,5 @@ router/
 
 webpack.config.js
 *.d.ts
-*.d.ts.map
+*.map
+src/**/*.js

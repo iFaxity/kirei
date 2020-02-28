@@ -1,4 +1,4 @@
-import { TemplateResult, RenderOptions, render, templateFactory, html, directive, Template } from 'lit-html';
+import { TemplateResult, RenderOptions, render, templateFactory } from 'lit-html';
 import { isFunction, mapObject, camelToKebab } from './shared';
 import { Fx } from './fx';
 import { reactive, toRefs } from './reactive';
@@ -12,19 +12,11 @@ import {
   propDefaults,
 } from './props';
 import * as Queue from './queue';
+import { HookTypes } from './lifecycle';
 
 export let activeElement: FxElement = null;
 const activeElementStack: FxElement[] = [];
 export const elementInstances = new WeakMap<FxElement, FxInstance>();
-
-export enum HookTypes {
-  BEFORE_MOUNT = 'beforeMount',
-  MOUNTED = 'mounted',
-  BEFORE_UPDATE = 'beforeUpdate',
-  UPDATED = 'updated',
-  BEFORE_UNMOUNT = 'beforeUnmount',
-  UNMOUNTED = 'unmounted',
-}
 
 interface FxModel {
   prop?: string;
@@ -130,7 +122,7 @@ class FxInstance {
     Queue.push(() => {
       this.mounted && this.callHooks(HookTypes.BEFORE_UPDATE);
       run.call(this.fx);
-      this.mounted && this.callHooks(HookTypes.UPDATED);
+      this.mounted && this.callHooks(HookTypes.UPDATE);
 
       this.rendering = false;
       this.mounted = true;
@@ -155,6 +147,79 @@ class FxInstance {
       const $style = document.createElement('style');
       $style.textContent = options.styles;
       shadowRoot.insertBefore($style, shadowRoot.firstChild);
+    }
+  }
+}
+
+// HTMLElement needs es6 classes to instansiate properly
+export class FxElement extends HTMLElement {
+  constructor(options: NormalizedFxOptions) {
+    super();
+
+    // Run setup function and gather reactive data
+    activeElement = this;
+    activeElementStack.push(this);
+
+    const instance = new FxInstance(this, options);
+    elementInstances.set(this, instance);
+
+    activeElement = activeElementStack[activeElementStack.length - 1] ?? null;
+
+    const { props } = instance.options;
+    const propsData = instance.props;
+
+    // Set props as getters/setters on element
+    // props should be a readonly reactive object
+    for (let key of Object.keys(props)) {
+      // If prop already exists, then we throw error
+      if (this.hasOwnProperty(key)) {
+        throw new Error(`Prop ${key} is reserved, please use another.`);
+      }
+
+      // Validate props default value
+      validateProp(props, key, propsData[key]);
+
+      Object.defineProperty(this, key, {
+        get: () => propsData[key],
+        set: (newValue) => {
+          propsData[key] = validateProp(props, key, newValue);
+        },
+      });
+    }
+
+    // Queue the render Render element
+    instance.fx.scheduleRun();
+  }
+
+  /**
+   * Runs when mounted to the dom
+   */
+  connectedCallback() {
+    const instance = elementInstances.get(this);
+    instance.callHooks(HookTypes.BEFORE_MOUNT);
+    instance.callHooks(HookTypes.MOUNT);
+  }
+
+  /**
+   * Runs when unmounted from dom
+   */
+  disconnectedCallback() {
+    const instance = elementInstances.get(this);
+    instance.callHooks(HookTypes.BEFORE_UNMOUNT);
+    instance.callHooks(HookTypes.UNMOUNT);
+  }
+
+  /**
+   * Observes attribute changes
+   */
+  attributeChangedCallback(attr: string, oldValue: string, newValue: string) {
+    // newValue & oldValue null if not set, string if set, default to empty string
+    if (oldValue !== newValue) {
+      const instance = elementInstances.get(this);
+      const { attrs, props } = instance.options;
+      const key = attrs[attr];
+
+      this[key] = validateProp(props, key, newValue);
     }
   }
 }
@@ -204,77 +269,4 @@ export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>):
 
   window.customElements.define(normalized.name, CustomElement);
   return CustomElement;
-}
-
-// HTMLElement needs es6 classes to instansiate properly
-export class FxElement extends HTMLElement {
-  constructor(options: NormalizedFxOptions) {
-    super();
-
-    // Run setup function and gather reactive data
-    activeElement = this;
-    activeElementStack.push(this);
-
-    const instance = new FxInstance(this, options);
-    elementInstances.set(this, instance);
-
-    activeElement = activeElementStack[activeElementStack.length - 1] ?? null;
-
-    const { props } = instance.options;
-    const propsData = instance.props;
-
-    // Set props as getters/setters on element
-    // props should be a readonly reactive object
-    for (let key of Object.keys(props)) {
-      // If prop already exists, then we throw error
-      if (this.hasOwnProperty(key)) {
-        throw new Error(`Prop ${key} is reserved, please use another.`);
-      }
-
-      // Validate props default value
-      validateProp(props, key, propsData[key]);
-
-      Object.defineProperty(this, key, {
-        get: () => propsData[key],
-        set: (newValue) => {
-          propsData[key] = validateProp(props, key, newValue);
-        },
-      });
-    }
-
-    // Queue the render Render element
-    instance.fx.scheduleRun();
-  }
-
-  /**
-   * Runs when mounted to the dom
-   */
-  connectedCallback() {
-    const instance = elementInstances.get(this);
-    instance.callHooks(HookTypes.BEFORE_MOUNT);
-    instance.callHooks(HookTypes.MOUNTED);
-  }
-
-  /**
-   * Runs when unmounted from dom
-   */
-  disconnectedCallback() {
-    const instance = elementInstances.get(this);
-    instance.callHooks(HookTypes.BEFORE_UNMOUNT);
-    instance.callHooks(HookTypes.UNMOUNTED);
-  }
-
-  /**
-   * Observes attribute changes
-   */
-  attributeChangedCallback(attr: string, oldValue: string, newValue: string) {
-    // newValue & oldValue null if not set, string if set, default to empty string
-    if (oldValue !== newValue) {
-      const instance = elementInstances.get(this);
-      const { attrs, props } = instance.options;
-      const key = attrs[attr];
-
-      this[key] = validateProp(props, key, newValue);
-    }
-  }
 }

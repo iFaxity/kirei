@@ -1,17 +1,11 @@
 const queue: Function[] = [];
-let rafId: number = null;
+const tickPromise = Promise.resolve();
 
-export function scheduleFlush() {
-  rafId = requestAnimationFrame(flush);
+export function nextTick(fn?: () => void): Promise<void> {
+  return fn ? tickPromise.then(fn) : tickPromise;
 }
 
-export function cancel() {
-  if (rafId == null) return;
-  cancelAnimationFrame(rafId);
-  rafId = null;
-}
-
-export function flush() {
+function flush() {
   while (queue.length) {
     const fn = queue.pop();
     fn();
@@ -24,7 +18,7 @@ export function has(fn: Function) {
 
 export function push(fn: Function) {
   if (queue.length == 0) {
-    scheduleFlush();
+    nextTick(flush);
   }
 
   queue.push(fn);

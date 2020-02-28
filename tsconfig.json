@@ -8,12 +8,13 @@
       "es2017",
       "dom"
     ],
+    "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "src"
   },
   "include": [
-    "src/*"
+    "src/*",
   ],
   "exclude": []
 }

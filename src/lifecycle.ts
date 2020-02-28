@@ -1,36 +1,29 @@
-import { activeElement, elementInstances, HookTypes } from './element';
+import { activeElement, elementInstances } from './element';
 
 type HookCallback = () => void;
-
-function mountHook(key: string, fn: HookCallback): void {
-  if (activeElement) {
-    throw new Error('No active element instance!');
-  }
-
-  const instance = elementInstances.get(activeElement);
-  instance.hooks[key].push(fn);
+export enum HookTypes {
+  BEFORE_MOUNT = 'beforeMount',
+  MOUNT = 'mount',
+  BEFORE_UPDATE = 'beforeUpdate',
+  UPDATE = 'update',
+  BEFORE_UNMOUNT = 'beforeUnmount',
+  UNMOUNT = 'unmount',
 }
 
-export function onBeforeMount(fn: HookCallback): void {
-  mountHook(HookTypes.BEFORE_MOUNT, fn);
-}
+export const onBeforeMount = bindHook(HookTypes.BEFORE_MOUNT);
+export const onMount = bindHook(HookTypes.MOUNT);
+export const onBeforeUpdate = bindHook(HookTypes.BEFORE_UPDATE);
+export const onUpdate = bindHook(HookTypes.UPDATE);
+export const onBeforeUnmount = bindHook(HookTypes.BEFORE_UNMOUNT);
+export const onUnmount = bindHook(HookTypes.UNMOUNT);
 
-export function onMounted(fn: HookCallback): void {
-  mountHook(HookTypes.MOUNTED, fn);
-}
-
-export function onBeforeUpdate(fn: HookCallback): void {
-  mountHook(HookTypes.BEFORE_UPDATE, fn);
-}
-
-export function onUpdated(fn: HookCallback): void {
-  mountHook(HookTypes.UPDATED, fn);
-}
-
-export function onBeforeUnmount(fn: HookCallback): void {
-  mountHook(HookTypes.BEFORE_UNMOUNT, fn);
-}
-
-export function onUnmounted(fn: HookCallback): void {
-  mountHook(HookTypes.UNMOUNTED, fn);
+function bindHook(key: string): (fn: HookCallback) => void {
+  return (fn: HookCallback) => {
+    if (activeElement) {
+      throw new Error('No active element instance!');
+    }
+  
+    const instance = elementInstances.get(activeElement);
+    instance.hooks[key].push(fn);
+  };
 }
