@@ -3,7 +3,7 @@ import { isFunction } from '../shared';
 
 const noop = () => {};
 
-type EventListener = (e: Event) => any;
+type EventListener = (e: Event, detail?: any) => any;
 export class FxEventPart implements Part {
   readonly element: Element;
   readonly eventName: string;
@@ -33,7 +33,9 @@ export class FxEventPart implements Part {
       prevent && e.preventDefault();
       stop && e.stopPropagation();
 
-      this.value.call(eventContext ?? element, e);
+      // Unpack the detail as a second argument
+      const data = e instanceof CustomEvent ? e.detail : undefined;
+      this.value.call(eventContext ?? element, e, data);
     };
   }
 

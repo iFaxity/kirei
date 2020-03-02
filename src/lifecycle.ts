@@ -1,15 +1,11 @@
+import { HookTypes } from './shared';
 import { activeElement, elementInstances } from './element';
 
 type HookCallback = () => void;
-export enum HookTypes {
-  BEFORE_MOUNT = 'beforeMount',
-  MOUNT = 'mount',
-  BEFORE_UPDATE = 'beforeUpdate',
-  UPDATE = 'update',
-  BEFORE_UNMOUNT = 'beforeUnmount',
-  UNMOUNT = 'unmount',
-}
 
+/**
+ * Registers a new hook it runs before 
+ */
 export const onBeforeMount = bindHook(HookTypes.BEFORE_MOUNT);
 export const onMount = bindHook(HookTypes.MOUNT);
 export const onBeforeUpdate = bindHook(HookTypes.BEFORE_UPDATE);
@@ -20,10 +16,14 @@ export const onUnmount = bindHook(HookTypes.UNMOUNT);
 function bindHook(key: string): (fn: HookCallback) => void {
   return (fn: HookCallback) => {
     if (activeElement) {
-      throw new Error('No active element instance!');
+      throw new Error('Lifecycle hooks needs have a setup function in it\'s call stack.');
     }
-  
+
     const instance = elementInstances.get(activeElement);
-    instance.hooks[key].push(fn);
+    const hooks = instance.hooks[key];
+
+    if (hooks && !hooks.includes(fn)) {
+      hooks[key].push(fn);
+    }
   };
 }

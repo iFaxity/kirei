@@ -1,5 +1,5 @@
 import { TemplateResult, RenderOptions, render, templateFactory } from 'lit-html';
-import { isFunction, mapObject, camelToKebab } from './shared';
+import { isFunction, mapObject, camelToKebab, HookTypes } from './shared';
 import { Fx } from './fx';
 import { reactive, toRefs } from './reactive';
 import {
@@ -12,7 +12,6 @@ import {
   propDefaults,
 } from './props';
 import * as Queue from './queue';
-import { HookTypes } from './lifecycle';
 
 export let activeElement: FxElement = null;
 const activeElementStack: FxElement[] = [];
@@ -89,7 +88,7 @@ class FxInstance {
     this.props = reactive(propDefaults(options.props));
     this.shadowRoot = el.attachShadow({ mode: options.closed ? 'closed' : 'open' });
 
-    // Run setup function and gather reactive data
+    // Run setup function to gather reactive data
     this.renderTemplate = options.setup.call(undefined, toRefs(this.props), this.ctx);
 
     if (!isFunction(this.renderTemplate)) {
@@ -99,9 +98,9 @@ class FxInstance {
 
 
   /**
-   * Calls the hooks on the Fx instance
+   * Runs all the specified hooks on the Fx instance
    */
-  callHooks(hook: string): void {
+  runHooks(hook: string): void {
     const hooks = this.hooks[hook];
 
     if (hooks?.length) {
@@ -120,9 +119,9 @@ class FxInstance {
 
     // Queue the render
     Queue.push(() => {
-      this.mounted && this.callHooks(HookTypes.BEFORE_UPDATE);
+      this.mounted && this.runHooks(HookTypes.BEFORE_UPDATE);
       run.call(this.fx);
-      this.mounted && this.callHooks(HookTypes.UPDATE);
+      this.mounted && this.runHooks(HookTypes.UPDATE);
 
       this.rendering = false;
       this.mounted = true;
@@ -155,16 +154,14 @@ class FxInstance {
 export class FxElement extends HTMLElement {
   constructor(options: NormalizedFxOptions) {
     super();
-
-    // Run setup function and gather reactive data
     activeElement = this;
     activeElementStack.push(this);
 
     const instance = new FxInstance(this, options);
     elementInstances.set(this, instance);
-
     activeElement = activeElementStack[activeElementStack.length - 1] ?? null;
 
+    // Set props on the element
     const { props } = instance.options;
     const propsData = instance.props;
 
@@ -173,7 +170,7 @@ export class FxElement extends HTMLElement {
     for (let key of Object.keys(props)) {
       // If prop already exists, then we throw error
       if (this.hasOwnProperty(key)) {
-        throw new Error(`Prop ${key} is reserved, please use another.`);
+        throw new TypeError(`Prop ${key} is reserved, please use another.`);
       }
 
       // Validate props default value
@@ -187,7 +184,7 @@ export class FxElement extends HTMLElement {
       });
     }
 
-    // Queue the render Render element
+    // Queue the render
     instance.fx.scheduleRun();
   }
 
@@ -196,8 +193,8 @@ export class FxElement extends HTMLElement {
    */
   connectedCallback() {
     const instance = elementInstances.get(this);
-    instance.callHooks(HookTypes.BEFORE_MOUNT);
-    instance.callHooks(HookTypes.MOUNT);
+    instance.runHooks(HookTypes.BEFORE_MOUNT);
+    instance.runHooks(HookTypes.MOUNT);
   }
 
   /**
@@ -205,8 +202,8 @@ export class FxElement extends HTMLElement {
    */
   disconnectedCallback() {
     const instance = elementInstances.get(this);
-    instance.callHooks(HookTypes.BEFORE_UNMOUNT);
-    instance.callHooks(HookTypes.UNMOUNT);
+    instance.runHooks(HookTypes.BEFORE_UNMOUNT);
+    instance.runHooks(HookTypes.UNMOUNT);
   }
 
   /**
@@ -216,19 +213,24 @@ export class FxElement extends HTMLElement {
     // newValue & oldValue null if not set, string if set, default to empty string
     if (oldValue !== newValue) {
       const instance = elementInstances.get(this);
-      const { attrs, props } = instance.options;
+      const { attrs } = instance.options;
       const key = attrs[attr];
 
-      this[key] = validateProp(props, key, newValue);
+      this[key] = newValue;
     }
   }
 }
 
+/**
+ * Normalizes the options object
+ * @param {object} options
+ * @returns {object}
+ */
 function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
   const { setup, model } = options;
   const props = options.props ?? {};
 
-  return {
+  return{
     name: camelToKebab(options.name),
     closed: options.closed ?? false,
     props: options.props ? normalizeProps(props) : props,
@@ -244,6 +246,8 @@ function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
 
 /**
  * Defines a new custom element
+ * @param {object} options
+ * @return {FxElement}
  */
 export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>): typeof FxElement {
   const normalized = normalizeOptions(options);

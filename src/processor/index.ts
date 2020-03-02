@@ -83,9 +83,24 @@ export class FxTemplateProcessor implements TemplateProcessor {
     const prefix = name[0];
 
     // Get custom part from parts map
-    if (parts.has(prefix)) {
+    /*if (parts.has(prefix)) {
       const part = parts.get(prefix);
       return part(element, name.slice(1), strings, options);
+    }*/
+
+    if (prefix == '.') {
+      const committer = new FxPropertyCommitter(element, name, strings);
+      return committer.parts;
+    } else if (prefix == '@') {
+      return [new FxEventPart(element, name, options.eventContext)];
+    } else if (prefix == '?') {
+      return [new FxBooleanAttributePart(element, name, strings)];
+    } else if (prefix == '&') {
+      return [new FxSyncPart(element, name)];
+    } else if (prefix == '!') {
+      return [new FxConditionalPart(element, name, strings)];
+    } else if (prefix == ':'){
+      return [new FxBindPart(element, name, strings)];
     }
 
     // Default to attribute committer
@@ -99,7 +114,7 @@ export class FxTemplateProcessor implements TemplateProcessor {
 }
 
 export const templateProcessor = new FxTemplateProcessor();
-export const parts: Map<string, Function> = new Map([
+/*export const parts: Map<string, Function> = new Map([
   ['.', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
     const committer = new FxPropertyCommitter(element, name, strings);
     return committer.parts;
@@ -119,4 +134,4 @@ export const parts: Map<string, Function> = new Map([
   [':', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
     return [new FxBindPart(element, name, strings)];
   }],
-]);
+]);*/
