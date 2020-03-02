@@ -89,18 +89,18 @@ export class FxTemplateProcessor implements TemplateProcessor {
     }*/
 
     if (prefix == '.') {
-      const committer = new FxPropertyCommitter(element, name, strings);
+      const committer = new FxPropertyCommitter(element, name.slice(1), strings);
       return committer.parts;
     } else if (prefix == '@') {
-      return [new FxEventPart(element, name, options.eventContext)];
+      return [new FxEventPart(element, name.slice(1), options.eventContext)];
     } else if (prefix == '?') {
-      return [new FxBooleanAttributePart(element, name, strings)];
+      return [new FxBooleanAttributePart(element, name.slice(1), strings)];
     } else if (prefix == '&') {
-      return [new FxSyncPart(element, name)];
+      return [new FxSyncPart(element, name.slice(1))];
     } else if (prefix == '!') {
-      return [new FxConditionalPart(element, name, strings)];
+      return [new FxConditionalPart(element, name.slice(1), strings)];
     } else if (prefix == ':'){
-      return [new FxBindPart(element, name, strings)];
+      return [new FxBindPart(element, name.slice(1), strings)];
     }
 
     // Default to attribute committer
