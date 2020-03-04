@@ -53,10 +53,11 @@ function baseHandlers<T extends object>(immutable: boolean): ProxyHandler<T> {
         return true;
       }
 
+      const added = !target.hasOwnProperty(key);
       target[key] = newValue;
 
       // Key didnt exist before, add it
-      if (!target.hasOwnProperty(key)) {
+      if (added) {
         Fx.trigger(target, TriggerOpTypes.ADD, key);
       } else if (newValue !== oldValue && (newValue === newValue || oldValue === oldValue)) {
         Fx.trigger(target, TriggerOpTypes.SET, key);

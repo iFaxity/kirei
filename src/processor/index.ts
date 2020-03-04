@@ -32,13 +32,13 @@ export class FxAttributePart extends AttributePart {
     let raw = toRawValue(value);
 
     if (this.mapValue) {
-      if (Array.isArray(raw)) {
-        raw = raw.filter(x => x).join(' ');
-      } else if (isObject(raw)) {
+      if (isObject(raw)) {
         raw = Object.keys(raw).filter(key => !!raw[key]).join(' ');
+      } else if (Array.isArray(raw)) {
+        raw = raw.filter(x => x).join(' ');
       }
     }
-
+    
     super.setValue(raw);
   }
 }

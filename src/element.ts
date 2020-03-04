@@ -1,9 +1,8 @@
-import { TemplateResult, RenderOptions, render, templateFactory } from 'lit-html';
+import { ShadyRenderOptions, render, TemplateResult } from 'lit-html/lib/shady-render';
 import { isFunction, mapObject, camelToKebab, HookTypes } from './shared';
 import { Fx } from './fx';
 import { reactive, toRefs } from './reactive';
 import * as Queue from './queue';
-import { templateProcessor } from './processor';
 import {
   Props,
   PropsData,
@@ -13,9 +12,8 @@ import {
   normalizeProps,
   propDefaults,
 } from './props';
+import { supportsAdoptingStyleSheets, CSSResult } from './CSSResult';
 
-export const html = (strings, ...values) => new TemplateResult(strings, values, 'html', templateProcessor);
-export const svg = (strings, ...values) => new TemplateResult(strings, values, 'svg', templateProcessor);
 export let activeElement: FxElement = null;
 const activeElementStack: FxElement[] = [];
 export const elementInstances = new WeakMap<FxElement, FxInstance>();
@@ -31,12 +29,13 @@ export interface FxOptions<P = Props, T = Readonly<ResolvePropTypes<P>>> {
   props?: P;
   model?: FxModel;
   setup(this: void, props: T, ctx: FxContext): () => TemplateResult;
-  styles?: string;
+  styles?: CSSResult|CSSResult[];
 }
 
 interface NormalizedFxOptions extends FxOptions {
   props: NormalizedProps;
   attrs: Record<string, string>;
+  styles: CSSResult[];
 }
 
 class FxContext {
@@ -65,23 +64,20 @@ class FxInstance {
   readonly options: NormalizedFxOptions;
   readonly ctx: FxContext;
   readonly hooks: Record<string, Function[]>;
-  readonly renderOptions: RenderOptions;
+  readonly renderOptions: ShadyRenderOptions;
   readonly fx: Fx;
   readonly props: PropsData;
   readonly shadowRoot: ShadowRoot;
   readonly renderTemplate: () => TemplateResult;
   rendering: boolean = false;
   mounted: boolean = false;
+  shimAdoptedStyleSheets: boolean = false;
 
   constructor(el: FxElement, options: NormalizedFxOptions) {
     this.options = options;
     this.ctx = new FxContext(el, options);
     this.hooks = mapObject((_, value) => [ value, [] ], HookTypes);
-    this.renderOptions = {
-      //scopeName: this.localName,
-      templateFactory,
-      eventContext: el,
-    };
+    this.renderOptions = { scopeName: options.name, eventContext: el };
     this.fx = new Fx(this.render.bind(this), {
       lazy: true,
       computed: false,
@@ -96,6 +92,22 @@ class FxInstance {
 
     if (!isFunction(this.renderTemplate)) {
       throw new TypeError('Setup functions must return a function which return a TemplateResult');
+    }
+
+    if (window.ShadowRoot && this.shadowRoot instanceof window.ShadowRoot) {
+      const { ShadyCSS } = window;
+      const { styles } = options;
+      if (!styles.length) {
+        return;
+      }
+
+      if (ShadyCSS?.nativeShadow) {
+        ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(s => s.toString()), options.name);
+      } else if (supportsAdoptingStyleSheets) {
+        this.shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
+      } else {
+        this.shimAdoptedStyleSheets = true;
+      }
     }
   }
 
@@ -136,7 +148,7 @@ class FxInstance {
    * Renders shadow root content
    */
   render(): void {
-    const { shadowRoot, mounted, options } = this;
+    const { shadowRoot, options } = this;
     const result = this.renderTemplate();
 
     if (!(result instanceof TemplateResult)) {
@@ -145,10 +157,12 @@ class FxInstance {
 
     render(result, shadowRoot, this.renderOptions);
 
-    if (!mounted && typeof options.styles == 'string') {
-      const $style = document.createElement('style');
-      $style.textContent = options.styles;
-      shadowRoot.insertBefore($style, shadowRoot.firstChild);
+    if (this.shimAdoptedStyleSheets) {
+      for (const style of options.styles) {
+        shadowRoot.appendChild(style.createElement());
+      }
+
+      this.shimAdoptedStyleSheets = false;
     }
   }
 }
@@ -197,6 +211,7 @@ export class FxElement extends HTMLElement {
   connectedCallback() {
     const instance = elementInstances.get(this);
     instance.runHooks(HookTypes.BEFORE_MOUNT);
+    window.ShadyCSS?.styleElement(this);
     instance.runHooks(HookTypes.MOUNT);
   }
 
@@ -224,14 +239,28 @@ export class FxElement extends HTMLElement {
   }
 }
 
+function addStyles(styles: CSSResult[], set: Set<CSSResult>): Set<CSSResult> {
+  return styles.reduceRight((set, s) => Array.isArray(s) ? addStyles(s, set) : (set.add(s), set), set);
+}
+
 /**
  * Normalizes the options object
  * @param {object} options
  * @returns {object}
  */
 function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
-  const { setup, model } = options;
+  const { setup, model, styles } = options;
   const props = options.props ?? {};
+  let css: CSSResult[] = [];
+
+  if (styles) {
+    if (Array.isArray(styles)) {
+      const set = addStyles(styles, new Set<CSSResult>());
+      css = [ ...set ];
+    } else {
+      css.push(styles);
+    }
+  }
 
   return{
     name: camelToKebab(options.name),
@@ -243,7 +272,7 @@ function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
       event: model?.event ?? 'input',
     },
     setup: setup ?? null,
-    styles: options.styles ?? null,
+    styles: css,
   } as NormalizedFxOptions;
 }
 

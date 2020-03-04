@@ -108,6 +108,7 @@ test/
 router/
 
 webpack.config.js
-*.d.ts
-*.map
+src/**/*.map
 src/**/*.js
+src/**/*.d.ts
+!src/env.d.ts
