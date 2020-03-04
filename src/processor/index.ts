@@ -35,10 +35,7 @@ export class FxAttributePart extends AttributePart {
       if (Array.isArray(raw)) {
         raw = raw.filter(x => x).join(' ');
       } else if (isObject(raw)) {
-        raw = Object.entries(raw).reduce((acc, [ key, value ]) => {
-          value && acc.push(key);
-          return acc;
-        }, []).join(' ');
+        raw = Object.keys(raw).filter(key => !!raw[key]).join(' ');
       }
     }
 
@@ -83,24 +80,9 @@ export class FxTemplateProcessor implements TemplateProcessor {
     const prefix = name[0];
 
     // Get custom part from parts map
-    /*if (parts.has(prefix)) {
-      const part = parts.get(prefix);
+    const part = parts.get(prefix);
+    if (part) {
       return part(element, name.slice(1), strings, options);
-    }*/
-
-    if (prefix == '.') {
-      const committer = new FxPropertyCommitter(element, name.slice(1), strings);
-      return committer.parts;
-    } else if (prefix == '@') {
-      return [new FxEventPart(element, name.slice(1), options.eventContext)];
-    } else if (prefix == '?') {
-      return [new FxBooleanAttributePart(element, name.slice(1), strings)];
-    } else if (prefix == '&') {
-      return [new FxSyncPart(element, name.slice(1))];
-    } else if (prefix == '!') {
-      return [new FxConditionalPart(element, name.slice(1), strings)];
-    } else if (prefix == ':'){
-      return [new FxBindPart(element, name.slice(1), strings)];
     }
 
     // Default to attribute committer
@@ -114,7 +96,7 @@ export class FxTemplateProcessor implements TemplateProcessor {
 }
 
 export const templateProcessor = new FxTemplateProcessor();
-/*export const parts: Map<string, Function> = new Map([
+export const parts: Map<string, Function> = new Map([
   ['.', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
     const committer = new FxPropertyCommitter(element, name, strings);
     return committer.parts;
@@ -134,4 +116,4 @@ export const templateProcessor = new FxTemplateProcessor();
   [':', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
     return [new FxBindPart(element, name, strings)];
   }],
-]);*/
+]);

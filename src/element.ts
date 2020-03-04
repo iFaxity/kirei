@@ -2,6 +2,8 @@ import { TemplateResult, RenderOptions, render, templateFactory } from 'lit-html
 import { isFunction, mapObject, camelToKebab, HookTypes } from './shared';
 import { Fx } from './fx';
 import { reactive, toRefs } from './reactive';
+import * as Queue from './queue';
+import { templateProcessor } from './processor';
 import {
   Props,
   PropsData,
@@ -11,8 +13,9 @@ import {
   normalizeProps,
   propDefaults,
 } from './props';
-import * as Queue from './queue';
 
+export const html = (strings, ...values) => new TemplateResult(strings, values, 'html', templateProcessor);
+export const svg = (strings, ...values) => new TemplateResult(strings, values, 'svg', templateProcessor);
 export let activeElement: FxElement = null;
 const activeElementStack: FxElement[] = [];
 export const elementInstances = new WeakMap<FxElement, FxInstance>();
@@ -104,7 +107,7 @@ class FxInstance {
     const hooks = this.hooks[hook];
 
     if (hooks?.length) {
-      hooks.forEach(fn => isFunction(fn) && fn());
+      hooks.forEach(fn => isFunction(fn) && fn.call(undefined));
     }
   }
 

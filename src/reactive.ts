@@ -10,6 +10,7 @@ export interface FxRef<T = any> {
   value: T;
 }
 
+type StopEffect = () => void;
 type Computed<T> = () => T;
 interface ComputedOptions<T> {
   get(): T;
@@ -392,19 +393,35 @@ export function readonly<T extends object>(target: T): T {
  * @param {function} target
  *
  * @return {void}
- */
-export function watch(target: Function): void {
+ *
+export function watchEffect(target: Function): StopEffect {
   if (!isFunction(target)) {
     throw new TypeError('watch can an only watch functions');
   }
 
-  new Fx(target, { lazy: false, computed: false });
+  const fx = new Fx(target, { lazy: false, computed: false });
+  return fx.stop.bind(fx);
 }
 
+interface WatcherOptions {
+  immediate?: boolean;
+  deep?: boolean;
+}
+type WatchTarget<T> = FxRef<T> | (() => T);
+export function watch<T>(
+  target: WatchTarget<T>,
+  fn: (values: any[], oldValues: any[]) => void,
+  options: WatcherOptions
+): void {
+  let targetFn: () => T;
+  if (isRef(target)) {
+    targetFn = () => (target as FxRef<T>).value;
+  } else {
+    targetFn = target as () => T;
+  }
 
-const state = reactive({
-  kek: '',
-  lel: 0,
-});
-
-const count = ref(0);
+  const fx = new Fx(() => {
+    fn();
+  }, { lazy: !options.immediate, computed: false });
+  return fx.stop.bind(fx);
+}*/
