@@ -12,7 +12,7 @@
     "baseUrl": "./packages",
     "outDir": "./packages",
     "paths": {
-      "@fx/*": ["./*/src"],
+      "@shlim/*": ["./*/src"],
     },
     "sourceMap": true,
     "declaration": true,
