@@ -1,46 +1,16 @@
 {
-  "name": "@ifaxity/lit-fx",
-  "version": "0.1.3",
-  "author": "iFaxity (christian@faxity.se)",
-  "license": "MIT",
-  "module": "src/index.js",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
-  "files": [
-    "src/*",
-    "directives/*"
+  "private": true,
+  "workspaces": [
+    "packages/*"
   ],
   "scripts": {
-    "build": "tsc",
-    "dev": "webpack-dev-server",
-    "test": "node test/index"
-  },
-  "homepage": "https://github.com/ifaxity/lit-fx",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ifaxity/lit-fx.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ifaxity/lit-fx/issues"
-  },
-  "keywords": [
-    "lit-html",
-    "vue",
-    "vue3",
-    "composition",
-    "frontend",
-    "web components",
-    "custom elements",
-    "shadow dom"
-  ],
-  "dependencies": {
-    "lit-html": "^1.1.2"
+    "dev": "webpack-dev-server"
   },
   "devDependencies": {
     "file-loader": "^5.0.2",
     "ts-loader": "^6.2.1",
     "tslib": "^1.10.0",
-    "typescript": "^3.5.3",
+    "typescript": "^3.8.3",
     "webpack": "^4.41.6",
     "webpack-cli": "^3.3.11",
     "webpack-dev-server": "^3.10.3"

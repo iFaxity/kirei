@@ -20,8 +20,8 @@ interface ComputedOptions<T> {
 const REF_KEY = Symbol('ref');
 const reactiveMap: WeakMap<any, any> = new WeakMap();
 
-function toReactive<T>(obj: T): T;
-function toReactive<T extends object>(obj: T): T {
+export function toReactive<T>(obj: T): T;
+export function toReactive<T extends object>(obj: T): T {
   return isObject(obj) ? reactive(obj) : obj;
 }
 

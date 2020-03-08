@@ -8,13 +8,19 @@
       "es2017",
       "dom"
     ],
+    "rootDir": "./packages",
+    "baseUrl": "./packages",
+    "outDir": "./packages",
+    "paths": {
+      "@fx/*": ["./*/src"],
+    },
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "src"
+    "declarationDir": "./packages"
   },
   "include": [
-    "src/*",
+    "./packages/*/src/*"
   ],
   "exclude": []
 }

@@ -1,7 +1,7 @@
 import { ShadyRenderOptions, render, TemplateResult } from 'lit-html/lib/shady-render';
 import { isFunction, mapObject, camelToKebab, HookTypes } from './shared';
-import { Fx } from './fx';
-import { reactive, toRefs } from './reactive';
+import { Fx, TriggerOpTypes } from './fx';
+import { toReactive } from './reactive';
 import * as Queue from './queue';
 import {
   Props,
@@ -12,7 +12,7 @@ import {
   normalizeProps,
   propDefaults,
 } from './props';
-import { supportsAdoptingStyleSheets, CSSResult } from './CSSResult';
+import { supportsAdoptingStyleSheets, CSSResult } from './css';
 
 export let activeElement: FxElement = null;
 const activeElementStack: FxElement[] = [];
@@ -23,7 +23,8 @@ interface FxModel {
   event?: string;
 }
 
-export interface FxOptions<P = Props, T = Readonly<ResolvePropTypes<P>>> {
+//export interface FxOptions<P = Props, T = Readonly<ResolvePropTypes<P>>> {
+export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
   closed?: boolean;
   props?: P;
@@ -63,37 +64,58 @@ class FxContext {
 class FxInstance {
   readonly options: NormalizedFxOptions;
   readonly ctx: FxContext;
-  readonly hooks: Record<string, Function[]>;
+  readonly hooks: Record<string, Set<Function>>;
   readonly renderOptions: ShadyRenderOptions;
   readonly fx: Fx;
   readonly props: PropsData;
   readonly shadowRoot: ShadowRoot;
-  readonly renderTemplate: () => TemplateResult;
-  rendering: boolean = false;
-  mounted: boolean = false;
-  shimAdoptedStyleSheets: boolean = false;
+  private renderTemplate: () => TemplateResult;
+  private rendering: boolean = false;
+  private mounted: boolean = false;
+  private shimAdoptedStyleSheets: boolean = false;
 
   constructor(el: FxElement, options: NormalizedFxOptions) {
     this.options = options;
     this.ctx = new FxContext(el, options);
-    this.hooks = mapObject((_, value) => [ value, [] ], HookTypes);
+    this.hooks = mapObject((_, value) => [ value, new Set() ], HookTypes);
     this.renderOptions = { scopeName: options.name, eventContext: el };
     this.fx = new Fx(this.render.bind(this), {
       lazy: true,
       computed: false,
       scheduler: this.scheduleRender.bind(this),
     });
-
-    this.props = reactive(propDefaults(options.props));
+    this.props = propDefaults(options.props);
     this.shadowRoot = el.attachShadow({ mode: options.closed ? 'closed' : 'open' });
+  }
+
+  setup(): void {
+    const { props, ctx, options } = this;
+
+    // Create a proxy for the props
+    const propsProxy = new Proxy(props, {
+      get(_, key: string) {
+        Fx.track(props, key);
+        return props[key];
+      },
+      set(_, key: string, value: unknown) {
+        props[key] = value;
+        Fx.trigger(props, TriggerOpTypes.SET, key);
+        ctx.emit(`fxsync:${key}`);
+        return true;
+      },
+      deleteProperty() {
+        throw new Error('Props are not deletable');
+      },
+    });
 
     // Run setup function to gather reactive data
-    this.renderTemplate = options.setup.call(undefined, toRefs(this.props), this.ctx);
+    this.renderTemplate = options.setup.call(undefined, propsProxy, ctx);
 
     if (!isFunction(this.renderTemplate)) {
       throw new TypeError('Setup functions must return a function which return a TemplateResult');
     }
 
+    // Shim styles for shadow root
     if (window.ShadowRoot && this.shadowRoot instanceof window.ShadowRoot) {
       const { ShadyCSS } = window;
       const { styles } = options;
@@ -118,7 +140,7 @@ class FxInstance {
   runHooks(hook: string): void {
     const hooks = this.hooks[hook];
 
-    if (hooks?.length) {
+    if (hooks?.size) {
       hooks.forEach(fn => isFunction(fn) && fn.call(undefined));
     }
   }
@@ -169,6 +191,10 @@ class FxInstance {
 
 // HTMLElement needs es6 classes to instansiate properly
 export class FxElement extends HTMLElement {
+  static get is(): string {
+    return '';
+  }
+
   constructor(options: NormalizedFxOptions) {
     super();
     activeElement = this;
@@ -176,6 +202,8 @@ export class FxElement extends HTMLElement {
 
     const instance = new FxInstance(this, options);
     elementInstances.set(this, instance);
+
+    instance.setup();
     activeElement = activeElementStack[activeElementStack.length - 1] ?? null;
 
     // Set props on the element
@@ -194,9 +222,16 @@ export class FxElement extends HTMLElement {
       validateProp(props, key, propsData[key]);
 
       Object.defineProperty(this, key, {
-        get: () => propsData[key],
+        get: () => {
+          Fx.track(propsData, key);
+          return propsData[key];
+        },
         set: (newValue) => {
-          propsData[key] = validateProp(props, key, newValue);
+          if (newValue !== propsData[key]) {
+            // Trigger an update on the element
+            propsData[key] = toReactive(validateProp(props, key, newValue));
+            Fx.trigger(propsData, TriggerOpTypes.SET, key);
+          }
         },
       });
     }

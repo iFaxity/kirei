@@ -14,6 +14,7 @@ import { FxEventPart } from './EventPart';
 import { FxSyncPart } from './SyncPart';
 import { isObject } from '../shared';
 import { toRawValue } from '../reactive';
+export { Part, RenderOptions };
 
 // If a reactive object, ref or computed is sent as a value
 // we need to resolve the raw value from it
@@ -72,7 +73,7 @@ export class FxPropertyCommitter extends PropertyCommitter {
  */
 export class FxTemplateProcessor implements TemplateProcessor {
   handleAttributeExpressions(
-    element: Element,
+    el: Element,
     name: string,
     strings: ReadonlyArray<string>,
     options: RenderOptions
@@ -82,11 +83,11 @@ export class FxTemplateProcessor implements TemplateProcessor {
     // Get custom part from parts map
     const part = parts.get(prefix);
     if (part) {
-      return part(element, name.slice(1), strings, options);
+      return part(el, name.slice(1), strings, options);
     }
 
     // Default to attribute committer
-    const committer = new FxAttributeCommitter(element, name, strings);
+    const committer = new FxAttributeCommitter(el, name, strings);
     return committer.parts;
   }
 
@@ -95,25 +96,27 @@ export class FxTemplateProcessor implements TemplateProcessor {
   }
 }
 
+type PartsFunction = (el: Element, name: string, strings?: ReadonlyArray<string>, options?: RenderOptions) => readonly Part[];
+
 export const templateProcessor = new FxTemplateProcessor();
-export const parts: Map<string, Function> = new Map([
-  ['.', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    const committer = new FxPropertyCommitter(element, name, strings);
+export const parts: Map<string, PartsFunction> = new Map([
+  ['.', (el: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+    const committer = new FxPropertyCommitter(el, name, strings);
     return committer.parts;
   }],
-  ['@', (element: Element, name: string, strings: ReadonlyArray<string>, options: RenderOptions): readonly Part[] => {
-    return [new FxEventPart(element, name, options.eventContext)];
+  ['@', (el: Element, name: string, strings: ReadonlyArray<string>, options: RenderOptions): readonly Part[] => {
+    return [new FxEventPart(el, name, options.eventContext)];
   }],
-  ['?', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    return [new FxBooleanAttributePart(element, name, strings)];
+  ['?', (el: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+    return [new FxBooleanAttributePart(el, name, strings)];
   }],
-  ['&', (element: Element, name: string): readonly Part[] => {
-    return [new FxSyncPart(element, name)];
+  ['&', (el: Element, name: string): readonly Part[] => {
+    return [new FxSyncPart(el, name)];
   }],
-  ['!', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    return [new FxConditionalPart(element, name, strings)];
+  ['!', (el: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+    return [new FxConditionalPart(el, name, strings)];
   }],
-  [':', (element: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    return [new FxBindPart(element, name, strings)];
+  [':', (el: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+    return [new FxBindPart(el, name, strings)];
   }],
 ]);

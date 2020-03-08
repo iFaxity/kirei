@@ -1,5 +1,5 @@
 import { Part } from 'lit-html';
-import { FxElement, elementInstances } from '../element';
+import { FxElement, elementInstances } from '../instance';
 import { FxRef, isRef } from '../reactive';
 import { isFunction } from '../shared';
 
@@ -15,7 +15,6 @@ export class FxSyncPart implements Part {
     let [ prop, ...mods ] = key.split('.');
     let event: string;
     let handler: () => any;
-
     this.element = element;
     this.commit = () => {
       this.element[prop] = this.ref.value;
@@ -57,7 +56,7 @@ export class FxSyncPart implements Part {
     const trimValue = mods.includes('trim');
     const listener = (e: Event) => {
       e.stopPropagation();
-      let value = isFunction(handler) ? handler() : this.element[prop];
+      let value = isFunction(handler) ? handler.call(this) : this.element[prop];
 
       // Cast value if we need to
       if (typeof value == 'string') {
@@ -108,7 +107,7 @@ export class FxSyncPart implements Part {
   private selectCommit(): void {
     const element = this.element as HTMLSelectElement;
     const { options } = element;
-    const value = this.value;
+    const value = this.ref.value;
 
     if (element.multiple) {
       const values = value as string[];

@@ -1,0 +1,40 @@
+{
+  "name": "@shlim/element",
+  "version": "0.1.0",
+  "author": "iFaxity (christian@faxity.se)",
+  "license": "MIT",
+  "module": "src/index.js",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "files": [
+    "src/*",
+    "directives/*"
+  ],
+  "scripts": {
+    "build": "tsc"
+  },
+  "homepage": "https://github.com/ifaxity/fx",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ifaxity/fx.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifaxity/fx/issues"
+  },
+  "keywords": [
+    "lit-html",
+    "vue",
+    "vue3",
+    "composition",
+    "frontend",
+    "web components",
+    "custom elements",
+    "shadow dom"
+  ],
+  "dependencies": {
+    "lit-html": "^1.1.2"
+  },
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  }
+}

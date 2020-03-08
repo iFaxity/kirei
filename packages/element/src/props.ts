@@ -49,15 +49,17 @@ export function normalizeProps(props: Props): NormalizedProps {
 
     if (prop == null) {
       normal.type = null;
-    } else if (isFunction(prop)) {
-      normal.type = [ prop ];
-    } else if (Array.isArray(prop)) {
-      normal.type = prop;
     } else if (isObject(prop)) {
       normal.type = prop.type ?? null;
       normal.default = prop.default ?? undefined;
       normal.validator = prop.validator ?? null;
       normal.required = !!prop.required;
+    } else {
+      normal.type = prop
+    }
+
+    if (normal.type && !Array.isArray(normal.type)) {
+      normal.type = [ normal.type ];
     }
 
     // Validate types (and cast?)
