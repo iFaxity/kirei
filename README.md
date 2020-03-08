@@ -1,19 +1,6 @@
-@ifaxity/lit-fx
+@shlim
 ===================
 
-## A lit-html powered web components library with Vue's Composition API syntax.
-Of course with typescript support.
+## Monorepo for all @shlim packages
 
-------------------
-## Installation:
-
-`npm install @ifaxity/lit-fx --save`
-
-or if you use yarn
-
-`yarn add @ifaxity/lit-fx`
-
---------
-## Usage
-
-TODO: describe how to use the module:
+To check an invididual package check in the packages folder.
