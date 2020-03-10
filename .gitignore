@@ -40,7 +40,7 @@ typings/
 # Project specific
 test/
 webpack.config.js
-src/**/*.map
-src/**/*.js
-src/**/*.d.ts
-!src/env.d.ts
+*.map
+*.js
+*.d.ts
+!env.d.ts
