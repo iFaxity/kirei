@@ -219,7 +219,7 @@ function collectionHandlers<T extends object>(immutable: boolean): ProxyHandler<
  * @returns {boolean}
  */
 export function isRef(target: any): target is FxRef {
-  return target != null && REF_KEY in target;
+  return target != null && !!target[REF_KEY];
 }
 
 /**
