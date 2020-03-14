@@ -2,11 +2,32 @@ export const supportsAdoptingStyleSheets =
     ('adoptedStyleSheets' in Document.prototype) &&
     ('replace' in CSSStyleSheet.prototype);
 
-export const css = (strings, ...values) => new CSSResult(strings, values);
+/**
+  * Creates a new css template
+  * @param {TemplateStringsArray} strings
+  * @param {*} values
+  * @returns {CSSResult}
+  */
+export const css = (strings: TemplateStringsArray, ...values: any) => new CSSResult(strings, values);
+
+export function shimAdoptedStyleSheets(tag: string, styles: CSSResult[]): boolean {
+  if (styles.length) {
+    const { ShadyCSS } = window;
+
+    if (ShadyCSS?.nativeShadow === false) {
+      ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(s => s.toString()), tag);
+    } else if (supportsAdoptingStyleSheets) {
+      this.shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
+    } else {
+      return true; // notifies to shim manually using style elements
+    }
+  }
+  return false
+}
 
 export class CSSResult {
-  readonly cssText: string;
-  private _styleSheet: CSSStyleSheet;
+  private readonly cssText: string;
+  private styles: CSSStyleSheet;
 
   constructor(strings: TemplateStringsArray, values: readonly unknown[]) {
     this.cssText = values.reduce<string>((acc, value, idx) => {
@@ -14,26 +35,35 @@ export class CSSResult {
     }, strings[0]);
   }
 
-  get styleSheet(): CSSStyleSheet|null {
-    if (typeof this._styleSheet == 'undefined') {
-      if (supportsAdoptingStyleSheets) {
-        this._styleSheet = new CSSStyleSheet();
-        // @ts-ignore
-        this._styleSheet.replaceSync(this.cssText);
-      } else {
-        this._styleSheet = null;
-      }
+  /**
+   * @returns {CSSStyleSheet}
+   */
+  get styleSheet() {
+    if (typeof this.styles != 'undefined') {
+      return this.styles;
     }
 
-    return this._styleSheet;
+    this.styles = null;
+    if (supportsAdoptingStyleSheets) {
+      this.styles = new CSSStyleSheet();
+      this.styles.replaceSync(this.cssText);
+    }
+
+    return this.styles;
   }
 
+  /**
+   * @returns {HTMLStyleElement}
+   */
   createElement(): HTMLStyleElement {
     const $style = document.createElement('style');
     $style.textContent = this.cssText;
     return $style;
   }
 
+  /**
+   * @returns {string}
+   */
   toString(): string {
     return this.cssText;
   }

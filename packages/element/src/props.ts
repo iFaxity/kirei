@@ -1,7 +1,7 @@
 import { mapObject, isFunction, isObject } from './shared';
 
 type DefaultFactory<T = any> = () => T | null | undefined;
-type PropConstructor<T> = { new (...args: any[]): T & object } | { (): T };
+type PropConstructor<T = any> = { new (...args: any[]): T & object } | { (): T };
 type PropType<T> = PropConstructor<T> | PropConstructor<T>[];
 
 interface PropInstance<T = any> {
@@ -11,14 +11,14 @@ interface PropInstance<T = any> {
   default?: DefaultFactory<T> | T;
 }
 type Prop<T> = PropInstance<T> | PropType<T> | null;
-export type PropsData = { [key: string]: unknown };
+export type PropsData = Record<string, unknown>;
 export type Props<P = PropsData> = { [K in keyof P]: Prop<P[K]> };
 
 interface NormalizedProp<T = any> extends PropInstance<T> {
   type: PropConstructor<T>[] | null;
   cast?: boolean;
 }
-export type NormalizedProps = { [key: string]: NormalizedProp };
+export type NormalizedProps = Record<string, NormalizedProp>;
 
 type RequiredKeys<T> = {
   [K in keyof T]: T[K] extends { required: true } | { default: any } ? K : never;
@@ -38,6 +38,11 @@ export type ResolvePropTypes<T> =
   { [K in OptionalKeys<T>]?: InferPropType<T[K]> }
 ;
 
+/**
+ * Normalizes a props model, making it more predictable
+ * @param {Props} props Props to normalize
+ * @returns {NormalizedProps}
+ */
 export function normalizeProps(props: Props): NormalizedProps {
   return mapObject((key, prop) => {
     const normal = {
@@ -49,13 +54,13 @@ export function normalizeProps(props: Props): NormalizedProps {
 
     if (prop == null) {
       normal.type = null;
-    } else if (isObject(prop)) {
-      normal.type = prop.type ?? null;
+    } else if (isObject<PropInstance>(prop)) {
+      normal.type = (prop.type as PropConstructor[]) ?? null;
       normal.default = prop.default ?? undefined;
       normal.validator = prop.validator ?? null;
       normal.required = !!prop.required;
     } else {
-      normal.type = prop
+      normal.type = prop;
     }
 
     if (normal.type && !Array.isArray(normal.type)) {
@@ -71,6 +76,11 @@ export function normalizeProps(props: Props): NormalizedProps {
   }, props);
 }
 
+/**
+ * Extracts the default values from a props model
+ * @param {NormalizedProps} props Props model to extract defaults from
+ * @returns {PropsData}
+ */
 export function propDefaults(props: NormalizedProps): PropsData {
   return mapObject((key, prop) => {
     const { type, default: def } = prop;
@@ -84,7 +94,14 @@ export function propDefaults(props: NormalizedProps): PropsData {
   }, props);
 }
 
-export function validateProp(props: NormalizedProps, key: string, value: any): any {
+/**
+ * Validates a prop against a value, casts value if needed
+ * @param {NormalizedProps} props Prop model to validate from
+ * @param {string} key Attribute key
+ * @param {*} value Value to validate
+ * @returns {*}
+ */
+export function validateProp(props: NormalizedProps, key: string, value: unknown): unknown {
   // Validate prop
   const { type, required, validator, cast } = props[key];
 
@@ -103,6 +120,7 @@ export function validateProp(props: NormalizedProps, key: string, value: any): a
     throw new Error(`Validation error in prop '${key}'.`);
   }
 
+  // TODO: look over this, could use some tweaking
   if (cast) {
     // Different parsing based on first (or only) type
     if (type[0] === Boolean) {
@@ -122,6 +140,5 @@ export function validateProp(props: NormalizedProps, key: string, value: any): a
     }
   }
 
-  // as the value might get casted we return it again
   return value;
 }

@@ -16,6 +16,17 @@ import { isObject } from '../shared';
 import { toRawValue } from '../reactive';
 export { Part, RenderOptions };
 
+const NAME_REGEX = /^v-(\w+)(.*)$/;
+const NAME_TEST_REGEX = /^\w+$/;
+
+type PartsFunction = (el: Element, name: string, strings?: readonly string[], options?: RenderOptions) => readonly Part[];
+const parts: Map<string, PartsFunction> = new Map();
+interface PartOptions {
+  name?: string;
+  shorthand?: string;
+  factory: PartsFunction;
+}
+
 // If a reactive object, ref or computed is sent as a value
 // we need to resolve the raw value from it
 export class FxAttributePart extends AttributePart {
@@ -25,7 +36,6 @@ export class FxAttributePart extends AttributePart {
   constructor(committer: AttributeCommitter, name: string) {
     super(committer);
     this.name = name;
-
     this.mapValue = name == 'class' || name == 'style';
   }
 
@@ -57,13 +67,13 @@ export class FxBooleanAttributePart extends BooleanAttributePart {
 }
 
 export class FxAttributeCommitter extends AttributeCommitter {
-  protected _createPart(): AttributePart {
+  protected _createAttributePart(): AttributePart {
     return new FxAttributePart(this, this.name);
   }
 }
 
 export class FxPropertyCommitter extends PropertyCommitter {
-  protected _createPart(): AttributePart {
+  protected _createAttributePart(): AttributePart {
     return new FxAttributePart(this, null);
   }
 }
@@ -75,13 +85,21 @@ export class FxTemplateProcessor implements TemplateProcessor {
   handleAttributeExpressions(
     el: Element,
     name: string,
-    strings: ReadonlyArray<string>,
+    strings: readonly string[],
     options: RenderOptions
   ): ReadonlyArray<Part> {
-    const prefix = name[0];
+    // Check for name
+    if (name.startsWith('v-')) {
+      const res = NAME_REGEX.exec(name);
+      const part = parts.get(res[1]);
 
-    // Get custom part from parts map
-    const part = parts.get(prefix);
+      if (part) {
+        return part(el, res[2], strings, options);
+      }
+    }
+
+    // Check if there is a shorthand
+    const part = parts.get(name[0]);
     if (part) {
       return part(el, name.slice(1), strings, options);
     }
@@ -96,27 +114,65 @@ export class FxTemplateProcessor implements TemplateProcessor {
   }
 }
 
-type PartsFunction = (el: Element, name: string, strings?: ReadonlyArray<string>, options?: RenderOptions) => readonly Part[];
-
 export const templateProcessor = new FxTemplateProcessor();
-export const parts: Map<string, PartsFunction> = new Map([
-  ['.', (el: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+
+/**
+ * Creates a attribute part
+ * @param {PartOptions} options 
+ */
+export function createAttributePart(options: PartOptions): void {
+  const { name, shorthand, factory } = options;
+
+  if (shorthand && shorthand.length != 1) {
+    throw new TypeError('Part shorthands needs to be exactly one character!');
+  }
+  if (name && !NAME_TEST_REGEX.test(name)) {
+    throw new TypeError('Part names can only contain [A-Za-z-].');
+  }
+
+  shorthand && parts.set(shorthand, factory);
+  name && parts.set(name, factory);
+}
+
+// Add default parts
+createAttributePart({
+  shorthand: '.',
+  factory(el, name, strings) {
     const committer = new FxPropertyCommitter(el, name, strings);
     return committer.parts;
-  }],
-  ['@', (el: Element, name: string, strings: ReadonlyArray<string>, options: RenderOptions): readonly Part[] => {
+  },
+});
+createAttributePart({
+  shorthand: '@',
+  name: 'on',
+  factory(el, name, _, options) {
     return [new FxEventPart(el, name, options.eventContext)];
-  }],
-  ['?', (el: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+  },
+});
+createAttributePart({
+  shorthand: '?',
+  name: 'toggle',
+  factory(el, name, strings) {
     return [new FxBooleanAttributePart(el, name, strings)];
-  }],
-  ['&', (el: Element, name: string): readonly Part[] => {
+  },
+});
+createAttributePart({
+  shorthand: '&',
+  name: 'sync',
+  factory(el, name) {
     return [new FxSyncPart(el, name)];
-  }],
-  ['!', (el: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
+  },
+});
+createAttributePart({
+  shorthand: '!',
+  name: 'if',
+  factory(el, name, strings) {
     return [new FxConditionalPart(el, name, strings)];
-  }],
-  [':', (el: Element, name: string, strings: ReadonlyArray<string>): readonly Part[] => {
-    return [new FxBindPart(el, name, strings)];
-  }],
-]);
+  },
+});
+createAttributePart({
+  name: 'bind',
+  factory(el, name, strings) {
+    return [new FxBindPart(el, name, strings)]
+  },
+});

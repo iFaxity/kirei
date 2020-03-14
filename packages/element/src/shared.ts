@@ -1,5 +1,11 @@
 const COLLECTION_TYPES = [ Map, Set, WeakMap, WeakSet ];
 
+export type MapCollection = Map<object, object> | WeakMap<object, object>;
+export type SetCollection = Set<object> | WeakSet<object>;
+export type Collection = Set<object> | Map<object, object>;
+export type AnyCollection = MapCollection | SetCollection;
+type Observable = object | AnyCollection;
+
 export enum HookTypes {
   BEFORE_MOUNT = 'beforeMount',
   MOUNT = 'mount',
@@ -9,13 +15,12 @@ export enum HookTypes {
   UNMOUNT = 'unmount',
 }
 
-
 /**
  * Checks if a variable is an object
  * @param {*} obj
  * @returns {boolean}
  */
-export function isObject(obj: any): boolean {
+export function isObject<T = object>(obj: any): obj is T {
   return obj != null && typeof obj == 'object';
 }
 
@@ -25,7 +30,7 @@ export function isObject(obj: any): boolean {
  * @param {*} fn
  * @returns {boolean}
  */
-export function isFunction(fn: any): boolean {
+export function isFunction(fn: any): fn is Function {
   return typeof fn == 'function';
 }
 
@@ -35,7 +40,7 @@ export function isFunction(fn: any): boolean {
  * @param {*} obj
  * @returns {boolean}
  */
-export function isCollection(obj: any): boolean {
+export function isCollection(obj: any): obj is AnyCollection {
   return COLLECTION_TYPES.some(t => obj instanceof t);
 }
 
@@ -44,14 +49,14 @@ export function isCollection(obj: any): boolean {
  * @param {*} obj
  * @returns {boolean}
  */
-export function isObservable(obj: any): boolean {
+export function isObservable(obj: any): obj is Observable {
   return isObject(obj) || isCollection(obj);
 }
 
 /**
  * Maps an object entries to another object, like array.map but for both keys and values
- * @param callback return a tuple (array) of [key, value]
- * @param obj Object to map
+ * @param {Function} callback return a tuple (array) of [key, value]
+ * @param {object} obj Object to map
  * @returns {object}
  */
 export function mapObject<T, V>(callback: (key: string, value: any) => [ string, V ], obj: T): Record<string, V> {
@@ -73,6 +78,54 @@ export function camelToKebab(str: string): string {
     .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
     .replace(/([A-Z])([A-Z])(?=[a-z])/g, '$1-$2')
     .toLowerCase();
+}
+
+/**
+ * Logging functions
+ */
+
+function formatMessage(message: string, ctx?: string,) {
+  return `Shlim: ${message} ${ctx ? `in "${ctx}"` : '' }`;
+}
+
+/**
+ * Throws an exception with a formatted message
+ * @param {string} message 
+ * @param {string} [ctx] 
+ * @returns {void}
+ */
+export function exception(message: string, ctx?: string): never {
+  throw new Error(formatMessage(message, ctx));
+}
+
+/**
+ * Logs an error message in the console
+ * @param {string} message 
+ * @param {string} [ctx] 
+ * @returns {void}
+ */
+export function error(message: string, ctx?: string): void {
+  console.error(formatMessage(message, ctx));
+}
+
+/**
+ * Logs a warning message in the console
+ * @param {string} message 
+ * @param {string} [ctx] 
+ * @returns {void}
+ */
+export function warn(message: string, ctx?: string): void {
+  console.warn(formatMessage(message, ctx));
+}
+
+/**
+ * Logs a info message in the console
+ * @param {string} message 
+ * @param {string} [ctx] 
+ * @returns {void}
+ */
+export function info(message: string, ctx?: string): void {
+  console.log(formatMessage(message, ctx));
 }
 
 

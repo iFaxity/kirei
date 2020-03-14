@@ -1,8 +1,9 @@
 import { ShadyRenderOptions, render, TemplateResult } from 'lit-html/lib/shady-render';
-import { isFunction, mapObject, camelToKebab, HookTypes } from './shared';
+import { isFunction, mapObject, camelToKebab, HookTypes, warn, exception } from './shared';
 import { Fx, TriggerOpTypes } from './fx';
 import { toReactive } from './reactive';
 import * as Queue from './queue';
+import { supportsAdoptingStyleSheets, CSSResult, shimAdoptedStyleSheets } from './css';
 import {
   Props,
   PropsData,
@@ -12,10 +13,8 @@ import {
   normalizeProps,
   propDefaults,
 } from './props';
-import { supportsAdoptingStyleSheets, CSSResult } from './css';
 
-export let activeElement: FxElement = null;
-const activeElementStack: FxElement[] = [];
+export let activeInstance: FxInstance = null;
 export const elementInstances = new WeakMap<FxElement, FxInstance>();
 
 interface FxModel {
@@ -23,7 +22,6 @@ interface FxModel {
   event?: string;
 }
 
-//export interface FxOptions<P = Props, T = Readonly<ResolvePropTypes<P>>> {
 export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
   closed?: boolean;
@@ -33,25 +31,37 @@ export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
   styles?: CSSResult|CSSResult[];
 }
 
-interface NormalizedFxOptions extends FxOptions {
+interface NormalizedFxOptions extends Required<FxOptions> {
+  tag: string;
   props: NormalizedProps;
   attrs: Record<string, string>;
   styles: CSSResult[];
 }
 
 class FxContext {
-  el: FxElement;
-  model: FxModel;
-  attrs: Record<string, string>;
-  props: NormalizedProps;
+  readonly el: FxElement;
+  readonly model: FxModel;
+  readonly attrs: Record<string, string>;
+  readonly props: NormalizedProps;
 
-  constructor(el: FxElement, instance: NormalizedFxOptions) {
+  /**
+   * Instansiates a new setup context for a FxElement
+   * @param {FxElement} el Element to relate context to
+   * @param {NormalizedFxOptions} options Normalized element options
+   */
+  constructor(el: FxElement, options: NormalizedFxOptions) {
     this.el = el;
-    this.model = instance.model;
-    this.attrs = instance.attrs;
-    this.props = instance.props;
+    this.model = options.model;
+    this.attrs = options.attrs;
+    this.props = options.props;
   }
 
+  /**
+   * Dispatches an event from the host element
+   * @param {string} eventName Event to emit
+   * @param {*} detail Custom event value
+   * @returns {void}
+   */
   emit(eventName: string, detail?: any): void {
     let e = typeof detail != 'undefined'
       ? new CustomEvent(eventName, { detail })
@@ -62,6 +72,7 @@ class FxContext {
 }
 
 class FxInstance {
+  readonly el: FxElement;
   readonly options: NormalizedFxOptions;
   readonly ctx: FxContext;
   readonly hooks: Record<string, Set<Function>>;
@@ -74,20 +85,34 @@ class FxInstance {
   private mounted: boolean = false;
   private shimAdoptedStyleSheets: boolean = false;
 
+  /**
+   * Constructs a new element instance, holds all the functionality to avoid polluting element
+   * @param {FxElement} el Element to create instance from
+   * @param {NormalizedFxOptions} options Normalized element options
+   */
   constructor(el: FxElement, options: NormalizedFxOptions) {
+    activeInstance = this;
+    elementInstances.set(el, this);
+
+    this.el = el;
     this.options = options;
     this.ctx = new FxContext(el, options);
-    this.hooks = mapObject((_, value) => [ value, new Set() ], HookTypes);
-    this.renderOptions = { scopeName: options.name, eventContext: el };
-    this.fx = new Fx(this.render.bind(this), {
+    this.hooks = {};
+    this.renderOptions = { scopeName: options.tag, eventContext: el };
+    this.fx = new Fx(this.update.bind(this), {
       lazy: true,
       computed: false,
-      scheduler: this.scheduleRender.bind(this),
+      scheduler: this.scheduleUpdate.bind(this),
     });
     this.props = propDefaults(options.props);
     this.shadowRoot = el.attachShadow({ mode: options.closed ? 'closed' : 'open' });
+    this.setup();
   }
 
+  /**
+   * Runs the setup function to collect dependencies and hold logic
+   * @returns {void}
+   */
   setup(): void {
     const { props, ctx, options } = this;
 
@@ -101,89 +126,95 @@ class FxInstance {
         props[key] = value;
         Fx.trigger(props, TriggerOpTypes.SET, key);
         ctx.emit(`fxsync:${key}`);
+        if (key == ctx.model.prop) {
+          ctx.emit(ctx.model.event);
+        }
         return true;
       },
       deleteProperty() {
-        throw new Error('Props are not deletable');
+        exception('Props are not deletable', options.name);
       },
     });
 
     // Run setup function to gather reactive data
+    // Pause tracking while calling setup function
+    Fx.pauseTracking();
     this.renderTemplate = options.setup.call(undefined, propsProxy, ctx);
+    Fx.resetTracking();
+    activeInstance = null;
 
     if (!isFunction(this.renderTemplate)) {
-      throw new TypeError('Setup functions must return a function which return a TemplateResult');
+      exception('Setup must return a function that returns a TemplateResult', `${options.name}#setup`);
     }
 
-    // Shim styles for shadow root
+    // Shim styles for shadow root, if needed
     if (window.ShadowRoot && this.shadowRoot instanceof window.ShadowRoot) {
-      const { ShadyCSS } = window;
-      const { styles } = options;
-      if (!styles.length) {
-        return;
-      }
-
-      if (ShadyCSS?.nativeShadow) {
-        ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(s => s.toString()), options.name);
-      } else if (supportsAdoptingStyleSheets) {
-        this.shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
-      } else {
-        this.shimAdoptedStyleSheets = true;
-      }
+      const { tag, styles } = options;
+      this.shimAdoptedStyleSheets = shimAdoptedStyleSheets(tag, styles);
     }
   }
 
 
   /**
    * Runs all the specified hooks on the Fx instance
+   * @param {string} hook Specified hook name
+   * @returns {void}
    */
   runHooks(hook: string): void {
     const hooks = this.hooks[hook];
 
     if (hooks?.size) {
-      hooks.forEach(fn => isFunction(fn) && fn.call(undefined));
+      hooks.forEach(fn => {
+        Fx.pauseTracking();
+        isFunction(fn) && fn.call(undefined);
+        Fx.resetTracking();
+      });
     }
   }
 
 
   /**
    * Schedules a run to render updated content
+   * @param {Function} run Runner function
+   * @returns {void}
    */
-  scheduleRender(run: () => void): void {
+  scheduleUpdate(run: () => void): void {
     // Prevent overlapping renders
     if (this.rendering) return;
     this.rendering = true;
 
     // Queue the render
     Queue.push(() => {
-      this.mounted && this.runHooks(HookTypes.BEFORE_UPDATE);
-      run.call(this.fx);
-      this.mounted && this.runHooks(HookTypes.UPDATE);
+      if (!this.mounted) {
+        run.call(this.fx);
+        this.mounted = true;
+      } else {
+        this.runHooks(HookTypes.BEFORE_UPDATE);
+        run.call(this.fx);
+        this.runHooks(HookTypes.UPDATE);
+      }
 
       this.rendering = false;
-      this.mounted = true;
     });
   }
 
 
   /**
    * Renders shadow root content
+   * @returns {void}
    */
-  render(): void {
+  update(): void {
     const { shadowRoot, options } = this;
     const result = this.renderTemplate();
 
     if (!(result instanceof TemplateResult)) {
-      throw new Error('FxElement.render() must return a TemplateResult');
+      exception('Setup must return a function that returns a TemplateResult', `${options.name}#setup`);
     }
 
     render(result, shadowRoot, this.renderOptions);
 
     if (this.shimAdoptedStyleSheets) {
-      for (const style of options.styles) {
-        shadowRoot.appendChild(style.createElement());
-      }
-
+      options.styles.forEach(style => shadowRoot.appendChild(style.createElement()));
       this.shimAdoptedStyleSheets = false;
     }
   }
@@ -191,23 +222,18 @@ class FxInstance {
 
 // HTMLElement needs es6 classes to instansiate properly
 export class FxElement extends HTMLElement {
-  static get is(): string {
-    return '';
-  }
+  static get is(): string { return ''; }
 
+  /**
+   * Constructs a new FxElement
+   * @param {NormalizedFxOptions} options Normalized element options
+   */
   constructor(options: NormalizedFxOptions) {
     super();
-    activeElement = this;
-    activeElementStack.push(this);
-
     const instance = new FxInstance(this, options);
-    elementInstances.set(this, instance);
-
-    instance.setup();
-    activeElement = activeElementStack[activeElementStack.length - 1] ?? null;
 
     // Set props on the element
-    const { props } = instance.options;
+    const { props, name } = instance.options;
     const propsData = instance.props;
 
     // Set props as getters/setters on element
@@ -215,7 +241,7 @@ export class FxElement extends HTMLElement {
     for (let key of Object.keys(props)) {
       // If prop already exists, then we throw error
       if (this.hasOwnProperty(key)) {
-        throw new TypeError(`Prop ${key} is reserved, please use another.`);
+        exception(`Prop ${key} is reserved, please use another.`, name);
       }
 
       // Validate props default value
@@ -241,7 +267,8 @@ export class FxElement extends HTMLElement {
   }
 
   /**
-   * Runs when mounted to the dom
+   * Runs when mounted to the DOM
+   * @returns {void}
    */
   connectedCallback() {
     const instance = elementInstances.get(this);
@@ -251,7 +278,8 @@ export class FxElement extends HTMLElement {
   }
 
   /**
-   * Runs when unmounted from dom
+   * Runs when unmounted from DOM
+   * @returns {void}
    */
   disconnectedCallback() {
     const instance = elementInstances.get(this);
@@ -260,7 +288,8 @@ export class FxElement extends HTMLElement {
   }
 
   /**
-   * Observes attribute changes
+   * Observes attribute changes, triggers updates on props
+   * @returns {void}
    */
   attributeChangedCallback(attr: string, oldValue: string, newValue: string) {
     // newValue & oldValue null if not set, string if set, default to empty string
@@ -274,14 +303,21 @@ export class FxElement extends HTMLElement {
   }
 }
 
-function addStyles(styles: CSSResult[], set: Set<CSSResult>): Set<CSSResult> {
-  return styles.reduceRight((set, s) => Array.isArray(s) ? addStyles(s, set) : (set.add(s), set), set);
+/**
+ * Collects an array of CSSResults into a Set of CSSResults to ensure they are unique
+ * @param {CSSResult[]} styles Stylesheets to collect
+ * @param {Set} set Set to hold all stylesheets
+ * @returns {Set}
+ */
+function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult> {
+  set = set ?? new Set<CSSResult>();
+  return styles.reduceRight((set, s) => Array.isArray(s) ? collectStyles(s, set) : (set.add(s), set), set);
 }
 
 /**
- * Normalizes the options object
- * @param {object} options
- * @returns {object}
+ * Normalizes the raw options object to a more predictable format
+ * @param {FxOptions} options Raw element options
+ * @returns {NormalizedFxOptions}
  */
 function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
   const { setup, model, styles } = options;
@@ -290,15 +326,15 @@ function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
 
   if (styles) {
     if (Array.isArray(styles)) {
-      const set = addStyles(styles, new Set<CSSResult>());
-      css = [ ...set ];
+      css = [ ...collectStyles(styles) ];
     } else {
       css.push(styles);
     }
   }
 
-  return{
-    name: camelToKebab(options.name),
+  return {
+    name: options.name,
+    tag: camelToKebab(options.name),
     closed: options.closed ?? false,
     props: options.props ? normalizeProps(props) : props,
     attrs: mapObject((key) => [ camelToKebab(key), key ], props),
@@ -312,21 +348,21 @@ function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
 }
 
 /**
- * Defines a new custom element
- * @param {object} options
- * @return {FxElement}
+ * Defines a new custom shlim element
+ * @param {FxOptions} options - Raw element options
+ * @returns {FxElement}
  */
 export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>): typeof FxElement {
   const normalized = normalizeOptions(options);
   const attrs = Object.keys(normalized.attrs);
 
-  if (!normalized.name.includes('-')) {
-    console.warn('Fx: Component names should include a hyphen (-) or be camelised with at least 2 uppser case characters.');
+  if (!normalized.tag.includes('-')) {
+    warn('Element names should include a hyphen (-) or be camelised with at least 2 upper-case characters', options.name);
   }
 
   const CustomElement = class extends FxElement {
     static get is() {
-      return normalized.name;
+      return normalized.tag;
     }
 
     static get observedAttributes() {
@@ -338,6 +374,6 @@ export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>):
     }
   };
 
-  window.customElements.define(normalized.name, CustomElement);
+  window.customElements.define(normalized.tag, CustomElement);
   return CustomElement;
 }

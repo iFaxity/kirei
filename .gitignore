@@ -43,4 +43,4 @@ webpack.config.js
 *.map
 *.js
 *.d.ts
-!env.d.ts
+!globals.d.ts

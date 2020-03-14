@@ -1,25 +1,42 @@
-const queue: Function[] = [];
+const queue = new Set<Function>();
 const tickPromise = Promise.resolve();
 
+/**
+ * Wait for next flush of the queue, as a Promise or as a callback function
+ * @param {Function} [fn] Optional callback function
+ * @returns {Promise}
+ */
 export function nextTick(fn?: () => void): Promise<void> {
   return fn ? tickPromise.then(fn) : tickPromise;
 }
 
-function flush() {
-  while (queue.length) {
-    const fn = queue.pop();
-    fn();
-  }
+/**
+ * Flushes the queue, calling all the functions
+ * @returns {void}
+ */
+function flush(): void {
+  queue.forEach(fn => fn());
+  queue.clear();
 }
 
-export function has(fn: Function) {
-  return queue.includes(fn);
+/**
+ * Checks if queue has a function queued
+ * @param {Function} fn Function to check
+ * @returns {boolean}
+ */
+export function has(fn: Function): boolean {
+  return queue.has(fn);
 }
 
-export function push(fn: Function) {
-  if (queue.length == 0) {
+/**
+ * Pushes a function to the queue, if it doesn't already exist
+ * @param {Function} fn Function to enqueue
+ * @returns {void}
+ */
+export function push(fn: Function): void {
+  if (queue.size == 0) {
     nextTick(flush);
   }
 
-  queue.push(fn);
+  queue.add(fn);
 }

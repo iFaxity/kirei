@@ -10,6 +10,8 @@ export enum TriggerOpTypes {
 export const ITERATE_KEY = Symbol('iterate');
 export const fxStack: Fx[] = [];
 export let activeFx: Fx = null;
+let tracking = true;
+const trackStack: boolean[] = [];
 
 export interface FxOptions {
   lazy?: boolean;
@@ -25,10 +27,8 @@ export class Fx {
 
   /**
    * Creates a new Fx instance, runs function when a reactive dependents value changes
-   * @param {function} target - Runner function
+   * @param {Function|Fx} target - Runner function
    * @param {object} options - Options for the fx
-   *
-   * @return {Fx}
    */
   constructor(target: Function | Fx, options: FxOptions = {}) {
     this.options = options;
@@ -42,19 +42,41 @@ export class Fx {
   /**
    * Checks if an object is an Fx instance
    * @param {*} obj
-   *
    * @return {boolean}
    */
-  static isFx(obj: unknown): boolean {
+  static isFx(obj: unknown): obj is Fx {
     return obj instanceof Fx;
+  }
+
+  /**
+   * Pauses tracking of fx's
+   * @returns {void}
+   */
+  static pauseTracking(): void {
+    trackStack.push((tracking = false));
+  }
+
+  /**
+   * Resumes tracking of fx's
+   * @returns {void}
+   */
+  static resumeTracking(): void {
+    trackStack.push((tracking = true));
+  }
+
+  /**
+   * Resets tracking to previous state
+   * @returns {void}
+   */
+  static resetTracking(): void {
+    tracking = trackStack.pop() ?? true;
   }
 
   /**
    * Tracks a reactive objects property for updates
    * @param {object|Proxy} target - Reactive object to anchor
    * @param {string|symbol} key - Property to track
-   *
-   * @return {void}
+   * @returns {void}
    */
   static track(target: object, key: string|symbol|number): void {
     if (!activeFx) {
@@ -84,8 +106,7 @@ export class Fx {
    * @param {object|Proxy} target - Reactive object to anchor
    * @param {string} type - Trigger action type
    * @param {string|symbol} key - Property to trigger change on
-   *
-   * @return {void}
+   * @returns {void}
    */
   static trigger(target: object, type: string, key?: string|symbol|number): void {
     const depsMap = targetMap.get(target);
@@ -96,7 +117,13 @@ export class Fx {
     const fxs = new Set<Fx>();
     const computedFxs = new Set<Fx>();
     const addRunners = (deps: Set<Fx>): void => {
-      deps && deps.forEach(fx => (fx.options.computed ? computedFxs : fxs).add(fx));
+      if (deps && tracking) {
+        deps.forEach(fx => {
+          if (fx !== activeFx) {
+            (fx.options.computed ? computedFxs : fxs).add(fx);
+          }
+        });
+      }
     };
 
     if (type == TriggerOpTypes.CLEAR) {
@@ -124,8 +151,7 @@ export class Fx {
   /**
    * Runs the runner function to track dependencies, may run other runners recursively
    * @param {array} args
-   *
-   * @return {void}
+   * @returns {*}
    */
   run<T>(...args: any[]): T {
     if (!this.active) {
@@ -133,9 +159,10 @@ export class Fx {
     }
 
     if (!fxStack.includes(this)) {
-      this.cleanup();
-
       try {
+        this.cleanup();
+        Fx.resumeTracking();
+
         fxStack.push(this);
         activeFx = this;
         return this.raw(...args);
@@ -148,6 +175,7 @@ export class Fx {
 
   /**
    * Releases this fx from dependents
+   * @returns {void}
    */
   cleanup(): void {
     const { deps } = this;

@@ -8,19 +8,19 @@
       "es2017",
       "dom"
     ],
-    "rootDir": "./packages",
-    "baseUrl": "./packages",
-    "outDir": "./packages",
+    "rootDir": "./",
+    "baseUrl": "./",
+    "outDir": "./",
     "paths": {
-      "@shlim/*": ["./*/src"],
+      "@shlim/*": ["packages/*"]
     },
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "./packages"
+    "declarationDir": "packages"
   },
   "include": [
-    "./packages/*/src/*"
+    "packages/*/src/*"
   ],
   "exclude": []
 }
