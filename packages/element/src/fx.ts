@@ -53,7 +53,8 @@ export class Fx {
    * @returns {void}
    */
   static pauseTracking(): void {
-    trackStack.push((tracking = false));
+    trackStack.push(tracking);
+    tracking = false;
   }
 
   /**
@@ -61,7 +62,8 @@ export class Fx {
    * @returns {void}
    */
   static resumeTracking(): void {
-    trackStack.push((tracking = true));
+    trackStack.push(tracking);
+    tracking = true;
   }
 
   /**
