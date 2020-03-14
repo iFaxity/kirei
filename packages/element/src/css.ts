@@ -1,4 +1,4 @@
-export const supportsAdoptingStyleSheets =
+const supportsAdoptingStyleSheets =
     ('adoptedStyleSheets' in Document.prototype) &&
     ('replace' in CSSStyleSheet.prototype);
 
@@ -10,14 +10,18 @@ export const supportsAdoptingStyleSheets =
   */
 export const css = (strings: TemplateStringsArray, ...values: any) => new CSSResult(strings, values);
 
-export function shimAdoptedStyleSheets(tag: string, styles: CSSResult[]): boolean {
+export function shimAdoptedStyleSheets(
+  shadowRoot: ShadowRoot,
+  tag: string,
+  styles: CSSResult[]
+): boolean {
   if (styles.length) {
     const { ShadyCSS } = window;
 
     if (ShadyCSS?.nativeShadow === false) {
       ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(s => s.toString()), tag);
     } else if (supportsAdoptingStyleSheets) {
-      this.shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
+      shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
     } else {
       return true; // notifies to shim manually using style elements
     }

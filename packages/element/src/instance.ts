@@ -3,7 +3,7 @@ import { isFunction, mapObject, camelToKebab, HookTypes, warn, exception } from 
 import { Fx, TriggerOpTypes } from './fx';
 import { toReactive } from './reactive';
 import * as Queue from './queue';
-import { supportsAdoptingStyleSheets, CSSResult, shimAdoptedStyleSheets } from './css';
+import { CSSResult, shimAdoptedStyleSheets } from './css';
 import {
   Props,
   PropsData,
@@ -150,7 +150,7 @@ class FxInstance {
     // Shim styles for shadow root, if needed
     if (window.ShadowRoot && this.shadowRoot instanceof window.ShadowRoot) {
       const { tag, styles } = options;
-      this.shimAdoptedStyleSheets = shimAdoptedStyleSheets(tag, styles);
+      this.shimAdoptedStyleSheets = shimAdoptedStyleSheets(this.shadowRoot, tag, styles);
     }
   }
 
