@@ -14,13 +14,13 @@ export class FxSyncPart implements Part {
   constructor(element: Element, key: string) {
     let [ prop, ...mods ] = key.split('.');
     let event: string;
-    let handler: () => any;
+    let handler = (e: CustomEvent) => e.detail;
     this.element = element;
     this.commit = () => {
       this.element[prop] = this.ref.value;
     };
 
-    // bind to default model, like form fields or using the model object on instance
+    // bind to default sync, like form fields or using the sync name on instance
     // This sets value on the fx from child
     if (prop === '') {
       const tag = element.tagName.toLowerCase();
@@ -38,15 +38,16 @@ export class FxSyncPart implements Part {
       } else if (isInput && type == 'radio') {
         event = 'change';
         prop = 'value';
+        handler = () => this.element[prop];
         this.commit = this.radioCommit;
       } else if (isInput || tag == 'textarea') {
-        // lazy modifier
+        // lazy modifier only for text input
         event = mods.includes('lazy') ? 'change' : 'input';
         prop = 'value';
+        handler = () => this.element[prop];
       } else if (element instanceof FxElement) {
         const instance = elementInstances.get(element);
-        event = instance.options.model.event;
-        prop = instance.options.model.prop;
+        prop = instance.options.sync;
       } else {
         throw new Error(`Model not supported for element '${tag}'.`);
       }
@@ -56,9 +57,9 @@ export class FxSyncPart implements Part {
     const trimValue = mods.includes('trim');
     const listener = (e: Event) => {
       e.stopPropagation();
-      let value = isFunction(handler) ? handler.call(this) : this.element[prop];
+      let value = isFunction(handler) ? handler.call(this, e) : this.element[prop];
 
-      // Cast value if we need to
+      // Cast value if set
       if (typeof value == 'string') {
         if (trimValue) {
           value = value.trim();
@@ -76,7 +77,7 @@ export class FxSyncPart implements Part {
       this.ref.value = value;
     };
 
-    element.addEventListener(event ?? `fxsync:${prop}`, listener, false);
+    element.addEventListener(event ?? `fxsync::${prop}`, listener, false);
   }
 
   /**

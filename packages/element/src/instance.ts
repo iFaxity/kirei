@@ -17,16 +17,11 @@ import {
 export let activeInstance: FxInstance = null;
 export const elementInstances = new WeakMap<FxElement, FxInstance>();
 
-interface FxModel {
-  prop?: string;
-  event?: string;
-}
-
 export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
   closed?: boolean;
   props?: P;
-  model?: FxModel;
+  sync?: string;
   setup(this: void, props: T, ctx: FxContext): () => TemplateResult;
   styles?: CSSResult|CSSResult[];
 }
@@ -40,7 +35,7 @@ interface NormalizedFxOptions extends Required<FxOptions> {
 
 class FxContext {
   readonly el: FxElement;
-  readonly model: FxModel;
+  readonly sync: string;
   readonly attrs: Record<string, string>;
   readonly props: NormalizedProps;
 
@@ -51,7 +46,7 @@ class FxContext {
    */
   constructor(el: FxElement, options: NormalizedFxOptions) {
     this.el = el;
-    this.model = options.model;
+    this.sync = options.sync;
     this.attrs = options.attrs;
     this.props = options.props;
   }
@@ -62,10 +57,10 @@ class FxContext {
    * @param {*} detail Custom event value
    * @returns {void}
    */
-  emit(eventName: string, detail?: any): void {
+  emit(eventName: string, detail?: any, options?: EventInit): void {
     let e = typeof detail != 'undefined'
-      ? new CustomEvent(eventName, { detail })
-      : new Event(eventName);
+      ? new CustomEvent(eventName, { detail, ...options })
+      : new Event(eventName, options);
 
     this.el.dispatchEvent(e);
   }
@@ -116,19 +111,14 @@ class FxInstance {
   setup(): void {
     const { props, ctx, options } = this;
 
-    // Create a proxy for the props
+    // Create a custom proxy for the props
     const propsProxy = new Proxy(props, {
       get(_, key: string) {
         Fx.track(props, key);
         return props[key];
       },
       set(_, key: string, value: unknown) {
-        props[key] = value;
-        Fx.trigger(props, TriggerOpTypes.SET, key);
-        ctx.emit(`fxsync:${key}`);
-        if (key == ctx.model.prop) {
-          ctx.emit(ctx.model.event);
-        }
+        ctx.emit(`fxsync::${key}`, value, { bubbles: false });
         return true;
       },
       deleteProperty() {
@@ -248,10 +238,7 @@ export class FxElement extends HTMLElement {
       validateProp(props, key, propsData[key]);
 
       Object.defineProperty(this, key, {
-        get: () => {
-          Fx.track(propsData, key);
-          return propsData[key];
-        },
+        get: () => propsData[key],
         set: (newValue) => {
           if (newValue !== propsData[key]) {
             // Trigger an update on the element
@@ -320,7 +307,7 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
  * @returns {NormalizedFxOptions}
  */
 function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
-  const { setup, model, styles } = options;
+  const { setup, sync, styles } = options;
   const props = options.props ?? {};
   let css: CSSResult[] = [];
 
@@ -338,10 +325,7 @@ function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
     closed: options.closed ?? false,
     props: options.props ? normalizeProps(props) : props,
     attrs: mapObject((key) => [ camelToKebab(key), key ], props),
-    model: {
-      prop: model?.prop ?? 'value',
-      event: model?.event ?? 'input',
-    },
+    sync: sync ?? 'value',
     setup: setup ?? null,
     styles: css,
   } as NormalizedFxOptions;

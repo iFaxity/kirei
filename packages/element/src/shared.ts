@@ -81,17 +81,20 @@ export function camelToKebab(str: string): string {
 }
 
 /**
- * Logging functions
+ * Formats a console printable message
+ * @param {string} message Exception message
+ * @param {string} [ctx] Optional context (instance name, function name)
+ * @returns {string}
  */
-
-function formatMessage(message: string, ctx?: string,) {
-  return `Shlim: ${message} ${ctx ? `in "${ctx}"` : '' }`;
+function formatMessage(message: string, ctx?: string) {
+  ctx = ctx && ` in "${ctx}"`;
+  return `[Shlim]: ${message}${ctx}`;
 }
 
 /**
  * Throws an exception with a formatted message
- * @param {string} message 
- * @param {string} [ctx] 
+ * @param {string} message Exception message
+ * @param {string} [ctx] Optional context (instance name, function name)
  * @returns {void}
  */
 export function exception(message: string, ctx?: string): never {
@@ -100,8 +103,8 @@ export function exception(message: string, ctx?: string): never {
 
 /**
  * Logs an error message in the console
- * @param {string} message 
- * @param {string} [ctx] 
+ * @param {string} message Exception message
+ * @param {string} [ctx] Optional context (instance name, function name)
  * @returns {void}
  */
 export function error(message: string, ctx?: string): void {
@@ -110,22 +113,10 @@ export function error(message: string, ctx?: string): void {
 
 /**
  * Logs a warning message in the console
- * @param {string} message 
- * @param {string} [ctx] 
+ * @param {string} message Exception message
+ * @param {string} [ctx] Optional context (instance name, function name)
  * @returns {void}
  */
 export function warn(message: string, ctx?: string): void {
   console.warn(formatMessage(message, ctx));
 }
-
-/**
- * Logs a info message in the console
- * @param {string} message 
- * @param {string} [ctx] 
- * @returns {void}
- */
-export function info(message: string, ctx?: string): void {
-  console.log(formatMessage(message, ctx));
-}
-
-

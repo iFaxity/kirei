@@ -7,20 +7,20 @@ export * from './lifecycle';
 export * from './processor';
 
 import { templateProcessor } from './processor';
-import { TemplateResult } from 'lit-html';
+import { TemplateResult, SVGTemplateResult } from 'lit-html';
 
 /**
- * 
- * @param {TemplateStringsArray} strings 
- * @param {*} values 
+ * Creates a TemplateResult to cache markup, parses content as normal html
+ * @param {TemplateStringsArray} strings Template strings
+ * @param {*} values Template values
  * @returns {TemplateResult}
  */
 export const html = (strings, ...values) => new TemplateResult(strings, values, 'html', templateProcessor);
 
 /**
- * 
- * @param {TemplateStringsArray} strings
- * @param {*} values
+ * Creates a TemplateResult to cache markup, but parses content within an SVG namespace
+ * @param {TemplateStringsArray} strings Template strings
+ * @param {*} values Template values
  * @returns {TemplateResult}
  */
-export const svg = (strings, ...values) => new TemplateResult(strings, values, 'svg', templateProcessor);
+export const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', templateProcessor);
