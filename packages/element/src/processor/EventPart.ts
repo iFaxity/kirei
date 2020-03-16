@@ -98,18 +98,16 @@ export class FxEventPart implements Part {
   }
 
   mouseListener(listener: EventListener, mods: string[]): EventListener {
+    const meta = KEYBOARD_MODS.filter(mod => hasMod(mods, mod));
     const idx = MOUSE_KEYS.findIndex(mod => hasMod(mods, mod))
     const button = 2 * (1 + idx);
 
-    if (button) {
-      return (e: MouseEvent) => {
-        if (e.button == button) {
-          return listener(e);
-        }
-      };
-    }
+    return (e: MouseEvent) => {
+      if (meta.length && !hasMeta(e, meta)) return;
+      if (button && e.button != button) return;
 
-    return listener;
+      return listener(e);
+    };
   }
 
   setValue(value: EventListener) {
