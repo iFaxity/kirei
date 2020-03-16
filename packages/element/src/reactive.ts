@@ -22,6 +22,7 @@ interface ComputedOptions<T> {
 
 const REF_KEY = Symbol('ref');
 const reactiveMap: WeakMap<any, any> = new WeakMap();
+const arrayShims = [ 'indexOf', 'lastIndexOf', 'includes' ];
 
 /**
  * Returns a reactive from an object, native values are unchanged.
@@ -43,27 +44,61 @@ function createRef<T>(target: object): FxRef<T> {
 }
 
 /**
+ * Shim for array search functions: indexOf, lastIndexOf and includes
+ * @param {*} target Reactive target
+ * @param {string} key Array function key
+ * @param {*} receiver Target array
+ * @returns {Function}
+ */
+function arraySearchShim(target: any, key: string): (...args: any[]) => any {
+  return (...args) => {
+    const self = toRaw(target);
+    const len = self.length;
+
+    // Track all indicies for this effect
+    for (let i = 0; i < len; i++) {
+      Fx.track(self, i + '');
+    }
+
+    // Args may be reactive, but we try first anyway
+    const res = self[key](...args);
+
+    // If res was negative, re-run it again with raw arguments
+    if (res === -1 || res === false) {
+      return self[key](...args.map(toRaw));
+    }
+    return res;
+  };
+}
+
+/**
  * Proxy handlers for reactive objects and arrays
  * @param {boolean} immutable Throw an error every time a property attempts a mutation
  * @returns {ProxyHandler}
  */
 function baseHandlers<T extends object>(immutable: boolean): ProxyHandler<T> {
   return {
-    get(target, key) {
+    get(target, key, receiver) {
+      const isArray = Array.isArray(target);
+
+      if (isArray && arrayShims.includes(key as string)) {
+        return arraySearchShim(receiver, key as string);
+      }
+
       const res = target[key];
-      if (isRef(res)) {
+      if (isRef(res) && !isArray) {
         return res.value;
       }
 
       Fx.track(target, key);
       return isObject(res) ? (immutable ? readonly(res) : reactive(res)) : res;
     },
-    set(target, key, newValue) {
+    set(target, key, newValue, receiver) {
       if (immutable) {
         throw new TypeError('Collection is readonly');
       }
 
-      const oldValue = target[key];
+      const oldValue = Reflect.get(target, key, receiver);
 
       newValue = toRaw(newValue);
       if (isRef(oldValue) && !isRef(newValue)) {
@@ -72,16 +107,18 @@ function baseHandlers<T extends object>(immutable: boolean): ProxyHandler<T> {
       }
 
       const added = !target.hasOwnProperty(key);
-      target[key] = newValue;
+      const res = Reflect.set(target, key, newValue, receiver);
 
-      // Key didnt exist before, add it
-      if (added) {
-        Fx.trigger(target, TriggerOpTypes.ADD, key);
-      } else if (newValue !== oldValue && (newValue === newValue || oldValue === oldValue)) {
-        Fx.trigger(target, TriggerOpTypes.SET, key);
+      // Only trigger change it target and receiver matches
+      if (target === toRaw(receiver)) {
+        if (added) {
+          Fx.trigger(target, TriggerOpTypes.ADD, key);
+        } else if (newValue !== oldValue && (newValue === newValue || oldValue === oldValue)) {
+          Fx.trigger(target, TriggerOpTypes.SET, key);
+        }
       }
 
-      return true;
+      return res;
     },
     deleteProperty(target, key) {
       if (immutable) {
@@ -246,7 +283,7 @@ export function toRaw<T>(target: T): T {
  * @returns {*}
  */
 export function toRawValue(target: unknown): unknown {
-  return isRef(target) ? (target as FxRef).value : toRaw(target);
+  return isRef(target) ? target.value : toRaw(target);
 }
 
 /**
@@ -269,7 +306,7 @@ export function toRef<T extends object>(target: object, key: string): FxRef<T> {
  * @return {object} of refs
  */
 export function toRefs<T extends object>(target: T): Record<string, FxRef<T>> {
-  return mapObject((key) => [ key, toRef<T>(target, key)], target);
+  return mapObject((key) => [ key, toRef(target, key)], target);
 }
 
 
@@ -280,12 +317,11 @@ export function toRefs<T extends object>(target: T): Record<string, FxRef<T>> {
  * @returns {FxRef}
  */
 export function ref<T>(target: T): FxRef<T> {
-  if (isRef(target)) return target as unknown as FxRef<T>;
+  if (isRef(target)) return target;
 
   // if target is object create proxy for it
   let value = toReactive(target);
-
-  const r: FxRef<T> = {
+  const r = {
     get value(): T {
       Fx.track(r, 'value');
       return value;
@@ -312,7 +348,7 @@ export function computed<T>(target: ComputedOptions<T> | Computed<T>): FxRef<T> 
     getter = target.bind(undefined);
     setter = () => {};
   } else if (isObject(target)) {
-    const obj = (target as object) as ComputedOptions<T>;
+    const obj = target as ComputedOptions<T>;
 
     getter = obj.get.bind(undefined);
     setter = obj.set.bind(undefined);
@@ -374,6 +410,7 @@ export function reactive<T extends object>(target: T): T {
     }
 
     res = new Proxy(target, handlers);
+    reactiveMap.set(res, target);
   }
 
   return res;
@@ -399,6 +436,7 @@ export function readonly<T extends object>(target: T): T {
     }
 
     res = new Proxy(target, handlers);
+    reactiveMap.set(res, target);
   }
 
   return res;
@@ -418,26 +456,35 @@ export function watchEffect(target: Function): StopEffect {
   return fx.stop.bind(fx);
 }
 
-/*
+
 interface WatcherOptions {
   immediate?: boolean;
   deep?: boolean;
 }
-type WatchTarget<T> = FxRef<T> | (() => T);
+type WatchTarget<T = any> = FxRef<T> | (() => T);
+type InferWatchValues<T> = {
+  [K in keyof T]: T[K] extends WatchTarget<infer V> ? V : never;
+}
+
+export function watch<T extends WatchTarget[]>(
+  target: T,
+  callback: (values: InferWatchValues<T>, oldValues: InferWatchValues<T>) => void,
+  options: WatcherOptions
+): void;
 export function watch<T>(
   target: WatchTarget<T>,
-  fn: (values: any[], oldValues: any[]) => void,
+  callback: (value: T, oldValue: T) => void,
   options: WatcherOptions
 ): void {
-  let targetFn: () => T;
-  if (isRef(target)) {
-    targetFn = () => (target as FxRef<T>).value;
+  let fn: Function;
+  if (Array.isArray(target)) {
+    fn = () => target.map(x => isRef(x) ? x.value : x());
+  } else if (isRef(target)) {
+    fn = () => target.value;
   } else {
-    targetFn = target as () => T;
+    fn = target;
   }
 
-  const fx = new Fx(() => {
-    fn();
-  }, { lazy: !options.immediate, computed: false });
+  const fx = new Fx(fn, { lazy: !options.immediate, computed: false });
   return fx.stop.bind(fx);
-}*/
+}
