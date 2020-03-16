@@ -1,4 +1,4 @@
-import { HookTypes, exception } from './shared';
+import { HookTypes, exception, isFunction } from './shared';
 import { activeInstance } from './instance';
 const HOOKS = new Set<string>();
 
@@ -15,7 +15,9 @@ export function createHook(hook: string): (fn: Function) => void {
   // Keep track of what hook keys are used
   HOOKS.add(hook);
   return (fn: Function) => {
-    if (!activeInstance) {
+    if (!isFunction(fn)) {
+      exception('Lifecycle hooks requires the parameter to be a function.');
+    } else if (!activeInstance) {
       exception('Lifecycle hooks needs have a setup function in it\'s call stack.');
     }
 

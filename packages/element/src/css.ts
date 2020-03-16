@@ -10,6 +10,14 @@ const supportsAdoptingStyleSheets =
   */
 export const css = (strings: TemplateStringsArray, ...values: any) => new CSSResult(strings, values);
 
+/**
+ * Applies adopted stylesheets shim, returns false if shim needs
+ *  to be done manually through style tags
+ * @param {ShadowRoot} shadowRoot Shadow root to apply styles to
+ * @param {string} tag Tag of the parent of the shadow root
+ * @param {CSSResult[]} styles Styles to apply
+ * @returns {boolean}
+ */
 export function shimAdoptedStyleSheets(
   shadowRoot: ShadowRoot,
   tag: string,
@@ -40,6 +48,7 @@ export class CSSResult {
   }
 
   /**
+   * Gets the constructible stylesheet
    * @returns {CSSStyleSheet}
    */
   get styleSheet() {
@@ -57,6 +66,7 @@ export class CSSResult {
   }
 
   /**
+   * Creates a style element with style content
    * @returns {HTMLStyleElement}
    */
   createElement(): HTMLStyleElement {
@@ -66,6 +76,7 @@ export class CSSResult {
   }
 
   /**
+   * Gets the CSS as a string
    * @returns {string}
    */
   toString(): string {
