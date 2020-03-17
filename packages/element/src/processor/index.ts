@@ -13,7 +13,7 @@ import { FxConditionalPart } from './ConditionalPart';
 import { FxEventPart } from './EventPart';
 import { FxSyncPart } from './SyncPart';
 import { isObject } from '../shared';
-import { toRawValue } from '../reactive';
+import { toRawValue, FxRef, isRef } from '../reactive';
 export { Part, RenderOptions };
 
 const NAME_REGEX = /^v-(\w+)(.*)$/;
@@ -78,6 +78,29 @@ export class FxPropertyCommitter extends PropertyCommitter {
   }
 }
 
+// Just a part to set references for an element
+export class FxRefPart implements Part {
+  readonly element: Element;
+  ref: FxRef;
+  value: unknown;
+
+  constructor(element: Element) {
+    this.element = element;
+  }
+
+  setValue(ref: FxRef) {
+    if (!isRef(ref)) {
+      throw new TypeError('Ref attributes requires a ref as their expression!');
+    }
+
+    this.ref = ref;
+  }
+
+  commit() {
+    this.ref.value = this.element;
+  }
+}
+
 /**
  * Creates Parts when a template is instantiated.
  */
@@ -88,6 +111,11 @@ export class FxTemplateProcessor implements TemplateProcessor {
     strings: readonly string[],
     options: RenderOptions
   ): ReadonlyArray<Part> {
+    // Special case, check for this first
+    if (name == 'ref') {
+      return [ new FxRefPart(el) ];
+    }
+
     // Check for name
     if (name.startsWith('v-')) {
       const res = NAME_REGEX.exec(name);
