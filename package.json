@@ -4,7 +4,9 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "webpack-dev-server"
+    "dev": "webpack-dev-server",
+    "build": "tsc --build",
+    "clean": "rm -rf packages/*/dist"
   },
   "devDependencies": {
     "file-loader": "^5.1.0",

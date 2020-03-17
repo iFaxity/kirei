@@ -3,15 +3,18 @@
   "version": "0.1.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
-  "module": "src/index.js",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
+    "dist/*",
     "src/*",
     "directives/*"
   ],
   "scripts": {
-    "build": "tsc"
+    "prepublish": "rm -rf dist && tsc",
+    "build": "tsc",
+    "clean": "rm -rf dist"
   },
   "homepage": "https://github.com/ifaxity/shlim",
   "repository": {

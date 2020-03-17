@@ -38,9 +38,4 @@ typings/
 .env.test
 
 # Project specific
-test/
-webpack.config.js
-*.map
-*.js
-*.d.ts
-!globals.d.ts
+dist/

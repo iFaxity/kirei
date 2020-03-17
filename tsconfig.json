@@ -8,19 +8,19 @@
       "es2017",
       "dom"
     ],
-    "rootDir": "./",
-    "baseUrl": "./",
-    "outDir": "./",
-    "paths": {
-      "@shlim/*": ["packages/*"]
-    },
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "declarationDir": "packages"
+    "baseUrl": "./",
+    "paths": {
+      "@shlim/*": ["packages/*"]
+    }
   },
-  "include": [
-    "packages/*/src/*"
+  "references": [
+    { "path": "packages/element" },
+    { "path": "packages/router" },
+    { "path": "packages/store" }
   ],
-  "exclude": []
+  "include": ["packages/*"],
+  "exclude": ["**/node_modules"]
 }
