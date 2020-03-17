@@ -13,13 +13,13 @@
   "scripts": {
     "build": "tsc"
   },
-  "homepage": "https://github.com/ifaxity/fx",
+  "homepage": "https://github.com/ifaxity/shlim",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ifaxity/fx.git"
+    "url": "https://github.com/ifaxity/shlim.git"
   },
   "bugs": {
-    "url": "https://github.com/ifaxity/fx/issues"
+    "url": "https://github.com/ifaxity/shlim/issues"
   },
   "keywords": [
     "lit-html",
