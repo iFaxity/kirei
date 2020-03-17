@@ -21,7 +21,8 @@ export default defineElement({
 
     onMount(() => {
       console.log('MOUNTED');
-      console.log(el.value);
+      // @ts-ignore
+      window.el = el.value;
     });
 
     return () => html`

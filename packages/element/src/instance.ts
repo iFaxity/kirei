@@ -176,6 +176,7 @@ class FxInstance {
     // Queue the render
     Queue.push(() => {
       if (!this.mounted) {
+        this.runHooks(HookTypes.BEFORE_MOUNT);
         run.call(this.fx);
         this.mounted = true;
       } else {
@@ -259,7 +260,6 @@ export class FxElement extends HTMLElement {
    */
   connectedCallback() {
     const instance = elementInstances.get(this);
-    instance.runHooks(HookTypes.BEFORE_MOUNT);
     window.ShadyCSS?.styleElement(this);
     instance.runHooks(HookTypes.MOUNT);
   }
@@ -271,7 +271,7 @@ export class FxElement extends HTMLElement {
   disconnectedCallback() {
     const instance = elementInstances.get(this);
     instance.runHooks(HookTypes.BEFORE_UNMOUNT);
-    instance.runHooks(HookTypes.UNMOUNT);
+    Queue.push(() => instance.runHooks(HookTypes.UNMOUNT));
   }
 
   /**

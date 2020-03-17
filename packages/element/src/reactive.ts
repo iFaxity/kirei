@@ -98,7 +98,7 @@ function baseHandlers<T extends object>(immutable: boolean): ProxyHandler<T> {
         throw new TypeError('Collection is readonly');
       }
 
-      const oldValue = Reflect.get(target, key, receiver);
+      const oldValue = target[key];
 
       newValue = toRaw(newValue);
       if (isRef(oldValue) && !isRef(newValue)) {
@@ -107,7 +107,7 @@ function baseHandlers<T extends object>(immutable: boolean): ProxyHandler<T> {
       }
 
       const added = !target.hasOwnProperty(key);
-      const res = Reflect.set(target, key, newValue, receiver);
+      const res = Reflect.set(target, key, newValue);
 
       // Only trigger change it target and receiver matches
       if (target === toRaw(receiver)) {
