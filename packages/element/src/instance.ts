@@ -77,8 +77,12 @@ class FxInstance {
   readonly shadowRoot: ShadowRoot;
   private renderTemplate: () => TemplateResult;
   private rendering: boolean = false;
-  private mounted: boolean = false;
   private shimAdoptedStyleSheets: boolean = false;
+  firstMount: boolean = true;
+
+  get mounted(): boolean {
+    return this.el?.parentNode != null;
+  }
 
   /**
    * Constructs a new element instance, holds all the functionality to avoid polluting element
@@ -178,7 +182,6 @@ class FxInstance {
       if (!this.mounted) {
         this.runHooks(HookTypes.BEFORE_MOUNT);
         run.call(this.fx);
-        this.mounted = true;
       } else {
         this.runHooks(HookTypes.BEFORE_UPDATE);
         run.call(this.fx);
@@ -260,8 +263,16 @@ export class FxElement extends HTMLElement {
    */
   connectedCallback() {
     const instance = elementInstances.get(this);
-    window.ShadyCSS?.styleElement(this);
+    instance.runHooks(HookTypes.BEFORE_MOUNT);
+
+    // Only run on subsequent connections due to being
+    //  called by shady-render on first run.
+    if (!instance.firstMount) {
+      window.ShadyCSS?.styleElement(this);
+    }
+
     instance.runHooks(HookTypes.MOUNT);
+    instance.firstMount = false;
   }
 
   /**
