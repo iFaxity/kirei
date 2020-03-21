@@ -1,0 +1,40 @@
+{
+  "name": "@shlim/store",
+  "version": "0.1.0",
+  "author": "iFaxity (christian@faxity.se)",
+  "license": "MIT",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*",
+    "src/*",
+    "directives/*"
+  ],
+  "scripts": {
+    "prepublish": "rm -rf dist && tsc",
+    "build": "tsc",
+    "clean": "rm -rf dist"
+  },
+  "homepage": "https://github.com/ifaxity/shlim",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ifaxity/shlim.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifaxity/shlim/issues"
+  },
+  "keywords": [
+    "lit-html",
+    "vue",
+    "vue3",
+    "composition",
+    "frontend",
+    "web components",
+    "custom elements",
+    "shadow dom"
+  ],
+  "peerDependencies": {
+    "@shlim/element": "^0.1.0"
+  }
+}
