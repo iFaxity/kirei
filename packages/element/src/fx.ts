@@ -1,4 +1,3 @@
-
 const targetMap = new WeakMap<object, Map<any, Set<Fx>>>();
 export enum TriggerOpTypes {
   SET = 'set',
