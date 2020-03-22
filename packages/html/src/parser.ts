@@ -2,14 +2,13 @@ import udomdiff from 'udomdiff';
 import {diffable} from './shared';
 
 const directives = new Map<string, (dir: Directive) => DirectiveFactory>();
-const shorthands = new Map<string, string>();
 
 // implement local directives?
 type Parser = (newValue: any) => void;
 
 interface Directive {
-  name: string;
   el: Element;
+  name: string;
   arg: string;
   mods: string[];
 }
@@ -37,24 +36,34 @@ function diff(node, oldNodes, newNodes) {
   return udomdiff(node.parentNode, oldNodes, newNodes, diffable, node);
 }
 
-function execDirective(node: Element, name: string): DirectiveFactory {
-  const fn = directives.get(name);
+const DIRECTIVE_REGEX = /^([a-z0-9-]+)(:([a-z0-9-]+))?((?:\.[a-z0-9-]+)*)$/i;
 
-  if (!fn) {
-    throw new Error('');
+function parseDirective(
+  name: string,
+  node: Element,
+  factory?: (directive: Directive) => DirectiveFactory
+): DirectiveFactory {
+  if (!factory) {
+    factory = directives.get(name);
+
+    if (!factory) {
+      throw new Error('');
+    }
   }
 
+  const match = name.match(DIRECTIVE_REGEX);
   const directive = {
     el: node,
-    name: '',
-    arg: '',
-    mods: [],
+    name: match[1],
+    arg: match[2],
+    mods: match[3].slice(1).split('.'),
   } as Directive;
 
-  return fn(directive);
+  return factory.call(undefined, directive);
 }
 
 
+// Default directives
 //ref
 //v-bind, .
 //v-on, @
@@ -62,15 +71,22 @@ function execDirective(node: Element, name: string): DirectiveFactory {
 //v-elif
 //v-not
 //v-sync, &
+function refDirective(dir: Directive) {
+  return (ref: FxRef) => { ref.value = dir.el; };
+}
 
-
-function attrParser(node: Element, name: string): DirectiveFactory {
-  if (name == 'ref') {}
-  else if (name == '') {}
-
-
-  if (name.startsWith('v-')) {
-    return execDirective(node, name.slice(2))
+export function attrParser(node: Element, name: string): DirectiveFactory {
+  if (name == 'ref') {
+    // Just simply sets the ref of this element
+    return parseDirective('ref', node, refDirective);
+  } else if (name[0] == '.') {
+    return parseDirective('bind', node);
+  } else if (name[0] == '@') {
+    return parseDirective('on', node);
+  } else if (name[0] == '&') {
+    return parseDirective('sync', node);
+  } else if (name.startsWith('v-')) {
+    return parseDirective(name.slice(2), node)
   }
 
   // Default to attribute binding
@@ -101,7 +117,7 @@ function attrParser(node: Element, name: string): DirectiveFactory {
   };
 }
 
-function nodeParser(refNode: Comment): DirectiveFactory {
+export function nodeParser(refNode: Comment): DirectiveFactory {
   let nodes = [];
   let value;
   let text;
@@ -164,7 +180,7 @@ function nodeParser(refNode: Comment): DirectiveFactory {
   return parse;
 }
 
-function textParser(node: Text): DirectiveFactory {
+export function textParser(node: Text): DirectiveFactory {
   let value;
 
   return (newValue: string) => {

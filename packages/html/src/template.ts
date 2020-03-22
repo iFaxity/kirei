@@ -28,7 +28,7 @@ export const createWalker = IE
 class Cache {
   stack: any[] = [];
   instance: TemplateInstance = null;
-  wire: any = null;
+  node: any = null; // resulting fragment
 }
 
 enum PatchType {
@@ -188,7 +188,7 @@ class Template {
     this.values = values;
   }
 
-  unroll(cache?: Cache) {
+  render(cache?: Cache) {
     cache = cache ?? new Cache();
     Template.unrollValues(cache, this.values);
 
