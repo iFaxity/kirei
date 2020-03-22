@@ -1,4 +1,5 @@
-import { HookTypes, exception, isFunction } from './shared';
+import { exception, isFunction } from '@shlim/shared';
+import { HookTypes } from './shared';
 import { activeInstance } from './instance';
 const HOOKS = new Set<string>();
 

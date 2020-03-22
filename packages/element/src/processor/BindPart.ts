@@ -1,5 +1,5 @@
 import { Part } from 'lit-html';
-import { isObject } from '../shared';
+import { isObject } from '@shlim/shared';
 
 export class FxBindPart implements Part {
   readonly element: Element;

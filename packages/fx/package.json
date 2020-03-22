@@ -1,5 +1,5 @@
 {
-  "name": "@shlim/element",
+  "name": "@shlim/fx",
   "version": "0.1.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
@@ -8,11 +8,10 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/*",
-    "src/*",
-    "directives/*"
+    "src/*"
   ],
   "scripts": {
-    "prepublishOnly": "rm -rf dist && tsc",
+    "prepublish": "rm -rf dist && tsc",
     "build": "tsc",
     "clean": "rm -rf dist"
   },
@@ -35,8 +34,6 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@shlim/shared": "^0.1.0",
-    "@shlim/fx": "^0.1.0",
-    "lit-html": "^1.1.2"
+    "@shlim/shared": "^0.1.0"
   }
 }

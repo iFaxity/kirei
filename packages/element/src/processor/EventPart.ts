@@ -1,5 +1,5 @@
 import { Part, noChange, isDirective } from 'lit-html';
-import { isFunction, camelToKebab } from '../shared';
+import { isFunction, camelToKebab } from '@shlim/shared';
 
 const NOOP = () => {};
 

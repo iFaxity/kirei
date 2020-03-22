@@ -8,8 +8,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/*",
-    "src/*",
-    "directives/*"
+    "src/*"
   ],
   "scripts": {
     "prepublish": "rm -rf dist && tsc",
@@ -38,6 +37,7 @@
     "@shlim/element": "^0.1.0"
   },
   "dependencies": {
+    "@shlim/shared": "^0.1.0",
     "path-to-regexp": "^6.1.0"
   }
 }

@@ -8,11 +8,12 @@ const supportsAdoptingStyleSheets =
   * @param {*} values
   * @returns {CSSResult}
   */
-export const css = (strings: TemplateStringsArray, ...values: any) => new CSSResult(strings, values);
+export const css = (strings: TemplateStringsArray, ...values: readonly unknown[]) => new CSSResult(strings, values);
 
 export class CSSResult {
   private readonly cssText: string;
   private styles: CSSStyleSheet;
+
   /**
    * Applies adopted stylesheets shim, returns false if shim needs
    *  to be done manually through style tags
@@ -47,7 +48,7 @@ export class CSSResult {
    * Gets the constructible stylesheet
    * @returns {CSSStyleSheet}
    */
-  get styleSheet() {
+  get styleSheet(): CSSStyleSheet {
     if (typeof this.styles != 'undefined') {
       return this.styles;
     }

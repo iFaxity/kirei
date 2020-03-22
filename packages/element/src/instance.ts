@@ -1,7 +1,7 @@
 import { ShadyRenderOptions, render, TemplateResult } from 'lit-html/lib/shady-render';
-import { isFunction, mapObject, camelToKebab, HookTypes, warn, exception } from './shared';
-import { Fx, TriggerOpTypes } from './fx';
-import { toReactive } from './reactive';
+import { isFunction, mapObject, camelToKebab, warn, exception } from '@shlim/shared';
+import { Fx, TriggerOpTypes, toReactive } from '@shlim/fx';
+import { HookTypes } from './shared';
 import * as Queue from './queue';
 import { CSSResult, shimAdoptedStyleSheets } from './css';
 import {

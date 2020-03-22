@@ -1,4 +1,5 @@
 import udomdiff from 'udomdiff';
+import { Ref, isRef } from '@shlim/fx';
 import {diffable} from './shared';
 
 const directives = new Map<string, (dir: Directive) => DirectiveFactory>();
@@ -52,6 +53,10 @@ function parseDirective(
   }
 
   const match = name.match(DIRECTIVE_REGEX);
+  if (!match) {
+    throw new TypeError('Invalid directive format');
+  }
+
   const directive = {
     el: node,
     name: match[1],
@@ -63,30 +68,28 @@ function parseDirective(
 }
 
 
-// Default directives
-//ref
-//v-bind, .
-//v-on, @
-//v-if
-//v-elif
-//v-not
-//v-sync, &
 function refDirective(dir: Directive) {
-  return (ref: FxRef) => { ref.value = dir.el; };
+  return (ref: Ref<Element>) => {
+    if (!isRef(ref)) {
+      throw new TypeError('');
+    }
+
+    ref.value = dir.el;
+  };
 }
 
 export function attrParser(node: Element, name: string): DirectiveFactory {
   if (name == 'ref') {
-    // Just simply sets the ref of this element
     return parseDirective('ref', node, refDirective);
   } else if (name[0] == '.') {
-    return parseDirective('bind', node);
+    return parseDirective(`bind:${name.slice(1)}`, node);
   } else if (name[0] == '@') {
-    return parseDirective('on', node);
+    return parseDirective(`on:${name.slice(1)}`, node);
   } else if (name[0] == '&') {
-    return parseDirective('sync', node);
+    const args = name.length > 1 ? `:${name.slice(1)}` : '';
+    return parseDirective(`sync${args}`, node);
   } else if (name.startsWith('v-')) {
-    return parseDirective(name.slice(2), node)
+    return parseDirective(name.slice(2), node);
   }
 
   // Default to attribute binding
@@ -198,5 +201,32 @@ export function addDirective(key: string, directive: (dir: Directive) => Directi
 
   directives.set(key, directive);
 }
+
+
+// Default directives
+//ref
+//v-bind, .
+//v-on, @
+//v-if
+//v-not
+//v-sync, &
+addDirective('bind', dir => {
+  return (newValue) => {};
+});
+addDirective('on', dir => {
+  return (newValue) => {};
+});
+addDirective('if', dir => {
+  return (newValue) => {};
+});
+addDirective('not', dir => {
+  return (newValue) => {};
+});
+addDirective('sync', dir => {
+  return (newValue) => {};
+});
+addDirective('show', dir => {
+  return (newValue) => {};
+});
 
 

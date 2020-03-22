@@ -1,8 +1,8 @@
 export { directive } from 'lit-html';
+export * from '@shlim/fx';
 export { defineElement, FxElement } from './instance';
 export { nextTick } from './queue';
 export { css } from './css';
-export * from './reactive';
 export * from './lifecycle';
 export * from './processor';
 

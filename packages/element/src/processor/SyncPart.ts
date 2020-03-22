@@ -1,11 +1,11 @@
 import { Part } from 'lit-html';
 import { FxElement, elementInstances } from '../instance';
-import { FxRef, isRef } from '../reactive';
-import { isFunction } from '../shared';
+import { Ref, isRef } from '@shlim/fx';
+import { isFunction } from '@shlim/shared';
 
 // Detect if native element or custom element, if native then bind like vuejs does
 export class FxSyncPart implements Part {
-  private ref: FxRef;
+  private ref: Ref;
   readonly element: Element;
   readonly value: unknown;
   readonly commit: () => void;
@@ -83,7 +83,7 @@ export class FxSyncPart implements Part {
   /**
    * Sets the ref value for this part
    */
-  setValue(ref: FxRef): void {
+  setValue(ref: Ref): void {
     if (!isRef(ref)) {
       throw new TypeError('Sync attributes values requires a ref as their value!');
     }
@@ -138,7 +138,7 @@ export class FxSyncPart implements Part {
 
   private checkboxHandler(): boolean | string | string[] {
     const element = this.element as HTMLInputElement;
-    const list: FxRef<string> = this.ref.value;
+    const list: Ref<string> = this.ref.value;
     const { value, checked } = element;
 
     if (Array.isArray(list)) {

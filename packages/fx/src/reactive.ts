@@ -1,17 +1,15 @@
 import { Fx, activeFx, ITERATE_KEY, TriggerOpTypes } from './fx';
+import { isObject, isFunction, mapObject } from '@shlim/shared';
 import {
-  isObject,
-  isFunction,
-  isCollection,
   isObservable,
-  mapObject,
+  isCollection,
   MapCollection,
   SetCollection,
-  Collection,
   AnyCollection,
+  Collection,
 } from './shared';
 
-export type FxRef<T = any> = { value: T; };
+export type Ref<T = any> = { value: T; };
 
 type StopEffect = () => void;
 type Computed<T> = () => T;
@@ -21,7 +19,7 @@ interface ComputedOptions<T> {
 }
 
 const REF_KEY = Symbol('ref');
-const reactiveMap: WeakMap<any, any> = new WeakMap();
+const reactiveMap = new WeakMap<any, any>();
 const arrayShims = [ 'indexOf', 'lastIndexOf', 'includes' ];
 
 /**
@@ -37,10 +35,10 @@ export function toReactive<T extends object>(target: T): T {
 /**
  * Creates a ref object from an object with a getter & setter for value
  * @param {object} target Target to create a ref from
- * @returns {FxRef}
+ * @returns {Ref}
  */
-function createRef<T>(target: object): FxRef<T> {
-  return (target[REF_KEY] = true) && target as FxRef<T>;
+function createRef<T>(target: object): Ref<T> {
+  return (target[REF_KEY] = true) && target as Ref<T>;
 }
 
 /**
@@ -255,7 +253,7 @@ function collectionHandlers<T extends object>(immutable: boolean): ProxyHandler<
  * @param {*} target Target to check
  * @returns {boolean}
  */
-export function isRef(target: any): target is FxRef {
+export function isRef(target: any): target is Ref {
   return target != null && !!target[REF_KEY];
 }
 
@@ -290,9 +288,9 @@ export function toRawValue(target: unknown): unknown {
  * Creates a ref wrapper from a property within a reactive object
  * @param {object} target
  * @param {key} string
- * @returns {FxRef}
+ * @returns {Ref}
  */
-export function toRef<T extends object>(target: object, key: string): FxRef<T> {
+export function toRef<T extends object>(target: object, key: string): Ref<T> {
   return createRef<T>({
     get value() { return target[key]; },
     set value(newValue) { target[key] = newValue; }
@@ -305,7 +303,7 @@ export function toRef<T extends object>(target: object, key: string): FxRef<T> {
  *
  * @return {object} of refs
  */
-export function toRefs<T extends object>(target: T): Record<string, FxRef<T>> {
+export function toRefs<T extends object>(target: T): Record<string, Ref<T>> {
   return mapObject((key) => [ key, toRef(target, key)], target);
 }
 
@@ -314,9 +312,9 @@ export function toRefs<T extends object>(target: T): Record<string, FxRef<T>> {
  * Creates a reactive ref of a native value
  * Creates a ref
  * @param {null|undefined|number|string|boolean} target
- * @returns {FxRef}
+ * @returns {Ref}
  */
-export function ref<T>(target: T): FxRef<T> {
+export function ref<T>(target: T): Ref<T> {
   if (isRef(target)) return target;
 
   // if target is object create proxy for it
@@ -338,9 +336,9 @@ export function ref<T>(target: T): FxRef<T> {
 /**
  * Creates a computed getter (and setter) as a ref object
  * @param {Function|object} target - function if getter only or object with get and set as functions.
- * @returns {FxRef}
+ * @returns {Ref}
  */
-export function computed<T>(target: ComputedOptions<T> | Computed<T>): FxRef<T> {
+export function computed<T>(target: ComputedOptions<T> | Computed<T>): Ref<T> {
   let setter: (newValue: T) => void;
   let getter: () => T;
 
@@ -461,7 +459,7 @@ interface WatcherOptions {
   immediate?: boolean;
   deep?: boolean;
 }
-type WatchTarget<T = any> = FxRef<T> | (() => T);
+type WatchTarget<T = any> = Ref<T> | (() => T);
 type InferWatchValues<T> = {
   [K in keyof T]: T[K] extends WatchTarget<infer V> ? V : never;
 }

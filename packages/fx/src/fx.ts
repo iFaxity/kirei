@@ -43,8 +43,8 @@ export class Fx {
    * @param {*} obj
    * @return {boolean}
    */
-  static isFx(obj: unknown): obj is Fx {
-    return obj instanceof Fx;
+  static isFx(target: unknown): target is Fx {
+    return target instanceof Fx;
   }
 
   /**

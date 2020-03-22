@@ -12,8 +12,8 @@ import { FxBindPart } from './BindPart';
 import { FxConditionalPart } from './ConditionalPart';
 import { FxEventPart } from './EventPart';
 import { FxSyncPart } from './SyncPart';
-import { isObject } from '../shared';
-import { toRawValue, FxRef, isRef } from '../reactive';
+import { isObject } from '@shlim/shared';
+import { toRawValue, Ref, isRef } from '@shlim/fx';
 export { Part, RenderOptions };
 
 const NAME_REGEX = /^v-(\w+)(.*)$/;
@@ -81,14 +81,14 @@ export class FxPropertyCommitter extends PropertyCommitter {
 // Just a part to set references for an element
 export class FxRefPart implements Part {
   readonly element: Element;
-  ref: FxRef;
+  ref: Ref;
   value: unknown;
 
   constructor(element: Element) {
     this.element = element;
   }
 
-  setValue(ref: FxRef) {
+  setValue(ref: Ref) {
     if (!isRef(ref)) {
       throw new TypeError('Ref attributes requires a ref as their expression!');
     }

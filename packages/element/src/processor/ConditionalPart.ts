@@ -1,5 +1,5 @@
 import { Part, noChange, isDirective } from 'lit-html';
-import { toRawValue } from '../reactive';
+import { toRawValue } from '@shlim/fx';
 
 export class FxConditionalPart implements Part {
   readonly element: Element;

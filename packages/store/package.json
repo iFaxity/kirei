@@ -8,8 +8,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/*",
-    "src/*",
-    "directives/*"
+    "src/*"
   ],
   "scripts": {
     "prepublish": "rm -rf dist && tsc",

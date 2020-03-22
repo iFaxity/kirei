@@ -19,7 +19,9 @@
   "references": [
     { "path": "packages/element" },
     { "path": "packages/router" },
-    { "path": "packages/store" }
+    { "path": "packages/store" },
+    { "path": "packages/fx" },
+    { "path": "packages/shared" },
   ],
   "include": ["packages/*"],
   "exclude": ["**/node_modules"]
