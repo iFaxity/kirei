@@ -1,4 +1,4 @@
-import { directive } from './';
+import { directive } from '../directive';
 import { isObject, warn } from '@shlim/shared';
 
 directive('bind', dir => {

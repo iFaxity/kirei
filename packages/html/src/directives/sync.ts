@@ -1,7 +1,7 @@
 import { FxElement, elementInstances } from '@shlim/element';
 import { Ref, isRef } from '@shlim/fx';
 import { isFunction } from '@shlim/shared';
-import { directive, Directive } from './';
+import { directive, Directive } from '../directive';
 
 
 

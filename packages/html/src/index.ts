@@ -1,4 +1,6 @@
+import { CSSResult } from './css';
 import { Template, TemplateCache } from './template';
+
 
 function literal(type: string) {
   // both `html` and `svg` tags have their own cache
@@ -32,41 +34,56 @@ function literal(type: string) {
     return res;
   };
 
+  // TODO: maybe use promises in nodeParser instead?
+  /*template.until = (...args: unknown[]) => {
+    let lastRendered = 0;
+
+    for (let i = 0; i < args.length; i++) {
+      const value = args[i];
+
+      if (isPrimitive || isFunction((value as Promise<any>)?.then)) {
+
+      }
+      
+      Promise.resolve();
+    }
+  };*/
+
   return template;
 }
 
+/**
+  * Creates a new CSS template
+  * @param {TemplateStringsArray} strings
+  * @param {*} values
+  * @returns {CSSResult}
+  */
+export const css = (strings: TemplateStringsArray, ...values: readonly unknown[]) => new CSSResult(strings, values);
 export const html = literal('html');
 export const svg = literal('svg');
 
-const rendered = new WeakMap<Element, TemplateCache>();
+type Root = HTMLElement|ShadowRoot|DocumentFragment;
+const rendered = new WeakMap<Root, TemplateCache>();
 
-function clearChildren(node: Node) {
-  while (node.lastChild) {
-    node.removeChild(node.lastChild);
+export function render(root: Root, template: Template): void {
+  if (!(template instanceof Template)) {
+    throw new TypeError('Template renderer can expects a valid Template as it\'s second argument');
   }
-}
 
-export function render(root: Element, template: Template): void {
   let cache = rendered.get(root);
-
   if (!cache) {
     cache = new TemplateCache();
     rendered.set(root, cache);
   }
 
   const node = template.unroll(cache);
-
   if (cache.node != node) {
-    clearChildren(root);
+    // Full re-render on root
+    cache.node = node;
+    while (root.lastChild) {
+      root.removeChild(root.lastChild);
+    }
 
-    //@ts-ignore
-    root.appendChild(node.valueOf());
+    root.appendChild(node.valueOf() as Node);
   }
 }
-
-//@ts-ignore
-window.render = render;
-//@ts-ignore
-window.html = html;
-//@ts-ignore
-window.svg = svg;

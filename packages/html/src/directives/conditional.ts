@@ -1,21 +1,24 @@
-import { directive, Directive } from './';
-import { toRawValue } from '@shlim/fx/dist';
+import { directive, Directive } from '../directive';
+import { toRawValue } from '@shlim/fx';
 
-function conditional(invert: boolean = false, dir: Directive) {
+function conditional(invert: boolean, dir: Directive) {
   const { el } = dir;
-  let value: boolean;
-  let comment = document.createComment('');
+  const comment = document.createComment('');
+  let oldNode: HTMLElement | Comment = el;
+  let value: boolean = true;
 
-  return (newValue: any) => {
+  return (newValue: unknown) => {
     newValue = toRawValue(newValue);
     const res = invert ? !newValue : !!newValue;
 
     if (value !== res) {
-      const oldChild = value ? comment : el;
-      const newChild = value ? el : comment;
+      const newNode = res ? el : comment;
+      if (newNode !== oldNode) {
+        oldNode.parentNode?.replaceChild(newNode, oldNode);
+      }
 
-      oldChild.parentNode?.replaceChild(newChild, oldChild);
-      value = value;
+      oldNode = newNode;
+      value = res;
     }
   };
 }

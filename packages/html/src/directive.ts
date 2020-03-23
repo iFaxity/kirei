@@ -56,12 +56,3 @@ export function directive(key: string, directive: DirectiveFactory): void {
 
   directives.set(key, directive);
 }
-
-
-// Default directives
-//ref
-//v-bind, .
-//v-on, @
-//v-if
-//v-not
-//v-sync, &

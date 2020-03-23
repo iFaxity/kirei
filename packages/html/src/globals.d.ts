@@ -1,10 +1,13 @@
 interface ShadyCSS {
+  nativeCss: boolean;
+  nativeShadow: boolean;
   styleElement(host: Element, overrideProps?: {[key: string]: string}): void;
   getComputedStyleValue(element: Element, property: string): string;
-  ScopingShim: undefined|{
+  prepareTemplateDom(template: Element, elementName: string): void;
+  prepareTemplateStyles(template: Element, elementName: string, typeExtension?: string): void;
+  ScopingShim: undefined | {
     prepareAdoptedCssText(cssText: string[], name: string): void;
   };
-  nativeShadow: boolean;
 }
 
 interface ShadyDOM {

@@ -1,7 +1,7 @@
 import udomdiff from 'udomdiff';
 import { toRawValue } from '@shlim/fx';
 import { diffable } from './shared';
-import { refDirective, parseDirective, DirectiveUpdater } from './directives';
+import { refDirective, parseDirective, DirectiveUpdater } from './directive';
 // import directives
 import './directives/bind';
 import './directives/conditional';

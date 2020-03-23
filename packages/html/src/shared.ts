@@ -1,3 +1,4 @@
+// Shamelessly copied from the package uwire
 const ELEMENT_NODE = 1;
 const nodeType = 111;
 

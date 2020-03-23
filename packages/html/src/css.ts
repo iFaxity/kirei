@@ -3,12 +3,15 @@ const supportsAdoptingStyleSheets =
     ('replace' in CSSStyleSheet.prototype);
 
 /**
-  * Creates a new css template
-  * @param {TemplateStringsArray} strings
-  * @param {*} values
-  * @returns {CSSResult}
-  */
-export const css = (strings: TemplateStringsArray, ...values: readonly unknown[]) => new CSSResult(strings, values);
+ * Checks if ShadyCSS polyfill is found
+ * @type {boolean}
+ */
+export const useShadyCSS = !!(window.ShadyCSS && window.ShadyCSS.prepareTemplateDom);
+
+if (!window.ShadyCSS.prepareTemplateDom) {
+  console.warn(`Incompatible ShadyCSS version detected,
+ please update the @webcomponents polyfill to the most recent version.`);
+}
 
 export class CSSResult {
   private readonly cssText: string;

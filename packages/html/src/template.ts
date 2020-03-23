@@ -1,8 +1,9 @@
 import parser from 'uparser';
 import { persistent } from './shared';
-import createContent from '@ungap/create-content';
+//import createContent from '@ungap/create-content';
 import { nodeParser, textParser, attrParser } from './parser';
 
+// Required for ShadyDOM shims to work
 const prefix = 'isµ';
 const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
 
@@ -14,9 +15,9 @@ const IE = document.importNode.length != 1;
 // is to import once, upfront, the fragment that will be cloned
 // later on, so that paths are retrieved from one already parsed,
 // hence without missing child nodes once re-cloned.
-export const createFragment = IE
+/*export const createFragment = IE
   ? (text, type) => document.importNode(createContent(text, type), true)
-  : createContent;
+  : createContent;*/
 
 // IE11 and old Edge have a different createTreeWalker signature that
 // has been deprecated in other browsers. This export is needed only
@@ -73,7 +74,7 @@ class Patch {
 }
 
 interface TemplateContent {
-  root: DocumentFragment;
+  template: HTMLTemplateElement;
   patches: Patch[];
 }
 
@@ -87,25 +88,26 @@ export class TemplateInstance {
     let node = contentCache.get(template.strings);
 
     if (!node) {
-      contentCache.set(template.strings, (node = this.compile(template)));
+      node = this.compile(template);
+      contentCache.set(template.strings, node);
     }
 
     this.template = template;
-    this.root = document.importNode(node.root, true);
+    this.root = document.importNode(node.template.content, true);
     this.patchers = node.patches.map(patch => patch.compile(this));
   }
 
   // Compile the template node, mapTemplate
   protected compile(template: Template): TemplateContent {
+    // Compile the template element
     const { strings, type } = template;
-
-    const html = parser(strings, prefix, type == 'svg');
     const res = {
-      root: createFragment(html, type),
+      template: document.createElement('template'),
       patches: [],
     } as TemplateContent;
+    res.template.innerHTML = parser(strings, prefix, type == 'svg');
 
-    const walker = createWalker(res.root);
+    const walker = createWalker(res.template.content);
     const len = strings.length - 1;
     let i = 0;
     let search = `${prefix}${i}`;
@@ -154,8 +156,8 @@ export class TemplateInstance {
   }
 
   render(values: any[]): Node {
-    for (let i = 0; i < values.length; i++) {
-      this.patchers[i](values[i]);
+    for (let idx = 0; idx < values.length; idx++) {
+      this.patchers[idx](values[idx]);
     }
 
     // Create wire if it doesn't exist
