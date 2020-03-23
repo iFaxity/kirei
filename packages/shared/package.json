@@ -11,9 +11,9 @@
     "src/*"
   ],
   "scripts": {
-    "prepublishOnly": "rm -rf dist && tsc --build",
-    "build": "tsc --build",
-    "clean": "rm -rf dist"
+    "prepublishOnly": "npm run clean && npm run build",
+    "build": "tsc -b",
+    "clean": "rm -rf dist && rm -f *.tsbuildinfo"
   },
   "homepage": "https://github.com/ifaxity/shlim",
   "repository": {
