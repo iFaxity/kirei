@@ -8,12 +8,11 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/*",
-    "src/*",
-    "directives/*"
+    "src/*"
   ],
   "scripts": {
-    "prepublishOnly": "rm -rf dist && tsc",
-    "build": "tsc",
+    "prepublishOnly": "rm -rf dist && tsc --build",
+    "build": "tsc --build",
     "clean": "rm -rf dist"
   },
   "homepage": "https://github.com/ifaxity/shlim",
@@ -35,8 +34,8 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@shlim/shared": "^0.1.0",
     "@shlim/fx": "^0.1.0",
+    "@shlim/shared": "^0.1.0",
     "@ungap/create-content": "^0.1.4",
     "udomdiff": "^1.0.9",
     "umap": "^1.0.2",

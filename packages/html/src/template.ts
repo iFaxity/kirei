@@ -1,6 +1,7 @@
 import parser from 'uparser';
 import { persistent } from './shared';
 import createContent from '@ungap/create-content';
+import { nodeParser, textParser, attrParser } from './parser';
 
 const prefix = 'isµ';
 const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
@@ -25,7 +26,7 @@ export const createWalker = IE
   ? node => document.createTreeWalker(node, filter, null, false)
   : node => document.createTreeWalker(node, filter);
 
-class Cache {
+export class TemplateCache {
   stack: any[] = [];
   instance: TemplateInstance = null;
   node: any = null; // resulting fragment
@@ -43,43 +44,32 @@ class Patch {
   static textTags = ['style', 'textarea'];
   readonly type: PatchType;
   readonly name: string;
-  readonly path: number[];
+  readonly path: number[] = [];
   readonly parser: (newValue: unknown) => void;
 
   constructor(type: number, node: Node, name: string = null) {
     this.type = type;
     this.name = name;
-    this.path = [];
 
     // Track the path up to the root node, essentialy "paving" a path
     let parent = node.parentNode;
     while (parent) {
       const idx = Array.prototype.indexOf.call(parent.childNodes, node);
       this.path.unshift(idx);
-      [node, parent] = [parent, node.parentNode];
+      [node, parent] = [parent, parent.parentNode];
     }
-  }
-
-  findNode(root: Node): Node {
-    return this.path.reduce((node, i) => node.childNodes[i], root);
   }
 
   compile(instance: TemplateInstance): Patcher {
-    const root = instance.root as Node;
-    const node = this.path.reduce((n, i) => n.childNodes[i], root);
+    const node = this.path.reduce<Node>((n, i) => n.childNodes[i], instance.root);
 
     if (this.type == PatchType.ATTR) {
-      return this.attrParser(node, patch.name);
+      return attrParser(node as Element, this.name);
     } else if (this.type == PatchType.TEXT) {
-      return this.textParser(node);
+      return textParser(node as Text);
     }
-
-    return this.nodeParser(node);
+    return nodeParser(node as Comment);
   }
-
-  protected nodePatcher() {}
-  protected textPatcher() {}
-  protected attrPatcher() {}
 }
 
 interface TemplateContent {
@@ -87,7 +77,7 @@ interface TemplateContent {
   patches: Patch[];
 }
 
-class TemplateInstance {
+export class TemplateInstance {
   readonly patchers: Patcher[];
   readonly root: DocumentFragment;
   readonly template: Template;
@@ -163,7 +153,7 @@ class TemplateInstance {
     return res;
   }
 
-  update(values: any[]): Node {
+  render(values: any[]): Node {
     for (let i = 0; i < values.length; i++) {
       this.patchers[i](values[i]);
     }
@@ -177,7 +167,7 @@ class TemplateInstance {
 }
 
 // Hole
-class Template {
+export class Template {
   readonly type: string;
   readonly strings: TemplateStringsArray;
   readonly values: any[];
@@ -188,8 +178,8 @@ class Template {
     this.values = values;
   }
 
-  render(cache?: Cache) {
-    cache = cache ?? new Cache();
+  unroll(cache?: TemplateCache) {
+    cache = cache ?? new TemplateCache();
     Template.unrollValues(cache, this.values);
 
     const other = cache.instance;
@@ -198,19 +188,19 @@ class Template {
       cache.instance = new TemplateInstance(this);
     }
 
-    return cache.instance.update(this.values);
+    return cache.instance.render(this.values);
   }
 
-  protected static unrollValues(cache: Cache, values: any[]) {
+  protected static unrollValues(cache: TemplateCache, values: any[]) {
     let { stack } = cache;
 
     for (let i = 0; i < values.length; i++) {
       const value = values[i];
 
       if (value instanceof Template) {
-        values[i] = value.unroll(stack[i] ?? (stack[i] = new Cache()));
+        values[i] = value.unroll(stack[i] ?? (stack[i] = new TemplateCache()));
       } else if (Array.isArray(value)) {
-        this.unrollValues(stack[i] ?? (stack[i] = new Cache()), value);
+        this.unrollValues(stack[i] ?? (stack[i] = new TemplateCache()), value);
       } else {
         stack[i] = null;
       }
@@ -231,15 +221,14 @@ class Template {
 
 
 // Template.content and template.updates are cached
-// 
 
-// cache = Cache
-// entry = Template
+// cache = TemplateCache
+// entry = TemplateInstance
 // hole = Template
 
-// createCache() = new Cache()
+// createCache() = new TemplateCache()
 // createEntry(type, template) = Template
 // mapTemplate(type, template) = Template.compile
-// unroll(info, Hole)
-// unrollValues(info, values, length)
+// unroll(info, Hole) = Template.unroll
+// unrollValues(info, values, length) = Template.unrollValues
 // new Hole(type, template, values) = new Template(type, strings, values)

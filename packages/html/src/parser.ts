@@ -1,21 +1,13 @@
 import udomdiff from 'udomdiff';
-import { Ref, isRef } from '@shlim/fx';
-import {diffable} from './shared';
-
-const directives = new Map<string, (dir: Directive) => DirectiveFactory>();
-
-// implement local directives?
-type Parser = (newValue: any) => void;
-
-interface Directive {
-  el: Element;
-  name: string;
-  arg: string;
-  mods: string[];
-}
-
-type DirectiveFactory = (newValue: unknown) => void;
-
+import { toRawValue } from '@shlim/fx';
+import { diffable } from './shared';
+import { refDirective, parseDirective, DirectiveUpdater } from './directives';
+// import directives
+import './directives/bind';
+import './directives/conditional';
+import './directives/on';
+import './directives/show';
+import './directives/sync';
 
 // this helper avoid code bloat around handleAnything() callback
 function diff(node, oldNodes, newNodes) {
@@ -37,48 +29,46 @@ function diff(node, oldNodes, newNodes) {
   return udomdiff(node.parentNode, oldNodes, newNodes, diffable, node);
 }
 
-const DIRECTIVE_REGEX = /^([a-z0-9-]+)(:([a-z0-9-]+))?((?:\.[a-z0-9-]+)*)$/i;
+function defaultAttrParser(node: Element, name: string): DirectiveUpdater {
+  const attr = document.createAttribute(name);
+  let mounted = false;
+  let value;
+  const mapValue = name == 'class' || name == 'style';
 
-function parseDirective(
-  name: string,
-  node: Element,
-  factory?: (directive: Directive) => DirectiveFactory
-): DirectiveFactory {
-  if (!factory) {
-    factory = directives.get(name);
+  return (pending: any) => {
+    let newValue = toRawValue(pending) as any;
 
-    if (!factory) {
-      throw new Error('');
+    if (value !== newValue) {
+      if (newValue == null) {
+        if (!mounted) {
+          node.removeAttributeNode(attr);
+          mounted = false;
+        }
+      } else {
+        if (mapValue && typeof newValue == 'object') {
+          let classes: string[];
+          if (Array.isArray(newValue)) {
+            classes = newValue.filter(x => x);
+          } else {
+            classes = Object.keys(newValue).filter(key => !!newValue[key]);
+          }
+
+          newValue = classes.join(' ')
+        }
+
+        attr.value = newValue as string;
+        if (mounted) {
+          node.setAttributeNode(attr);
+          mounted = true;
+        }
+      }
+
+      value = newValue;
     }
-  }
-
-  const match = name.match(DIRECTIVE_REGEX);
-  if (!match) {
-    throw new TypeError('Invalid directive format');
-  }
-
-  const directive = {
-    el: node,
-    name: match[1],
-    arg: match[2],
-    mods: match[3].slice(1).split('.'),
-  } as Directive;
-
-  return factory.call(undefined, directive);
-}
-
-
-function refDirective(dir: Directive) {
-  return (ref: Ref<Element>) => {
-    if (!isRef(ref)) {
-      throw new TypeError('');
-    }
-
-    ref.value = dir.el;
   };
 }
 
-export function attrParser(node: Element, name: string): DirectiveFactory {
+export function attrParser(node: Element, name: string): DirectiveUpdater {
   if (name == 'ref') {
     return parseDirective('ref', node, refDirective);
   } else if (name[0] == '.') {
@@ -92,35 +82,10 @@ export function attrParser(node: Element, name: string): DirectiveFactory {
     return parseDirective(name.slice(2), node);
   }
 
-  // Default to attribute binding
-  let attr = document.createAttribute(name);
-  let noOwner = true;
-  let value;
-
-  return (newValue: string) => {
-    if (value !== newValue) {
-      value = newValue;
-      if (value == null) {
-        if (!noOwner) {
-          node.removeAttributeNode(attr);
-          noOwner = true;
-        }
-      }
-      else {
-        attr.value = newValue;
-
-        // There is no else case here.
-        // If the attribute has no owner, it's set back.
-        if (noOwner) {
-          node.setAttributeNode(attr);
-          noOwner = false;
-        }
-      }
-    }
-  };
+  return defaultAttrParser(node, name);
 }
 
-export function nodeParser(refNode: Comment): DirectiveFactory {
+export function nodeParser(refNode: Comment): DirectiveUpdater {
   let nodes = [];
   let value;
   let text;
@@ -183,7 +148,7 @@ export function nodeParser(refNode: Comment): DirectiveFactory {
   return parse;
 }
 
-export function textParser(node: Text): DirectiveFactory {
+export function textParser(node: Text): DirectiveUpdater {
   let value;
 
   return (newValue: string) => {
@@ -194,15 +159,6 @@ export function textParser(node: Text): DirectiveFactory {
   };
 }
 
-export function addDirective(key: string, directive: (dir: Directive) => DirectiveFactory): void {
-  if (directives.has(key)) {
-    throw new Error('directive already exists');
-  }
-
-  directives.set(key, directive);
-}
-
-
 // Default directives
 //ref
 //v-bind, .
@@ -210,23 +166,3 @@ export function addDirective(key: string, directive: (dir: Directive) => Directi
 //v-if
 //v-not
 //v-sync, &
-addDirective('bind', dir => {
-  return (newValue) => {};
-});
-addDirective('on', dir => {
-  return (newValue) => {};
-});
-addDirective('if', dir => {
-  return (newValue) => {};
-});
-addDirective('not', dir => {
-  return (newValue) => {};
-});
-addDirective('sync', dir => {
-  return (newValue) => {};
-});
-addDirective('show', dir => {
-  return (newValue) => {};
-});
-
-
