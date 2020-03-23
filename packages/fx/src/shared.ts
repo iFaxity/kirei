@@ -7,7 +7,6 @@ export type Collection = Set<object> | Map<object, object>;
 export type AnyCollection = MapCollection | SetCollection;
 export type Observable = object | AnyCollection;
 
-
 /**
  * Checks if a variable is a collection (Set, Map, WeakSet, WeakMap)
  * @param {*} obj
