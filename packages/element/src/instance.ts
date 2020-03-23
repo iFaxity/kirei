@@ -133,7 +133,7 @@ class FxInstance {
     // Run setup function to gather reactive data
     // Pause tracking while calling setup function
     Fx.pauseTracking();
-    this.renderTemplate = options.setup.call(undefined, propsProxy, ctx);
+    this.renderTemplate = options.setup.call(null, propsProxy, ctx);
     Fx.resetTracking();
     activeInstance = null;
 
@@ -160,7 +160,7 @@ class FxInstance {
     if (hooks?.size) {
       hooks.forEach(fn => {
         Fx.pauseTracking();
-        isFunction(fn) && fn.call(undefined);
+        isFunction(fn) && fn.call(null);
         Fx.resetTracking();
       });
     }

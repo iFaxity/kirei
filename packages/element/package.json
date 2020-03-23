@@ -12,8 +12,8 @@
     "directives/*"
   ],
   "scripts": {
-    "prepublishOnly": "rm -rf dist && tsc",
-    "build": "tsc",
+    "prepublishOnly": "rm -rf dist && tsc --build",
+    "build": "tsc --build",
     "clean": "rm -rf dist"
   },
   "homepage": "https://github.com/ifaxity/shlim",
