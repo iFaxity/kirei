@@ -1,4 +1,4 @@
-import { ShadyRenderOptions, render, TemplateResult } from 'lit-html/lib/shady-render';
+import { Template, render } from '@shlim/html';
 import { isFunction, mapObject, camelToKebab, warn, exception } from '@shlim/shared';
 import { Fx, TriggerOpTypes, toReactive } from '@shlim/fx';
 import { HookTypes } from './shared';
@@ -22,7 +22,7 @@ export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
   closed?: boolean;
   props?: P;
   sync?: string;
-  setup(this: void, props: T, ctx: FxContext): () => TemplateResult;
+  setup(this: void, props: T, ctx: FxContext): () => Template;
   styles?: CSSResult|CSSResult[];
 }
 
@@ -71,11 +71,11 @@ class FxInstance {
   readonly options: NormalizedFxOptions;
   readonly ctx: FxContext;
   readonly hooks: Record<string, Set<Function>>;
-  readonly renderOptions: ShadyRenderOptions;
+  //readonly renderOptions: ShadyRenderOptions;
   readonly fx: Fx;
   readonly props: PropsData;
   readonly shadowRoot: ShadowRoot;
-  private renderTemplate: () => TemplateResult;
+  private renderTemplate: () => Template;
   private rendering: boolean = false;
   private shimAdoptedStyleSheets: boolean = false;
   firstMount: boolean = true;
@@ -97,7 +97,7 @@ class FxInstance {
     this.options = options;
     this.ctx = new FxContext(el, options);
     this.hooks = {};
-    this.renderOptions = { scopeName: options.tag, eventContext: el };
+    //this.renderOptions = { scopeName: options.tag, eventContext: el };
     this.fx = new Fx(this.update.bind(this), {
       lazy: true,
       computed: false,
@@ -201,11 +201,11 @@ class FxInstance {
     const { shadowRoot, options } = this;
     const result = this.renderTemplate();
 
-    if (!(result instanceof TemplateResult)) {
+    if (!(result instanceof Template)) {
       exception('Setup must return a function that returns a TemplateResult', `${options.name}#setup`);
     }
 
-    render(result, shadowRoot, this.renderOptions);
+    render(result, shadowRoot);
 
     if (this.shimAdoptedStyleSheets) {
       options.styles.forEach(style => shadowRoot.appendChild(style.createElement()));

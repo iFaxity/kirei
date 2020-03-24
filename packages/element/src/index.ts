@@ -1,20 +1,25 @@
-export { directive } from 'lit-html';
 export * from '@shlim/fx';
 export { defineElement, FxElement, elementInstances } from './instance';
 export { nextTick } from './queue';
 export { css } from './css';
 export * from './lifecycle';
-export * from './processor';
+export { html, svg } from '@shlim/html';
 
-import { templateProcessor } from './processor';
-import { TemplateResult, SVGTemplateResult } from 'lit-html';
+
+// import directives
+import './directives/bind';
+import './directives/conditional';
+import './directives/on';
+import './directives/ref';
+import './directives/show';
+import './directives/sync';
 
 /**
  * Creates a TemplateResult to cache markup, parses content as normal html
  * @param {TemplateStringsArray} strings Template strings
  * @param {*} values Template values
  * @returns {TemplateResult}
- */
+ *
 export const html = (strings, ...values) => new TemplateResult(strings, values, 'html', templateProcessor);
 
 /**
@@ -22,5 +27,6 @@ export const html = (strings, ...values) => new TemplateResult(strings, values, 
  * @param {TemplateStringsArray} strings Template strings
  * @param {*} values Template values
  * @returns {TemplateResult}
- */
+ *
 export const svg = (strings, ...values) => new SVGTemplateResult(strings, values, 'svg', templateProcessor);
+*/

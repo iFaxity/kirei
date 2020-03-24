@@ -8,8 +8,7 @@
   "types": "dist/index.d.ts",
   "files": [
     "dist/*",
-    "src/*",
-    "directives/*"
+    "src/*"
   ],
   "scripts": {
     "prepublishOnly": "npm run clean && npm run build",
@@ -35,8 +34,7 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@shlim/shared": "^0.1.0",
     "@shlim/fx": "^0.1.0",
-    "lit-html": "^1.1.2"
+    "@shlim/shared": "^0.1.0"
   }
 }
