@@ -79,15 +79,12 @@ export class TemplateInstance {
   // Compile the template node, mapTemplate
   protected compile(template: Template): TemplateContent {
     // Compile the template element
-    const { strings, type } = template;
     const res = {
-      template: document.createElement('template'),
+      template: template.element,
       patches: [],
     } as TemplateContent;
-    res.template.innerHTML = parser(strings, prefix, type == 'svg');
-
     const walker = createWalker(res.template.content);
-    const len = strings.length - 1;
+    const len = template.strings.length - 1;
     let i = 0;
     let search = `${prefix}${i}`;
 
@@ -96,7 +93,6 @@ export class TemplateInstance {
       if (!node) throw new Error('Parsing error');
 
       const text = node.textContent;
-
       // if the current node is a comment, and it contains isµX
       // it means the update should take care of any content
       if (node.nodeType == Node.COMMENT_NODE) {
@@ -152,15 +148,20 @@ export class Template {
   readonly strings: TemplateStringsArray;
   readonly values: any[];
 
+  get element(): HTMLTemplateElement {
+    const template = document.createElement('template');
+    template.innerHTML = parser(this.strings, prefix, this.type == 'svg');
+    return template;
+  }
+
   constructor(type: string, strings: TemplateStringsArray, values: any[]) {
     this.type = type;
     this.strings = strings;
     this.values = values;
   }
 
-  unroll(cache?: TemplateCache) {
-    cache = cache ?? new TemplateCache();
-    Template.unrollValues(cache, this.values);
+  unroll(cache: TemplateCache) {
+    this.unrollValues(cache, this.values);
 
     const other = cache.instance;
     if (!other || !this.equals(other.template)) {
@@ -171,8 +172,13 @@ export class Template {
     return cache.instance.render(this.values);
   }
 
-  protected static unrollValues(cache: TemplateCache, values: any[]) {
+  protected unrollValues(cache: TemplateCache, values: any[]) {
     const { stack } = cache;
+    if (values.length < stack.length) {
+      // Drain redundant items in the stack
+      stack.splice(values.length);
+    }
+
     for (let i = 0; i < values.length; i++) {
       const value = values[i];
 
@@ -184,13 +190,6 @@ export class Template {
         stack[i] = null;
       }
     }
-
-    // Drain the last items in the stack
-    // TODO: this look redundant, might be GC voodoo
-    /*if (values.length < stack.length) {
-      stack = stack.slice(0, length);
-      stack.splice(length);
-    }*/
   }
 
   equals(other: Template): boolean {

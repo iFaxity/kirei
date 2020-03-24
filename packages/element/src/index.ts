@@ -1,9 +1,9 @@
 export * from '@shlim/fx';
+export { html, svg } from '@shlim/html';
 export { defineElement, FxElement, elementInstances } from './instance';
 export { nextTick } from './queue';
 export { css } from './css';
 export * from './lifecycle';
-export { html, svg } from '@shlim/html';
 
 
 // import directives
