@@ -1,37 +1,46 @@
-import { CSSResult } from './css';
+import { isFunction } from '@shlim/shared';
+import { toRawValue } from '@shlim/fx';
 import { Template, TemplateCache } from './template';
 
+export { Template };
+export { directive, Directive, DirectiveFactory, DirectiveUpdater } from './directive';
 
 function literal(type: string) {
-  // both `html` and `svg` tags have their own cache
-  const keyed = new WeakMap<object, Map<any, Function>>();
+  // both `html` and `svg` tags have their own cache for keyed renders
+  const keyed = new WeakMap<any, Map<any, TemplateCache>>();
 
   function template(strings: TemplateStringsArray, ...values: any[]): Template {
     return new Template(type, strings, values);
   }
 
-  // keyed operations need a reference object, usually the parent node
-  // which is showing keyed results, and optionally a unique id per each
-  // related node, handy with JSON results and mutable list of objects
-  // that usually carry a unique identifier
-  template.for = (ref: object, id: any) => {
-    let memo = keyed.get(ref);
-    if (!memo) {
-      memo = new Map();
-      keyed.set(ref, memo);
+  type TemplateOrKey<T> = (item: T, idx: number) => (any | Template);
+  type TemplateKey<T> = (item: T, idx: number) => Template;
+  template.for = <T>(items: Iterable<T>, key: TemplateOrKey<T>, templateFn?: TemplateKey<T>) => {
+    // Get id of the item
+    if (!isFunction(templateFn)) {
+      templateFn = key;
+      key = () => undefined;
     }
 
-    // keyed operations always re-use the same cache and unroll
-    // the template and its interpolations right away
-    let res = memo.get(id);
-    if (!res) {
-      const cache = new TemplateCache();
+    return Array.from(items).map((item, idx) => {
+      const raw = toRawValue(item);
+      let memo = keyed.get(raw);
+      if (!memo) {
+        memo = new Map();
+        keyed.set(raw, memo);
+      }
 
-      res = (strings, ...values) => template(strings, ...values).unroll(cache);
-      memo.set(id, res);
-    }
+      // keyed operations always re-use the same cache and unroll
+      // the template and its interpolations right away
+      const id = key(item, idx);
+      let cache = memo.get(id);
+      if (!cache) {
+        cache = new TemplateCache();
+        memo.set(id, cache);
+      }
 
-    return res;
+      return templateFn(item, idx).unroll(cache);
+    });
   };
 
   // TODO: maybe use promises in nodeParser instead?
@@ -58,14 +67,14 @@ function literal(type: string) {
   * @param {*} values
   * @returns {CSSResult}
   */
-export const css = (strings: TemplateStringsArray, ...values: readonly unknown[]) => new CSSResult(strings, values);
+//export const css = (strings: TemplateStringsArray, ...values: readonly unknown[]) => new CSSResult(strings, values);
 export const html = literal('html');
 export const svg = literal('svg');
 
 type Root = HTMLElement|ShadowRoot|DocumentFragment;
 const rendered = new WeakMap<Root, TemplateCache>();
 
-export function render(root: Root, template: Template): void {
+export function render(template: Template, root: Root): void {
   if (!(template instanceof Template)) {
     throw new TypeError('Template renderer can expects a valid Template as it\'s second argument');
   }

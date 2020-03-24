@@ -1,13 +1,7 @@
 import udomdiff from 'udomdiff';
 import { toRawValue } from '@shlim/fx';
 import { diffable } from './shared';
-import { refDirective, parseDirective, DirectiveUpdater } from './directive';
-// import directives
-import './directives/bind';
-import './directives/conditional';
-import './directives/on';
-import './directives/show';
-import './directives/sync';
+import { parseDirective, DirectiveUpdater } from './directive';
 
 // this helper avoid code bloat around handleAnything() callback
 function diff(node, oldNodes, newNodes) {
@@ -29,21 +23,21 @@ function diff(node, oldNodes, newNodes) {
   return udomdiff(node.parentNode, oldNodes, newNodes, diffable, node);
 }
 
-function defaultAttrParser(node: Element, name: string): DirectiveUpdater {
-  const attr = document.createAttribute(name);
-  let mounted = false;
-  let value;
+export function attrParser(node: Element, name: string): DirectiveUpdater {
+  // Check for directive
+  const res = parseDirective(node, name);
+  if (res) return res;
+
+  // Default attribute parser
   const mapValue = name == 'class' || name == 'style';
+  let value;
 
   return (pending: any) => {
     let newValue = toRawValue(pending) as any;
 
     if (value !== newValue) {
       if (newValue == null) {
-        if (!mounted) {
-          node.removeAttributeNode(attr);
-          mounted = false;
-        }
+        node.removeAttribute(name);
       } else {
         if (mapValue && typeof newValue == 'object') {
           let classes: string[];
@@ -56,33 +50,12 @@ function defaultAttrParser(node: Element, name: string): DirectiveUpdater {
           newValue = classes.join(' ')
         }
 
-        attr.value = newValue as string;
-        if (mounted) {
-          node.setAttributeNode(attr);
-          mounted = true;
-        }
+        node.setAttribute(name, newValue);
       }
 
       value = newValue;
     }
   };
-}
-
-export function attrParser(node: Element, name: string): DirectiveUpdater {
-  if (name == 'ref') {
-    return parseDirective('ref', node, refDirective);
-  } else if (name[0] == '.') {
-    return parseDirective(`bind:${name.slice(1)}`, node);
-  } else if (name[0] == '@') {
-    return parseDirective(`on:${name.slice(1)}`, node);
-  } else if (name[0] == '&') {
-    const args = name.length > 1 ? `:${name.slice(1)}` : '';
-    return parseDirective(`sync${args}`, node);
-  } else if (name.startsWith('v-')) {
-    return parseDirective(name.slice(2), node);
-  }
-
-  return defaultAttrParser(node, name);
 }
 
 export function nodeParser(refNode: Comment): DirectiveUpdater {
@@ -92,7 +65,6 @@ export function nodeParser(refNode: Comment): DirectiveUpdater {
 
   // Clear the contents of the reference node
   refNode.textContent = '';
-
   const parse = newValue => {
     switch (typeof newValue) {
       // primitives are handled as text content
@@ -158,11 +130,3 @@ export function textParser(node: Text): DirectiveUpdater {
     }
   };
 }
-
-// Default directives
-//ref
-//v-bind, .
-//v-on, @
-//v-if
-//v-not
-//v-sync, &

@@ -8,7 +8,7 @@ const supportsAdoptingStyleSheets =
  */
 export const useShadyCSS = !!(window.ShadyCSS && window.ShadyCSS.prepareTemplateDom);
 
-if (!window.ShadyCSS.prepareTemplateDom) {
+if (!window.ShadyCSS?.prepareTemplateDom) {
   console.warn(`Incompatible ShadyCSS version detected,
  please update the @webcomponents polyfill to the most recent version.`);
 }
