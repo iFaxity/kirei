@@ -1,27 +1,6 @@
-import udomdiff from 'udomdiff';
 import { toRawValue } from '@shlim/fx';
-import { diffable } from './shared';
+import { diff } from './shared';
 import { parseDirective, DirectiveUpdater } from './directive';
-
-// this helper avoid code bloat around handleAnything() callback
-function diff(node, oldNodes, newNodes) {
-  // TODO: there is a possible edge case where a node has been
-  //       removed manually, or it was a keyed one, attached
-  //       to a shared reference between renders.
-  //       In this case udomdiff might fail at removing such node
-  //       as its parent won't be the expected one.
-  //       The best way to avoid this issue is to filter oldNodes
-  //       in search of those not live, or not in the current parent
-  //       anymore, but this would require both a change to uwire,
-  //       exposing a parentNode from the firstChild, as example,
-  //       but also a filter per each diff that should exclude nodes
-  //       that are not in there, penalizing performance quite a lot.
-  //       As this has been also a potential issue with domdiff,
-  //       and both lighterhtml and hyperHTML might fail with this
-  //       very specific edge case, I might as well document this possible
-  //       "diffing shenanigan" and call it a day.
-  return udomdiff(node.parentNode, oldNodes, newNodes, diffable, node);
-}
 
 export function attrParser(node: Element, name: string): DirectiveUpdater {
   // Check for directive

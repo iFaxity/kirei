@@ -1,31 +1,10 @@
 import parser from 'uparser';
-import { persistent } from './shared';
-//import createContent from '@ungap/create-content';
+import { persistent, createWalker } from './shared';
 import { nodeParser, textParser, attrParser } from './parser';
 
 // Required for ShadyDOM shims to work
 const prefix = 'isµ';
 const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
-
-// this "hack" tells the library if the browser is IE11 or old Edge
-const IE = document.importNode.length != 1;
-
-// IE11 and old Edge discard empty nodes when cloning, potentially
-// resulting in broken paths to find updates. The workaround here
-// is to import once, upfront, the fragment that will be cloned
-// later on, so that paths are retrieved from one already parsed,
-// hence without missing child nodes once re-cloned.
-/*export const createFragment = IE
-  ? (text, type) => document.importNode(createContent(text, type), true)
-  : createContent;*/
-
-// IE11 and old Edge have a different createTreeWalker signature that
-// has been deprecated in other browsers. This export is needed only
-// to guarantee the TreeWalker doesn't show warnings and, ultimately, works
-const filter = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT;
-export const createWalker = IE
-  ? node => document.createTreeWalker(node, filter, null, false)
-  : node => document.createTreeWalker(node, filter);
 
 export class TemplateCache {
   stack: any[] = [];
@@ -168,7 +147,6 @@ export class TemplateInstance {
   }
 }
 
-// Hole
 export class Template {
   readonly type: string;
   readonly strings: TemplateStringsArray;
@@ -194,8 +172,7 @@ export class Template {
   }
 
   protected static unrollValues(cache: TemplateCache, values: any[]) {
-    let { stack } = cache;
-
+    const { stack } = cache;
     for (let i = 0; i < values.length; i++) {
       const value = values[i];
 
@@ -210,27 +187,13 @@ export class Template {
 
     // Drain the last items in the stack
     // TODO: this look redundant, might be GC voodoo
-    if (values.length < stack.length) {
+    /*if (values.length < stack.length) {
       stack = stack.slice(0, length);
       stack.splice(length);
-    }
+    }*/
   }
 
   equals(other: Template): boolean {
     return other.strings === this.strings || other.type === this.type;
   }
 }
-
-
-// Template.content and template.updates are cached
-
-// cache = TemplateCache
-// entry = TemplateInstance
-// hole = Template
-
-// createCache() = new TemplateCache()
-// createEntry(type, template) = Template
-// mapTemplate(type, template) = Template.compile
-// unroll(info, Hole) = Template.unroll
-// unrollValues(info, values, length) = Template.unrollValues
-// new Hole(type, template, values) = new Template(type, strings, values)
