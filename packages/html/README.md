@@ -1,7 +1,7 @@
 @shlim/html
 ===================
 
-## A uhtml inspired render library
+## A uhtml inspired render library, but with custom directives and full typescript support.
 
 ------------------
 ## Installation:
