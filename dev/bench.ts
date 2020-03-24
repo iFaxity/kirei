@@ -1,6 +1,6 @@
 import './bench.html';
 import { html, defineElement, ref } from '@shlim/element';
-import { repeat } from '@shlim/element/directives/repeat';
+//import { repeat } from '@shlim/element/directives/repeat';
 
 let startTime;
 let lastMeasure;
@@ -135,7 +135,7 @@ export default defineElement({
     </div>
 </div>
 <table class="table table-hover table-striped test-data" @click=${handleClick}>
-    <tbody>${repeat(rows.value, item => item.id, item => html`
+    <tbody>${html.for(rows.value, item => item.id, item => html`
       <tr id=${item.id} class=${{danger: item.id == selected.value}}>
         <td class="col-md-1">${item.id}</td>
         <td class="col-md-4">

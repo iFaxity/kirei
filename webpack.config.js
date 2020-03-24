@@ -6,6 +6,7 @@ module.exports = {
     bench: './dev/bench.ts',
     todo: './dev/todo.ts',
     index: './dev/index.ts',
+    html: './dev/html.ts',
   },
   mode: 'development',
   devtool: 'inline-source-map',
