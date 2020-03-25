@@ -9,5 +9,10 @@
     "src/*",
     "src/directives/*",
     "src/processor/*"
+  ],
+  "references": [
+    { "path": "../shared" },
+    { "path": "../fx" },
+    { "path": "../html" }
   ]
 }

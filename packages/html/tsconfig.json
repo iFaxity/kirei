@@ -8,5 +8,9 @@
   "include": [
     "src/directives/*",
     "src/*"
+  ],
+  "references": [
+    { "path": "../shared" },
+    { "path": "../fx" },
   ]
 }

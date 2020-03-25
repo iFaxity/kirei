@@ -20,8 +20,6 @@
     { "path": "packages/shared" },
     { "path": "packages/fx" },
     { "path": "packages/element" },
-    { "path": "packages/router" },
-    { "path": "packages/store" },
   ],
   "include": ["packages/*"],
   "exclude": ["**/node_modules"]
