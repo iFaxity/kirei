@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@shlim/shared@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@shlim/shared/-/shared-0.1.0.tgz#7740389970e2e7d31cc432affd4425e61a82b084"
+  integrity sha512-S9uhy7JA+yc4fCtIak6ektGP4kvtYj3+Htv2t9CMr84DBUisxJHETwMa+3gtYvzima0tot+WdJAdbdY54xPDdg==
+
 "@types/events@*":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
