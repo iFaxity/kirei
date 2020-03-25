@@ -7,8 +7,7 @@
   },
   "include": [
     "src/*",
-    "src/directives/*",
-    "src/processor/*"
+    "src/directives/*"
   ],
   "references": [
     { "path": "../shared" },
