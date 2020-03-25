@@ -3,6 +3,7 @@ import { persistent, createWalker } from './shared';
 import { nodeParser, textParser, attrParser } from './parser';
 
 // Required for ShadyDOM shims to work
+const TEXT_TAGS = ['style', 'textarea'];
 const prefix = 'isµ';
 const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
 
@@ -18,10 +19,8 @@ enum PatchType {
   TEXT,
 }
 
-type Patcher = (newValue: unknown) => void;
-
-class Patch {
-  static textTags = ['style', 'textarea'];
+type TemplatePatcher = (newValue: unknown) => void;
+class TemplatePatch {
   readonly type: PatchType;
   readonly name: string;
   readonly path: number[] = [];
@@ -40,7 +39,7 @@ class Patch {
     }
   }
 
-  compile(instance: TemplateInstance): Patcher {
+  compile(instance: TemplateInstance): TemplatePatcher {
     const node = this.path.reduce<Node>((n, i) => n.childNodes[i], instance.root);
 
     if (this.type == PatchType.ATTR) {
@@ -54,11 +53,11 @@ class Patch {
 
 interface TemplateContent {
   template: HTMLTemplateElement;
-  patches: Patch[];
+  patches: TemplatePatch[];
 }
 
 export class TemplateInstance {
-  readonly patchers: Patcher[];
+  readonly patchers: TemplatePatcher[];
   readonly root: DocumentFragment;
   readonly template: Template;
   private wire: Node = null;
@@ -99,7 +98,7 @@ export class TemplateInstance {
         // The only comments to be considered are those
         // which content is exactly the same as the searched one.
         if (text === search) {
-          res.patches.push(new Patch(PatchType.NODE, node));
+          res.patches.push(new TemplatePatch(PatchType.NODE, node));
           search = `${prefix}${++i}`;
         }
       } else {
@@ -112,16 +111,16 @@ export class TemplateInstance {
         let attr: string;
         while ((attr = el.getAttribute(search))) {
           el.removeAttribute(search);
-          res.patches.push(new Patch(PatchType.ATTR, node, attr));
+          res.patches.push(new TemplatePatch(PatchType.ATTR, node, attr));
           search = `${prefix}${++i}`;
         }
         // if the node was a style or a textarea one, check its content
         // and if it is <!--isµX--> then update tex-only this node
         // if the node was a style or a textarea one, check its content
         // and if it is <!--isµX--> then update text-only this node
-        const patchText = Patch.textTags.includes(el.tagName.toLowerCase());
+        const patchText = TEXT_TAGS.includes(el.localName);
         if (patchText && text.trim() === `<!--${search}-->`) {
-          res.patches.push(new Patch(PatchType.TEXT, node));
+          res.patches.push(new TemplatePatch(PatchType.TEXT, node));
           search = `${prefix}${++i}`;
         }
       }
@@ -135,7 +134,7 @@ export class TemplateInstance {
       this.patchers[idx](values[idx]);
     }
 
-    // Create wire if it doesn't exist
+    // Create wire node if it doesn't exist
     if (!this.wire) {
       this.wire = persistent(this.root);
     }
@@ -148,6 +147,7 @@ export class Template {
   readonly strings: TemplateStringsArray;
   readonly values: any[];
 
+  // Creates a template element for this element
   get element(): HTMLTemplateElement {
     const template = document.createElement('template');
     template.innerHTML = parser(this.strings, prefix, this.type == 'svg');
@@ -161,35 +161,35 @@ export class Template {
   }
 
   unroll(cache: TemplateCache) {
+    const instance = cache.instance;
     this.unrollValues(cache, this.values);
 
-    const other = cache.instance;
-    if (!other || !this.equals(other.template)) {
-      // create new template instance
+    if (!instance || !this.equals(instance.template)) {
+      // create new template instance if template differs
       cache.instance = new TemplateInstance(this);
     }
 
     return cache.instance.render(this.values);
   }
 
-  protected unrollValues(cache: TemplateCache, values: any[]) {
+  protected unrollValues(cache: TemplateCache, values: any[]): TemplateCache {
     const { stack } = cache;
-    if (values.length < stack.length) {
-      // Drain redundant items in the stack
-      stack.splice(values.length);
-    }
 
-    for (let i = 0; i < values.length; i++) {
-      const value = values[i];
-
+    // This will make sure the stack is fully drained
+    cache.stack = values.map((value, idx) => {
+      let cache = stack[idx];
       if (value instanceof Template) {
-        values[i] = value.unroll(stack[i] ?? (stack[i] = new TemplateCache()));
+        cache = cache ?? new TemplateCache();
+        values[idx] = value.unroll(cache);
+        return cache;
       } else if (Array.isArray(value)) {
-        this.unrollValues(stack[i] ?? (stack[i] = new TemplateCache()), value);
-      } else {
-        stack[i] = null;
+        cache = cache ?? new TemplateCache();
+        return this.unrollValues(cache, value);
       }
-    }
+
+      return null;
+    });
+    return cache;
   }
 
   equals(other: Template): boolean {
