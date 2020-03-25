@@ -1,6 +1,6 @@
 {
   "name": "@shlim/shared",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "module": "dist/index.js",
