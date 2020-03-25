@@ -12,35 +12,37 @@ function literal(type: string) {
     return new Template(type, strings, values);
   }
 
-  type TemplateOrKey<T> = (item: T, idx: number) => (any | Template);
-  type TemplateKey<T> = (item: T, idx: number) => Template;
-  template.for = <T>(items: Iterable<T>, key: TemplateOrKey<T>, templateFn?: TemplateKey<T>) => {
-    // Get id of the item
-    if (!isFunction(templateFn)) {
-      templateFn = key;
-      key = () => undefined;
+  template.for = mapFor;
+
+  type TemplateFor<T, R> = (item: T, idx: number) => R;
+  function mapFor<T>(items: Iterable<T>, key: TemplateFor<T, any>, templateFn?: TemplateFor<T, Template>): (Node|Template)[] {
+    let mapFn: (item: T, idx: number) => Node|Template = key;
+
+    // If unkeyed we just map it directly to the template
+    if (isFunction(templateFn)) {
+      mapFn = (item, idx) => {
+        const raw = toRawValue(item);
+        let cacheMap = keyed.get(raw);
+        if (!cacheMap) {
+          cacheMap = new Map();
+          keyed.set(raw, cacheMap);
+        }
+  
+        // keyed operations always re-use the same cache and unroll
+        // the template and its interpolations right away
+        const id = key(item, idx);
+        let cache = cacheMap.get(id);
+        if (!cache) {
+          cache = new TemplateCache();
+          cacheMap.set(id, cache);
+        }
+
+        return templateFn(item, idx).unroll(cache);
+      };
     }
 
-    return Array.from(items).map((item, idx) => {
-      const raw = toRawValue(item);
-      let cacheMap = keyed.get(raw);
-      if (!cacheMap) {
-        cacheMap = new Map();
-        keyed.set(raw, cacheMap);
-      }
-
-      // keyed operations always re-use the same cache and unroll
-      // the template and its interpolations right away
-      const id = key(item, idx);
-      let cache = cacheMap.get(id);
-      if (!cache) {
-        cache = new TemplateCache();
-        cacheMap.set(id, cache);
-      }
-
-      return templateFn(item, idx).unroll(cache);
-    });
-  };
+    return Array.from(items).map(mapFn);
+  }
 
   // TODO: maybe use promises in nodeParser instead?
   /*template.until = (...args: unknown[]) => {
@@ -56,17 +58,9 @@ function literal(type: string) {
       Promise.resolve();
     }
   };*/
-
   return template;
 }
 
-/**
-  * Creates a new CSS template
-  * @param {TemplateStringsArray} strings
-  * @param {*} values
-  * @returns {CSSResult}
-  */
-//export const css = (strings: TemplateStringsArray, ...values: readonly unknown[]) => new CSSResult(strings, values);
 export const html = literal('html');
 export const svg = literal('svg');
 

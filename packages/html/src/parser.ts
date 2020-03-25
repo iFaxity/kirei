@@ -9,31 +9,32 @@ export function attrParser(node: Element, name: string): DirectiveUpdater {
 
   // Default attribute parser
   const mapValue = name == 'class' || name == 'style';
+  const attr = document.createAttribute(name);
   let value;
 
   return (pending: any) => {
     let newValue = toRawValue(pending) as any;
+    if (value === newValue) return;
 
-    if (value !== newValue) {
-      if (newValue == null) {
-        node.removeAttribute(name);
-      } else {
-        if (mapValue && typeof newValue == 'object') {
-          let classes: string[];
-          if (Array.isArray(newValue)) {
-            classes = newValue.filter(x => x);
-          } else {
-            classes = Object.keys(newValue).filter(key => !!newValue[key]);
-          }
-
-          newValue = classes.join(' ')
+    if (newValue == null) {
+      attr.parentNode &&node.removeAttributeNode(attr);
+    } else {
+      if (mapValue && typeof newValue == 'object') {
+        let classes: string[];
+        if (Array.isArray(newValue)) {
+          classes = newValue.filter(x => x);
+        } else {
+          classes = Object.keys(newValue).filter(key => !!newValue[key]);
         }
 
-        node.setAttribute(name, newValue);
+        newValue = classes.join(' ')
       }
 
-      value = newValue;
+      attr.value = newValue;
+      !attr.parentNode && node.setAttributeNode(attr);
     }
+
+    value = newValue;
   };
 }
 
