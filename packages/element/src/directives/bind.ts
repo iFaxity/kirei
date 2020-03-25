@@ -4,7 +4,7 @@ import { isObject, warn } from '@shlim/shared';
 defineDirective(['bind', '.'], dir => {
   const { el, arg } = dir;
 
-  // Special
+  // Special for prop accessors
   if (arg) {
     return (newValue: any) => { el[arg] = newValue; }
   }

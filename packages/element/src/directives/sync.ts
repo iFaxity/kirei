@@ -143,7 +143,7 @@ defineDirective(['sync', '&'], dir => {
   }, false);
 
   return (newValue: Ref) => {
-    if (isRef(newValue)) {
+    if (!isRef(newValue)) {
       throw new TypeError('Sync directive requires a ref as it\'s value');
     }
 
