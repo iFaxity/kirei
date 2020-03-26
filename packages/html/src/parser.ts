@@ -9,32 +9,26 @@ export function attrParser(node: Element, name: string): DirectiveUpdater {
 
   // Default attribute parser
   const mapValue = name == 'class' || name == 'style';
-  const attr = document.createAttribute(name);
   let value;
 
   return (pending: any) => {
     let newValue = toRawValue(pending) as any;
     if (value === newValue) return;
+    value = newValue
 
-    if (newValue == null) {
-      attr.parentNode && node.removeAttributeNode(attr);
+    if (value == null) {
+      node.removeAttribute(name);
     } else {
-      if (mapValue && typeof newValue == 'object') {
-        let classes: string[];
-        if (Array.isArray(newValue)) {
-          classes = newValue.filter(x => x);
+      if (mapValue && typeof value == 'object') {
+        if (Array.isArray(value)) {
+          value = value.filter(x => x).join(' ');
         } else {
-          classes = Object.keys(newValue).filter(key => !!newValue[key]);
+          value = Object.keys(value).filter(key => !!value[key]).join(' ');
         }
-
-        newValue = classes.join(' ')
       }
 
-      attr.textContent = newValue;
-      !attr.parentNode && node.setAttributeNode(attr);
+      node.setAttribute(name, value);
     }
-
-    value = newValue;
   };
 }
 
@@ -54,9 +48,11 @@ export function nodeParser(refNode: Comment): DirectiveUpdater {
       case 'boolean':
         if (value !== newValue) {
           value = newValue;
-          if (!text)
+          if (!text) {
             text = document.createTextNode('');
-          text.textContent = newValue;
+          }
+
+          text.textContent = value;
           nodes = diff(refNode, nodes, [text]);
         }
         break;
@@ -68,32 +64,31 @@ export function nodeParser(refNode: Comment): DirectiveUpdater {
             value = newValue;
             nodes = diff(refNode, nodes, []);
           }
-        }
-        // arrays and nodes have a special treatment
-        else if (Array.isArray(newValue)) {
+        } else if (Array.isArray(newValue)) {
+          // arrays and nodes have a special treatment
           value = newValue;
-          // arrays can be used to cleanup, if empty
-          if (value.length === 0)
+          if (value.length === 0) {
+            // arrays can be used to cleanup, if empty
             nodes = diff(refNode, nodes, []);
-          // or diffed, if these contains nodes or "wires"
-          else if (typeof value[0] === 'object')
+          } else if (typeof value[0] === 'object') {
+            // or diffed, if these contains nodes or "wires"
             nodes = diff(refNode, nodes, value);
-          // in all other cases the content is stringified as is
-          else
+          } else {
+            // in all other cases the content is stringified as is
             parse('' + value);
-        }
-        // if the new value is a DOM node, or a wire, and it's
-        // different from the one already live, then it's diffed.
-        // if the node is a fragment, it's appended once via its childNodes
-        // There is no `else` here, meaning if the content
-        // is not expected one, nothing happens, as easy as that.
-        else if ('ELEMENT_NODE' in newValue && newValue !== value) {
-          const newNodes = newValue.nodeType === Node.DOCUMENT_FRAGMENT_NODE
-            ? [...newValue.childNodes]
-            : [newValue];
-
-          value = newValue;
-          nodes = diff(refNode, nodes, newNodes);
+          }
+        } else if ('ELEMENT_NODE' in newValue && newValue !== value) {
+          // if the new value is a DOM node, or a wire, and it's
+          // different from the one already live, then it's diffed.
+          // if the node is a fragment, it's appended once via its childNodes
+          // There is no `else` here, meaning if the content
+          // is not expected one, nothing happens, as easy as that.
+          if (newValue.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+            value = Array.from((newValue as DocumentFragment).childNodes);
+          } else {
+            value = [newValue];
+          }
+          nodes = diff(refNode, nodes, value);
         }
       }
   };
@@ -108,7 +103,7 @@ export function textParser(node: Text): DirectiveUpdater {
     const newValue = toRawValue(pending) as any;
     if (value !== newValue) {
       value = newValue;
-      node.textContent = newValue == null ? '' : newValue;
+      node.textContent = value == null ? '' : value;
     }
   };
 }

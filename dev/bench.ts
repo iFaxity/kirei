@@ -1,3 +1,4 @@
+import './bench.html';
 import { html, defineElement, ref, reactive } from '@shlim/element';
 
 function _random(max) {
