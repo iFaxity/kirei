@@ -3,7 +3,7 @@ export type Primitive = null|undefined|boolean|number|string|Symbol|bigint;
 
 export function isPrimitive(value: unknown): value is Primitive {
   const type = typeof value;
-  return value === null || type != 'object' && type != 'function';
+  return value == null || type != 'object' && type != 'function';
 }
 
 /**
