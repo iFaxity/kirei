@@ -70,7 +70,9 @@ function mutationHandlers(dir: Directive) {
   let eventName: string;
   let prop: string = arg;
   let handler: (el: HTMLElement, ref: Ref) => any;
-  let commit = (el: HTMLElement, ref: Ref) => { el[arg] = ref.value; };
+  let commit = (el: HTMLElement, ref: Ref) => {
+    el[prop] = ref.value;
+  };
 
   // bind to default sync, like form fields or using the sync name on instance
   // This sets value on the fx from child
@@ -121,7 +123,7 @@ defineDirective(['sync', '&'], dir => {
     if (isFunction(handler)) {
       value = handler(el, ref);
     } else {
-      value = 'detail' in e ? (e as CustomEvent).detail : el[prop];
+      value = e instanceof CustomEvent ? e.detail : el[prop];
     }
 
     // Cast value if set
@@ -142,12 +144,12 @@ defineDirective(['sync', '&'], dir => {
     ref.value = value;
   }, false);
 
-  return (newValue: Ref) => {
-    if (!isRef(newValue)) {
+  return (newRef: Ref) => {
+    if (!isRef(newRef)) {
       throw new TypeError('Sync directive requires a ref as it\'s value');
     }
 
-    ref = newValue;
+    ref = newRef;
     commit(el, ref);
   };
 });
