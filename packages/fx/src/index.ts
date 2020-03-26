@@ -1,4 +1,4 @@
-import { mapObject } from '@shlim/shared';
+import { mapObject, isObject } from '@shlim/shared';
 import { isRef, Ref, createRef } from './ref';
 import { toRaw } from './reactive';
 
@@ -13,7 +13,7 @@ export { Computed, computed } from './computed';
  * @returns {*}
  */
 export function toRawValue(target: unknown): unknown {
-  return isRef(target) ? target.value : toRaw(target);
+  return isObject(target) ? (isRef(target) ? target.value : toRaw(target)) : target;
 }
 
 /**
