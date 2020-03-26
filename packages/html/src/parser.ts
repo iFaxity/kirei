@@ -2,32 +2,37 @@ import { toRawValue } from '@shlim/fx';
 import { diff } from './shared';
 import { parseDirective, DirectiveUpdater } from './directive';
 
+/**
+ * Maps a style or class attribute from an array or an object to a string
+ * @param {object|array} className
+ * @returns {string}
+ */
+function mapAttribute(className: any[]|object) {
+  if (className == null || typeof className != 'object') return className;
+
+  if (Array.isArray(className)) {
+    return className.filter(x => x).join(' ');
+  }
+  return Object.keys(className).filter(key => !!className[key]).join(' ');
+}
+
 export function attrParser(node: Element, name: string): DirectiveUpdater {
-  // Check for directive
+  // Check for attribute directive
   const res = parseDirective(node, name);
   if (res) return res;
 
-  // Default attribute parser
+  // Default to attribute parsing
   const mapValue = name == 'class' || name == 'style';
   let value;
-
   return (pending: any) => {
     let newValue = toRawValue(pending) as any;
     if (value === newValue) return;
-    value = newValue
+    value = newValue;
 
     if (value == null) {
       node.removeAttribute(name);
     } else {
-      if (mapValue && typeof value == 'object') {
-        if (Array.isArray(value)) {
-          value = value.filter(x => x).join(' ');
-        } else {
-          value = Object.keys(value).filter(key => !!value[key]).join(' ');
-        }
-      }
-
-      node.setAttribute(name, value);
+      node.setAttribute(name, mapValue ? mapAttribute(value) : value);
     }
   };
 }
@@ -37,8 +42,6 @@ export function nodeParser(refNode: Comment): DirectiveUpdater {
   let value;
   let text;
 
-  // Clear the contents of the reference node
-  refNode.textContent = '';
   const parse = (pending: any) => {
     const newValue = toRawValue(pending) as any;
     switch (typeof newValue) {

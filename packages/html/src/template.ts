@@ -98,6 +98,7 @@ export class TemplateInstance {
         // The only comments to be considered are those
         // which content is exactly the same as the searched one.
         if (text === search) {
+          node.textContent = '';
           res.patches.push(new TemplatePatch(PatchType.NODE, node));
           search = `${prefix}${++i}`;
         }
@@ -118,8 +119,8 @@ export class TemplateInstance {
         // and if it is <!--isµX--> then update tex-only this node
         // if the node was a style or a textarea one, check its content
         // and if it is <!--isµX--> then update text-only this node
-        const patchText = TEXT_TAGS.includes(el.localName);
-        if (patchText && text.trim() === `<!--${search}-->`) {
+        if (TEXT_TAGS.includes(el.localName) && text.trim() === `<!--${search}-->`) {
+          node.textContent = '';
           res.patches.push(new TemplatePatch(PatchType.TEXT, node));
           search = `${prefix}${++i}`;
         }
