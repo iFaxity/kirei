@@ -45,7 +45,8 @@ export function nodeParser(refNode: Comment): DirectiveUpdater {
 
   // Clear the contents of the reference node
   refNode.textContent = '';
-  const parse = newValue => {
+  const parse = (pending: any) => {
+    const newValue = toRawValue(pending) as any;
     switch (typeof newValue) {
       // primitives are handled as text content
       case 'string':
@@ -103,7 +104,8 @@ export function nodeParser(refNode: Comment): DirectiveUpdater {
 export function textParser(node: Text): DirectiveUpdater {
   let value;
 
-  return (newValue: string) => {
+  return (pending: any) => {
+    const newValue = toRawValue(pending) as any;
     if (value !== newValue) {
       value = newValue;
       node.textContent = newValue == null ? '' : newValue;
