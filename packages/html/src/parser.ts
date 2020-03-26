@@ -17,7 +17,7 @@ export function attrParser(node: Element, name: string): DirectiveUpdater {
     if (value === newValue) return;
 
     if (newValue == null) {
-      attr.parentNode &&node.removeAttributeNode(attr);
+      attr.parentNode && node.removeAttributeNode(attr);
     } else {
       if (mapValue && typeof newValue == 'object') {
         let classes: string[];
@@ -30,7 +30,7 @@ export function attrParser(node: Element, name: string): DirectiveUpdater {
         newValue = classes.join(' ')
       }
 
-      attr.value = newValue;
+      attr.textContent = newValue;
       !attr.parentNode && node.setAttributeNode(attr);
     }
 
