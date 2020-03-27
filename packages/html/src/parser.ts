@@ -1,7 +1,7 @@
 import { isRef } from '@shlim/fx';
+import { warn } from '@shlim/shared';
 import { diff } from './shared';
 import { parseDirective, DirectiveUpdater } from './directive';
-import { warn } from '@shlim/shared/src';
 
 /**
  * Maps a style or class attribute from an array or an object to a string
@@ -25,7 +25,6 @@ export function attrParser(node: Element, name: string): DirectiveUpdater {
   // Default to attribute parsing
   const shouldMap = name == 'class' || name == 'style';
   let value;
-  let mounted = false;
 
   return (pending: any) => {
     const newValue = isRef(pending) ? pending.value : pending;
@@ -33,13 +32,9 @@ export function attrParser(node: Element, name: string): DirectiveUpdater {
     value = newValue;
 
     if (value == null || value == '') {
-      if (mounted) {
-        node.removeAttribute(name);
-        mounted = false;
-      }
-    } else if (!mounted) {
+      node.removeAttribute(name);
+    } else {
       node.setAttribute(name, shouldMap ? mapAttribute(value) : value);
-      mounted = true;
     }
   };
 }
