@@ -71,7 +71,6 @@ class FxInstance {
   readonly options: NormalizedFxOptions;
   readonly ctx: FxContext;
   readonly hooks: Record<string, Set<Function>>;
-  //readonly renderOptions: ShadyRenderOptions;
   readonly fx: Fx;
   readonly props: PropsData;
   readonly shadowRoot: ShadowRoot;
@@ -97,7 +96,6 @@ class FxInstance {
     this.options = options;
     this.ctx = new FxContext(el, options);
     this.hooks = {};
-    //this.renderOptions = { scopeName: options.tag, eventContext: el };
     this.fx = new Fx(this.update.bind(this), {
       lazy: true,
       computed: false,
