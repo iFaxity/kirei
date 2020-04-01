@@ -22,6 +22,15 @@ export function isRef(target: any): target is Ref {
   return target != null && !!target[REF_KEY];
 }
 
+/**
+ * Unpacks a ref object, if one was provided
+ * @param {*} target
+ * @returns {*}
+ */
+export function unRef(target: any): any {
+  return isRef(target) ? target.value : target;
+}
+
 
 /**
  * Creates a reactive ref of a native value
