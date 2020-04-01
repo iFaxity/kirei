@@ -1,7 +1,7 @@
 import { FxElement, elementInstances } from '../instance';
 import { Ref, isRef } from '@shlim/fx';
 import { isFunction } from '@shlim/shared';
-import { defineDirective, Directive } from '../directive';
+import { directive, Directive } from '../directive';
 
 function selectHandler(el: HTMLSelectElement, ref: Ref): string | string[] {
   const options = el.selectedOptions;
@@ -108,8 +108,8 @@ function mutationHandlers(dir: Directive) {
   return { commit, handler, prop, eventName };
 }
 
-// directive format v-sync[value.number.trim.lazy]=${ref}
-defineDirective(['sync', '&'], dir => {
+// directive format &[value.number.trim.lazy]=${ref}
+directive('&', dir => {
   const { el, mods } = dir;
   const { commit, handler, prop, eventName } = mutationHandlers(dir);
   const castNumber = mods.includes('number');

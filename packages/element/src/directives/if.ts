@@ -1,14 +1,15 @@
-import { defineDirective, Directive } from '../directive';
-import { toRawValue } from '@shlim/fx';
+import { directive, Directive } from '../directive';
+import { unRef } from '@shlim/fx';
 
-function conditional(invert: boolean, dir: Directive) {
-  const { el } = dir;
+directive('if', dir => {
+  const { el, arg } = dir;
+  const invert = arg == 'not';
   const comment = document.createComment('');
   let oldNode: HTMLElement | Comment = el;
   let value: boolean = true;
 
-  return (newValue: unknown) => {
-    newValue = toRawValue(newValue);
+  return (pending) => {
+    const newValue = unRef(pending);
     const res = invert ? !newValue : !!newValue;
 
     if (value !== res) {
@@ -21,7 +22,4 @@ function conditional(invert: boolean, dir: Directive) {
       value = res;
     }
   };
-}
-
-defineDirective('if', dir => conditional(false, dir));
-defineDirective('unless', dir => conditional(true, dir));
+});

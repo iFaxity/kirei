@@ -1,17 +1,12 @@
-import { defineDirective } from '../directive';
+import { directive } from '../directive';
 import { isObject, warn } from '@shlim/shared';
 
-defineDirective(['bind', '.'], dir => {
-  const { el, arg } = dir;
-
-  // Special for prop accessors
-  if (arg) {
-    return (newValue: any) => { el[arg] = newValue; }
-  }
+directive('attrs', dir => {
+  const { el } = dir;
 
   return (newValue: any) => {
     if (!isObject(newValue)) {
-      return warn('Directive requires the expression value to be an object', 'v-bind (directive)');
+      return warn('Directive requires the expression value to be an object', 'attrs (directive)');
     }
 
     for (const [key, value] of Object.entries(newValue)) {

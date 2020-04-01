@@ -1,21 +1,21 @@
-import { defineDirective } from '../directive';
-import { isRef } from '@shlim/fx';
+import { directive } from '../directive';
+import { unRef } from '@shlim/fx';
 
-defineDirective('show', dir => {
+directive('show', dir => {
   const { el } = dir;
   let value: boolean = true;
 
-  return (newValue) => {
-    if (isRef(newValue)) {
-      newValue = newValue.value;
-    }
+  return (pending) => {
+    const newValue = !!unRef(pending);
 
-    if (newValue && !value) {
-      el.style.display = '';
-    } else if (!newValue && value) {
+    if (newValue) {
+      if (!value) {
+        el.style.display = '';
+      }
+    } else if (value) {
       el.style.display = 'none';
     }
 
-    value = !!newValue;
+    value = newValue;
   };
 });

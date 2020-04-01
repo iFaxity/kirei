@@ -1,5 +1,5 @@
 import { isFunction, camelToKebab } from '@shlim/shared';
-import { defineDirective } from '../directive';
+import { directive } from '../directive';
 
 type EventListener = (e: Event, detail?: any) => any;
 
@@ -62,7 +62,7 @@ function mouseListener(listener: EventListener, mods: string[]): EventListener {
   };
 }
 
-defineDirective(['on', '@'], dir => {
+directive('@', dir => {
   const { el, arg: eventName, mods } = dir;
   const prevent = hasMod(mods, 'prevent');
   const stop = hasMod(mods, 'stop');
