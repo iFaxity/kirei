@@ -1,6 +1,5 @@
-import './html.html';
+import './render.html';
 
-import { ref } from '@shlim/fx';
 import { html, render } from '@shlim/html';
 //import { html, render } from 'uhtml';
 const $app = document.createElement('div');
@@ -8,23 +7,30 @@ $app.id = 'app';
 
 document.body.appendChild($app);
 
+// element
+let count = 0;
+let text = 'hello';
+
 function onClick() {
-  alert('HELLO');
+  count++;
+  update();
 }
 
-let count = 0;
-const text = ref('Hello');
+function onInput(e) {
+  text = e.target.value;
+  update();
+}
+
 function update() {
-  count++;
   render(html`
     <h1>Hello</h1>
     <p>Counter: ${count}</p>
-    <input &=${text}>
+    <input value=${text} @input=${onInput}>
+    <p>${text}</p>
     <button @click=${onClick}>Click me</button>
-    <p v-show=${count % 2 == 0}>shh im sort of hidden</p>
-    <p v-if=${count % 2 == 0}>shh im hidden</p>
+    <p not=${count % 2 == 0}>shh im sort of hidden</p>
+    <p if=${count % 2 == 0}>shh im hidden</p>
   `, $app);
 }
 
-setInterval(update, 1000);
 update();
