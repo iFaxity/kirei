@@ -1,8 +1,8 @@
 import { Template, TemplateCache } from './template';
 import { createLiteral } from './literal';
 
-export { Template };
-export { directive, Directive, DirectiveFactory, DirectiveUpdater } from './directive';
+export { defaultCompiler, TemplateCompiler, TemplatePatcher } from './compiler';
+export { Template, createLiteral };
 
 type RootContainer = HTMLElement|ShadowRoot|DocumentFragment;
 const rendered = new WeakMap<RootContainer, TemplateCache>();

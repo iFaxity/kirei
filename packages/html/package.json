@@ -34,7 +34,6 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@shlim/fx": "^0.2.0",
     "@shlim/shared": "^0.2.0",
     "udomdiff": "^1.0.9",
     "uparser": "^0.2.0"

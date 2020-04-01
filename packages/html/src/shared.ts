@@ -40,8 +40,8 @@ export function persistent(fragment: DocumentFragment): Node {
   const {length} = childNodes;
   // If the fragment has no content
   // it should return undefined and break
-  if (length < 2)
-    return childNodes[0];
+  if (length < 2) return childNodes[0];
+
   const nodes = Array.from(childNodes);
   const firstChild = nodes[0];
   const lastChild = nodes[length - 1];

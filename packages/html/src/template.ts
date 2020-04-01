@@ -1,32 +1,37 @@
+import { isFunction } from '@shlim/shared';
 import parser from 'uparser';
 import { persistent, createWalker } from './shared';
-import { nodeParser, textParser, attrParser } from './parser';
+import { defaultCompiler, TemplateCompiler, TemplatePatcher } from './compiler';
 
 // Required for ShadyDOM shims to work
 const TEXT_TAGS = ['style', 'textarea'];
 const prefix = 'isµ';
 const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
 
+// TODO: maybe not needed to be a class....
 export class TemplateCache {
   stack: any[] = [];
   instance: TemplateInstance = null;
   node: any = null; // resulting fragment
 }
 
-enum PatchType {
-  NODE,
-  ATTR,
-  TEXT,
+interface TemplateContent {
+  template: HTMLTemplateElement;
+  patches: TemplatePatch[];
 }
 
-type TemplatePatcher = (newValue: unknown) => void;
+enum PatchType {
+  NODE = 'node',
+  ATTR = 'attr',
+  TEXT = 'text',
+}
+
 class TemplatePatch {
   readonly type: PatchType;
   readonly name: string;
   readonly path: number[] = [];
-  readonly parser: (newValue: unknown) => void;
 
-  constructor(type: number, node: Node, name: string = null) {
+  constructor(type: PatchType, node: Node, name: string = null) {
     this.type = type;
     this.name = name;
 
@@ -40,20 +45,26 @@ class TemplatePatch {
   }
 
   compile(instance: TemplateInstance): TemplatePatcher {
+    const { compiler } = instance.template;
+    const { type, name } = this;
     const node = this.path.reduce<Node>((n, i) => n.childNodes[i], instance.root);
+    const args: any[] = [ node ];
 
-    if (this.type == PatchType.ATTR) {
-      return attrParser(node as Element, this.name);
-    } else if (this.type == PatchType.TEXT) {
-      return textParser(node as Text);
+    if (type == PatchType.ATTR) {
+      args.push(name);
     }
-    return nodeParser(node as Comment);
-  }
-}
 
-interface TemplateContent {
-  template: HTMLTemplateElement;
-  patches: TemplatePatch[];
+    // If custom compiler function is defined, use it
+    // If custom compiler returns with null/undefined, use default compiler
+    const patcher = compiler?.[type];
+    if (isFunction(patcher)) {
+      const res = patcher.apply(null, args);
+
+      if (res != null) return res;
+    }
+
+    return defaultCompiler[type].apply(null, args);
+  }
 }
 
 export class TemplateInstance {
@@ -66,8 +77,7 @@ export class TemplateInstance {
     let node = contentCache.get(template.strings);
 
     if (!node) {
-      node = this.compile(template);
-      contentCache.set(template.strings, node);
+      contentCache.set(template.strings, (node = this.compile(template)));
     }
 
     this.template = template;
@@ -147,6 +157,7 @@ export class Template {
   readonly type: string;
   readonly strings: TemplateStringsArray;
   readonly values: any[];
+  readonly compiler: TemplateCompiler;
 
   // Creates a template element for this element
   get element(): HTMLTemplateElement {
@@ -155,10 +166,11 @@ export class Template {
     return template;
   }
 
-  constructor(type: string, strings: TemplateStringsArray, values: any[]) {
+  constructor(type: string, strings: TemplateStringsArray, values: any[], compiler?: TemplateCompiler) {
     this.type = type;
     this.strings = strings;
     this.values = values;
+    this.compiler = compiler;
   }
 
   unroll(cache: TemplateCache) {
