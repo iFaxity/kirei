@@ -158,7 +158,7 @@ class FxInstance {
     if (hooks?.size) {
       hooks.forEach(fn => {
         Fx.pauseTracking();
-        isFunction(fn) && fn.call(null);
+        fn.call(null);
         Fx.resetTracking();
       });
     }
