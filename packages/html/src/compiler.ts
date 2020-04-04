@@ -3,7 +3,7 @@ import { warn } from '@shlim/shared';
 
 export type TemplatePatcher = (newValue: any) => void;
 
-export type TemplateCompiler = {
+export interface TemplateCompiler {
   attr?(node: HTMLElement, attr: string): TemplatePatcher|void;
   node?(ref: Comment): TemplatePatcher|void;
   text?(node: Text): TemplatePatcher|void;
@@ -14,7 +14,7 @@ export type TemplateCompiler = {
  * @param {object|array} className
  * @returns {string}
  */
-function mapAttribute(className: any[]|object) {
+function mapAttribute(className: any[]|object): any {
   if (className == null || typeof className != 'object') return className;
 
   if (Array.isArray(className)) {
@@ -27,43 +27,57 @@ function mapAttribute(className: any[]|object) {
 function propPatcher(node: Node, name: string): TemplatePatcher {
   return (newValue) => { node[name] = newValue };
 }
-function eventPatcher(node: Node, name: string) {
+function eventPatcher(node: Node, name: string): TemplatePatcher {
   let value;
-
   return (newValue) => {
     if (value !== newValue) {
-      if (value) {
-        node.removeEventListener(name, value, false);
-      }
-      if (newValue) {
-        node.addEventListener(name, newValue, false);
-      }
+      value && node.removeEventListener(name, value, false);
+      newValue && node.addEventListener(name, newValue, false);
       value = newValue;
     }
   };
 }
+function nodeTextParser(text: Text, ref: Node, nodes: Node[], value: any): [Text, Node[]] {
+  if (!text) {
+    text = document.createTextNode(value);
+  } else {
+    text.textContent = value;
+  }
+
+  nodes = diff(ref, nodes, [text]);
+  return [ text, nodes ];
+}
 
 export const defaultCompiler: TemplateCompiler = {
-  attr(node, attr) {
-    const prefix = attr[0];
+  attr(node, name) {
+    const prefix = name[0];
     if (prefix == '.') {
-      return propPatcher(node, attr.slice(1));
+      return propPatcher(node, name.slice(1));
     } else if (prefix == '@') {
-      return eventPatcher(node, attr.slice(1));
+      return eventPatcher(node, name.slice(1));
     }
 
     // Default to attribute parsing
-    const shouldMap = attr == 'class' || attr == 'style';
+    const shouldMap = name == 'class' || name == 'style';
+    const attr = document.createAttribute(name);
     let value;
+    let mounted = false;
 
     return (newValue: any) => {
       if (value === newValue && !shouldMap) return;
       value = newValue;
 
       if (value == null || value == '') {
-        node.setAttribute(attr, value);
+        if (mounted) {
+          node.removeAttributeNode(attr);
+          mounted = false;
+        }
       } else {
-        node.setAttribute(attr, shouldMap ? mapAttribute(value) : value);
+        attr.value = shouldMap ? mapAttribute(value) : value;
+        if (!mounted) {
+          node.setAttributeNode(attr);
+          mounted = true;
+        }
       }
     };
   },
@@ -72,25 +86,15 @@ export const defaultCompiler: TemplateCompiler = {
     let value;
     let text: Text;
 
-    function nodeTextParser(newValue: any) {
-      if (value === newValue) return;
-      value = newValue;
-
-      if (!text) {
-        text = document.createTextNode(value);
-      } else {
-        text.textContent = value;
-      }
-
-      nodes = diff(ref, nodes, [text]);
-    }
-
     return (newValue: any) => {
       const type = typeof newValue;
 
+      // primitives are handled as text content
       if (type != 'object' && type != 'undefined') {
-        // primitives are handled as text content
-        nodeTextParser(newValue);
+        if (value !== newValue) {
+          value = newValue;
+          [text, nodes] = nodeTextParser(text, ref, nodes, value);
+        }
       } else if (newValue == null) {
         // null, and undefined are used to cleanup previous content
         if (value) {
@@ -107,7 +111,10 @@ export const defaultCompiler: TemplateCompiler = {
           nodes = diff(ref, nodes, value);
         } else {
           // in all other cases the content is stringified as is
-          nodeTextParser(newValue.toString());
+          if (value !== newValue) {
+            value = newValue;
+            [text, nodes] = nodeTextParser(text, ref, nodes, value);
+          }
         }
       } else if ('ELEMENT_NODE' in newValue && newValue !== value) {
         // if the new value is a DOM node, or a wire, and it's

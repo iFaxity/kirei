@@ -43,13 +43,11 @@ export function persistent(fragment: DocumentFragment): Node {
   if (length < 2) return childNodes[0];
 
   const nodes = Array.from(childNodes);
-  const firstChild = nodes[0];
-  const lastChild = nodes[length - 1];
   return {
     ELEMENT_NODE,
     nodeType,
-    firstChild,
-    lastChild,
+    firstChild: nodes[0],
+    lastChild: nodes[length - 1],
     //@ts-ignore
     valueOf() {
       if (childNodes.length !== length) {

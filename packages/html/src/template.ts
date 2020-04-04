@@ -2,21 +2,23 @@ import { isFunction } from '@shlim/shared';
 import parser from 'uparser';
 import { persistent, createWalker } from './shared';
 import { defaultCompiler, TemplateCompiler, TemplatePatcher } from './compiler';
+export { TemplateCompiler };
 
-// Required for ShadyDOM shims to work
 const TEXT_TAGS = ['style', 'textarea'];
 const prefix = 'isµ';
 const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
 
-// TODO: maybe not needed to be a class....
+/**
+ * TemplateCache
+ */
 export class TemplateCache {
-  stack: any[] = [];
+  stack: TemplateCache[] = [];
   instance: TemplateInstance = null;
-  node: any = null; // resulting fragment
+  node: Node = null; // resulting fragment
 }
 
 interface TemplateContent {
-  template: HTMLTemplateElement;
+  element: HTMLTemplateElement;
   patches: TemplatePatch[];
 }
 
@@ -26,186 +28,197 @@ enum PatchType {
   TEXT = 'text',
 }
 
-class TemplatePatch {
+interface TemplatePatch {
   readonly type: PatchType;
   readonly name: string;
-  readonly path: number[] = [];
-
-  constructor(type: PatchType, node: Node, name: string = null) {
-    this.type = type;
-    this.name = name;
-
-    // Track the path up to the root node, essentialy "paving" a path
-    let parent = node.parentNode;
-    while (parent) {
-      const idx = Array.prototype.indexOf.call(parent.childNodes, node);
-      this.path.unshift(idx);
-      [node, parent] = [parent, parent.parentNode];
-    }
-  }
-
-  compile(instance: TemplateInstance): TemplatePatcher {
-    const { compiler } = instance.template;
-    const { type, name } = this;
-    const node = this.path.reduce<Node>((n, i) => n.childNodes[i], instance.root);
-    const args: any[] = [ node ];
-
-    if (type == PatchType.ATTR) {
-      args.push(name);
-    }
-
-    // If custom compiler function is defined, use it
-    // If custom compiler returns with null/undefined, use default compiler
-    const patcher = compiler?.[type];
-    if (isFunction(patcher)) {
-      const res = patcher.apply(null, args);
-
-      if (res != null) return res;
-    }
-
-    return defaultCompiler[type].apply(null, args);
-  }
+  readonly path: number[];
 }
 
-export class TemplateInstance {
-  readonly patchers: TemplatePatcher[];
-  readonly root: DocumentFragment;
-  readonly template: Template;
-  private wire: Node = null;
+/**
+ * TemplatePatch
+ */
+function createPatch(type: PatchType, node: Node, name: string = null): TemplatePatch {
+  const path: number[] = [];
 
-  constructor(template: Template) {
-    let node = contentCache.get(template.strings);
+  // Track the path up to the root node, essentialy "paving" a path
+  let parent = node.parentNode;
+  while (parent) {
+    const idx = Array.prototype.indexOf.call(parent.childNodes, node);
+    path.unshift(idx);
+    [node, parent] = [parent, parent.parentNode];
+  }
+  return { name, type, path };
+}
 
-    if (!node) {
-      contentCache.set(template.strings, (node = this.compile(template)));
-    }
+function compilePatch(patch: TemplatePatch, instance: TemplateInstance): TemplatePatcher {
+  const { type, name, path } = patch;
+  const { root, compiler } = instance;
+  const node = path.reduce<Node>((n, i) => n.childNodes[i], root);
+  const args: any[] = [ node ];
 
-    this.template = template;
-    this.root = document.importNode(node.template.content, true);
-    this.patchers = node.patches.map(patch => patch.compile(this));
+  if (type == PatchType.ATTR) {
+    args.push(name);
   }
 
-  // Compile the template node, mapTemplate
-  protected compile(template: Template): TemplateContent {
-    // Compile the template element
-    const res = {
-      template: template.element,
-      patches: [],
-    } as TemplateContent;
-    const walker = createWalker(res.template.content);
-    const len = template.strings.length - 1;
-    let i = 0;
-    let search = `${prefix}${i}`;
+  // If custom compiler function is defined, use it
+  // If custom compiler returns with null/undefined, use default compiler
+  const patcher = compiler?.[type];
+  if (isFunction(patcher)) {
+    const res = patcher.apply(null, args);
+    if (res != null) return res;
+  }
 
-    while (i < len) {
-      const node = walker.nextNode();
-      if (!node) throw new Error('Parsing error');
+  return defaultCompiler[type].apply(null, args);
+}
 
-      const text = node.textContent;
-      // if the current node is a comment, and it contains isµX
-      // it means the update should take care of any content
-      if (node.nodeType == Node.COMMENT_NODE) {
-        // The only comments to be considered are those
-        // which content is exactly the same as the searched one.
-        if (text === search) {
-          node.textContent = '';
-          res.patches.push(new TemplatePatch(PatchType.NODE, node));
-          search = `${prefix}${++i}`;
-        }
-      } else {
-        const el = node as Element;
+/**
+ * Instance
+ */
+interface TemplateInstance {
+  root: DocumentFragment;
+  wire: Node;
+  compiler: TemplateCompiler;
+  template: Template;
+  patchers: TemplatePatcher[];
+}
 
-        // if the node is not a comment, loop through all its attributes
-        // named isµX and relate attribute updates to this node and the
-        // attribute name, retrieved through node.getAttribute("isµX")
-        // the isµX attribute will be removed as irrelevant for the layout
-        let attr: string;
-        while ((attr = el.getAttribute(search))) {
-          el.removeAttribute(search);
-          res.patches.push(new TemplatePatch(PatchType.ATTR, node, attr));
-          search = `${prefix}${++i}`;
-        }
-        // if the node was a style or a textarea one, check its content
-        // and if it is <!--isµX--> then update tex-only this node
-        // if the node was a style or a textarea one, check its content
-        // and if it is <!--isµX--> then update text-only this node
-        if (TEXT_TAGS.includes(el.localName) && text.trim() === `<!--${search}-->`) {
-          node.textContent = '';
-          res.patches.push(new TemplatePatch(PatchType.TEXT, node));
-          search = `${prefix}${++i}`;
-        }
+function compileInstance(template: Template): TemplateContent {
+  const { strings, type } = template;
+  const element = document.createElement('template');
+  element.innerHTML = parser(strings, prefix, type == 'svg');
+
+  // Compile the template element
+  const patches: TemplatePatch[] = [];
+  const walker = createWalker(element.content);
+  const len = template.strings.length - 1;
+  let i = 0;
+  let search = `${prefix}${i}`;
+
+  while (i < len) {
+    const node = walker.nextNode();
+    if (!node) throw new Error('Parsing error');
+
+    const text = node.textContent;
+    // if the current node is a comment, and it contains isµX
+    // it means the update should take care of any content
+    if (node.nodeType == Node.COMMENT_NODE) {
+      // The only comments to be considered are those
+      // which content is exactly the same as the searched one.
+      if (text === search) {
+        node.textContent = '';
+        patches.push(createPatch(PatchType.NODE, node));
+        search = `${prefix}${++i}`;
+      }
+    } else {
+      const el = node as Element;
+
+      // if the node is not a comment, loop through all its attributes
+      // named isµX and relate attribute updates to this node and the
+      // attribute name, retrieved through node.getAttribute("isµX")
+      // the isµX attribute will be removed as irrelevant for the layout
+      let attr: string;
+      while ((attr = el.getAttribute(search))) {
+        el.removeAttribute(search);
+        patches.push(createPatch(PatchType.ATTR, node, attr));
+        search = `${prefix}${++i}`;
+      }
+      // if the node was a style or a textarea one, check its content
+      // and if it is <!--isµX--> then update tex-only this node
+      // if the node was a style or a textarea one, check its content
+      // and if it is <!--isµX--> then update text-only this node
+      if (TEXT_TAGS.includes(el.localName) && text.trim() === `<!--${search}-->`) {
+        node.textContent = '';
+        patches.push(createPatch(PatchType.TEXT, node));
+        search = `${prefix}${++i}`;
       }
     }
-
-    return res;
   }
 
-  render(values: any[]): Node {
-    for (let idx = 0; idx < values.length; idx++) {
-      this.patchers[idx](values[idx]);
-    }
-
-    // Create wire node if it doesn't exist
-    if (!this.wire) {
-      this.wire = persistent(this.root);
-    }
-    return this.wire;
-  }
+  return { element, patches };
 }
 
+function createInstance(template: Template, compiler: TemplateCompiler): TemplateInstance {
+  return updateInstance({
+    root: null, wire: null, patchers: null, template: null, compiler
+  }, template);
+}
+
+function updateInstance(instance: TemplateInstance, template: Template): TemplateInstance {
+  let node = contentCache.get(template.strings);
+  if (!node) {
+    contentCache.set(template.strings, (node = compileInstance(template)));
+  }
+
+  instance.template = template;
+  instance.root = document.importNode(node.element.content, true);
+  instance.patchers = node.patches.map(patch => compilePatch(patch, instance));
+  return instance;
+}
+
+/**
+ * Template
+ */
 export class Template {
   readonly type: string;
   readonly strings: TemplateStringsArray;
   readonly values: any[];
-  readonly compiler: TemplateCompiler;
 
-  // Creates a template element for this element
-  get element(): HTMLTemplateElement {
-    const template = document.createElement('template');
-    template.innerHTML = parser(this.strings, prefix, this.type == 'svg');
-    return template;
-  }
-
-  constructor(type: string, strings: TemplateStringsArray, values: any[], compiler?: TemplateCompiler) {
+  constructor(type: string, strings: TemplateStringsArray, values: any[]) {
     this.type = type;
     this.strings = strings;
     this.values = values;
-    this.compiler = compiler;
   }
+}
 
-  unroll(cache: TemplateCache) {
-    const instance = cache.instance;
-    this.unrollValues(cache, this.values);
+function unrollValues(cache: TemplateCache, values: any[], compiler: TemplateCompiler): void {
+  const { stack } = cache;
 
-    if (!instance || !this.equals(instance.template)) {
-      // create new template instance if template differs
-      cache.instance = new TemplateInstance(this);
+  for (let idx = 0; idx < values.length; idx++) {
+    const value = values[idx];
+    let nodeCache: TemplateCache = null;
+
+    if (value instanceof Template) {
+      nodeCache = stack[idx] ?? new TemplateCache();
+      values[idx] = unroll(value, nodeCache, compiler);
+    } else if (Array.isArray(value)) {
+      nodeCache = stack[idx] ?? new TemplateCache();
+      unrollValues(nodeCache, value, compiler);
     }
 
-    return cache.instance.render(this.values);
+    stack[idx] = nodeCache;
   }
 
-  protected unrollValues(cache: TemplateCache, values: any[]): TemplateCache {
-    const { stack } = cache;
+  // This will make sure the stack is fully drained
+  if (values.length < stack.length) {
+    stack.splice(values.length);
+  }
+}
 
-    // This will make sure the stack is fully drained
-    cache.stack = values.map((value, idx) => {
-      let cache = stack[idx];
-      if (value instanceof Template) {
-        cache = cache ?? new TemplateCache();
-        values[idx] = value.unroll(cache);
-        return cache;
-      } else if (Array.isArray(value)) {
-        cache = cache ?? new TemplateCache();
-        return this.unrollValues(cache, value);
-      }
+export function unroll(template: Template, cache: TemplateCache, compiler?: TemplateCompiler): Node {
+  const { values } = template;
+  let { instance } = cache;
+  unrollValues(cache, values, compiler);
 
-      return null;
-    });
-    return cache;
+  // create new template instance if template differs
+  // update template instance if it differs
+  if (!instance) {
+    instance = cache.instance = createInstance(template, compiler);
+  } else if (
+    template.strings !== instance.template.strings &&
+    template.type === instance.template.type
+  ) {
+    updateInstance(instance, template);
   }
 
-  equals(other: Template): boolean {
-    return other.strings === this.strings || other.type === this.type;
+  // Render or update the instance
+  const { patchers, root } = instance;
+  for (let idx = 0; idx < values.length; idx++) {
+    patchers[idx](values[idx]);
   }
+
+  // Create wire node if it doesn't exist
+  if (!instance.wire) {
+    instance.wire = persistent(root);
+  }
+  return instance.wire;
 }
