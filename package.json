@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "file-loader": "^5.1.0",
+    "js-framework-benchmark-utils": "^0.2.5",
     "ts-loader": "^6.2.1",
     "tslib": "^1.11.1",
     "typescript": "^3.8.3",

@@ -2039,6 +2039,11 @@ isobject@^3.0.0, isobject@^3.0.1:
   resolved "https://registry.yarnpkg.com/isobject/-/isobject-3.0.1.tgz#4e431e92b11a9731636aa1f9c8d1ccbcfdab78df"
   integrity sha1-TkMekrEalzFjaqH5yNHMvP2reN8=
 
+js-framework-benchmark-utils@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/js-framework-benchmark-utils/-/js-framework-benchmark-utils-0.2.5.tgz#c7099eb9b65064801ee5f80b5619d46a3549a04c"
+  integrity sha512-ZUgxbyIUFrSjDlfPdXOO7z/tsB20PLOHWHu6X+UqIEj2mh52DRS/KKQ0RMuZBnUZ45kG1y/bI76CGxcVsIH5xA==
+
 json-parse-better-errors@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/json-parse-better-errors/-/json-parse-better-errors-1.0.2.tgz#bb867cfb3450e69107c131d1c514bab3dc8bcaa9"

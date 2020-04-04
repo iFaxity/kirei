@@ -10,9 +10,11 @@ document.body.appendChild($app);
 // element
 let count = 0;
 let text = 'hello';
+const items = [10];
 
 function onClick() {
   count++;
+  items.push(items[items.length - 1] + 1);
   update();
 }
 
@@ -30,6 +32,10 @@ function update() {
     <button @click=${onClick}>Click me</button>
     <p not=${count % 2 == 0}>shh im sort of hidden</p>
     <p if=${count % 2 == 0}>shh im hidden</p>
+
+    <ul>
+      ${html.for(items, item => html`<li>${item}</li>`)}
+    </ul>
   `, $app);
 }
 
