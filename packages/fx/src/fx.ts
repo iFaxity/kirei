@@ -197,7 +197,7 @@ export class Fx {
    */
   scheduleRun(): void {
     if (this.options.scheduler) {
-      this.options.scheduler(this.run);
+      this.options.scheduler(this.run.bind(this));
     } else {
       this.run();
     }

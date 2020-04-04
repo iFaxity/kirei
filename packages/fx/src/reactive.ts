@@ -2,7 +2,12 @@ import { isObject } from '@shlim/shared';
 import { baseHandlers, collectionHandlers } from './proxyHandlers';
 import { isObservable, isCollection } from './shared';
 
-const reactiveMap = new WeakMap<any, any>();
+// Reactive -> target
+const reactiveToTarget = new WeakMap<any, any>();
+const readonlyToTarget = new WeakMap<any, any>();
+// target -> Reactive
+const targetToReactive = new WeakMap<any, any>();
+const targetToReadonly = new WeakMap<any, any>();
 
 /**
  * Returns a reactive from an object, native values are unchanged.
@@ -20,7 +25,7 @@ export function toReactive<T extends object>(target: T): T {
  * @returns {boolean}
  */
 export function isReactive(target: any): boolean {
-  return reactiveMap.has(target);
+  return reactiveToTarget.has(target) || readonlyToTarget.has(target);
 }
 
 /**
@@ -29,7 +34,7 @@ export function isReactive(target: any): boolean {
  * @returns {object}
  */
 export function toRaw<T>(target: T): T {
-  return reactiveMap.get(target) ?? target;
+  return reactiveToTarget.get(target) ?? readonlyToTarget.get(target) ?? target;
 }
 
 /**
@@ -38,7 +43,7 @@ export function toRaw<T>(target: T): T {
  * @returns {Proxy}
  */
 export function reactive<T extends object>(target: T): T {
-  let res: T = reactiveMap.get(target);
+  let res: T = targetToReactive.get(target);
 
   if (!res) {
     let handlers: ProxyHandler<T>;
@@ -52,7 +57,8 @@ export function reactive<T extends object>(target: T): T {
     }
 
     res = new Proxy(target, handlers);
-    reactiveMap.set(res, target);
+    reactiveToTarget.set(res, target);
+    targetToReactive.set(target, res);
   }
 
   return res;
@@ -64,7 +70,7 @@ export function reactive<T extends object>(target: T): T {
  * @returns {Proxy}
  */
 export function readonly<T extends object>(target: T): T {
-  let res: T = reactiveMap.get(target);
+  let res: T = targetToReadonly.get(target);
 
   if (!res) {
     let handlers: ProxyHandler<T>;
@@ -78,7 +84,8 @@ export function readonly<T extends object>(target: T): T {
     }
 
     res = new Proxy(target, handlers);
-    reactiveMap.set(res, target);
+    readonlyToTarget.set(res, target);
+    targetToReadonly.set(target, res);
   }
 
   return res;
