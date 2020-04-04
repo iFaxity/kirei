@@ -1,7 +1,15 @@
 import { exception, isFunction } from '@shlim/shared';
-import { HookTypes } from './shared';
 import { activeInstance } from './instance';
 const HOOKS = new Set<string>();
+
+export enum HookTypes {
+  BEFORE_MOUNT = 'beforeMount',
+  MOUNT = 'mount',
+  BEFORE_UPDATE = 'beforeUpdate',
+  UPDATE = 'update',
+  BEFORE_UNMOUNT = 'beforeUnmount',
+  UNMOUNT = 'unmount',
+}
 
 /**
  * Creates a new hook to set on the active instance

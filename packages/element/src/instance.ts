@@ -1,9 +1,10 @@
-import { Template, render } from '@shlim/html';
-import { isFunction, mapObject, camelToKebab, warn, exception } from '@shlim/shared';
+import { Template } from '@shlim/html';
 import { Fx, TriggerOpTypes, toReactive } from '@shlim/fx';
-import { HookTypes } from './shared';
+import { isFunction, mapObject, camelToKebab, warn, exception } from '@shlim/shared';
+import { HookTypes } from './lifecycle';
 import * as Queue from './queue';
 import { CSSResult, shimAdoptedStyleSheets } from './css';
+import { render } from './directive';
 import {
   Props,
   PropsData,
@@ -112,9 +113,10 @@ class FxInstance {
    */
   setup(): void {
     const { props, ctx, options } = this;
+    const { name, setup, tag, styles } = options;
 
     // Create a custom proxy for the props
-    const propsProxy = new Proxy(props, {
+    const proxy = new Proxy(props, {
       get(_, key: string) {
         Fx.track(props, key);
         return props[key];
@@ -124,24 +126,23 @@ class FxInstance {
         return true;
       },
       deleteProperty() {
-        exception('Props are not deletable', options.name);
+        exception('Props are not deletable', name);
       },
     });
 
     // Run setup function to gather reactive data
     // Pause tracking while calling setup function
     Fx.pauseTracking();
-    this.renderTemplate = options.setup.call(null, propsProxy, ctx);
+    this.renderTemplate = setup.call(null, proxy, ctx);
     Fx.resetTracking();
     activeInstance = null;
 
     if (!isFunction(this.renderTemplate)) {
-      exception('Setup must return a function that returns a TemplateResult', `${options.name}#setup`);
+      exception('Setup must return a function that returns a TemplateResult', `${name}#setup`);
     }
 
     // Shim styles for shadow root, if needed
     if (window.ShadowRoot && this.shadowRoot instanceof window.ShadowRoot) {
-      const { tag, styles } = options;
       this.shimAdoptedStyleSheets = shimAdoptedStyleSheets(this.shadowRoot, tag, styles);
     }
   }
@@ -156,9 +157,9 @@ class FxInstance {
     const hooks = this.hooks[hook];
 
     if (hooks?.size) {
-      hooks.forEach(fn => {
+      hooks.forEach(hook => {
         Fx.pauseTracking();
-        fn.call(null);
+        hook.call(null);
         Fx.resetTracking();
       });
     }
@@ -175,14 +176,14 @@ class FxInstance {
     if (this.rendering) return;
     this.rendering = true;
 
-    // Queue the render
+    // Enqueue the render
     Queue.push(() => {
       if (!this.mounted) {
         this.runHooks(HookTypes.BEFORE_MOUNT);
-        run.call(this.fx);
+        run();
       } else {
         this.runHooks(HookTypes.BEFORE_UPDATE);
-        run.call(this.fx);
+        run();
         this.runHooks(HookTypes.UPDATE);
       }
 
@@ -197,13 +198,13 @@ class FxInstance {
    */
   update(): void {
     const { shadowRoot, options } = this;
-    const result = this.renderTemplate();
+    const template = this.renderTemplate();
 
-    if (!(result instanceof Template)) {
+    if (!(template instanceof Template)) {
       exception('Setup must return a function that returns a TemplateResult', `${options.name}#setup`);
     }
 
-    render(result, shadowRoot);
+    render(template, shadowRoot);
 
     if (this.shimAdoptedStyleSheets) {
       options.styles.forEach(style => shadowRoot.appendChild(style.createElement()));

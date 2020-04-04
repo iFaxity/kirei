@@ -1,4 +1,4 @@
-import { TemplatePatcher, TemplateCompiler, defaultCompiler } from '@shlim/html';
+import { TemplatePatcher, TemplateCompiler, customize, defaultCompiler } from '@shlim/html';
 import { unRef } from '@shlim/fx';
 
 export type DirectiveFactory = (directive: Directive) => TemplatePatcher;
@@ -9,9 +9,9 @@ export interface Directive {
   mods: string[];
 }
 
-const aliases = new Set<string>();
-const directives = new Map<string, DirectiveFactory>();
-const DIRECTIVE_REGEX = /^([a-z0-9@#&$%*!?;=^-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
+export const aliases = new Set<string>();
+export const directives = new Map<string, DirectiveFactory>();
+export const DIRECTIVE_REGEX = /^([a-z0-9@#&$%*!?;=^-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
 
 // directive name
 export function directive(name: string, directive: DirectiveFactory): void {
@@ -64,3 +64,5 @@ export const compiler: TemplateCompiler = {
     return (newValue) => patch(unRef(newValue));
   },
 };
+
+export const { html, svg, render } = customize({ compiler });
