@@ -9,15 +9,18 @@ const rendered = new WeakMap<RootContainer, TemplateCache>();
 const { html, svg, render } = customize();
 export { html, svg, render };
 
-
 type TemplateFor<T, R> = (item: T, idx: number) => R;
 export interface TemplateLiteral {
-  (strings: TemplateStringsArray, ...values: any[]): Template;
   /**
-   * 
-   * @param items 
-   * @param key 
-   * @param templateFn 
+   * Creates a template from a string literal
+   */
+  (strings: TemplateStringsArray, ...values: any[]): Template;
+
+  /**
+   * Creates templates from an iterable list of items
+   * @param {*} items Array or any iterable
+   * @param {Function} key Key function or templateFn if it's omitted.
+   * @param {Function} [templateFn] Function to return a template for each item value
    */
   for<T>(
     items: Iterable<T>,
@@ -27,14 +30,6 @@ export interface TemplateLiteral {
 
   // Resolves promises and renders fallback content
   //until(...promises)
-
-  /**
-   * Portals content to a specified target
-   * @param {string} target Target element as a querySelector string
-   * @param {Template} template Template to render
-   * @returns {void}
-   */
-  portal(target: string, template: Template): void;
 }
 
 interface CustomizeOptions<T extends Partial<TemplateLiteral>> {
@@ -42,75 +37,79 @@ interface CustomizeOptions<T extends Partial<TemplateLiteral>> {
   literals?: T,
 }
 
+function clearNode(node: RootContainer) {
+  // innerHTMl is faster, but doesn't work for DocumentFragments
+  if ('innerHTML' in node) {
+    node.innerHTML = '';
+  } else {
+    while (node.lastChild) {
+      node.removeChild(node.lastChild);
+    }
+  }
+}
+
 export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> = {}) {
   const { compiler } = opts;
 
-  /**
-   * Renders a template to a specific root container
-   * @param {Template} template
-   * @param {HTMLElement|ShadowRoot|DocumentFragment} root
-   */
   function render(template: Template, root: RootContainer): void {
-    if (!(template instanceof Template)) {
-      throw new TypeError('Template renderer can expects a valid Template as it\'s second argument');
-    }
-
-    let cache = rendered.get(root);
-    if (!cache) {
-      rendered.set(root, (cache = new TemplateCache()));
-    }
-
-    const node = unroll(template, cache, compiler);
-    if (cache.node != node) {
-      cache.node = node;
-
-      // innerHTMl is faster, but doesn't work for DocumentFragments
-      if ('innerHTML' in root) {
-        root.innerHTML = '';
-      } else {
-        while (root.lastChild) {
-          root.removeChild(root.lastChild);
-        }
+    if (template instanceof Template) {
+      let cache = rendered.get(root);
+      if (!cache) {
+        rendered.set(root, (cache = new TemplateCache()));
       }
 
-      root.appendChild(node.valueOf() as Node);
+      const node = unroll(template, cache, compiler);
+      if (cache.node != node) {
+        cache.node = node;
+        clearNode(root);
+        root.appendChild(node.valueOf() as Node);
+      }
+    } else if (template == null) {
+      // used for cleanup
+      clearNode(root);
+    } else {
+      throw new TypeError('Template renderer can expects a valid Template as it\'s first argument');
     }
   }
 
   return {
+    /**
+     * Renders a template to a specific root container
+     * @param {Template} template
+     * @param {HTMLElement|ShadowRoot|DocumentFragment} root
+     */
     render,
     /**
      * Creates a template with html content
      */
-    html: createLiteral<T>('html', render, opts),
+    html: createLiteral<T>('html', opts),
     /**
      * Creates a template with svg content
      */
-    svg: createLiteral<T>('svg', render, opts),
+    svg: createLiteral<T>('svg', opts),
   }
 }
 
 function createLiteral<T extends TemplateLiteral>(
   type: string,
-  render: (template: Template, root: RootContainer) => void,
   opts: CustomizeOptions<T>
 ): T {
   const { compiler, literals } = opts;
 
-  // both `html` and `svg` tags have their own cache for keyed renders
+  // Every literal has its own cache for keyed templates
   const keyed = new WeakMap<any, Map<any, TemplateCache>>();
   function template(strings: TemplateStringsArray, ...values: any[]): Template {
     return new Template(type, strings, values);
   }
 
-  template.for = function mapFor<T>(items: T[], key: TemplateFor<T, any>, templateFn?: TemplateFor<T, Template>): (Node|Template)[] {
+  template.for = <T>(items: Iterable<T>, key: TemplateFor<T, any>, templateFn?: TemplateFor<T, Template>): (Node|Template)[] => {
     if (!isFunction(templateFn)) {
       // run as unkeyed (key is templateFn)
-      return items.map(key);
+      return Array.from(items).map(key);
     }
 
     // keyed, we map by a unique ID
-    return items.map((item, idx) => {
+    return Array.from(items).map((item, idx) => {
       let cacheMap = keyed.get(item);
       if (!cacheMap) {
         keyed.set(item, (cacheMap = new Map()));
@@ -125,16 +124,6 @@ function createLiteral<T extends TemplateLiteral>(
       }
       return unroll(templateFn(item, idx), cache, compiler);
     });
-  }
-
-  const portalTargets = new Map<string, Element>();
-  template.portal = (target: string, template: Template) => {
-    let root = portalTargets.get(target);
-    if (!root) {
-      portalTargets.set(target, (root = document.querySelector(target)));
-    }
-
-    render(template, root);
   };
 
   // Add extension methods to literal
