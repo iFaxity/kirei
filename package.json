@@ -1,12 +1,14 @@
 {
   "private": true,
+  "version": "0.3.0",
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
     "dev": "webpack-dev-server",
     "prebuild": "rm -rf packages/*/dist && rm -f packages/*/*.tsbuildinfo",
-    "build": "tsc --b"
+    "build": "tsc --b",
+    "bump": "node publish.js"
   },
   "devDependencies": {
     "file-loader": "^5.1.0",

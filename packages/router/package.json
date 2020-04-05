@@ -1,5 +1,6 @@
 {
   "name": "@shlim/router",
+  "private": true,
   "version": "0.1.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",

@@ -1,6 +1,6 @@
 {
   "name": "@shlim/element",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "module": "dist/index.js",
@@ -34,8 +34,8 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@shlim/fx": "^0.2.1",
-    "@shlim/html": "^0.2.1",
-    "@shlim/shared": "^0.2.0"
+    "@shlim/fx": "^0.3.0",
+    "@shlim/html": "^0.3.0",
+    "@shlim/shared": "^0.3.0"
   }
 }

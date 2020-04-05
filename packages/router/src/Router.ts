@@ -17,7 +17,8 @@ export class Router {
   readonly base: string;
   readonly routes: Route[];
   // Set of view and the rendered element
-  private views: Set<Element>;
+  private views: Element[] = [];
+  private viewCtx: Node[] = [];
   // Current route
   private route: Route = null;
 
@@ -29,7 +30,6 @@ export class Router {
     this.history = SUPPORTS_HISTORY && (opts.history ? !!opts.history : true);
     this.base = typeof opts.base == 'string' ? opts.base : '/';
     this.routes = opts.routes.map(o => new Route(o));
-    this.views = new Set();
     this.exactClass = opts.exactClass ?? 'link-exact';
     this.activeClass = opts.activeClass ?? 'link-active';
 
@@ -47,11 +47,14 @@ export class Router {
   }
 
   register($el: Element): void {
-    this.views.add($el);
+    this.views.push($el);
+    this.viewCtx.push(document.createComment(''));
   }
 
   unregister($el: Element): void {
-    this.views.delete($el);
+    const idx = this.views.indexOf($el);
+    this.views.splice(idx, 1);
+    this.viewCtx.splice(idx, 1);
   }
 
   push(path: string|LinkOptions): boolean {
