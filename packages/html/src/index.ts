@@ -3,7 +3,7 @@ import { isFunction, isObject } from '@shlim/shared';
 export { defaultCompiler, TemplatePatcher } from './compiler';
 export { Template, TemplateCompiler };
 
-type RootContainer = HTMLElement|ShadowRoot|DocumentFragment;
+type RootContainer = Element|ShadowRoot|DocumentFragment;
 const rendered = new WeakMap<RootContainer, TemplateCache>();
 
 const { html, svg, render } = customize();
@@ -13,14 +13,28 @@ export { html, svg, render };
 type TemplateFor<T, R> = (item: T, idx: number) => R;
 export interface TemplateLiteral {
   (strings: TemplateStringsArray, ...values: any[]): Template;
+  /**
+   * 
+   * @param items 
+   * @param key 
+   * @param templateFn 
+   */
   for<T>(
     items: Iterable<T>,
     key: TemplateFor<T, any>,
     templateFn?: TemplateFor<T, Template>
   ): (Node|Template)[];
-  // TODO: maybe use promises in nodeParser instead?
-  //until(...)
-  cache: WeakMap<any, Map<any, TemplateCache>>;
+
+  // Resolves promises and renders fallback content
+  //until(...promises)
+
+  /**
+   * Portals content to a specified target
+   * @param {string} target Target element as a querySelector string
+   * @param {Template} template Template to render
+   * @returns {void}
+   */
+  portal(target: string, template: Template): void;
 }
 
 interface CustomizeOptions<T extends Partial<TemplateLiteral>> {
@@ -30,52 +44,57 @@ interface CustomizeOptions<T extends Partial<TemplateLiteral>> {
 
 export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> = {}) {
   const { compiler } = opts;
+
+  /**
+   * Renders a template to a specific root container
+   * @param {Template} template
+   * @param {HTMLElement|ShadowRoot|DocumentFragment} root
+   */
+  function render(template: Template, root: RootContainer): void {
+    if (!(template instanceof Template)) {
+      throw new TypeError('Template renderer can expects a valid Template as it\'s second argument');
+    }
+
+    let cache = rendered.get(root);
+    if (!cache) {
+      rendered.set(root, (cache = new TemplateCache()));
+    }
+
+    const node = unroll(template, cache, compiler);
+    if (cache.node != node) {
+      cache.node = node;
+
+      // innerHTMl is faster, but doesn't work for DocumentFragments
+      if ('innerHTML' in root) {
+        root.innerHTML = '';
+      } else {
+        while (root.lastChild) {
+          root.removeChild(root.lastChild);
+        }
+      }
+
+      root.appendChild(node.valueOf() as Node);
+    }
+  }
+
   return {
+    render,
     /**
      * Creates a template with html content
      */
-    html: createLiteral<T>('html', opts),
-
+    html: createLiteral<T>('html', render, opts),
     /**
      * Creates a template with svg content
      */
-    svg: createLiteral<T>('svg', opts),
-
-    /**
-     * Renders a template to a specific root container
-     * @param {Template} template
-     * @param {HTMLElement|ShadowRoot|DocumentFragment} root
-     */
-    render(template: Template, root: RootContainer): void {
-      if (!(template instanceof Template)) {
-        throw new TypeError('Template renderer can expects a valid Template as it\'s second argument');
-      }
-
-      let cache = rendered.get(root);
-      if (!cache) {
-        rendered.set(root, (cache = new TemplateCache()));
-      }
-
-      const node = unroll(template, cache, compiler);
-      if (cache.node != node) {
-        cache.node = node;
-
-        // innerHTMl is faster, but doesn't work for DocumentFragments
-        if ('innerHTML' in root) {
-          root.innerHTML = '';
-        } else {
-          while (root.lastChild) {
-            root.removeChild(root.lastChild);
-          }
-        }
-
-        root.appendChild(node.valueOf() as Node);
-      }
-    },
+    svg: createLiteral<T>('svg', render, opts),
   }
 }
 
-function createLiteral<T extends TemplateLiteral>(type: string, opts: CustomizeOptions<T>): T {
+function createLiteral<T extends TemplateLiteral>(
+  type: string,
+  render: (template: Template, root: RootContainer) => void,
+  opts: CustomizeOptions<T>
+): T {
   const { compiler, literals } = opts;
 
   // both `html` and `svg` tags have their own cache for keyed renders
@@ -84,7 +103,6 @@ function createLiteral<T extends TemplateLiteral>(type: string, opts: CustomizeO
     return new Template(type, strings, values);
   }
 
-  template.cache = keyed;
   template.for = function mapFor<T>(items: T[], key: TemplateFor<T, any>, templateFn?: TemplateFor<T, Template>): (Node|Template)[] {
     if (!isFunction(templateFn)) {
       // run as unkeyed (key is templateFn)
@@ -108,6 +126,16 @@ function createLiteral<T extends TemplateLiteral>(type: string, opts: CustomizeO
       return unroll(templateFn(item, idx), cache, compiler);
     });
   }
+
+  const portalTargets = new Map<string, Element>();
+  template.portal = (target: string, template: Template) => {
+    let root = portalTargets.get(target);
+    if (!root) {
+      portalTargets.set(target, (root = document.querySelector(target)));
+    }
+
+    render(template, root);
+  };
 
   // Add extension methods to literal
   if (isObject(literals)) {
