@@ -1,5 +1,5 @@
 import { Ref, isRef } from '@shlim/fx';
-import { directive } from '../directive';
+import { directive } from '../compiler';
 
 // This is a special directive
 directive('ref', dir => {

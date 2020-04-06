@@ -2,7 +2,7 @@ export * from '@shlim/fx';
 export { defineElement, FxElement, elementInstances } from './instance';
 export { nextTick } from './queue';
 export { css } from './css';
-export { directive, html, svg } from './directive';
+export { directive, html, svg } from './compiler';
 export * from './lifecycle';
 export { portal } from './portal';
 

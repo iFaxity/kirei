@@ -4,7 +4,7 @@ import { isFunction, mapObject, camelToKebab, warn, exception } from '@shlim/sha
 import { HookTypes } from './lifecycle';
 import * as Queue from './queue';
 import { CSSResult, shimAdoptedStyleSheets } from './css';
-import { render } from './directive';
+import { render } from './compiler';
 import {
   Props,
   PropsData,

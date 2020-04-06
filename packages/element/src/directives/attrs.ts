@@ -1,4 +1,4 @@
-import { directive } from '../directive';
+import { directive } from '../compiler';
 import { isObject, warn } from '@shlim/shared';
 
 directive('attrs', dir => {

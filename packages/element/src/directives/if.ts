@@ -1,4 +1,4 @@
-import { directive, Directive } from '../directive';
+import { directive, Directive } from '../compiler';
 import { unRef } from '@shlim/fx';
 
 directive('if', dir => {

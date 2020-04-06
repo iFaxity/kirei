@@ -1,7 +1,7 @@
 import { FxElement, elementInstances } from '../instance';
 import { Ref, isRef } from '@shlim/fx';
 import { isFunction } from '@shlim/shared';
-import { directive, Directive } from '../directive';
+import { directive, Directive } from '../compiler';
 
 function selectHandler(el: HTMLSelectElement, ref: Ref): string | string[] {
   const options = el.selectedOptions;
