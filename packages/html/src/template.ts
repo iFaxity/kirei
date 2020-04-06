@@ -76,10 +76,10 @@ function compilePatch(patch: TemplatePatch, instance: TemplateInstance): Templat
  */
 interface TemplateInstance {
   root: DocumentFragment;
-  wire: Node;
   compiler: TemplateCompiler;
   template: Template;
   patchers: TemplatePatcher[];
+  node: Node,
 }
 
 function compileInstance(template: Template): TemplateContent {
@@ -139,7 +139,7 @@ function compileInstance(template: Template): TemplateContent {
 
 function createInstance(template: Template, compiler: TemplateCompiler): TemplateInstance {
   return updateInstance({
-    root: null, wire: null, patchers: null, template: null, compiler
+    root: null, node: null, patchers: null, template: null, compiler
   }, template);
 }
 
@@ -217,8 +217,8 @@ export function unroll(template: Template, cache: TemplateCache, compiler?: Temp
   }
 
   // Create wire node if it doesn't exist
-  if (!instance.wire) {
-    instance.wire = persistent(root);
+  if (!instance.node) {
+    instance.node = persistent(root);
   }
-  return instance.wire;
+  return instance.node;
 }

@@ -65,8 +65,13 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
         root.appendChild(node.valueOf() as Node);
       }
     } else if (template == null) {
-      // used for cleanup
-      clearNode(root);
+      const cache = rendered.get(root);
+
+      // Cleanup root and clear node from cache
+      if (cache) {
+        cache.node = null;
+        clearNode(root);
+      }
     } else {
       throw new TypeError('Template renderer can expects a valid Template as it\'s first argument');
     }
