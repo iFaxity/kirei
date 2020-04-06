@@ -1,6 +1,7 @@
 import { Template, TemplateCompiler, TemplateCache, unroll } from './template';
 import { isFunction, isObject } from '@shlim/shared';
 export { defaultCompiler, TemplatePatcher } from './compiler';
+import { clearNode } from './shared';
 export { Template, TemplateCompiler };
 
 type RootContainer = Element|ShadowRoot|DocumentFragment;
@@ -35,17 +36,6 @@ export interface TemplateLiteral {
 interface CustomizeOptions<T extends Partial<TemplateLiteral>> {
   compiler?: TemplateCompiler,
   literals?: T,
-}
-
-function clearNode(node: RootContainer) {
-  // innerHTMl is faster, but doesn't work for DocumentFragments
-  if ('innerHTML' in node) {
-    node.innerHTML = '';
-  } else {
-    while (node.lastChild) {
-      node.removeChild(node.lastChild);
-    }
-  }
 }
 
 export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> = {}) {
