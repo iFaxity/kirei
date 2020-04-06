@@ -12,8 +12,7 @@ export const createWalker = IE
   : node => document.createTreeWalker(node, filter);
 
 // Shamelessly copied from the package uwire
-const ELEMENT_NODE = 1;
-const nodeType = 111;
+const nodeType = 123;
 
 function remove({firstChild, lastChild}) {
   const range = document.createRange();
@@ -55,8 +54,8 @@ export function persistent(fragment: DocumentFragment): Node {
 
   const nodes = Array.from(childNodes);
   return {
-    ELEMENT_NODE,
     nodeType,
+    ELEMENT_NODE: 1,
     firstChild: nodes[0],
     lastChild: nodes[length - 1],
     //@ts-ignore

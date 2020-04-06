@@ -140,5 +140,5 @@ export const defaultCompiler: TemplateCompiler = {
         node.textContent = value == null ? '' : value;
       }
     };
-  }
+  },
 };
