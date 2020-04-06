@@ -34,9 +34,7 @@ export function has(fn: Function): boolean {
  * @returns {void}
  */
 export function push(fn: Function): void {
-  if (queue.size == 0) {
-    nextTick(flush);
-  }
-
+  const queueFlush = queue.size == 0;
   queue.add(fn);
+  queueFlush && nextTick(flush);
 }

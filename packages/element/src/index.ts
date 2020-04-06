@@ -4,7 +4,6 @@ export { nextTick } from './queue';
 export { css } from './css';
 export { directive, html, svg } from './directive';
 export * from './lifecycle';
-
 export { portal } from './portal';
 
 // define default directives
