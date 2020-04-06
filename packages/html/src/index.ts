@@ -20,7 +20,6 @@ export interface TemplateLiteral {
   ): (Node|Template)[];
   // TODO: maybe use promises in nodeParser instead?
   //until(...)
-  cache: WeakMap<any, Map<any, TemplateCache>>;
 }
 
 interface CustomizeOptions<T extends Partial<TemplateLiteral>> {
@@ -84,7 +83,6 @@ function createLiteral<T extends TemplateLiteral>(type: string, opts: CustomizeO
     return new Template(type, strings, values);
   }
 
-  template.cache = keyed;
   template.for = function mapFor<T>(items: T[], key: TemplateFor<T, any>, templateFn?: TemplateFor<T, Template>): (Node|Template)[] {
     if (!isFunction(templateFn)) {
       // run as unkeyed (key is templateFn)
