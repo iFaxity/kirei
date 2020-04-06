@@ -23,6 +23,17 @@ function remove({firstChild, lastChild}) {
   return firstChild;
 }
 
+export function clearNode(node: Node|Element) {
+  // innerHTMl is faster, but doesn't work for DocumentFragments
+  if ('innerHTML' in node) {
+    node.innerHTML = '';
+  } else {
+    while (node.lastChild) {
+      node.removeChild(node.lastChild);
+    }
+  }
+}
+
 function diffable(node, operation) {
   if (node.nodeType === nodeType) {
     if (1 / operation < 0) {

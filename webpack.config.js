@@ -9,6 +9,7 @@ module.exports = {
     todo: './dev/todo.ts',
     index: './dev/index.ts',
     render: './dev/render.ts',
+    portal: './dev/portal.ts',
   },
   mode: 'development',
   devtool: 'inline-source-map',
