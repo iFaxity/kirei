@@ -1,5 +1,6 @@
 import { TemplatePatcher, TemplateCompiler, customize, defaultCompiler } from '@shlim/html';
 import { unRef } from '@shlim/fx';
+import { FxInstance } from './instance';
 
 export type DirectiveFactory = (directive: Directive) => TemplatePatcher;
 export interface Directive {
@@ -9,29 +10,29 @@ export interface Directive {
   mods: string[];
 }
 
-export const aliases = new Set<string>();
-export const directives = new Map<string, DirectiveFactory>();
-export const DIRECTIVE_REGEX = /^([a-z0-9@#&$%*!?;=^-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
+const aliases: string[] = [];
+const directives: Record<string, DirectiveFactory> = Object.create(null);
+const DIRECTIVE_REGEX = /^([a-z0-9@#&$%*!?;=^-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
 
 // directive name
 export function directive(name: string, directive: DirectiveFactory): void {
   if (typeof name != 'string') {
     throw new TypeError('Invalid directive name');
-  } else if (directives.has(name)) {
+  } else if (directives[name]) {
     throw new Error('Directive already exists');
   }
 
   if (name.length == 1) {
-    aliases.add(name);
+    aliases.push(name);
   }
-  directives.set(name, directive);
+  directives[name] = directive;
 }
 
 // Custom compiler for directives and to unpack reactives
-export const compiler: TemplateCompiler = {
+const compiler: TemplateCompiler = {
   attr(node, attr) {
     // Check if directive exists for attribute
-    if (aliases.has(attr[0])) {
+    if (aliases.includes(attr[0])) {
       attr = `${attr[0]}:${attr.slice(1)}`;
     }
 
@@ -40,15 +41,15 @@ export const compiler: TemplateCompiler = {
       throw new TypeError('Invalid directive format');
     }
 
-    const factory = directives.get(match[1]);
+    const name = match[1];
+    const factory = directives[name] ?? FxInstance.active.directives?.[name];
+
     if (factory) {
-      const directive = {
-        el: node,
-        name: match[1],
+      return factory.call(null, {
+        el: node, name,
         arg: match[2] ?? '',
         mods: match[3] ? match[3].slice(1).split('.') : [],
-      } as Directive;
-      return factory.call(null, directive);
+      });
     }
 
     // Use default patcher

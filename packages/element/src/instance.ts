@@ -4,7 +4,7 @@ import { isFunction, mapObject, camelToKebab, warn, exception } from '@shlim/sha
 import { HookTypes } from './lifecycle';
 import * as Queue from './queue';
 import { CSSResult, shimAdoptedStyleSheets } from './css';
-import { render } from './compiler';
+import { render, DirectiveFactory } from './compiler';
 import {
   Props,
   PropsData,
@@ -15,7 +15,7 @@ import {
   propDefaults,
 } from './props';
 
-export let activeInstance: FxInstance = null;
+let activeInstance: FxInstance = null;
 export const elementInstances = new WeakMap<FxElement, FxInstance>();
 
 export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
@@ -25,6 +25,7 @@ export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
   sync?: string;
   setup(this: void, props: T, ctx: FxContext): () => Template;
   styles?: CSSResult|CSSResult[];
+  directives?: Record<string, DirectiveFactory>;
 }
 
 interface NormalizedFxOptions extends Required<FxOptions> {
@@ -67,7 +68,7 @@ class FxContext {
   }
 }
 
-class FxInstance {
+export class FxInstance {
   readonly el: FxElement;
   readonly options: NormalizedFxOptions;
   readonly ctx: FxContext;
@@ -75,10 +76,18 @@ class FxInstance {
   readonly fx: Fx;
   readonly props: PropsData;
   readonly shadowRoot: ShadowRoot;
+  readonly directives?: Record<string, DirectiveFactory>;
   private renderTemplate: () => Template;
-  private rendering: boolean = false;
-  private shimAdoptedStyleSheets: boolean = false;
-  firstMount: boolean = true;
+  private rendering = false;
+  private shimAdoptedStyleSheets = false;
+  firstMount = true;
+
+  static get active() {
+    return activeInstance;
+  }
+  static set active(instance: FxInstance) {
+    activeInstance = instance;
+  }
 
   get mounted(): boolean {
     return this.el?.parentNode != null;
@@ -92,6 +101,10 @@ class FxInstance {
   constructor(el: FxElement, options: NormalizedFxOptions) {
     activeInstance = this;
     elementInstances.set(el, this);
+
+    if (options.directives) {
+      this.directives = options.directives;
+    }
 
     this.el = el;
     this.options = options;
@@ -138,7 +151,7 @@ class FxInstance {
     activeInstance = null;
 
     if (!isFunction(this.renderTemplate)) {
-      exception('Setup must return a function that returns a TemplateResult', `${name}#setup`);
+      exception('Setup function must return a TemplateGenerator', `${name}#setup`);
     }
 
     // Shim styles for shadow root, if needed
@@ -197,14 +210,11 @@ class FxInstance {
    * @returns {void}
    */
   update(): void {
-    const { shadowRoot, options } = this;
-    const template = this.renderTemplate();
+    const { shadowRoot, options, renderTemplate } = this;
 
-    if (!(template instanceof Template)) {
-      exception('Setup must return a function that returns a TemplateResult', `${options.name}#setup`);
-    }
-
-    render(template, shadowRoot);
+    activeInstance = this;
+    render(renderTemplate(), shadowRoot);
+    activeInstance = null;
 
     if (this.shimAdoptedStyleSheets) {
       options.styles.forEach(style => shadowRoot.appendChild(style.createElement()));
@@ -317,7 +327,7 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
  * @returns {NormalizedFxOptions}
  */
 function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
-  const { setup, sync, styles } = options;
+  const { setup, sync, styles, directives } = options;
   const props = options.props ?? {};
   let css: CSSResult[] = [];
 
@@ -338,6 +348,7 @@ function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
     sync: sync ?? 'value',
     setup: setup ?? null,
     styles: css,
+    directives: directives ?? null,
   } as NormalizedFxOptions;
 }
 

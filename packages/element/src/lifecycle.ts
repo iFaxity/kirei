@@ -1,5 +1,5 @@
 import { exception, isFunction } from '@shlim/shared';
-import { activeInstance } from './instance';
+import { FxInstance } from './instance';
 const HOOKS = new Set<string>();
 
 export enum HookTypes {
@@ -26,11 +26,11 @@ export function createHook(hook: string): (fn: Function) => void {
   return (fn: Function) => {
     if (!isFunction(fn)) {
       exception('Lifecycle hooks requires the parameter to be a function.');
-    } else if (!activeInstance) {
+    } else if (!FxInstance.active) {
       exception('Lifecycle hooks needs have a setup function in it\'s call stack.');
     }
 
-    let { hooks } = activeInstance;
+    const { hooks } = FxInstance.active;
     hooks[hook] = hooks[hook] ?? new Set();
     hooks[hook].add(fn);
   };
