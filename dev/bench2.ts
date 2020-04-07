@@ -57,9 +57,6 @@ const Table = (state) => {
     if (action && id) {
       state[action](+id);
     }
-    /*const a = target.closest('a');
-    const {action} = a.dataset;
-    state[action](+a.closest('tr').id);*/
   }
 
   return html`

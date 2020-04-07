@@ -8,6 +8,26 @@ function generateId() {
   return Math.random().toString(16).slice(2);
 }
 
+const style1 = `
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const style2 = `
+  width: 80%;
+  box-sizing: border-box;
+  padding: 3em 5em;
+  background: #fff;
+`;
+
 export default defineElement({
   name: 'AppRoot',
   setup() {
@@ -32,19 +52,8 @@ export default defineElement({
     }
 
     portal('#portal', () => html`
-      <div if=${show} @click.self=${closePortal} style="
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <div style="width: 80%; box-sizing: border-box; padding: 3em 5em; background: #fff;">
+      <div if=${show} @click.self=${closePortal} style=${style1}>
+        <div style=${style2}>
           <h2>Portal</h2>
           <p>Text: ${text}</p>
           <h3>List</h3>
@@ -60,5 +69,5 @@ export default defineElement({
       <p>Counter ${count}</p>
       <button @click=${increment}>Increment</button>
     `;
-  },
+  }
 });

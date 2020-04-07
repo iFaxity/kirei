@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-// yarn publish all packages with same version
-// create a git commit and tag it
 const { promisify } = require('util');
 const fs = require('fs');
 const readdir = promisify(fs.readdir);
