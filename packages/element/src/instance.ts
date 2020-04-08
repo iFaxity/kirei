@@ -326,30 +326,25 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
  * @param {FxOptions} options Raw element options
  * @returns {NormalizedFxOptions}
  */
-function normalizeOptions<T>(options: FxOptions<T>): NormalizedFxOptions {
-  const { setup, sync, styles, directives } = options;
-  const props = options.props ?? {};
-  let css: CSSResult[] = [];
+function normalizeOptions(options: FxOptions): NormalizedFxOptions {
+  let { styles } = options;
+  const props = normalizeProps(options.props ?? {});
 
-  if (styles) {
-    if (Array.isArray(styles)) {
-      css = [ ...collectStyles(styles) ];
-    } else {
-      css.push(styles);
-    }
+  let css: CSSResult[] = null;
+  if (styles != null) {
+    css = Array.isArray(styles) ? [ ...collectStyles(styles) ] : [ styles ];
   }
 
-  return {
-    name: options.name,
-    tag: camelToKebab(options.name),
-    closed: options.closed ?? false,
-    props: options.props ? normalizeProps(props) : props,
-    attrs: mapObject((key) => [ camelToKebab(key), key ], props),
-    sync: sync ?? 'value',
-    setup: setup ?? null,
-    styles: css,
-    directives: directives ?? null,
-  } as NormalizedFxOptions;
+  const normalized = options as NormalizedFxOptions;
+  normalized.props = props;
+  normalized.styles = css;
+  normalized.closed = options.closed ?? false;
+  normalized.sync = options.sync ?? 'value';
+  normalized.setup = options.setup ?? null;
+  normalized.directives = options.directives ?? null;
+  normalized.tag = camelToKebab(options.name);
+  normalized.attrs = mapObject((key) => [ camelToKebab(key), key ], props);
+  return normalized;
 }
 
 /**

@@ -23,7 +23,7 @@ export function shimAdoptedStyleSheets(
   tag: string,
   styles: CSSResult[]
 ): boolean {
-  if (styles.length) {
+  if (styles != null && styles.length) {
     const { ShadyCSS } = window;
 
     if (ShadyCSS?.nativeShadow === false) {

@@ -216,9 +216,6 @@ export function unroll(template: Template, cache: TemplateCache, compiler?: Temp
     patchers[idx](values[idx]);
   }
 
-  // Create wire node if it doesn't exist
-  if (!instance.node) {
-    instance.node = persistent(root);
-  }
-  return instance.node;
+  // Create instance node if it doesn't exist
+  return instance.node || (instance.node = persistent(root));
 }

@@ -44,36 +44,34 @@ export type ResolvePropTypes<T> =
  * @returns {NormalizedProps}
  */
 export function normalizeProps(props: Props): NormalizedProps {
-  return mapObject((key, prop) => {
-    const normal = {
-      default: undefined,
-      validator: null,
-      required: false,
-      cast: false,
-    } as NormalizedProp;
+  for (const [ key, prop ] of Object.entries(props)) {
+    const normal = prop as NormalizedProp;
 
-    if (prop == null) {
-      normal.type = null;
-    } else if (isObject<PropInstance>(prop)) {
+    if (isObject<PropInstance>(prop)) {
       normal.type = (prop.type as PropConstructor[]) ?? null;
       normal.default = prop.default ?? undefined;
       normal.validator = prop.validator ?? null;
       normal.required = !!prop.required;
     } else {
-      normal.type = prop;
+      normal.type = (prop as PropConstructor[]) ?? null;
+      normal.default = undefined;
+      normal.validator = null;
+      normal.required = false;
+      normal.cast = false;
     }
 
-    if (normal.type && !Array.isArray(normal.type)) {
-      normal.type = [ normal.type ];
-    }
+    if (normal.type) {
+      if (!Array.isArray(normal.type)) {
+        normal.type = [ normal.type ];
+      }
 
-    // Validate types (and cast?)
-    if (!normal.type?.every(isFunction)) {
-      throw new TypeError(`Type invalid in prop '${key}'!`);
+      if (!normal.type?.every(isFunction)) {
+        throw new TypeError(`Type invalid in prop '${key}'!`);
+      }
     }
+  }
 
-    return [ key, normal ];
-  }, props);
+  return props as NormalizedProps;
 }
 
 /**
