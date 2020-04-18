@@ -1,24 +1,25 @@
-import { Fx } from './fx';
 import { isFunction } from '@shlim/shared';
+import { Fx } from './fx';
+import { Ref, isRef } from './ref';
 
-export type StopEffect = () => void;
+type StopEffect = () => void;
 
 /**
  * Creates a function that runs anytime a reactive dependency updates.
  * @param {function} target - Target watchers function
  * @returns {void}
  */
-export function watchEffect(target: Function): StopEffect {
+export function watchEffect(target: () => void): StopEffect {
   if (!isFunction(target)) {
-    throw new TypeError('watch can an only watch functions');
+    throw new TypeError('watchEffect can an only watch functions');
   }
 
   const fx = new Fx(target, { lazy: false, computed: false });
   return fx.stop.bind(fx);
 }
 
-/* TODO: move this to element package
-interface WatcherOptions {
+
+/*interface WatcherOptions {
   immediate?: boolean;
   deep?: boolean;
 }
@@ -37,7 +38,7 @@ export function watch<T>(
   callback: (value: T, oldValue: T) => void,
   options: WatcherOptions
 ): void {
-  let fn: Function;
+  let fn: () => T|T[];
   if (Array.isArray(target)) {
     fn = () => target.map(x => isRef(x) ? x.value : x());
   } else if (isRef(target)) {
@@ -46,6 +47,9 @@ export function watch<T>(
     fn = target;
   }
 
-  const fx = new Fx(fn, { lazy: !options.immediate, computed: false });
+  const fx = new Fx(fn, {
+    lazy: !options.immediate,
+    computed: false,
+  });
   return fx.stop.bind(fx);
 }*/

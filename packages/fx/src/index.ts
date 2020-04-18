@@ -6,6 +6,7 @@ export { Fx, TriggerOpTypes } from './fx';
 export { isReactive, toReactive, toRaw, reactive, readonly } from './reactive';
 export { Ref, isRef, unRef, ref } from './ref';
 export { Computed, computed } from './computed';
+export { watchEffect } from './watch';
 
 /**
  * Unpacks a ref or reactive to it's raw value, otherwise returns target
@@ -24,8 +25,8 @@ export function toRawValue(target: unknown): unknown {
  */
 export function toRef<T extends object>(target: object, key: string): Ref<T> {
   return createRef<T>({
-    get value() { return target[key]; },
-    set value(newValue) { target[key] = newValue; }
+    get: () => target[key],
+    set: (value) => target[key] = value,
   });
 }
 

@@ -1,11 +1,6 @@
 import { isObject } from '@shlim/shared';
-import { baseHandlers, collectionHandlers } from './proxyHandlers';
+import { baseHandlers, collectionHandlers, REACTIVE_KEY } from './proxyHandlers';
 import { isObservable, isCollection } from './shared';
-
-// Reactive -> target
-const reactiveToTarget = new WeakMap<any, any>();
-const readonlyToTarget = new WeakMap<any, any>();
-// target -> Reactive
 const targetToReactive = new WeakMap<any, any>();
 const targetToReadonly = new WeakMap<any, any>();
 
@@ -25,7 +20,7 @@ export function toReactive<T extends object>(target: T): T {
  * @returns {boolean}
  */
 export function isReactive(target: any): boolean {
-  return reactiveToTarget.has(target) || readonlyToTarget.has(target);
+  return !!target[REACTIVE_KEY];
 }
 
 /**
@@ -34,7 +29,16 @@ export function isReactive(target: any): boolean {
  * @returns {object}
  */
 export function toRaw<T>(target: T): T {
-  return reactiveToTarget.get(target) ?? readonlyToTarget.get(target) ?? target;
+  return target[REACTIVE_KEY] ?? target;
+}
+
+function createReactive<T extends object>(target: T, immutable: boolean): T {
+  if (isCollection(target)) {
+    return new Proxy(target, collectionHandlers(immutable));
+  } else if (isObservable(target)) {
+    return new Proxy(target, baseHandlers(immutable));
+  }
+  throw new TypeError('target is not observable');
 }
 
 /**
@@ -44,23 +48,9 @@ export function toRaw<T>(target: T): T {
  */
 export function reactive<T extends object>(target: T): T {
   let res: T = targetToReactive.get(target);
-
   if (!res) {
-    let handlers: ProxyHandler<T>;
-
-    if (isCollection(target)) {
-      handlers = collectionHandlers(false);
-    } else if (isObservable(target)) {
-      handlers = baseHandlers(false);
-    } else {
-      throw new TypeError('target is not observable');
-    }
-
-    res = new Proxy(target, handlers);
-    reactiveToTarget.set(res, target);
-    targetToReactive.set(target, res);
+    targetToReactive.set(target, (res = createReactive(target, false)));
   }
-
   return res;
 }
 
@@ -71,22 +61,8 @@ export function reactive<T extends object>(target: T): T {
  */
 export function readonly<T extends object>(target: T): T {
   let res: T = targetToReadonly.get(target);
-
   if (!res) {
-    let handlers: ProxyHandler<T>;
-
-    if (isCollection(target)) {
-      handlers = collectionHandlers(true);
-    } else if (isObservable(target)) {
-      handlers = baseHandlers(true);
-    } else {
-      throw new TypeError('target is not observable');
-    }
-
-    res = new Proxy(target, handlers);
-    readonlyToTarget.set(res, target);
-    targetToReadonly.set(target, res);
+    targetToReadonly.set(target, (res = createReactive(target, false)));
   }
-
   return res;
 }

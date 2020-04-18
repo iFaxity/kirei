@@ -15,7 +15,7 @@ const trackStack: boolean[] = [];
 export interface FxOptions {
   lazy?: boolean;
   computed?: boolean;
-  scheduler?: (fn: Function) => void;
+  scheduler?(fn: Function): void;
 }
 
 export class Fx {
@@ -29,22 +29,13 @@ export class Fx {
    * @param {Function|Fx} target - Runner function
    * @param {object} options - Options for the fx
    */
-  constructor(target: Function | Fx, options: FxOptions = {}) {
+  constructor(target: Function|Fx, options: FxOptions = {}) {
     this.options = options;
-    this.raw = Fx.isFx(target) ? (target as Fx).raw : (target as Function);
-
+    this.raw = (target instanceof Fx) ? target.raw : target;
+    this.run = this.run.bind(this); // bind run
     if (!options.lazy) {
       this.run();
     }
-  }
-
-  /**
-   * Checks if an object is an Fx instance
-   * @param {*} obj
-   * @return {boolean}
-   */
-  static isFx(target: unknown): target is Fx {
-    return target instanceof Fx;
   }
 
   /**
@@ -86,19 +77,17 @@ export class Fx {
 
     let depsMap = targetMap.get(target);
     if (!depsMap) {
-      depsMap = new Map();
-      targetMap.set(target, depsMap);
+      targetMap.set(target, (depsMap = new Map()));
     }
 
-    let dep = depsMap.get(key);
-    if (!dep) {
-      dep = new Set();
-      depsMap.set(key, dep);
+    let deps = depsMap.get(key);
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()));
     }
 
-    if (!dep.has(activeFx)) {
-      dep.add(activeFx);
-      activeFx.deps.push(dep);
+    if (!deps.has(activeFx)) {
+      deps.add(activeFx);
+      activeFx.deps.push(deps);
     }
   }
 
@@ -111,19 +100,17 @@ export class Fx {
    */
   static trigger(target: object, type: string, key?: string|symbol|number): void {
     const depsMap = targetMap.get(target);
-
-    // No dependents of target
     if (!depsMap) return;
 
     const fxs = new Set<Fx>();
     const computedFxs = new Set<Fx>();
     const addRunners = (deps: Set<Fx>): void => {
       if (deps && tracking) {
-        deps.forEach(fx => {
+        for (const fx of deps) {
           if (fx !== activeFx) {
             (fx.options.computed ? computedFxs : fxs).add(fx);
           }
-        });
+        }
       }
     };
 
@@ -180,24 +167,22 @@ export class Fx {
    */
   cleanup(): void {
     const { deps } = this;
-
     if (deps.length) {
       for (let i = 0; i < deps.length; i++) {
         deps[i].delete(this);
       }
 
-      deps.length = 0;
+      this.deps = [];
     }
   }
 
   /**
    * Schedules a run of the runner function
-   *
    * @return {void}
    */
   scheduleRun(): void {
     if (this.options.scheduler) {
-      this.options.scheduler(this.run.bind(this));
+      this.options.scheduler(this.run);
     } else {
       this.run();
     }
@@ -205,7 +190,6 @@ export class Fx {
 
   /**
    * Marks fx as inactive and removes itself from the deps
-   *
    * @return {void}
    */
   stop(): void {

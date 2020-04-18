@@ -5,6 +5,7 @@ import { toRaw, toReactive, reactive, readonly } from './reactive';
 import { MapCollection, SetCollection, AnyCollection, Collection } from './shared';
 
 const arrayShims = [ 'indexOf', 'lastIndexOf', 'includes' ];
+export const REACTIVE_KEY = Symbol('reactive');
 
 /**
  * Shim for array search functions: indexOf, lastIndexOf and includes
@@ -42,6 +43,8 @@ function arraySearchShim(target: any, key: string): (...args: any[]) => any {
 export function baseHandlers<T extends object>(immutable: boolean): ProxyHandler<T> {
   return {
     get(target, key, receiver) {
+      // used for reactive unwrapping & detection
+      if (key === REACTIVE_KEY) return target;
       const isArray = Array.isArray(target);
 
       if (isArray && arrayShims.includes(key as string)) {
@@ -207,6 +210,8 @@ export function collectionHandlers<T extends object>(immutable: boolean): ProxyH
 
   return {
     get(target, key) {
+      // used for reactive unwrapping & detection
+      if (key === REACTIVE_KEY) return target;
       const hasKey = methods.hasOwnProperty(key) && key in target;
       return (hasKey ? methods : target)[key];
     }

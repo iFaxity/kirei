@@ -2,15 +2,26 @@ import { Fx, TriggerOpTypes } from './fx';
 import { toReactive } from './reactive';
 
 export type Ref<T = any> = { value: T; };
-const REF_KEY = Symbol('ref');
+export type RefTarget<T> = {
+  get(): T;
+  set(value: T): void;
+};
+
+// Prorotype for all ref types
+const refProto = Object.defineProperties(Object.create(null), {
+  valueOf: {
+    value() { return this.value; },
+  },
+});
 
 /**
  * Creates a ref object from an object with a getter & setter for value
  * @param {object} target Target to create a ref from
  * @returns {Ref}
  */
-export function createRef<T>(target: object): Ref<T> {
-  return (target[REF_KEY] = true) && target as Ref<T>;
+export function createRef<T>(target: RefTarget<T>): Ref<T> {
+  const opts = { get: target.get, set: target.set };
+  return Object.defineProperty(Object.create(refProto), 'value', opts);
 }
 
 /**
@@ -19,7 +30,7 @@ export function createRef<T>(target: object): Ref<T> {
  * @returns {boolean}
  */
 export function isRef(target: any): target is Ref {
-  return target != null && !!target[REF_KEY];
+  return target != null && Object.getPrototypeOf(target) == refProto;
 }
 
 /**
@@ -43,17 +54,16 @@ export function ref<T>(target: T): Ref<T> {
 
   // if target is object create proxy for it
   let value = toReactive(target);
-  const r = {
-    get value(): T {
+  const r = createRef<T>({
+    get: () => {
       Fx.track(r, 'value');
       return value;
     },
-    set value(newValue: T) {
+    set: (newValue: T) => {
       value = toReactive(newValue) as T;
       Fx.trigger(r, TriggerOpTypes.SET, 'value');
     },
-  };
+  });
 
-  return createRef<T>(r);
+  return r;
 }
-
