@@ -1,8 +1,7 @@
 import { diff } from './shared';
-import { warn } from '@shlim/shared';
+import { isObject, error, isFunction } from '@shlim/shared';
 
-export type TemplatePatcher = (newValue: any) => void;
-
+export type TemplatePatcher = (pending: any) => void;
 export interface TemplateCompiler {
   attr?(node: HTMLElement, attr: string): TemplatePatcher|void;
   node?(ref: Comment): TemplatePatcher|void;
@@ -14,9 +13,8 @@ export interface TemplateCompiler {
  * @param {object|array} className
  * @returns {string}
  */
-function mapAttribute(className: any[]|object): any {
-  if (className == null || typeof className != 'object') return className;
-
+function mapAttribute(className: any): any {
+  if (!isObject(className)) return className;
   if (Array.isArray(className)) {
     return className.filter(x => x).join(' ');
   }
@@ -24,28 +22,24 @@ function mapAttribute(className: any[]|object): any {
 }
 
 // Special patchers for prop and event
-function propPatcher(node: Node, name: string): TemplatePatcher {
-  return (newValue) => { node[name] = newValue };
+function propPatcher(node: HTMLElement, name: string): TemplatePatcher {
+  return (pending) => { node[name] = pending };
 }
-function eventPatcher(node: Node, name: string): TemplatePatcher {
-  let value;
-  return (newValue) => {
-    if (value !== newValue) {
-      value && node.removeEventListener(name, value, false);
-      newValue && node.addEventListener(name, newValue, false);
-      value = newValue;
+function eventPatcher(node: HTMLElement, name: string): TemplatePatcher {
+  // Using a bound listener prevents frequent remounting
+  let listener;
+  const boundListener: EventListener = (e) => listener.call(node, e);
+
+  return (pending) => {
+    if (listener !== pending) {
+      if (pending == null) {
+        node.removeEventListener(name, boundListener, false);
+      } else if (listener == null) {
+        node.addEventListener(name, boundListener, false);
+      }
+      listener = pending;
     }
   };
-}
-function nodeTextParser(text: Text, ref: Node, nodes: Node[], value: any): [Text, Node[]] {
-  if (!text) {
-    text = document.createTextNode(value);
-  } else {
-    text.textContent = value;
-  }
-
-  nodes = diff(ref, nodes, [text]);
-  return [ text, nodes ];
 }
 
 export const defaultCompiler: TemplateCompiler = {
@@ -63,11 +57,11 @@ export const defaultCompiler: TemplateCompiler = {
     let value;
     let mounted = false;
 
-    return (newValue: any) => {
-      if (value === newValue && !shouldMap) return;
-      value = newValue;
+    return (pending: any) => {
+      if (value === pending) return;
+      value = pending;
 
-      if (value == null || value == '') {
+      if (value == null) {
         if (mounted) {
           node.removeAttributeNode(attr);
           mounted = false;
@@ -86,57 +80,57 @@ export const defaultCompiler: TemplateCompiler = {
     let value;
     let text: Text;
 
-    return (newValue: any) => {
-      const type = typeof newValue;
-
-      // primitives are handled as text content
-      if (type != 'object' && type != 'undefined') {
-        if (value !== newValue) {
-          value = newValue;
-          [text, nodes] = nodeTextParser(text, ref, nodes, value);
-        }
-      } else if (newValue == null) {
+    const nodeParser = (pending: any) => {
+      if (pending == null) {
         // null, and undefined are used to cleanup previous content
         if (value) {
-          value = newValue;
+          value = pending;
           nodes = diff(ref, nodes, []);
         }
-      } else if (Array.isArray(newValue)) {
-        // arrays and nodes have a special treatment
-        value = newValue;
-
-        if (value.length === 0 || typeof value[0] === 'object') {
-          // arrays can be used to cleanup, if empty
-          // or diffed, if these contains nodes or "wires"
-          nodes = diff(ref, nodes, value);
-        } else {
-          // in all other cases the content is stringified as is
-          if (value !== newValue) {
-            value = newValue;
-            [text, nodes] = nodeTextParser(text, ref, nodes, value);
+      } else if (typeof pending != 'object') {
+        // primitives are handled as text content
+        if (value !== pending) {
+          value = pending;
+          if (!text) {
+            text = document.createTextNode(value);
+          } else {
+            text.textContent = value;
           }
+          nodes = diff(ref, nodes, [text]);
         }
-      } else if ('ELEMENT_NODE' in newValue && newValue !== value) {
+      } else if ('nodeType' in pending && pending !== value) {
         // if the new value is a DOM node, or a wire, and it's
         // different from the one already live, then it's diffed.
         // if the node is a fragment, it's appended once via its childNodes
         // There is no `else` here, meaning if the content
         // is not expected one, nothing happens, as easy as that.
-        value = newValue.nodeType === Node.DOCUMENT_FRAGMENT_NODE
-          ? Array.from((newValue as DocumentFragment).childNodes)
-          : [newValue];
+        value = pending instanceof DocumentFragment ? Array.from(pending.childNodes) : [pending];
         nodes = diff(ref, nodes, value);
+      } else if (Array.isArray(pending)) {
+        // arrays and nodes have a special treatment
+        value = pending;
+
+        if (value.length === 0 || typeof value[0] === 'object') {
+          // arrays can be used to cleanup, if empty
+          // or diffed, if these contains nodes or "wires"
+          nodes = diff(ref, nodes, value);
+        } else if (value !== pending) {
+          // in all other cases the content is stringified as is
+          nodeParser(String(pending));
+        }
       } else {
-        warn('Invalid node expression in html template');
+        error('Invalid node expression in html template');
       }
     };
+
+    return nodeParser;
   },
   text(node) {
     let value;
 
-    return (newValue: any) => {
-      if (value !== newValue) {
-        value = newValue;
+    return (pending: any) => {
+      if (value !== pending) {
+        value = pending;
         node.textContent = value == null ? '' : value;
       }
     };

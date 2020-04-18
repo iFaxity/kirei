@@ -1,4 +1,4 @@
-import { Template, TemplateCompiler, TemplateCache, unroll } from './template';
+import { Template, TemplateCompiler, TemplateCache, createCache } from './template';
 import { isFunction, isObject } from '@shlim/shared';
 export { defaultCompiler, TemplatePatcher } from './compiler';
 import { clearNode } from './shared';
@@ -10,7 +10,6 @@ const rendered = new WeakMap<RootContainer, TemplateCache>();
 const { html, svg, render } = customize();
 export { html, svg, render };
 
-type TemplateFor<T, R> = (item: T, idx: number) => R;
 export interface TemplateLiteral {
   /**
    * Creates a template from a string literal
@@ -25,8 +24,8 @@ export interface TemplateLiteral {
    */
   for<T>(
     items: Iterable<T>,
-    key: TemplateFor<T, any>,
-    templateFn?: TemplateFor<T, Template>
+    key: (item: T) => any,
+    templateFn?: (item: T) => Template
   ): (Node|Template)[];
 
   // Resolves promises and renders fallback content
@@ -34,8 +33,8 @@ export interface TemplateLiteral {
 }
 
 interface CustomizeOptions<T extends Partial<TemplateLiteral>> {
-  compiler?: TemplateCompiler,
-  literals?: T,
+  compiler?: TemplateCompiler;
+  literals?: T;
 }
 
 export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> = {}) {
@@ -45,22 +44,22 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
     if (template instanceof Template) {
       let cache = rendered.get(root);
       if (!cache) {
-        rendered.set(root, (cache = new TemplateCache()));
+        rendered.set(root, (cache = createCache()));
       }
 
-      const node = unroll(template, cache, compiler);
-      if (cache.node != node) {
-        cache.node = node;
+      const oldNode = cache.node;
+      const newNode = template.update(cache, compiler);
+      if (oldNode !== newNode) {
         clearNode(root);
-        root.appendChild(node.valueOf() as Node);
+        root.appendChild(newNode.valueOf() as Node);
       }
     } else if (template == null) {
       const cache = rendered.get(root);
 
-      // Cleanup root and clear node from cache
+      // Cleanup root and clear cache
       if (cache) {
-        cache.node = null;
         clearNode(root);
+        cache.node = null;
       }
     } else {
       throw new TypeError('Template renderer can expects a valid Template as it\'s first argument');
@@ -92,30 +91,33 @@ function createLiteral<T extends TemplateLiteral>(
   const { compiler, literals } = opts;
 
   // Every literal has its own cache for keyed templates
-  const keyed = new WeakMap<any, Record<any, TemplateCache>>();
+  const keyed = new WeakMap<any, Map<any, TemplateCache>>();
   function template(strings: TemplateStringsArray, ...values: any[]): Template {
     return new Template(type, strings, values);
   }
 
-  template.for = <T>(items: Iterable<T>, key: TemplateFor<T, any>, templateFn?: TemplateFor<T, Template>): (Node|Template)[] => {
-    const list = Array.from(items);
+  template.for = <T>(items: Iterable<T>, key: (item: T) => any, templateFn?: (item: T) => Template): (Node|Template)[] => {
+    const list = Array.isArray(items) ? items : [...items];
     if (!isFunction(templateFn)) {
-      // run as unkeyed (key is templateFn)
-      return list.map(key);
+      return list.map(item => key(item));
     }
 
-    // keyed, we map by a unique ID
-    return list.map((item, idx) => {
+    return list.map(item => {
       let memo = keyed.get(item);
       if (!memo) {
-        keyed.set(item, (memo = Object.create(null)));
+        keyed.set(item, (memo = new Map()));
       }
 
       // keyed operations always re-use the same cache and unroll
       // the template and its interpolations right away
-      const id = key(item, idx);
-      const cache = memo[id] ?? (memo[id] = new TemplateCache());
-      return unroll(templateFn(item, idx), cache, compiler);
+      const id = key?.(item);
+      let cache = memo.get(id);
+      if (!cache) {
+        memo.set(id, (cache = createCache()));
+      }
+
+      // Update template and return the cached node
+      return templateFn(item).update(cache, compiler);
     });
   };
 

@@ -14,23 +14,19 @@ export const createWalker = IE
 // Shamelessly copied from the package uwire
 const nodeType = 123;
 
-function remove({firstChild, lastChild}) {
-  const range = document.createRange();
-  range.setStartAfter(firstChild);
-  range.setEndAfter(lastChild);
-  range.deleteContents();
+function remove(node: Node) {
+  const { firstChild } = node;
+  const parent = firstChild.parentNode;
+  while (parent.firstChild != parent.lastChild) {
+    parent.lastChild.remove();
+  }
   return firstChild;
 }
 
 export function clearNode(node: Node|Element) {
-  // innerHTMl is faster, but doesn't work for DocumentFragments
-  if ('innerHTML' in node) {
-    node.innerHTML = '';
-  } else {
-    while (node.lastChild) {
-      node.removeChild(node.lastChild);
-    }
-  }
+  // Check if node is already empty
+  if (!node.lastChild) return;
+  node.textContent = '';
 }
 
 function diffable(node, operation) {
@@ -38,36 +34,29 @@ function diffable(node, operation) {
     if (1 / operation < 0) {
       return operation ? remove(node) : node.lastChild;
     }
-
     return operation ? node.valueOf() : node.firstChild;
   }
 
   return node;
 }
 
-export function persistent(fragment: DocumentFragment): Node {
-  const {childNodes} = fragment;
-  const {length} = childNodes;
-  // If the fragment has no content
-  // it should return undefined and break
-  if (length < 2) return childNodes[0];
+export function persistent(frag: DocumentFragment): Node {
+  const children = frag.childNodes;
+  // no content, return undefined (or first child)
+  if (children.length < 2) return children[0];
 
-  const nodes = Array.from(childNodes);
-  return {
-    nodeType,
-    ELEMENT_NODE: 1,
-    firstChild: nodes[0],
-    lastChild: nodes[length - 1],
-    //@ts-ignore
-    valueOf() {
-      if (childNodes.length !== length) {
-        let i = 0;
-        while (i < length)
-          fragment.appendChild(nodes[i++]);
+  const nodes = Array.from(children);
+  const firstChild = nodes[0];
+  const valueOf = () => {
+    if (children.length !== nodes.length) {
+      for (let i = 0; i < length; i++) {
+        frag.appendChild(nodes[i]);
       }
-      return fragment;
     }
+    return frag;
   };
+  // @ts-ignore
+  return { nodeType, firstChild, valueOf };
 };
 
 // this helper avoid code bloat
