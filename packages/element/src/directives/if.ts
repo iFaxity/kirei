@@ -1,25 +1,18 @@
-import { directive, Directive } from '../compiler';
+import { directive } from '../compiler';
 import { unRef } from '@shlim/fx';
 
 directive('if', dir => {
   const { el, arg } = dir;
   const invert = arg == 'not';
-  const comment = document.createComment('');
-  let oldNode: HTMLElement | Comment = el;
-  let value: boolean = true;
+  const ref = document.createComment('');
+  let node: HTMLElement|Comment = el;
 
   return (pending) => {
-    const newValue = unRef(pending);
-    const res = invert ? !newValue : !!newValue;
-
-    if (value !== res) {
-      const newNode = res ? el : comment;
-      if (newNode !== oldNode) {
-        oldNode.parentNode?.replaceChild(newNode, oldNode);
-      }
-
-      oldNode = newNode;
-      value = res;
+    const value = unRef(pending);
+    const newNode = (invert ? !value : !!value) ? el : ref;
+    if (newNode !== node) {
+      node.parentNode?.replaceChild(newNode, node);
+      node = newNode;
     }
   };
 });

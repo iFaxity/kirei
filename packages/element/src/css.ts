@@ -69,7 +69,7 @@ export class CSSResult {
    * Creates a style element with style content
    * @returns {HTMLStyleElement}
    */
-  createElement(): HTMLStyleElement {
+  get element(): HTMLStyleElement {
     const $style = document.createElement('style');
     $style.textContent = this.cssText;
     return $style;

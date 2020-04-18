@@ -46,28 +46,31 @@ export type ResolvePropTypes<T> =
 export function normalizeProps(props: Props): NormalizedProps {
   for (const [ key, prop ] of Object.entries(props)) {
     const normal = prop as NormalizedProp;
-
     if (isObject<PropInstance>(prop)) {
       normal.type = (prop.type as PropConstructor[]) ?? null;
-      normal.default = prop.default ?? undefined;
+      normal.default = prop.default ?? void 0;
       normal.validator = prop.validator ?? null;
       normal.required = !!prop.required;
     } else {
       normal.type = (prop as PropConstructor[]) ?? null;
-      normal.default = undefined;
+      normal.default = void 0;
       normal.validator = null;
       normal.required = false;
-      normal.cast = false;
     }
 
     if (normal.type) {
       if (!Array.isArray(normal.type)) {
         normal.type = [ normal.type ];
       }
-
       if (!normal.type?.every(isFunction)) {
         throw new TypeError(`Type invalid in prop '${key}'!`);
       }
+
+      // Enable casting if needed
+      const master = normal.type[0];
+      normal.cast = master === Boolean || master === Number;
+    } else {
+      normal.cast = false;
     }
   }
 
@@ -104,23 +107,23 @@ export function validateProp(props: NormalizedProps, key: string, value: unknown
   const { type, required, validator, cast } = props[key];
 
   // Type checking
-  if (value != null && !type.some(t => Object.getPrototypeOf(value) == t.prototype)) {
-    throw new Error(`Type error in prop '${key}'.`);
+  if (type != null) {
+    if (value != null && !type.some(t => Object.getPrototypeOf(value) == t.prototype)) {
+      throw new Error(`Type error in prop '${key}'.`);
+    }
   }
 
-  // Check if value is required and set (anything but undefined)
   if (required && typeof value == 'undefined') {
     throw new Error(`Value required in prop '${key}'.`);
   }
 
-  // Custom validator check
   if (validator && !validator(value)) {
     throw new Error(`Validation error in prop '${key}'.`);
   }
 
   // TODO: look over this, could use some tweaking
+  // Different parsing based on master type
   if (cast) {
-    // Different parsing based on first (or only) type
     if (type[0] === Boolean) {
       // If primary type boolean, null is false, '' is true
       if (value == null || value == 'false') {

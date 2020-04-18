@@ -1,10 +1,11 @@
 export * from '@shlim/fx';
-export { defineElement, FxElement, elementInstances } from './instance';
+export { defineElement, FxElement, FxInstance, elementInstances } from './instance';
 export { nextTick } from './queue';
 export { css } from './css';
 export { directive, html, svg } from './compiler';
-export * from './lifecycle';
-export { portal } from './portal';
+export * from './api/lifecycle';
+export { portal } from './api/portal';
+export { InjectionKey, provide, inject } from './api/inject';
 
 // define default directives
 import './directives/attrs';

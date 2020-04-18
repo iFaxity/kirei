@@ -1,5 +1,14 @@
-const queue = new Set<Function>();
+let queue = new Set<Function>();
 const tickPromise = Promise.resolve();
+
+/**
+ * Flushes the queue, calling all the functions
+ * @returns {void}
+ */
+function flush(): void {
+  queue.forEach(fn => fn());
+  queue = new Set();
+}
 
 /**
  * Wait for next flush of the queue, as a Promise or as a callback function
@@ -8,24 +17,6 @@ const tickPromise = Promise.resolve();
  */
 export function nextTick(fn?: () => void): Promise<void> {
   return fn ? tickPromise.then(fn) : tickPromise;
-}
-
-/**
- * Flushes the queue, calling all the functions
- * @returns {void}
- */
-function flush(): void {
-  queue.forEach(fn => fn());
-  queue.clear();
-}
-
-/**
- * Checks if queue has a function queued
- * @param {Function} fn Function to check
- * @returns {boolean}
- */
-export function has(fn: Function): boolean {
-  return queue.has(fn);
 }
 
 /**

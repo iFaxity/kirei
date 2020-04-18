@@ -4,7 +4,6 @@ import { unRef } from '@shlim/fx';
 directive('show', dir => {
   const { el } = dir;
   let value: boolean = true;
-
   return (pending) => {
     const newValue = !!unRef(pending);
 

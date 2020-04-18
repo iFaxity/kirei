@@ -38,13 +38,11 @@ function hasMod(mods: string[], mod: string): boolean {
 
 function keyboardListener(listener: EventListener, mods: string[]): EventListener {
   const meta = KEYBOARD_MODS.filter(mod => hasMod(mods, mod));
-
   return (e: KeyboardEvent) => {
     if (meta.length && !hasMeta(e, meta)) return;
 
     const key = KEYBOARD_ALIASES[e.key] ?? camelToKebab(e.key);
     if (mods.length && !mods.includes(key)) return;
-
     return listener(e);
   };
 }
@@ -53,11 +51,9 @@ function mouseListener(listener: EventListener, mods: string[]): EventListener {
   const meta = KEYBOARD_MODS.filter(mod => hasMod(mods, mod));
   const idx = MOUSE_KEYS.findIndex(mod => hasMod(mods, mod))
   const button = 2 * (1 + idx);
-
   return (e: MouseEvent) => {
     if (meta.length && !hasMeta(e, meta)) return;
     if (button && e.button != button) return;
-
     return listener(e);
   };
 }
@@ -81,7 +77,7 @@ directive('@', dir => {
     stop && e.stopPropagation();
 
     // Unpack the detail as a second argument (might not be set)
-    return value.call(el, e, e.detail);
+    return value.call(null, e, e.detail);
   };
 
   let listener: EventListener = boundListener;

@@ -1,7 +1,7 @@
 import { FxElement, elementInstances } from '../instance';
 import { Ref, isRef } from '@shlim/fx';
-import { isFunction } from '@shlim/shared';
 import { directive, Directive } from '../compiler';
+import { nextTick } from '../queue';
 
 function selectHandler(el: HTMLSelectElement, ref: Ref): string | string[] {
   const options = el.selectedOptions;
@@ -11,26 +11,25 @@ function selectHandler(el: HTMLSelectElement, ref: Ref): string | string[] {
 
   return options[0]?.value;
 }
-function selectCommit(el: HTMLSelectElement, ref: Ref): void {
+async function selectCommit(el: HTMLSelectElement, ref: Ref): Promise<void> {
   const { options } = el;
   const value = ref.value;
 
-  // TODO: No child options rendered in select if dynamic
-  //   Not mounted from documentfragment until committing is done on all parts
-  //   The content of the node stored in a NodePart comes after model definition
-  //   Find a way to wait for all nodes to be committed before commiting SyncModel part.
-  //   Problem doesnt arise on non dynamic content, only on dynamic.
-
+  // Synced select elements has to be committed on the nextTick.
+  // As dynamic content could have not loaded yet.
+  // Another solution is to execute all attribute patches last, but is more cumbersome.
+  await nextTick();
   if (el.multiple) {
     const values = value as string[];
-    // @ts-ignore
-    for (let o of options) {
+
+    for (let i = 0; i < options.length; i++) {
+      const o = options[i];
       o.selected = values.includes(o.value);
     }
   } else {
-    // @ts-ignore
-    for (let o of options) {
-      o.selected = o.value === value;
+    for (let i = 0; i < options.length; i++) {
+      const o = options[i];
+      o.selected = value === o.value;
     }
   }
 }
@@ -97,11 +96,13 @@ function mutationHandlers(dir: Directive) {
       // lazy modifier only for text input
       eventName = mods.includes('lazy') ? 'change' : 'input';
       prop = 'value';
-    } else if (el instanceof FxElement) {
-      const instance = elementInstances.get(el);
-      prop = instance.options.sync;
     } else {
-      throw new Error(`Default syncing not supported for element '${tag}'.`);
+      const instance = elementInstances.get(el as FxElement);
+      if (instance) {
+        prop = instance.options.sync;
+      } else {
+        throw new Error(`Default syncing not supported for element '${tag}'.`);
+      }
     }
   }
 
@@ -118,26 +119,18 @@ directive('&', dir => {
 
   el.addEventListener(eventName ?? `fxsync::${prop}`, (e: Event) => {
     e.stopPropagation();
-
-    let value: any;
-    if (isFunction(handler)) {
-      value = handler(el, ref);
-    } else {
-      value = e instanceof CustomEvent ? e.detail : el[prop];
-    }
+    let value = handler?.(el, ref) ?? (e instanceof CustomEvent ? e.detail : el[prop]);
 
     // Cast value if set
     if (typeof value == 'string') {
-      if (trimValue) {
-        value = value.trim();
-      }
-
       if (castNumber) {
         const num = parseFloat(value);
 
         if (!isNaN(num)) {
           value = num;
         }
+      } else if (trimValue) {
+        value = value.trim();
       }
     }
 

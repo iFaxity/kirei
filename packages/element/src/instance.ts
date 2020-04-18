@@ -1,7 +1,7 @@
 import { Template } from '@shlim/html';
 import { Fx, TriggerOpTypes, toReactive } from '@shlim/fx';
 import { isFunction, mapObject, camelToKebab, warn, exception } from '@shlim/shared';
-import { HookTypes } from './lifecycle';
+import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult, shimAdoptedStyleSheets } from './css';
 import { render, DirectiveFactory } from './compiler';
@@ -15,7 +15,7 @@ import {
   propDefaults,
 } from './props';
 
-let activeInstance: FxInstance = null;
+const activeInstanceStack: FxInstance[] = [];
 export const elementInstances = new WeakMap<FxElement, FxInstance>();
 
 export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
@@ -69,24 +69,30 @@ class FxContext {
 }
 
 export class FxInstance {
+  private renderTemplate: () => Template;
+  private shimAdoptedStyleSheets = false;
+
+  readonly parent: FxInstance;
   readonly el: FxElement;
   readonly options: NormalizedFxOptions;
-  readonly ctx: FxContext;
   readonly hooks: Record<string, Set<Function>>;
   readonly fx: Fx;
   readonly props: PropsData;
   readonly shadowRoot: ShadowRoot;
   readonly directives?: Record<string, DirectiveFactory>;
-  private renderTemplate: () => Template;
-  private rendering = false;
-  private shimAdoptedStyleSheets = false;
+  provides: Record<string|symbol, any>;
   firstMount = true;
 
-  static get active() {
-    return activeInstance;
+  static get active(): FxInstance {
+    return activeInstanceStack[activeInstanceStack.length - 1];
   }
   static set active(instance: FxInstance) {
-    activeInstance = instance;
+    // if instance is falsy, pop the last instance in the stack
+    if (instance) {
+      activeInstanceStack.push(instance);
+    } else {
+      activeInstanceStack.pop();
+    }
   }
 
   get mounted(): boolean {
@@ -96,27 +102,33 @@ export class FxInstance {
   /**
    * Constructs a new element instance, holds all the functionality to avoid polluting element
    * @param {FxElement} el Element to create instance from
-   * @param {NormalizedFxOptions} options Normalized element options
+   * @param {NormalizedFxOptions} opts Normalized element options
    */
-  constructor(el: FxElement, options: NormalizedFxOptions) {
-    activeInstance = this;
-    elementInstances.set(el, this);
+  constructor(el: FxElement, opts: NormalizedFxOptions) {
+    const parent = FxInstance.active;
+    // Inherit provides from parent
+    if (parent) {
+      this.parent = parent;
+      this.provides = parent.provides;
+    } else {
+      this.provides = Object.create(null);
+    }
 
-    if (options.directives) {
-      this.directives = options.directives;
+    if (opts.directives) {
+      this.directives = opts.directives;
     }
 
     this.el = el;
-    this.options = options;
-    this.ctx = new FxContext(el, options);
-    this.hooks = {};
+    this.options = opts;
+    this.hooks = Object.create(null);
+    this.props = opts.props ? propDefaults(opts.props) : {};
     this.fx = new Fx(this.update.bind(this), {
       lazy: true,
-      computed: false,
-      scheduler: this.scheduleUpdate.bind(this),
+      scheduler: Queue.push,
     });
-    this.props = propDefaults(options.props);
-    this.shadowRoot = el.attachShadow({ mode: options.closed ? 'closed' : 'open' });
+
+    elementInstances.set(el, this);
+    this.shadowRoot = el.attachShadow({ mode: opts.closed ? 'closed' : 'open' });
     this.setup();
   }
 
@@ -125,8 +137,9 @@ export class FxInstance {
    * @returns {void}
    */
   setup(): void {
-    const { props, ctx, options } = this;
+    const { props, options } = this;
     const { name, setup, tag, styles } = options;
+    const ctx = new FxContext(this.el, options);
 
     // Create a custom proxy for the props
     const proxy = new Proxy(props, {
@@ -135,8 +148,11 @@ export class FxInstance {
         return props[key];
       },
       set(_, key: string, value: unknown) {
-        ctx.emit(`fxsync::${key}`, value, { bubbles: false });
-        return true;
+        if (props.hasOwnProperty(key)) {
+          ctx.emit(`fxsync::${key}`, value, { bubbles: false });
+          return true;
+        }
+        return false;
       },
       deleteProperty() {
         exception('Props are not deletable', name);
@@ -145,10 +161,11 @@ export class FxInstance {
 
     // Run setup function to gather reactive data
     // Pause tracking while calling setup function
+    FxInstance.active = this;
     Fx.pauseTracking();
     this.renderTemplate = setup.call(null, proxy, ctx);
     Fx.resetTracking();
-    activeInstance = null;
+    FxInstance.active = null
 
     if (!isFunction(this.renderTemplate)) {
       exception('Setup function must return a TemplateGenerator', `${name}#setup`);
@@ -166,15 +183,13 @@ export class FxInstance {
    * @param {string} hook Specified hook name
    * @returns {void}
    */
-  runHooks(hook: string): void {
+  runHooks(hook: string, ...args: any[]): void {
     const hooks = this.hooks[hook];
 
     if (hooks?.size) {
-      hooks.forEach(hook => {
-        Fx.pauseTracking();
-        hook.call(null);
-        Fx.resetTracking();
-      });
+      Fx.pauseTracking();
+      hooks.forEach(hook => hook.apply(null, args));
+      Fx.resetTracking();
     }
   }
 
@@ -185,23 +200,14 @@ export class FxInstance {
    * @returns {void}
    */
   scheduleUpdate(run: () => void): void {
-    // Prevent overlapping renders
-    if (this.rendering) return;
-    this.rendering = true;
-
-    // Enqueue the render
-    Queue.push(() => {
-      if (!this.mounted) {
-        this.runHooks(HookTypes.BEFORE_MOUNT);
-        run();
-      } else {
-        this.runHooks(HookTypes.BEFORE_UPDATE);
-        run();
-        this.runHooks(HookTypes.UPDATE);
-      }
-
-      this.rendering = false;
-    });
+    if (!this.mounted) {
+      this.runHooks(HookTypes.BEFORE_MOUNT);
+      run();
+    } else {
+      this.runHooks(HookTypes.BEFORE_UPDATE);
+      run();
+      this.runHooks(HookTypes.UPDATE);
+    }
   }
 
 
@@ -212,12 +218,12 @@ export class FxInstance {
   update(): void {
     const { shadowRoot, options, renderTemplate } = this;
 
-    activeInstance = this;
+    FxInstance.active = this;
     render(renderTemplate(), shadowRoot);
-    activeInstance = null;
+    FxInstance.active = null;
 
     if (this.shimAdoptedStyleSheets) {
-      options.styles.forEach(style => shadowRoot.appendChild(style.createElement()));
+      options.styles.forEach(style => shadowRoot.appendChild(style.element));
       this.shimAdoptedStyleSheets = false;
     }
   }
@@ -249,7 +255,6 @@ export class FxElement extends HTMLElement {
 
       // Validate props default value
       validateProp(props, key, propsData[key]);
-
       Object.defineProperty(this, key, {
         get: () => propsData[key],
         set: (newValue) => {
@@ -302,9 +307,7 @@ export class FxElement extends HTMLElement {
     // newValue & oldValue null if not set, string if set, default to empty string
     if (oldValue !== newValue) {
       const instance = elementInstances.get(this);
-      const { attrs } = instance.options;
-      const key = attrs[attr];
-
+      const key = instance.options.attrs[attr];
       this[key] = newValue;
     }
   }
@@ -328,7 +331,7 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
  */
 function normalizeOptions(options: FxOptions): NormalizedFxOptions {
   let { styles } = options;
-  const props = normalizeProps(options.props ?? {});
+  const props = options.props ? normalizeProps(options.props) : {};
 
   let css: CSSResult[] = null;
   if (styles != null) {
@@ -360,6 +363,8 @@ export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>):
     warn('Element names should include a hyphen (-) or be camelised with at least 2 upper-case characters', options.name);
   }
 
+  // if custom element already defined, then swap instances,
+  // then force hydrate the instances.
   const CustomElement = class extends FxElement {
     static get is() {
       return normalized.tag;
