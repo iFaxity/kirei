@@ -1,6 +1,9 @@
 // https://tc39.github.io/ecma262/#sec-typeof-operator
 export type Primitive = null|undefined|boolean|number|string|Symbol|bigint;
 
+//export const DEV = process.env.NODE_ENV != 'production';
+export const IS_BROWSER = typeof window != 'undefined' && typeof window.document != 'undefined';
+
 export function isPrimitive(value: unknown): value is Primitive {
   const type = typeof value;
   return value == null || type != 'object' && type != 'function';
