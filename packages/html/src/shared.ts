@@ -80,20 +80,21 @@ export function diff(node, oldNodes, newNodes) {
   return domdiff(node.parentNode, oldNodes, newNodes, diffable, node);
 }
 
-export function createTemplate(type: string, content: string): HTMLTemplateElement {
+export function createTemplate(type: string, markup: string): HTMLTemplateElement {
   const template = document.createElement('template');
 
   if (type == 'svg') {
-    const svg = document.createElement('svg');
-    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-    svg.innerHTML = content;
+    // Wrap in a svg element and then move the child nodes back to the template element
+    template.innerHTML = `<svg>${markup}</svg>`;
+    const { content } = template;
+    const svg = content.firstChild;
+    content.removeChild(svg);
 
-    // Move nodes to the template
-    while (svg.lastChild) {
-      template.content.appendChild(svg.lastChild);
+    while (svg.firstChild) {
+      content.appendChild(svg.firstChild);
     }
   } else {
-    template.innerHTML = content;
+    template.innerHTML = markup;
   }
   return template;
 }
