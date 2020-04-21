@@ -2,16 +2,16 @@ import { isFunction } from '@shlim/shared';
 import { Fx } from './fx';
 import { Ref, isRef } from './ref';
 
-type StopEffect = () => void;
+type StopWatcher = () => void;
 
 /**
  * Creates a function that runs anytime a reactive dependency updates.
  * @param {function} target - Target watchers function
  * @returns {void}
  */
-export function watchEffect(target: () => void): StopEffect {
+export function watchFx(target: () => void): StopWatcher {
   if (!isFunction(target)) {
-    throw new TypeError('watchEffect can an only watch functions');
+    throw new TypeError('watchFx can an only watch functions');
   }
 
   const fx = new Fx(target, { lazy: false, computed: false });

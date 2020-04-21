@@ -3,6 +3,7 @@
   "version": "0.3.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
+  "type": "module",
   "module": "dist/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

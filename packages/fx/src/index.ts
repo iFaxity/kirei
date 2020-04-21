@@ -6,7 +6,7 @@ export { Fx, TriggerOpTypes } from './fx';
 export { isReactive, toReactive, toRaw, reactive, readonly } from './reactive';
 export { Ref, isRef, unRef, ref } from './ref';
 export { Computed, computed } from './computed';
-export { watchEffect } from './watch';
+export { watchFx } from './watch';
 
 /**
  * Unpacks a ref or reactive to it's raw value, otherwise returns target
