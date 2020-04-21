@@ -1,4 +1,5 @@
 import domdiff from 'udomdiff';
+import { Template } from '.';
 
 // this "hack" tells the library if the browser is IE11 or old Edge
 const IE = document.importNode.length != 1;
@@ -78,3 +79,22 @@ export function diff(node, oldNodes, newNodes) {
   //       "diffing shenanigan" and call it a day.
   return domdiff(node.parentNode, oldNodes, newNodes, diffable, node);
 }
+
+export function createTemplate(type: string, content: string): HTMLTemplateElement {
+  const template = document.createElement('template');
+
+  if (type == 'svg') {
+    const svg = document.createElement('svg');
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.innerHTML = content;
+
+    // Move nodes to the template
+    while (svg.lastChild) {
+      template.content.appendChild(svg.lastChild);
+    }
+  } else {
+    template.innerHTML = content;
+  }
+  return template;
+}
+

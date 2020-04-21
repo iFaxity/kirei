@@ -98,7 +98,7 @@ function createLiteral<T extends TemplateLiteral>(
 
   template.for = <T>(items: Iterable<T>, key: (item: T) => any, templateFn?: (item: T) => Template): (Node|Template)[] => {
     const list = Array.isArray(items) ? items : [...items];
-    if (!isFunction(templateFn)) {
+    if (!templateFn) {
       return list.map(item => key(item));
     }
 

@@ -1,5 +1,5 @@
 import parser from 'uparser';
-import { persistent, createWalker } from './shared';
+import { persistent, createWalker, createTemplate } from './shared';
 import { defaultCompiler, TemplateCompiler, TemplatePatcher } from './compiler';
 export { TemplateCompiler };
 
@@ -71,21 +71,14 @@ function createInstance(template: Template, compiler: TemplateCompiler): Templat
     // If custom compiler returns with a falsy value (aka not a function)
     return compiler?.[type]?.(node, attr) || defaultCompiler[type](node, attr) as TemplatePatcher;
   });
-  return {
-    strings,
-    type,
-    patchers,
-    root,
-  };
+  return { strings, type, patchers, root };
 }
 
 function compileContent(type: string, strings: TemplateStringsArray): TemplateContent {
-  const node = document.createElement('template');
-  node.innerHTML = parser(strings, prefix, type == 'svg');
-
   // Compile the template element
+  const template = createTemplate(type, parser(strings, prefix, type == 'svg'));
   const patches: TemplatePatch[] = [];
-  const walker = createWalker(node.content);
+  const walker = createWalker(template.content);
   const len = strings.length - 1;
   let i = 0;
   let search = `${prefix}${i}`;
@@ -128,7 +121,7 @@ function compileContent(type: string, strings: TemplateStringsArray): TemplateCo
     }
   }
 
-  return { node, patches };
+  return { node: template, patches };
 }
 
 export class Template {
