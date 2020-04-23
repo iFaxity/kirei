@@ -6,11 +6,7 @@ export { TemplateCompiler };
 const TEXT_TAGS = ['style', 'textarea'];
 const prefix = 'isµ';
 const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
-const { indexOf } = Array.prototype;
 
-/**
- * TemplateCache
- */
 export interface TemplateCache {
   stack: TemplateCache[];
   instance: TemplateInstance;
@@ -42,36 +38,16 @@ export function createCache(): TemplateCache {
 }
 
 function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch {
-  // Track the path up to the root node, essentialy "paving" a path
+  // Index the node relative to the root, essentialy "paving" a path
   const path: number[] = [];
-  let parent = node.parentNode;
-  while (parent) {
-    const i = indexOf.call(parent.childNodes, node);
-    path.unshift(i);
-    node = parent;
-    parent = parent.parentNode;
+  while (node.parentNode) {
+    let i = 0;
+    for (let n = node; (n = n.previousSibling); i++);
+
+    node = node.parentNode;
+    path.push(i);
   }
   return { attr, type, path };
-}
-
-function createInstance(template: Template, compiler: TemplateCompiler): TemplateInstance {
-  const { strings, type } = template;
-
-  let content = contentCache.get(strings);
-  if (!content) {
-    contentCache.set(strings, (content = compileContent(type, strings)));
-  }
-
-  // TODO: Insert Shadom DOM shim here
-  const { patches, node } = content;
-  const root = document.importNode(node.content, true);
-  const patchers = patches.map(({type, attr, path}) => {
-    const node = path.reduce<Node>((n, i) => n.childNodes[i], root) as HTMLElement&Comment&Text;
-
-    // If custom compiler returns with a falsy value (aka not a function)
-    return compiler?.[type]?.(node, attr) || defaultCompiler[type](node, attr) as TemplatePatcher;
-  });
-  return { strings, type, patchers, root };
 }
 
 function compileContent(type: string, strings: TemplateStringsArray): TemplateContent {
@@ -124,6 +100,24 @@ function compileContent(type: string, strings: TemplateStringsArray): TemplateCo
   return { node: template, patches };
 }
 
+function createInstance(template: Template, compiler: TemplateCompiler): TemplateInstance {
+  const { strings, type } = template;
+  let content = contentCache.get(strings);
+  if (!content) {
+    contentCache.set(strings, (content = compileContent(type, strings)));
+  }
+
+  // TODO: Insert Shadom DOM shim here
+  const { patches, node } = content;
+  const root = document.importNode(node.content, true);
+  const patchers = patches.map(({type, attr, path}) => {
+    // If custom compiler returns with a falsy value (aka not a function)
+    const node = path.reduceRight<Node>((n, i) => n.childNodes[i], root) as HTMLElement&Comment&Text;
+    return compiler?.[type]?.(node, attr) || defaultCompiler[type](node, attr) as TemplatePatcher;
+  });
+  return { strings, type, patchers, root };
+}
+
 export class Template {
   readonly type: string;
   readonly strings: TemplateStringsArray;
@@ -141,7 +135,7 @@ export class Template {
     updateValues(cache, values, compiler);
 
     // Create instance if first cache is empty
-    // Update instance if templates has changed
+    // Update instance if template has changed
     if (!instance || instance.strings !== strings || instance.type !== type) {
       instance = (cache.instance = createInstance(this, compiler));
       cache.node = persistent(instance.root);
@@ -161,17 +155,17 @@ function updateValues(cache: TemplateCache, values: any[], compiler: TemplateCom
 
   for (let i = 0; i < values.length; i++) {
     const value = values[i];
-    let sub: TemplateCache;
+    let cache: TemplateCache;
 
     if (value instanceof Template) {
-      sub = stack[i] ?? createCache();
-      values[i] = value.update(sub, compiler);
+      cache = stack[i] ?? createCache();
+      values[i] = value.update(cache, compiler);
     } else if (Array.isArray(value)) {
-      sub = stack[i] ?? createCache();
-      updateValues(sub, value, compiler);
+      cache = stack[i] ?? createCache();
+      updateValues(cache, value, compiler);
     }
 
-    stack[i] = sub;
+    stack[i] = cache;
   }
 
   // This will make sure the stack is fully drained

@@ -1,5 +1,5 @@
 import { diff } from './shared';
-import { isObject, error, isFunction } from '@shlim/shared';
+import { isObject, error } from '@kirei/shared';
 
 export type TemplatePatcher = (pending: any) => void;
 export interface TemplateCompiler {
@@ -30,7 +30,7 @@ function eventPatcher(node: HTMLElement, name: string): TemplatePatcher {
   let listener;
   const boundListener: EventListener = (e) => listener.call(node, e);
 
-  return (pending) => {
+  return (pending: unknown) => {
     if (listener !== pending) {
       if (pending == null) {
         node.removeEventListener(name, boundListener, false);
@@ -56,8 +56,7 @@ export const defaultCompiler: TemplateCompiler = {
     const attr = document.createAttribute(name);
     let value;
     let mounted = false;
-
-    return (pending: any) => {
+    return (pending: unknown) => {
       if (value === pending) return;
       value = pending;
 
@@ -79,8 +78,7 @@ export const defaultCompiler: TemplateCompiler = {
     let nodes: Node[] = [];
     let value;
     let text: Text;
-
-    const nodeParser = (pending: any) => {
+    const nodeParser = (pending: unknown) => {
       if (pending == null) {
         // null, and undefined are used to cleanup previous content
         if (value) {
@@ -127,8 +125,7 @@ export const defaultCompiler: TemplateCompiler = {
   },
   text(node) {
     let value;
-
-    return (pending: any) => {
+    return (pending: unknown) => {
       if (value !== pending) {
         value = pending;
         node.textContent = value == null ? '' : value;

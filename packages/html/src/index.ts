@@ -1,5 +1,5 @@
 import { Template, TemplateCompiler, TemplateCache, createCache } from './template';
-import { isFunction, isObject } from '@shlim/shared';
+import { isObject } from '@kirei/shared';
 export { defaultCompiler, TemplatePatcher } from './compiler';
 import { clearNode } from './shared';
 export { Template, TemplateCompiler };
@@ -10,6 +10,7 @@ const rendered = new WeakMap<RootContainer, TemplateCache>();
 const { html, svg, render } = customize();
 export { html, svg, render };
 
+type Key = string|number|null|undefined;
 export interface TemplateLiteral {
   /**
    * Creates a template from a string literal
@@ -24,7 +25,7 @@ export interface TemplateLiteral {
    */
   for<T>(
     items: Iterable<T>,
-    key: (item: T) => any,
+    key: (item: T) => Key|Template,
     templateFn?: (item: T) => Template
   ): (Node|Template)[];
 
@@ -47,11 +48,11 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
         rendered.set(root, (cache = createCache()));
       }
 
-      const oldNode = cache.node;
-      const newNode = template.update(cache, compiler);
-      if (oldNode !== newNode) {
+      const current = cache.node;
+      const node = template.update(cache, compiler);
+      if (current !== node) {
         clearNode(root);
-        root.appendChild(newNode.valueOf() as Node);
+        root.appendChild(node.valueOf() as Node);
       }
     } else if (template == null) {
       const cache = rendered.get(root);
@@ -91,30 +92,27 @@ function createLiteral<T extends TemplateLiteral>(
   const { compiler, literals } = opts;
 
   // Every literal has its own cache for keyed templates
-  const keyed = new WeakMap<any, Map<any, TemplateCache>>();
+  const keyed = new WeakMap<any, Record<any, TemplateCache>>();
   function template(strings: TemplateStringsArray, ...values: any[]): Template {
     return new Template(type, strings, values);
   }
 
-  template.for = <T>(items: Iterable<T>, key: (item: T) => any, templateFn?: (item: T) => Template): (Node|Template)[] => {
+  template.for = <T>(items: Iterable<T>, key: (item: T) => Key|Template, templateFn?: (item: T) => Template): (Node|Template)[] => {
     const list = Array.isArray(items) ? items : [...items];
     if (!templateFn) {
-      return list.map(item => key(item));
+      return list.map(item => key(item) as Template);
     }
 
     return list.map(item => {
       let memo = keyed.get(item);
       if (!memo) {
-        keyed.set(item, (memo = new Map()));
+        keyed.set(item, (memo = Object.create(null)));
       }
 
       // keyed operations always re-use the same cache and unroll
       // the template and its interpolations right away
-      const id = key?.(item);
-      let cache = memo.get(id);
-      if (!cache) {
-        memo.set(id, (cache = createCache()));
-      }
+      const id = key?.(item) as Key;
+      const cache = memo[id] ?? (memo[id] = createCache());
 
       // Update template and return the cached node
       return templateFn(item).update(cache, compiler);
