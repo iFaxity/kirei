@@ -1,0 +1,42 @@
+{
+  "name": "@kirei/ssr",
+  "version": "0.3.0",
+  "private": true,
+  "author": "iFaxity (christian@faxity.se)",
+  "license": "MIT",
+  "type": "module",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*",
+    "src/*"
+  ],
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
+    "build": "tsc -b"
+  },
+  "homepage": "https://github.com/ifaxity/kirei",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ifaxity/kirei.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifaxity/kirei/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "composition",
+    "frontend",
+    "web components",
+    "custom elements",
+    "shadow dom"
+  ],
+  "dependencies": {
+    "@kirei/element": "^0.3.0",
+    "@kirei/fx": "^0.3.0",
+    "@kirei/shared": "^0.3.0"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": [
+    "src/*"
+  ],
+  "references": [
+    { "path": "../element" },
+    { "path": "../fx" },
+    { "path": "../html" },
+    { "path": "../shared" },
+  ]
+}
