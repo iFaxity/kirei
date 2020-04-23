@@ -41,3 +41,4 @@ typings/
 dist/
 # Tests not done
 test/
+package-lock.json
