@@ -92,7 +92,7 @@ function createLiteral<T extends TemplateLiteral>(
   const { compiler, literals } = opts;
 
   // Every literal has its own cache for keyed templates
-  const keyed = new WeakMap<any, Record<any, TemplateCache>>();
+  const keyed = new WeakMap<any, Map<any, TemplateCache>>();
   function template(strings: TemplateStringsArray, ...values: any[]): Template {
     return new Template(type, strings, values);
   }
@@ -106,13 +106,16 @@ function createLiteral<T extends TemplateLiteral>(
     return list.map(item => {
       let memo = keyed.get(item);
       if (!memo) {
-        keyed.set(item, (memo = Object.create(null)));
+        keyed.set(item, (memo = new Map()));
       }
 
       // keyed operations always re-use the same cache and unroll
       // the template and its interpolations right away
       const id = key?.(item) as Key;
-      const cache = memo[id] ?? (memo[id] = createCache());
+      let cache = memo.get(id);
+      if (!cache) {
+        memo.set(id, (cache = createCache()))
+      }
 
       // Update template and return the cached node
       return templateFn(item).update(cache, compiler);
