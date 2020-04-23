@@ -1,16 +1,22 @@
 import './index.html';
 import {
   defineElement, ref, computed, html, css,
-  onMount, onBeforeUpdate, onUpdate, onUnmount
-} from '@shlim/element';
-import { createRouter, routerView } from '@shlim/router';
+  onMount, onBeforeUpdate, onUpdate, onUnmount,
+  provide, inject, Ref
+} from '@kirei/element';
+import { createRouter, routerView } from '@kirei/router';
 
 // create router element
-function create(name: string, text: string) {
+function create(name: string, title: string) {
   return defineElement({
     name,
     setup() {
-      return () => html`<h1>${text}</h1>`;
+      const text = inject<Ref<string>>('text');
+
+      return () => html`
+      <h1>${title}</h1>
+      <input &=${text}>
+      `;
     },
   });
 }
@@ -37,12 +43,8 @@ const AppCalc = defineElement({
       const diff = 1 - net.value / gross.value;
       return Math.round(diff * 100);
     });
-    const gross = computed(() => {
-      return isNaN(price.value) ? 0 : price.value / 1.25;
-    });
-    const grossNumber = computed(() => {
-      return gross.value.toString().replace('.', ',');
-    });
+    const gross = computed(() => isNaN(price.value) ? 0 : price.value / 1.25);
+    const grossNumber = computed(() => gross.value.toLocaleString());
 
     return () => html`
       <h1>Priskalkyleraren</h1>
@@ -81,7 +83,7 @@ createRouter({
   base: '',
   routes: [
     { path: '/', element: AppView },
-    { 
+    {
       path: '/home',
       element: AppHome,
       routes: [
@@ -99,9 +101,17 @@ createRouter({
 defineElement({
   name: 'AppRoot',
   styles: css`
-  input[type="checkbox"]:checked + label {
-    color: red;
-  }
+    input[type="checkbox"]:checked + label {
+      color: red;
+    }
+
+    .link-active {
+      color: red;
+    }
+
+    .link-exact {
+      color: purple;
+    }
   `,
 
   setup() {
@@ -113,6 +123,22 @@ defineElement({
     const os = ref(['windows']);
     const drink = ref('cola');
     const snacks = ref([ 'chips', 'popcorn' ]);
+    const fruits = [
+      [ 'Bananas', 'banana' ],
+      [ 'Oranges', 'orange' ],
+      [ 'Apples', 'apple' ],
+    ];
+
+    provide('text', value);
+
+    const links = [
+      { link: '/', text: 'Welcome page' },
+      { link: '/home', text: 'Home' },
+      { link: '/home/news', text: 'News' },
+      { link: '/user', text: 'Users view' },
+      { link: '/user/test', text: 'Test user view' },
+      { link: '/calc', text: 'Calculator' },
+    ];
 
     routerView();
     console.log(`created ${name}`);
@@ -122,7 +148,13 @@ defineElement({
     onUnmount(() => console.log(`destroyed ${name}`));
 
     return () => html`
-      <a #=${'/calc'}>Calculator</a>
+      <ul>
+      ${html.for(links, item => html`
+        <li>
+          <a link=${item.link}>${item.text}
+        </li>
+      `)}
+      </ul>
       <p>Count: ${num}</p>
       <p>Hello, ${name}!</p>
       <p>Text: ${text}</p>
@@ -144,9 +176,9 @@ defineElement({
       <h3>Fruit</h3>
       <select &=${fruit}>
         <option disabled value="">---Choose a value---</option>
-        <option value="banana">Bananas</option>
-        <option value="apple">Apples</option>
-        <option value="orange">Oranges</option>
+        ${html.for(fruits, ([ key, value ]) => html`
+          <option value=${value}>${key}</option>
+        `)}
       </select>
 
       <h3>OS</h3>
@@ -212,25 +244,23 @@ defineElement({
       <p>${props.text}</p>
     `;
   },
-  get styles() {
-    return css`
-      button {
-        background: #1E88E5;
-        color: white;
-        padding: 0.8rem 1.2rem;
-        border: 0;
-        font-size: 1rem;
-        cursor: pointer;
-        outline: none;
-        border: 1px solid #1E88E5;
-        border-radius: 0.1em;
-        transition: box-shadow 0.2s ease;
-        min-width: 64px;
-      }
+  styles: css`
+    button {
+      background: #1E88E5;
+      color: white;
+      padding: 0.8rem 1.2rem;
+      border: 0;
+      font-size: 1rem;
+      cursor: pointer;
+      outline: none;
+      border: 1px solid #1E88E5;
+      border-radius: 0.1em;
+      transition: box-shadow 0.2s ease;
+      min-width: 64px;
+    }
 
-      button:hover {
-        box-shadow: 0 0.6em 0.6em rgba(0,0,0,0.2);
-      }
-    `;
-  }
+    button:hover {
+      box-shadow: 0 0.6em 0.6em rgba(0,0,0,0.2);
+    }
+  `,
 });

@@ -1,6 +1,6 @@
 import './render.html';
 
-import { html, render } from '@shlim/html';
+import { html, render } from '@kirei/html';
 //import { html, render } from 'uhtml';
 const $app = document.createElement('div');
 $app.id = 'app';

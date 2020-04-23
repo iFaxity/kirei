@@ -1,7 +1,7 @@
 import './calc.html';
 import {
   html, css, defineElement, computed, ref, onMount
-} from '@shlim/element';
+} from '@kirei/element';
 
 export default defineElement({
   name: 'AppCalc',

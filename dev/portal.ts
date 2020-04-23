@@ -2,7 +2,7 @@ import './portal.html';
 import {
   html, defineElement, ref, reactive,
   portal
-} from '@shlim/element';
+} from '@kirei/element';
 
 function generateId() {
   return Math.random().toString(16).slice(2);
@@ -51,7 +51,13 @@ export default defineElement({
       show.value = false;
     }
 
-    portal('#portal', () => html`
+    return () => html`
+      <h1>Portal Test</h1>
+      <input &=${text} type="text" @keyup.enter=${addItem}>
+      <p>Counter ${count}</p>
+      <button @click=${increment}>Increment</button>
+
+      ${portal('#portal', () => html`
       <div if=${show} @click.self=${closePortal} style=${style1}>
         <div style=${style2}>
           <h2>Portal</h2>
@@ -61,13 +67,7 @@ export default defineElement({
           <button @click=${closePortal}>Close</button>
         </div>
       </div>
-    `);
-
-    return () => html`
-      <h1>Portal Test</h1>
-      <input &=${text} type="text" @keyup.enter=${addItem}>
-      <p>Counter ${count}</p>
-      <button @click=${increment}>Increment</button>
+    `)}
     `;
   }
 });

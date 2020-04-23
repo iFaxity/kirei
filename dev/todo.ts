@@ -4,7 +4,7 @@ import {
   ref, reactive, computed,
   html, css,
   toRef,
-} from '@shlim/element';
+} from '@kirei/element';
 
 interface Todo {
   id: number;
