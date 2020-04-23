@@ -6,9 +6,9 @@ const stat = promisify(fs.stat);
 const { exec } = require('child_process');
 const path = require('path');
 
-const ROOT_DIR = __dirname;
+const ROOT_DIR = path.join(__dirname, '../');
 const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
-const rootPkg = require('./package.json');
+const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
 const pkgPrefix = '@kirei/';
 

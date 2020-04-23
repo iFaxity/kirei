@@ -1,6 +1,6 @@
 {
   "name": "@kirei/element",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "type": "module",
@@ -34,8 +34,8 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@kirei/fx": "^0.3.0",
-    "@kirei/html": "^0.3.0",
-    "@kirei/shared": "^0.3.0"
+    "@kirei/fx": "^1.0.0",
+    "@kirei/html": "^1.0.0",
+    "@kirei/shared": "^1.0.0"
   }
 }
