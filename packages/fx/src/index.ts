@@ -1,4 +1,4 @@
-import { mapObject, isObject } from '@shlim/shared';
+import { mapObject, isObject } from '@kirei/shared';
 import { isRef, Ref, createRef } from './ref';
 import { toRaw } from './reactive';
 

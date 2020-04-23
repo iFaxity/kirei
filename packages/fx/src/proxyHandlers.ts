@@ -1,4 +1,4 @@
-import { isObject } from '@shlim/shared';
+import { isObject } from '@kirei/shared';
 import { Fx, ITERATE_KEY, TriggerOpTypes } from './fx';
 import { isRef } from './ref';
 import { toRaw, toReactive, reactive, readonly } from './reactive';

@@ -1,5 +1,5 @@
 import { FxInstance } from '../instance';
-import { warn } from '@shlim/shared';
+import { warn } from '@kirei/shared';
 
 export interface InjectionKey<T> extends Symbol {}
 

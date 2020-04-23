@@ -13,13 +13,14 @@
     "declarationMap": true,
     "baseUrl": "./",
     "paths": {
-      "@shlim/*": ["packages/*"]
+      "@kirei/*": ["packages/*"]
     }
   },
   "references": [
     { "path": "packages/shared" },
     { "path": "packages/fx" },
-    { "path": "packages/element" }
+    { "path": "packages/element" },
+    { "path": "packages/router" },
   ],
   "include": ["packages/*"],
   "exclude": ["**/node_modules"]

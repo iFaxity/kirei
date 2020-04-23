@@ -1,4 +1,4 @@
-@shlim/fx
+@kirei/fx
 ===================
 
 ## Shlim frameworks reactivity implementation, basically a slimmed down version of Vue 3's reactivity package.
@@ -8,11 +8,11 @@ This package is intended for useage within Shlims framework, but nothing is stop
 ------------------
 ## Installation:
 
-`npm install @shlim/fx --save`
+`npm install @kirei/fx --save`
 
 or if you use yarn
 
-`yarn add @shlim/fx`
+`yarn add @kirei/fx`
 
 --------
 ## Usage

@@ -1,5 +1,5 @@
-import { Fx } from '@shlim/fx';
-import { Template } from '@shlim/html';
+import { Fx } from '@kirei/fx';
+import { Template } from '@kirei/html';
 import { render } from '../compiler';
 import { onUnmount } from './lifecycle';
 import * as Queue from '../queue';

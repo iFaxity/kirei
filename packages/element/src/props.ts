@@ -1,4 +1,4 @@
-import { mapObject, isFunction, isObject } from '@shlim/shared';
+import { mapObject, isFunction, isObject } from '@kirei/shared';
 
 type DefaultFactory<T = any> = () => T | null | undefined;
 type PropConstructor<T = any> = { new (...args: any[]): T & object } | { (): T };

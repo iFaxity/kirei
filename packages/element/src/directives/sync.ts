@@ -1,5 +1,5 @@
 import { FxElement, elementInstances } from '../instance';
-import { Ref, isRef } from '@shlim/fx';
+import { Ref, isRef } from '@kirei/fx';
 import { directive, Directive } from '../compiler';
 import { nextTick } from '../queue';
 

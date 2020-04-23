@@ -1,4 +1,4 @@
-import { isObject } from '@shlim/shared';
+import { isObject } from '@kirei/shared';
 import { baseHandlers, collectionHandlers, REACTIVE_KEY } from './proxyHandlers';
 import { isObservable, isCollection } from './shared';
 const targetToReactive = new WeakMap<any, any>();

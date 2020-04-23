@@ -1,4 +1,4 @@
-import { Ref, isRef } from '@shlim/fx';
+import { Ref, isRef } from '@kirei/fx';
 import { directive } from '../compiler';
 
 // This is a special directive

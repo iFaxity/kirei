@@ -1,6 +1,6 @@
-import { Template } from '@shlim/html';
-import { Fx, TriggerOpTypes, toReactive } from '@shlim/fx';
-import { isFunction, mapObject, camelToKebab, warn, exception } from '@shlim/shared';
+import { Template } from '@kirei/html';
+import { Fx, TriggerOpTypes, toReactive } from '@kirei/fx';
+import { isFunction, mapObject, camelToKebab, warn, exception } from '@kirei/shared';
 import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult, shimAdoptedStyleSheets } from './css';

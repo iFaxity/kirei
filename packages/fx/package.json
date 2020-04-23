@@ -1,5 +1,5 @@
 {
-  "name": "@shlim/fx",
+  "name": "@kirei/fx",
   "version": "0.3.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
@@ -16,16 +16,15 @@
     "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
     "build": "tsc -b"
   },
-  "homepage": "https://github.com/ifaxity/shlim",
+  "homepage": "https://github.com/ifaxity/kirei",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ifaxity/shlim.git"
+    "url": "https://github.com/ifaxity/kirei.git"
   },
   "bugs": {
-    "url": "https://github.com/ifaxity/shlim/issues"
+    "url": "https://github.com/ifaxity/kirei/issues"
   },
   "keywords": [
-    "lit-html",
     "vue",
     "vue3",
     "composition",
@@ -35,6 +34,6 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@shlim/shared": "^0.3.0"
+    "@kirei/shared": "^0.3.0"
   }
 }

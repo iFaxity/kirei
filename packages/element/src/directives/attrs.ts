@@ -1,5 +1,5 @@
 import { directive } from '../compiler';
-import { isObject, warn } from '@shlim/shared';
+import { isObject, warn } from '@kirei/shared';
 
 directive('attrs', dir => {
   const { el } = dir;

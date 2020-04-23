@@ -1,4 +1,4 @@
-export * from '@shlim/fx';
+export * from '@kirei/fx';
 export { defineElement, FxElement, FxInstance, elementInstances } from './instance';
 export { nextTick } from './queue';
 export { css } from './css';

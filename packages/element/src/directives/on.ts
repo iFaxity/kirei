@@ -1,4 +1,4 @@
-import { isFunction, camelToKebab } from '@shlim/shared';
+import { isFunction, camelToKebab } from '@kirei/shared';
 import { directive } from '../compiler';
 
 type EventListener = (e: Event, detail?: any) => any;

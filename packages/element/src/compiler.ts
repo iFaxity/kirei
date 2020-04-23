@@ -1,5 +1,5 @@
-import { TemplatePatcher, TemplateCompiler, customize, defaultCompiler } from '@shlim/html';
-import { unRef } from '@shlim/fx';
+import { TemplatePatcher, TemplateCompiler, customize, defaultCompiler } from '@kirei/html';
+import { unRef } from '@kirei/fx';
 import { FxInstance } from './instance';
 
 export type DirectiveFactory = (directive: Directive) => TemplatePatcher;

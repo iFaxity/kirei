@@ -1,4 +1,4 @@
-import { isObject, isFunction } from '@shlim/shared';
+import { isObject, isFunction } from '@kirei/shared';
 import { createRef, Ref, RefTarget } from './ref';
 import { Fx, activeFx } from './fx';
 

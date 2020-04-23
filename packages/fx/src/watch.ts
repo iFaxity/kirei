@@ -1,6 +1,6 @@
-import { isFunction } from '@shlim/shared';
+import { isFunction } from '@kirei/shared';
 import { Fx } from './fx';
-import { Ref, isRef } from './ref';
+//import { Ref, isRef } from './ref';
 
 type StopWatcher = () => void;
 

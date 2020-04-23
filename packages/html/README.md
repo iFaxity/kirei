@@ -1,4 +1,4 @@
-@shlim/html
+@kirei/html
 ===================
 
 ## A uhtml inspired render library, but with custom directives and full typescript support.
@@ -6,11 +6,11 @@
 ------------------
 ## Installation:
 
-`npm i --save @shlim/html`
+`npm i --save @kirei/html`
 
 or if you use yarn
 
-`yarn add @shlim/html`
+`yarn add @kirei/html`
 
 --------
 ## Usage

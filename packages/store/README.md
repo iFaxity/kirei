@@ -1,17 +1,17 @@
-@shlim/lit-fx
+@kirei/store
 ===================
 
-## A lit-html powered web components library with Vue's Composition API syntax.
+## A next generation frontend library inspired by Vue Composition API and built with Web Components 
 Of course with typescript support.
 
 ------------------
 ## Installation:
 
-`npm install @shlim/lit-fx --save`
+`npm install @kirei/store --save`
 
 or if you use yarn
 
-`yarn add @shlim/lit-fx`
+`yarn add @kirei/store`
 
 --------
 ## Usage

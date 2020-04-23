@@ -1,9 +1,10 @@
 {
-  "name": "@shlim/store",
-  "version": "0.1.0",
+  "name": "@kirei/store",
+  "version": "0.3.0",
   "private": true,
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
+  "type": "module",
   "module": "dist/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,16 +17,15 @@
     "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
     "build": "tsc -b"
   },
-  "homepage": "https://github.com/ifaxity/shlim",
+  "homepage": "https://github.com/ifaxity/kirei",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ifaxity/shlim.git"
+    "url": "https://github.com/ifaxity/kirei.git"
   },
   "bugs": {
-    "url": "https://github.com/ifaxity/shlim/issues"
+    "url": "https://github.com/ifaxity/kirei/issues"
   },
   "keywords": [
-    "lit-html",
     "vue",
     "vue3",
     "composition",
@@ -35,6 +35,10 @@
     "shadow dom"
   ],
   "peerDependencies": {
-    "@shlim/element": "^0.1.0"
+    "@kirei/element": "^0.3.0"
+  },
+  "dependencies": {
+    "@kirei/fx": "^0.3.0",
+    "@kirei/shared": "^0.3.0"
   }
 }

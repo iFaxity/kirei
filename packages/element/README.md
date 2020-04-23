@@ -1,17 +1,17 @@
-@shlim/element
+@kirei/element
 ===================
 
-## A lit-html powered web components library with Vue's Composition API syntax.
+## A next generation frontend library inspired by Vue Composition API and built with Web Components 
 Of course with typescript support.
 
 ------------------
 ## Installation:
 
-`npm install @shlim/element --save`
+`npm install @kirei/element --save`
 
 or if you use yarn
 
-`yarn add @shlim/element`
+`yarn add @kirei/element`
 
 --------
 ## Usage

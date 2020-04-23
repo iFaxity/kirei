@@ -1,4 +1,4 @@
-import { isObject } from '@shlim/shared';
+import { isObject } from '@kirei/shared';
 
 const COLLECTION_TYPES = [ Map, Set, WeakMap, WeakSet ];
 export type MapCollection = Map<object, object> | WeakMap<object, object>;

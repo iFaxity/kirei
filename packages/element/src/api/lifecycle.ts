@@ -1,4 +1,4 @@
-import { exception, isFunction } from '@shlim/shared';
+import { exception, isFunction } from '@kirei/shared';
 import { FxInstance } from '../instance';
 const HOOKS: string[] = [];
 
