@@ -1,8 +1,13 @@
-import { LinkOptions } from './link';
-import { Route, RouteOptions } from './Route';
+import { FxInstance, ref, Ref } from '@kirei/element';
+import { Route, RouteOptions } from './route';
 
-const history = window.history;
-const SUPPORTS_HISTORY = !!(history && history.pushState);
+export type Link = string|LinkOptions;
+export interface LinkOptions {
+  to?: string;
+  name?: string;
+  params?: object;
+  query?: object;
+}
 
 export interface RouterOptions {
   history?: boolean;
@@ -12,116 +17,114 @@ export interface RouterOptions {
   routes: RouteOptions[];
 }
 
-export class Router {
-  readonly history: boolean;
-  readonly base: string;
-  readonly routes: Route[];
-  // Set of view and the rendered element
-  private views: Element[] = [];
-  private viewCtx: Node[] = [];
-  // Current route
-  private route: Route = null;
+export interface RouterInterface {
+  resolve(link: Link, append?: boolean): string;
+  push(link: Link, append?: boolean): boolean;
+  replace(link: Link, append?: boolean): boolean;
+  attach(instance: FxInstance): void;
+  detach(instance: FxInstance): void;
+}
 
-  readonly exactClass: string;
-  readonly activeClass: string;
+export enum RouterHooks {
+  ENTER = 'enter',
+  UPDATE = 'update',
+  LEAVE = 'leave',
+  BEFORE_EACH = 'beforeEach',
+  AFTER_EACH = 'afterEach',
+}
+
+export type RouterHook = (to: Route, from: Route) => void|Promise<void>;
+export class Router {
+  private afterHooks = new WeakSet<Function>();
+  private beforeHooks = new WeakSet<Function>();
+  protected readonly routes: Route[];
+  protected readonly instances: FxInstance[] = [];
+
+  readonly path: Ref<string>;
+  readonly route: Ref<Route>;
+  base: string = '';
+  exactClass: string = 'link-exact';
+  activeClass: string = 'link-active';
 
   constructor(opts: RouterOptions) {
-    // Force hash mode if HistoryAPI not supported
-    this.history = SUPPORTS_HISTORY && (opts.history ? !!opts.history : true);
-    this.base = typeof opts.base == 'string' ? opts.base : '/';
+    this.base = opts.base ?? this.base;
+    this.exactClass = opts.exactClass ?? this.exactClass;
+    this.activeClass = opts.activeClass ?? this.activeClass;
     this.routes = opts.routes.map(o => new Route(o));
-    this.exactClass = opts.exactClass ?? 'link-exact';
-    this.activeClass = opts.activeClass ?? 'link-active';
-
-    // Start router
-    const navigate = this.navigate.bind(this);
-    const eventName = this.history ? 'popstate' : 'hashchange';
-    window.addEventListener(eventName, navigate, false);
-
-    // Do the initial navigation after content has loaded
-    window.addEventListener('DOMContentLoaded', navigate);
+    this.path = ref('');
+    this.route = ref(null);
   }
 
-  get path() {
-    return this.history ? location.pathname : location.hash.slice(1);
+  /*protected runHooks(before: boolean, to: Route, from: Route)
+
+  /*protected runInstanceHook(name: RouterHooks, to: Route, from: Route): Promise<void>[] {
+    const promises: Promise<void>[] = [];
+    const next = () => {};
+
+    for (let instance of this.instances) {
+      instance.runHooks(`route${name}`, to, from, next);
+      // after?
+    }
+
+    return promises;
+  }*/
+
+  beforeEach(hook: RouterHook): void {
+    this.beforeHooks.add(hook);
+  }
+  afterEach(hook: RouterHook): void {
+    this.afterHooks.add(hook);
   }
 
-  register($el: Element): void {
-    this.views.push($el);
-    this.viewCtx.push(document.createComment(''));
-  }
+  resolve(link: Link, append?: boolean) {
+    let path: string;
 
-  unregister($el: Element): void {
-    const idx = this.views.indexOf($el);
-    this.views.splice(idx, 1);
-    this.viewCtx.splice(idx, 1);
-  }
-
-  push(path: string|LinkOptions): boolean {
-    if (this.history) {
-      history.pushState(null, null, this.base + path);
+    if (typeof link == 'string') {
+      path = link;
     } else {
-      location.hash = this.base + path;
-    }
+      path = (link.name
+        ? this.routes.find(r => r.name === link.name)?.path
+        : link?.to) ?? '';
 
-    return this.navigate();
-  }
-
-  replace(path: string|LinkOptions): boolean {
-    if (this.history) {
-      history.replaceState(null, null, this.base + path);
-    } else {
-      location.hash = this.base + path;
-    }
-
-    return this.navigate();
-  }
-
-  // TODO keep track of rendered elements
-  private renderRoute(route: Route, $view: Element): void {
-    const $el = route.createElement();
-    const $ctx = $view.firstElementChild;
-
-    // Append or replace element
-    if (!$ctx) {
-      $view.appendChild($el);
-    } else if ($el != $ctx) {
-      $view.replaceChild($el, $ctx);
-    }
-
-    // Send params as props
-    if (route.params) {
-      for (let [ key, value ] of Object.entries(route.params)) {
-        $el[key] = value;
+      // Stringify the query object
+      if (link.query) {
+        const query = Object.entries(link.query).reduce((acc, [key, value]) => {
+          return acc += `${encodeURIComponent(key)}=${encodeURIComponent(value)}&`;
+        }, '');
+        path += `?${query.substring(0, query.length - 1)}`;
       }
     }
+  
+    return this.base + (append ? this.path + path : path);
   }
 
-  // Navigates to path
-  private navigate(): boolean {
-    const { path } = this;
-    let routes = this.routes;
+  protected matchRoutes(): Route[] {
+    let { base, routes } = this;
+    const route = this.route.value;
+    const path = this.path.value;
 
-    if (this.route?.path === path || !path.startsWith(this.base)) {
-      return false;
+    if (route?.path === path) {
+      return null;
     }
 
-    const relPath = path.substring(this.base.length);
-    for (const $view of this.views) {
-      const route = routes.find(r => r.match(relPath));
+    const matched: Route[] = [];
+    const relative = path.substring(base.length);
 
-      if (route) {
-        this.route = route;
-        this.renderRoute(route, $view);
+    // Go down the routing tree
+    while (true) {
+      const route = routes.find(r => r.match(relative));
+      if (!route) {
+        break;
+      }
 
-        if (route.routes) {
-          routes = route.routes;
-        } else {
-          return true;
-        }
+      matched.push(route);
+      if (route.routes) {
+        routes = route.routes;
+      } else {
+        break;
       }
     }
 
-    return true;
+    return matched;
   }
 }

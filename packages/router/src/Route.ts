@@ -1,5 +1,5 @@
+import { FxElement } from '@kirei/element';
 import { pathToRegexp, Key } from 'path-to-regexp';
-import { FxElement } from '@shlim/element';
 const ROUTE_KEYS = [ 'path', 'slot', 'keepAlive', 'meta', 'name', 'redirect', 'caseSensitive' ];
 
 export interface RouteOptions {
@@ -12,13 +12,14 @@ export interface RouteOptions {
   routes?: RouteOptions[];
   redirect?: string | Function;
   caseSensitive?: boolean;
+  aliases?: string[];
 }
 
 export class Route {
   private readonly regex: RegExp;
   private readonly keys: (string | number)[];
-  private $el: Element = null;
-  private tagName: string;
+  private el: Element = null;
+  private tag: string;
 
   params: Record<string|number, string>;
   readonly routes?: Route[];
@@ -29,6 +30,7 @@ export class Route {
   readonly name?: string;
   readonly redirect?: string | Function;
   readonly caseSensitive?: boolean;
+  readonly aliases?: string[];
 
   constructor(opts: RouteOptions) {
     for (const [ key, value ] of Object.entries(opts)) {
@@ -38,76 +40,58 @@ export class Route {
     }
 
     // Map the routes and compile the regex
-    const routes = opts.routes?.map(o => {
+    this.routes = opts.routes?.map(o => {
       o.path = opts.path + o.path;
       return new Route(o);
-    });
-    this.routes = routes ?? [];
+    }) ?? [];
 
     const keys: Key[] = [];
     this.regex = pathToRegexp(this.path, keys, {
-      end: this.routes.length == 0,
+      end: !this.routes.length,
+      sensitive: this.caseSensitive,
     });
     this.keys = keys.map(key => key.name);
 
     if (typeof opts.element == 'function') {
-      this.tagName = opts.element.is;
+      this.tag = opts.element.is;
     } else if (typeof opts.element == 'string') {
-      this.tagName = opts.element;
+      this.tag = opts.element;
     } else {
       throw new TypeError('Element is not of a valid type');
     }
   }
 
   match(path: string): boolean {
-    const res = this.regex.exec(path);
+    const { keys } = this;
 
-    if (res && this.keys.length) {
-      this.params = this.keys.reduce((acc, key, idx) => {
-        acc[key] = res[1 + idx];
-        return acc;
-      }, {});
+    // Required for subroutes '/ to work
+    // Not a problem as it's ignored by the regex anyways
+    if (this.routes.length == 0 && !path.endsWith('/')) {
+      path += '/';
+    }
+
+    const res = this.regex.exec(path);
+    if (res) {
+      if (keys.length) {
+        this.params = keys.reduce((acc, key, idx) => {
+          acc[key] = res[1 + idx];
+          return acc;
+        }, {});
+      }
     }
 
     return !!res;
   }
 
-  createElement(): Element {
-    let $el = this.$el ?? document.createElement(this.tagName);
-
+  get element(): Element {
+    const el = this.el ?? document.createElement(this.tag) as Element;
     if (this.slot) {
-      $el.slot = this.slot;
+      el.slot = this.slot;
     }
     if (this.keepAlive) {
-      this.$el = $el;
+      this.el = el;
     }
 
-    return $el;
+    return el;
   }
-
-  /*renderTo(root: Element): void {
-    const $ctx = root.lastElementChild;
-
-    if (!this.keepAlive || !this.$el) {
-      this.$el = document.createElement(this.tagName);
-
-      if (this.slot) {
-        this.$el.slot = this.slot;
-      }
-    }
-
-    // Append or replace element
-    if (!$ctx) {
-      root.appendChild(this.$el);
-    } else if (this.$el != $ctx) {
-      root.replaceChild(this.$el, $ctx);
-    }
-
-    // Send params as props
-    if (this.params) {
-      for (let key of Object.keys(this.params)) {
-        this.$el[key] = this.params[key];
-      }
-    }
-  }*/
 }
