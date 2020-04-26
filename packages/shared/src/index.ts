@@ -34,8 +34,8 @@ export function isFunction(target: any): target is Function {
  * @returns {object}
  */
 export function mapObject<T, V>(callback: (key: string, value: any) => [ string, V ], obj: T): Record<string, V> {
-  return Object.entries(obj).reduce((acc, [ key, value ]) => {
-    let [ k, v ] = callback(key, value);
+  return Object.keys(obj).reduce((acc, key) => {
+    let [ k, v ] = callback(key, obj[key]);
     acc[k] = v;
 
     return acc;

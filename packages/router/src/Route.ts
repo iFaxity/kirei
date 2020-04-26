@@ -33,9 +33,9 @@ export class Route {
   readonly aliases?: string[];
 
   constructor(opts: RouteOptions) {
-    for (const [ key, value ] of Object.entries(opts)) {
+    for (const key of Object.keys(opts)) {
       if (ROUTE_KEYS.includes(key)) {
-        this[key] = value;
+        this[key] = opts[key];
       }
     }
 

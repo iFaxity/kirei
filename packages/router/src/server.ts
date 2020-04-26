@@ -50,7 +50,7 @@ export class ServerRouter implements Router {
 
       // Send params as props
       if (route.params) {
-        for (let [ key, value ] of Object.entries(route.params)) {}
+        for (const key of Object.keys(route.params)) {}
       }
     }
 

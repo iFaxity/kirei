@@ -123,8 +123,8 @@ export class ClientRouter extends Router implements RouterInterface {
 
       // Send params as props
       if (route.params) {
-        for (let [ key, value ] of Object.entries(route.params)) {
-          el[key] = value;
+        for (let key of Object.keys(route.params)) {
+          el[key] = route.params[key];
         }
       }
     }

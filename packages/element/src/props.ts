@@ -44,7 +44,8 @@ export type ResolvePropTypes<T> =
  * @returns {NormalizedProps}
  */
 export function normalizeProps(props: Props): NormalizedProps {
-  for (const [ key, prop ] of Object.entries(props)) {
+  for (const key of Object.keys(props)) {
+    const prop = props[key];
     const normal = prop as NormalizedProp;
     if (isObject<PropInstance>(prop)) {
       normal.type = (prop.type as PropConstructor[]) ?? null;

@@ -88,7 +88,8 @@ export class Router {
 
       // Stringify the query object
       if (link.query) {
-        const query = Object.entries(link.query).reduce((acc, [key, value]) => {
+        const query = Object.keys(link.query).reduce((acc, key) => {
+          const value = link.query[key];
           return acc += `${encodeURIComponent(key)}=${encodeURIComponent(value)}&`;
         }, '');
         path += `?${query.substring(0, query.length - 1)}`;
