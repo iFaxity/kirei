@@ -1,6 +1,6 @@
 import { Template } from '@kirei/html';
 import { Fx, TriggerOpTypes, toReactive } from '@kirei/fx';
-import { isFunction, mapObject, camelToKebab, warn, exception } from '@kirei/shared';
+import { isFunction, exception } from '@kirei/shared';
 import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult, shimAdoptedStyleSheets } from './css';
@@ -11,7 +11,6 @@ import {
   ResolvePropTypes,
   NormalizedProps,
   validateProp,
-  normalizeProps,
   propDefaults,
 } from './props';
 
@@ -28,7 +27,7 @@ export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
   directives?: Record<string, DirectiveFactory>;
 }
 
-interface NormalizedFxOptions extends Required<FxOptions> {
+export interface NormalizedFxOptions extends Required<FxOptions> {
   tag: string;
   props: NormalizedProps;
   attrs: Record<string, string>;
@@ -88,11 +87,7 @@ export class FxInstance {
   }
   static set active(instance: FxInstance) {
     // if instance is falsy, pop the last instance in the stack
-    if (instance) {
-      activeInstanceStack.push(instance);
-    } else {
-      activeInstanceStack.pop();
-    }
+    instance ? activeInstanceStack.push(instance) : activeInstanceStack.pop();
   }
 
   get mounted(): boolean {
@@ -247,7 +242,7 @@ export class FxElement extends HTMLElement {
 
     // Set props as getters/setters on element
     // props should be a readonly reactive object
-    for (let key of Object.keys(props)) {
+    for (const key of Object.keys(props)) {
       // If prop already exists, then we throw error
       if (this.hasOwnProperty(key)) {
         exception(`Prop ${key} is reserved, please use another.`, name);
@@ -311,74 +306,4 @@ export class FxElement extends HTMLElement {
       this[key] = newValue;
     }
   }
-}
-
-/**
- * Collects an array of CSSResults into a Set of CSSResults to ensure they are unique
- * @param {CSSResult[]} styles Stylesheets to collect
- * @param {Set} set Set to hold all stylesheets
- * @returns {Set}
- */
-function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult> {
-  set = set ?? new Set<CSSResult>();
-  return styles.reduceRight((set, s) => Array.isArray(s) ? collectStyles(s, set) : (set.add(s), set), set);
-}
-
-/**
- * Normalizes the raw options object to a more predictable format
- * @param {FxOptions} options Raw element options
- * @returns {NormalizedFxOptions}
- */
-function normalizeOptions(options: FxOptions): NormalizedFxOptions {
-  let { styles } = options;
-  const props = options.props ? normalizeProps(options.props) : {};
-
-  let css: CSSResult[] = null;
-  if (styles != null) {
-    css = Array.isArray(styles) ? [ ...collectStyles(styles) ] : [ styles ];
-  }
-
-  const normalized = options as NormalizedFxOptions;
-  normalized.props = props;
-  normalized.styles = css;
-  normalized.closed = options.closed ?? false;
-  normalized.sync = options.sync ?? 'value';
-  normalized.setup = options.setup ?? null;
-  normalized.directives = options.directives ?? null;
-  normalized.tag = camelToKebab(options.name);
-  normalized.attrs = mapObject((key) => [ camelToKebab(key), key ], props);
-  return normalized;
-}
-
-/**
- * Defines a new custom shlim element
- * @param {FxOptions} options - Raw element options
- * @returns {FxElement}
- */
-export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>): typeof FxElement {
-  const normalized = normalizeOptions(options);
-  const attrs = Object.keys(normalized.attrs);
-
-  if (!normalized.tag.includes('-')) {
-    warn('Element names should include a hyphen (-) or be camelised with at least 2 upper-case characters', options.name);
-  }
-
-  // if custom element already defined, then swap instances,
-  // then force hydrate the instances.
-  const CustomElement = class extends FxElement {
-    static get is() {
-      return normalized.tag;
-    }
-
-    static get observedAttributes() {
-      return attrs;
-    }
-
-    constructor() {
-      super(normalized);
-    }
-  };
-
-  window.customElements.define(normalized.tag, CustomElement);
-  return CustomElement;
 }
