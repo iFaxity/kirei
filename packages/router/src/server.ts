@@ -1,4 +1,4 @@
-/*import { FxInstance } from '@kirei/element';
+/*import { KireiInstance } from '@kirei/element';
 import {
   Link,
   RouterOptions,
@@ -26,9 +26,9 @@ export class ServerRouter implements Router {
     return resolve(this, link, append);
   }
 
-  attach(instance: FxInstance): void {}
+  attach(instance: KireiInstance): void {}
 
-  detach(instance: FxInstance): void {}
+  detach(instance: KireiInstance): void {}
 
   push(link: Link, append: boolean) {
     const path = resolve(this, link, append);

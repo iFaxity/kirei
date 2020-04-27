@@ -1,4 +1,4 @@
-import { FxInstance, directive, computed, watchFx } from '@kirei/element';
+import { KireiInstance, directive, computed, watchFx } from '@kirei/element';
 import { Link, RouterOptions, RouterInterface, Router } from './router';
 const SUPPORTS_HISTORY = !!(window.history?.pushState);
 
@@ -59,7 +59,7 @@ export class ClientRouter extends Router implements RouterInterface {
     });
   }
 
-  attach(instance: FxInstance): void {
+  attach(instance: KireiInstance): void {
     const { views, instances } = this;
 
     // Comment node is used to mark the node reference
@@ -69,7 +69,7 @@ export class ClientRouter extends Router implements RouterInterface {
     views.push(ref);
   }
 
-  detach(instance: FxInstance): void {
+  detach(instance: KireiInstance): void {
     const { views, instances } = this;
 
     const idx = instances.indexOf(instance);
@@ -113,13 +113,13 @@ export class ClientRouter extends Router implements RouterInterface {
       const view = views[idx];
 
       // Replace node if view elements are not the same
-      FxInstance.active = instance;
+      KireiInstance.active = instance;
       const el = route.element;
       if (el !== view) {
         root.replaceChild(el, view);
         views[idx] = el;
       }
-      FxInstance.active = null;
+      KireiInstance.active = null;
 
       // Send params as props
       if (route.params) {

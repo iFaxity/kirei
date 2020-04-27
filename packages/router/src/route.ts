@@ -1,10 +1,10 @@
-import { FxElement } from '@kirei/element';
+import { KireiElement } from '@kirei/element';
 import { pathToRegexp, Key } from 'path-to-regexp';
 const ROUTE_KEYS = [ 'path', 'slot', 'keepAlive', 'meta', 'name', 'redirect', 'caseSensitive' ];
 
 export interface RouteOptions {
   path: string;
-  element: typeof FxElement | string;
+  element: typeof KireiElement | string;
   slot?: string;
   name?: string;
   meta?: any;

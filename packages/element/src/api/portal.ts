@@ -3,12 +3,12 @@ import { Template } from '@kirei/html';
 import { render } from '../compiler';
 import { onUnmount } from './lifecycle';
 import * as Queue from '../queue';
-import { FxInstance } from '../instance';
+import { KireiInstance } from '../instance';
 
 const roots = new Map<string, Element>();
 const portals = new WeakMap<Element, Portal>();
 interface Portal {
-  instance: FxInstance;
+  instance: KireiInstance;
   fx: Fx;
 }
 
@@ -19,7 +19,7 @@ interface Portal {
  * @returns {void}
  */
 export function portal(target: string, templateFn: () => Template): void {
-  const instance = FxInstance.active;
+  const instance = KireiInstance.active;
   let root = roots.get(target);
   if (!root) {
     roots.set(target, (root = document.querySelector(target)));
@@ -28,9 +28,9 @@ export function portal(target: string, templateFn: () => Template): void {
   let portal = portals.get(root);
   if (!portal || portal.instance !== instance) {
     const fx = new Fx(() => {
-      FxInstance.active = instance;
+      KireiInstance.active = instance;
       render(templateFn(), root);
-      FxInstance.active = null;
+      KireiInstance.active = null;
     }, { scheduler: Queue.push });
 
     portal = { instance, fx };

@@ -1,4 +1,4 @@
-import { FxInstance, ref, Ref } from '@kirei/element';
+import { KireiInstance, ref, Ref } from '@kirei/element';
 import { Route, RouteOptions } from './route';
 
 export type Link = string|LinkOptions;
@@ -21,8 +21,8 @@ export interface RouterInterface {
   resolve(link: Link, append?: boolean): string;
   push(link: Link, append?: boolean): boolean;
   replace(link: Link, append?: boolean): boolean;
-  attach(instance: FxInstance): void;
-  detach(instance: FxInstance): void;
+  attach(instance: KireiInstance): void;
+  detach(instance: KireiInstance): void;
 }
 
 export enum RouterHooks {
@@ -38,7 +38,7 @@ export class Router {
   private afterHooks = new WeakSet<Function>();
   private beforeHooks = new WeakSet<Function>();
   protected readonly routes: Route[];
-  protected readonly instances: FxInstance[] = [];
+  protected readonly instances: KireiInstance[] = [];
 
   readonly path: Ref<string>;
   readonly route: Ref<Route>;

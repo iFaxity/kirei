@@ -1,6 +1,6 @@
 import { TemplatePatcher, TemplateCompiler, customize, defaultCompiler } from '@kirei/html';
 import { unRef } from '@kirei/fx';
-import { FxInstance } from './instance';
+import { KireiInstance } from './instance';
 
 export type DirectiveFactory = (directive: Directive) => TemplatePatcher;
 export interface Directive {
@@ -42,7 +42,7 @@ const compiler: TemplateCompiler = {
     }
 
     const name = match[1];
-    const factory = directives[name] ?? FxInstance.active.directives?.[name];
+    const factory = directives[name] ?? KireiInstance.active.directives?.[name];
 
     if (factory) {
       return factory.call(null, {

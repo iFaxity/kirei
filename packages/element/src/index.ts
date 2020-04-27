@@ -1,5 +1,5 @@
 export * from '@kirei/fx';
-export { FxElement, FxInstance, elementInstances} from './instance';
+export { KireiElement, KireiInstance, KireiInstances} from './instance';
 export { nextTick } from './queue';
 export { css } from './css';
 export { directive, html, svg } from './compiler';
@@ -16,7 +16,7 @@ import './directives/show';
 import './directives/sync';
 
 // expose defineElement function
-import { FxElement, FxOptions, NormalizedFxOptions } from './instance';
+import { KireiElement, ElementOptions, NormalizedElementOptions } from './instance';
 import { mapObject, camelToKebab, warn } from '@kirei/shared';
 import { CSSResult } from './css';
 import { Props, normalizeProps } from './props';
@@ -34,10 +34,10 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
 
 /**
  * Normalizes the raw options object to a more predictable format
- * @param {FxOptions} options Raw element options
- * @returns {NormalizedFxOptions}
+ * @param {ElementOptions} options Raw element options
+ * @returns {NormalizedElementOptions}
  */
-function normalizeOptions(options: FxOptions): NormalizedFxOptions {
+function normalizeOptions(options: ElementOptions): NormalizedElementOptions {
   let { styles } = options;
   const props = options.props ? normalizeProps(options.props) : {};
 
@@ -45,7 +45,7 @@ function normalizeOptions(options: FxOptions): NormalizedFxOptions {
     styles = Array.isArray(styles) ? [ ...collectStyles(styles) ] : [ styles ];
   }
 
-  const normalized = options as NormalizedFxOptions;
+  const normalized = options as NormalizedElementOptions;
   normalized.props = props;
   normalized.styles = styles as CSSResult[];
   normalized.closed = options.closed ?? false;
@@ -59,10 +59,10 @@ function normalizeOptions(options: FxOptions): NormalizedFxOptions {
 
 /**
  * Defines a new custom shlim element
- * @param {FxOptions} options - Raw element options
- * @returns {FxElement}
+ * @param {ElementOptions} options - Raw element options
+ * @returns {KireiElement}
  */
-export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>): typeof FxElement {
+export function defineElement<T extends Readonly<Props>>(options: ElementOptions<T>): typeof KireiElement {
   const normalized = normalizeOptions(options);
   const attrs = Object.keys(normalized.attrs);
 
@@ -72,7 +72,7 @@ export function defineElement<T extends Readonly<Props>>(options: FxOptions<T>):
 
   // if custom element already defined, then swap instances,
   // then force hydrate the instances.
-  const CustomElement = class extends FxElement {
+  const CustomElement = class extends KireiElement {
     static get is() {
       return normalized.tag;
     }

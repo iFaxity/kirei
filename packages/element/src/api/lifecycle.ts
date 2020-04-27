@@ -1,5 +1,5 @@
 import { exception, isFunction } from '@kirei/shared';
-import { FxInstance } from '../instance';
+import { KireiInstance } from '../instance';
 const HOOKS: string[] = [];
 
 export enum HookTypes {
@@ -24,7 +24,7 @@ export function defineHook<T = () => void>(name: string): (hook: T) => void {
   // Keep track of what hook keys are used
   HOOKS.push(name);
   return (hook: T) => {
-    const instance = FxInstance.active;
+    const instance = KireiInstance.active;
     if (!instance) {
       exception('Lifecycle hooks needs have a setup function in it\'s call stack.');
     } else if (!isFunction(hook)) {

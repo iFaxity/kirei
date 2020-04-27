@@ -1,4 +1,4 @@
-import { onUnmount, FxInstance, onMount, defineHook } from '@kirei/element';
+import { onUnmount, KireiInstance, onMount, defineHook } from '@kirei/element';
 import { IS_BROWSER } from '@kirei/shared';
 import { RouterOptions, Router, RouterHook, RouterInterface } from './router';
 import { ClientRouter } from './client';
@@ -13,7 +13,7 @@ export function createRouter(opts: RouterOptions): Router {
 
 // routerView plugin
 export function routerView() {
-  const instance = FxInstance.active;
+  const instance = KireiInstance.active;
   onMount(() => router.attach(instance));
   onUnmount(() => router.detach(instance));
 }

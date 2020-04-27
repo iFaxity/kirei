@@ -21,7 +21,7 @@ export interface TemplateLiteral {
    * Caches a template based on a reference or an unique id.
    * @param {*} ref Reference object to cache for
    * @param {string|number|null|undefined} [key] Unique id for the reference
-   * @param {Function} template Template to render from
+   * @param {Function} template Template to render
    */
   key(ref: object, template: Template): Node;
   key(ref: object, key: Key, template: Template): Node;

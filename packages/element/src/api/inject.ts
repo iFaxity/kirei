@@ -1,10 +1,10 @@
-import { FxInstance } from '../instance';
+import { KireiInstance } from '../instance';
 import { warn } from '@kirei/shared';
 
 export interface InjectionKey<T> extends Symbol {}
 
 export function provide<T>(key: InjectionKey<T>|string, value: T): void {
-  const instance = FxInstance.active;
+  const instance = KireiInstance.active;
   let { provides, parent } = instance;
 
   if (parent?.provides === provides) {
@@ -15,7 +15,7 @@ export function provide<T>(key: InjectionKey<T>|string, value: T): void {
 
 export function inject<T>(key: InjectionKey<T>|string): T | undefined;
 export function inject<T>(key: InjectionKey<T>|string, defaultValue?: T): T {
-  const instance = FxInstance.active;
+  const instance = KireiInstance.active;
   if (instance) {
     const { provides } = instance;
     if (key in provides) {

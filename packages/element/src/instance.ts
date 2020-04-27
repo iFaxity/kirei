@@ -14,38 +14,38 @@ import {
   propDefaults,
 } from './props';
 
-const activeInstanceStack: FxInstance[] = [];
-export const elementInstances = new WeakMap<FxElement, FxInstance>();
+const activeInstanceStack: KireiInstance[] = [];
+export const KireiInstances = new WeakMap<KireiElement, KireiInstance>();
 
-export interface FxOptions<P = Props, T = ResolvePropTypes<P>> {
+export interface ElementOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
   closed?: boolean;
   props?: P;
   sync?: string;
-  setup(this: void, props: T, ctx: FxContext): () => Template;
+  setup(this: void, props: T, ctx: KireiContext): () => Template;
   styles?: CSSResult|CSSResult[];
   directives?: Record<string, DirectiveFactory>;
 }
 
-export interface NormalizedFxOptions extends Required<FxOptions> {
+export interface NormalizedElementOptions extends Required<ElementOptions> {
   tag: string;
   props: NormalizedProps;
   attrs: Record<string, string>;
   styles: CSSResult[];
 }
 
-class FxContext {
-  readonly el: FxElement;
+class KireiContext {
+  readonly el: KireiElement;
   readonly sync: string;
   readonly attrs: Record<string, string>;
   readonly props: NormalizedProps;
 
   /**
-   * Instansiates a new setup context for a FxElement
-   * @param {FxElement} el Element to relate context to
-   * @param {NormalizedFxOptions} options Normalized element options
+   * Instansiates a new setup context for a ElementElement
+   * @param {KireiElement} el Element to relate context to
+   * @param {NormalizedElementOptions} options Normalized element options
    */
-  constructor(el: FxElement, options: NormalizedFxOptions) {
+  constructor(el: KireiElement, options: NormalizedElementOptions) {
     this.el = el;
     this.sync = options.sync;
     this.attrs = options.attrs;
@@ -67,13 +67,13 @@ class FxContext {
   }
 }
 
-export class FxInstance {
+export class KireiInstance {
   private renderTemplate: () => Template;
   private shimAdoptedStyleSheets = false;
 
-  readonly parent: FxInstance;
-  readonly el: FxElement;
-  readonly options: NormalizedFxOptions;
+  readonly parent: KireiInstance;
+  readonly el: KireiElement;
+  readonly options: NormalizedElementOptions;
   readonly hooks: Record<string, Set<Function>>;
   readonly fx: Fx;
   readonly props: PropsData;
@@ -82,10 +82,10 @@ export class FxInstance {
   provides: Record<string|symbol, any>;
   firstMount = true;
 
-  static get active(): FxInstance {
+  static get active(): KireiInstance {
     return activeInstanceStack[activeInstanceStack.length - 1];
   }
-  static set active(instance: FxInstance) {
+  static set active(instance: KireiInstance) {
     // if instance is falsy, pop the last instance in the stack
     instance ? activeInstanceStack.push(instance) : activeInstanceStack.pop();
   }
@@ -96,11 +96,11 @@ export class FxInstance {
 
   /**
    * Constructs a new element instance, holds all the functionality to avoid polluting element
-   * @param {FxElement} el Element to create instance from
-   * @param {NormalizedFxOptions} opts Normalized element options
+   * @param {KireiElement} el Element to create instance from
+   * @param {NormalizedElementOptions} opts Normalized element options
    */
-  constructor(el: FxElement, opts: NormalizedFxOptions) {
-    const parent = FxInstance.active;
+  constructor(el: KireiElement, opts: NormalizedElementOptions) {
+    const parent = KireiInstance.active;
     // Inherit provides from parent
     if (parent) {
       this.parent = parent;
@@ -122,7 +122,7 @@ export class FxInstance {
       scheduler: Queue.push,
     });
 
-    elementInstances.set(el, this);
+    KireiInstances.set(el, this);
     this.shadowRoot = el.attachShadow({ mode: opts.closed ? 'closed' : 'open' });
     this.setup();
   }
@@ -134,7 +134,7 @@ export class FxInstance {
   setup(): void {
     const { props, options } = this;
     const { name, setup, tag, styles } = options;
-    const ctx = new FxContext(this.el, options);
+    const ctx = new KireiContext(this.el, options);
 
     // Create a custom proxy for the props
     const proxy = new Proxy(props, {
@@ -156,11 +156,11 @@ export class FxInstance {
 
     // Run setup function to gather reactive data
     // Pause tracking while calling setup function
-    FxInstance.active = this;
+    KireiInstance.active = this;
     Fx.pauseTracking();
     this.renderTemplate = setup.call(null, proxy, ctx);
     Fx.resetTracking();
-    FxInstance.active = null
+    KireiInstance.active = null
 
     if (!isFunction(this.renderTemplate)) {
       exception('Setup function must return a TemplateGenerator', `${name}#setup`);
@@ -213,9 +213,9 @@ export class FxInstance {
   update(): void {
     const { shadowRoot, options, renderTemplate } = this;
 
-    FxInstance.active = this;
+    KireiInstance.active = this;
     render(renderTemplate(), shadowRoot);
-    FxInstance.active = null;
+    KireiInstance.active = null;
 
     if (this.shimAdoptedStyleSheets) {
       options.styles.forEach(style => shadowRoot.appendChild(style.element));
@@ -225,16 +225,16 @@ export class FxInstance {
 }
 
 // HTMLElement needs es6 classes to instansiate properly
-export class FxElement extends HTMLElement {
+export class KireiElement extends HTMLElement {
   static get is(): string { return ''; }
 
   /**
-   * Constructs a new FxElement
-   * @param {NormalizedFxOptions} options Normalized element options
+   * Constructs a new KireiElement
+   * @param {NormalizedElementOptions} options Normalized element options
    */
-  constructor(options: NormalizedFxOptions) {
+  constructor(options: NormalizedElementOptions) {
     super();
-    const instance = new FxInstance(this, options);
+    const instance = new KireiInstance(this, options);
 
     // Set props on the element
     const { props, name } = instance.options;
@@ -271,7 +271,7 @@ export class FxElement extends HTMLElement {
    * @returns {void}
    */
   connectedCallback() {
-    const instance = elementInstances.get(this);
+    const instance = KireiInstances.get(this);
     instance.runHooks(HookTypes.BEFORE_MOUNT);
 
     // Only run on subsequent connections due to being
@@ -289,7 +289,7 @@ export class FxElement extends HTMLElement {
    * @returns {void}
    */
   disconnectedCallback() {
-    const instance = elementInstances.get(this);
+    const instance = KireiInstances.get(this);
     instance.runHooks(HookTypes.BEFORE_UNMOUNT);
     Queue.push(() => instance.runHooks(HookTypes.UNMOUNT));
   }
@@ -301,7 +301,7 @@ export class FxElement extends HTMLElement {
   attributeChangedCallback(attr: string, oldValue: string, newValue: string) {
     // newValue & oldValue null if not set, string if set, default to empty string
     if (oldValue !== newValue) {
-      const instance = elementInstances.get(this);
+      const instance = KireiInstances.get(this);
       const key = instance.options.attrs[attr];
       this[key] = newValue;
     }
