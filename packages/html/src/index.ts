@@ -19,12 +19,12 @@ export interface TemplateLiteral {
 
   /**
    * Caches a template based on a reference or an unique id.
-   * @param {*} ref
-   * @param {string|number} [key]
-   * @param {Function} templateFn
+   * @param {*} ref Reference object to cache for
+   * @param {string|number|null|undefined} [key] Unique id for the reference
+   * @param {Function} template Template to render from
    */
-  key(ref: object, templateFn: Template): Node;
-  key(ref: object, key: Key, templateFn: Template): Node;
+  key(ref: object, template: Template): Node;
+  key(ref: object, key: Key, template: Template): Node;
 
   // Resolves promises and renders fallback content
   //until(...promises)
@@ -94,11 +94,10 @@ function createLiteral<T extends TemplateLiteral>(
     return new Template(type, strings, values);
   };
 
-  // TODO: decide to keep this instead of for or not
-  template.key = (ref: object, key: Key|(() => Template), template?: Template) => {
+  template.key = (ref: object, key: Key|Template, template?: Template): Node => {
     // Key is optional as we can key by the reference object
-    if (!templateFn) {
-      templateFn = key as () => Template;
+    if (!template) {
+      template = key as Template;
       key = void 0;
     }
 
