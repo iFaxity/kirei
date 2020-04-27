@@ -18,26 +18,13 @@ export interface TemplateLiteral {
   (strings: TemplateStringsArray, ...values: any[]): Template;
 
   /**
-   * Creates templates from an iterable list of items
-   * @param {*} items Array or any iterable
-   * @param {Function} key Key function or templateFn if it's omitted.
-   * @param {Function} [templateFn] Function to return a template for each item value
+   * Caches a template based on a reference or an unique id.
+   * @param {*} ref
+   * @param {string|number} [key]
+   * @param {Function} templateFn
    */
-  for<T>(
-    items: Iterable<T>,
-    templateFn: (item: T) => Template
-  ): (Node|Template)[];
-  for<T>(
-    items: Iterable<T>,
-    key: (item: T) => Key,
-    templateFn: (item: T) => Template
-  ): (Node|Template)[];
-
-  /**
-   * Caches a template based on a reference or 
-   */
-  key(item: object, templateFn: () => Template);
-  key(item: object, key: Key, templateFn: () => Template);
+  key(ref: object, templateFn: Template): Node;
+  key(ref: object, key: Key, templateFn: Template): Node;
 
   // Resolves promises and renders fallback content
   //until(...promises)
@@ -108,7 +95,7 @@ function createLiteral<T extends TemplateLiteral>(
   };
 
   // TODO: decide to keep this instead of for or not
-  template.key = (ref: object, key: Key|(() => Template), templateFn?: () => Template) => {
+  template.key = (ref: object, key: Key|(() => Template), template?: Template) => {
     // Key is optional as we can key by the reference object
     if (!templateFn) {
       templateFn = key as () => Template;
@@ -128,33 +115,7 @@ function createLiteral<T extends TemplateLiteral>(
     }
 
     // Update template and return the cached node
-    return templateFn().update(cache, compiler);
-  };
-
-  // TODO: deprecate this method if the above one is faster
-  template.for = <T>(items: Iterable<T>, key: (item: T) => Key|Template, templateFn?: (item: T) => Template): (Node|Template)[] => {
-    const list = Array.isArray(items) ? items : [...items];
-    if (!templateFn) {
-      return list.map(item => key(item) as Template);
-    }
-
-    return list.map(item => {
-      let memo = keyed.get(item);
-      if (!memo) {
-        keyed.set(item, (memo = new Map()));
-      }
-
-      // keyed operations always re-use the same cache and unroll
-      // the template and its interpolations right away
-      const id = key?.(item) as Key;
-      let cache = memo.get(id);
-      if (!cache) {
-        memo.set(id, (cache = createCache()))
-      }
-
-      // Update template and return the cached node
-      return templateFn(item).update(cache, compiler);
-    });
+    return template.update(cache, compiler);
   };
 
   // Add extension methods to literal
