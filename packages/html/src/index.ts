@@ -25,9 +25,19 @@ export interface TemplateLiteral {
    */
   for<T>(
     items: Iterable<T>,
-    key: (item: T) => Key|Template,
-    templateFn?: (item: T) => Template
+    templateFn: (item: T) => Template
   ): (Node|Template)[];
+  for<T>(
+    items: Iterable<T>,
+    key: (item: T) => Key,
+    templateFn: (item: T) => Template
+  ): (Node|Template)[];
+
+  /**
+   * Caches a template based on a reference or 
+   */
+  key(item: object, templateFn: () => Template);
+  key(item: object, key: Key, templateFn: () => Template);
 
   // Resolves promises and renders fallback content
   //until(...promises)
@@ -93,10 +103,35 @@ function createLiteral<T extends TemplateLiteral>(
 
   // Every literal has its own cache for keyed templates
   const keyed = new WeakMap<any, Map<any, TemplateCache>>();
-  function template(strings: TemplateStringsArray, ...values: any[]): Template {
+  const template: TemplateLiteral = (strings: TemplateStringsArray, ...values: any[]): Template => {
     return new Template(type, strings, values);
-  }
+  };
 
+  // TODO: decide to keep this instead of for or not
+  template.key = (ref: object, key: Key|(() => Template), templateFn?: () => Template) => {
+    // Key is optional as we can key by the reference object
+    if (!templateFn) {
+      templateFn = key as () => Template;
+      key = void 0;
+    }
+
+    let memo = keyed.get(ref);
+    if (!memo) {
+      keyed.set(ref, (memo = new Map()));
+    }
+
+    // keyed operations always re-use the same cache and unroll
+    // the template and its interpolations right away
+    let cache = memo.get(key);
+    if (!cache) {
+      memo.set(key, (cache = createCache()))
+    }
+
+    // Update template and return the cached node
+    return templateFn().update(cache, compiler);
+  };
+
+  // TODO: deprecate this method if the above one is faster
   template.for = <T>(items: Iterable<T>, key: (item: T) => Key|Template, templateFn?: (item: T) => Template): (Node|Template)[] => {
     const list = Array.isArray(items) ? items : [...items];
     if (!templateFn) {
