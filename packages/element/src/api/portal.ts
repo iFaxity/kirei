@@ -30,7 +30,7 @@ export function portal(target: string, templateFn: () => Template): void {
     const fx = new Fx(() => {
       KireiInstance.active = instance;
       render(templateFn(), root);
-      KireiInstance.active = null;
+      KireiInstance.resetActive();
     }, { scheduler: Queue.push });
 
     portal = { instance, fx };

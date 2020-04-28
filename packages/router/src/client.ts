@@ -119,7 +119,7 @@ export class ClientRouter extends Router implements RouterInterface {
         root.replaceChild(el, view);
         views[idx] = el;
       }
-      KireiInstance.active = null;
+      KireiInstance.resetActive();
 
       // Send params as props
       if (route.params) {

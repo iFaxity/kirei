@@ -86,8 +86,10 @@ export class KireiInstance {
     return activeInstanceStack[activeInstanceStack.length - 1];
   }
   static set active(instance: KireiInstance) {
-    // if instance is falsy, pop the last instance in the stack
-    instance ? activeInstanceStack.push(instance) : activeInstanceStack.pop();
+    activeInstanceStack.push(instance);
+  }
+  static resetActive(): void {
+    activeInstanceStack.pop();
   }
 
   get mounted(): boolean {
@@ -160,7 +162,7 @@ export class KireiInstance {
     Fx.pauseTracking();
     this.renderTemplate = setup.call(null, proxy, ctx);
     Fx.resetTracking();
-    KireiInstance.active = null
+    KireiInstance.resetActive();
 
     if (!isFunction(this.renderTemplate)) {
       exception('Setup function must return a TemplateGenerator', `${name}#setup`);
@@ -215,7 +217,7 @@ export class KireiInstance {
 
     KireiInstance.active = this;
     render(renderTemplate(), shadowRoot);
-    KireiInstance.active = null;
+    KireiInstance.resetActive();
 
     if (this.shimAdoptedStyleSheets) {
       options.styles.forEach(style => shadowRoot.appendChild(style.element));
