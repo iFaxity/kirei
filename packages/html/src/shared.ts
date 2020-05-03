@@ -1,5 +1,4 @@
 import domdiff from 'udomdiff';
-import { Template } from '.';
 
 // this "hack" tells the library if the browser is IE11 or old Edge
 const IE = document.importNode.length != 1;

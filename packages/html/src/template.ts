@@ -50,7 +50,7 @@ function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch 
   return { attr, type, path };
 }
 
-function compileContent(type: string, strings: TemplateStringsArray): TemplateContent {
+function compileContent(type: string, strings: TemplateStringsArray, scopeName: string): TemplateContent {
   // Compile the template element
   const template = createTemplate(type, parser(strings, prefix, type == 'svg'));
   const patches: TemplatePatch[] = [];
@@ -58,6 +58,21 @@ function compileContent(type: string, strings: TemplateStringsArray): TemplateCo
   const len = strings.length - 1;
   let i = 0;
   let search = `${prefix}${i}`;
+
+  // Before we map the patchers we need to reconstruct the template styles
+  // Merge all style elements and hoist the master up to the top
+  // This optimizes performance, especially within shims
+  const styles = template.querySelectorAll('style');
+  if (styles.length) {
+    const style = styles[0];
+    template.insertBefore(style, template.firstChild);
+
+    for (let i = 1; i < styles.length; i++) {
+      const el = styles[i];
+      el.parentNode?.removeChild(el);
+      style.textContent += el.textContent;
+    }
+  }
 
   while (i < len) {
     const node = walker.nextNode();
@@ -97,24 +112,28 @@ function compileContent(type: string, strings: TemplateStringsArray): TemplateCo
     }
   }
 
+  // Apply shady shim, runs both prepareTemplateDom and prepareTemplateStyles
+  if (scopeName) {
+    window.ShadyCSS?.prepareTemplate(template, scopeName);
+  }
   return { node: template, patches };
 }
 
-function createInstance(template: Template, compiler: TemplateCompiler): TemplateInstance {
+function createInstance(template: Template, compiler: TemplateCompiler, scopeName: string): TemplateInstance {
   const { strings, type } = template;
   let content = contentCache.get(strings);
   if (!content) {
-    contentCache.set(strings, (content = compileContent(type, strings)));
+    contentCache.set(strings, (content = compileContent(type, strings, scopeName)));
   }
 
-  // TODO: Insert Shadom DOM shim here
   const { patches, node } = content;
   const root = document.importNode(node.content, true);
   const patchers = patches.map(({type, attr, path}) => {
-    // If custom compiler returns with a falsy value (aka not a function)
+    // Fallback to defaultCompiler
     const node = path.reduceRight<Node>((n, i) => n.childNodes[i], root) as HTMLElement&Comment&Text;
     return compiler?.[type]?.(node, attr) || defaultCompiler[type](node, attr) as TemplatePatcher;
   });
+
   return { strings, type, patchers, root };
 }
 
@@ -129,7 +148,7 @@ export class Template {
     this.values = values;
   }
 
-  update(cache: TemplateCache, compiler?: TemplateCompiler): Node {
+  update(cache: TemplateCache, compiler: TemplateCompiler, scopeName?: string): Node {
     const { strings, type, values } = this;
     let { instance } = cache;
     updateValues(cache, values, compiler);
@@ -137,7 +156,7 @@ export class Template {
     // Create instance if first cache is empty
     // Update instance if template has changed
     if (!instance || instance.strings !== strings || instance.type !== type) {
-      instance = (cache.instance = createInstance(this, compiler));
+      instance = (cache.instance = createInstance(this, compiler, scopeName));
       cache.node = persistent(instance.root);
     }
 

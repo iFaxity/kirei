@@ -37,40 +37,38 @@ interface CustomizeOptions<T extends Partial<TemplateLiteral>> {
 
 export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> = {}) {
   const { compiler } = opts;
-
-  function render(template: Template, root: RootContainer): void {
-    if (template instanceof Template) {
-      let cache = rendered.get(root);
-      if (!cache) {
-        rendered.set(root, (cache = createCache()));
-      }
-
-      const current = cache.node;
-      const node = template.update(cache, compiler);
-      if (current !== node) {
-        clearNode(root);
-        root.appendChild(node.valueOf() as Node);
-      }
-    } else if (template == null) {
-      const cache = rendered.get(root);
-
-      // Cleanup root and clear cache
-      if (cache) {
-        clearNode(root);
-        cache.node = null;
-      }
-    } else {
-      throw new TypeError('Template renderer can expects a valid Template as it\'s first argument');
-    }
-  }
-
   return {
     /**
      * Renders a template to a specific root container
-     * @param {Template} template
-     * @param {HTMLElement|ShadowRoot|DocumentFragment} root
+     * @param {Template} template Template to render from
+     * @param {HTMLElement|ShadowRoot|DocumentFragment} root Root node to render content to
+     * @param {string} [scopeName] The custom element tag name, only used for webcomponents shims
      */
-    render,
+    render(template: Template, root: RootContainer, scopeName?: string): void {
+      if (template instanceof Template) {
+        let cache = rendered.get(root);
+        if (!cache) {
+          rendered.set(root, (cache = createCache()));
+        }
+  
+        const current = cache.node;
+        const node = template.update(cache, compiler, scopeName);
+        if (current !== node) {
+          clearNode(root);
+          root.appendChild(node.valueOf() as Node);
+        }
+      } else if (template == null) {
+        const cache = rendered.get(root);
+  
+        // Cleanup root and clear cache
+        if (cache) {
+          clearNode(root);
+          cache.node = null;
+        }
+      } else {
+        throw new TypeError('Template renderer can expects a valid Template as it\'s first argument');
+      }
+    },
     /**
      * Creates a template with html content
      */
