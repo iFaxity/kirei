@@ -1,5 +1,5 @@
 export * from '@kirei/fx';
-export { KireiElement, KireiInstance, KireiInstances} from './instance';
+export { KireiElement, KireiInstance, instances } from './instance';
 export { nextTick } from './queue';
 export { css } from './css';
 export { directive, html, svg } from './compiler';
@@ -64,28 +64,16 @@ function normalizeOptions(options: ElementOptions): NormalizedElementOptions {
  */
 export function defineElement<T extends Readonly<Props>>(options: ElementOptions<T>): typeof KireiElement {
   const normalized = normalizeOptions(options);
-  const attrs = Object.keys(normalized.attrs);
-
   if (!normalized.tag.includes('-')) {
     warn('Element names should include a hyphen (-) or be camelised with at least 2 upper-case characters', options.name);
   }
 
-  // if custom element already defined, then swap instances,
-  // then force hydrate the instances.
+  // TODO HMR
+  // if already defined then just override options
   const CustomElement = class extends KireiElement {
-    static get is() {
-      return normalized.tag;
-    }
-
-    static get observedAttributes() {
-      return attrs;
-    }
-
-    constructor() {
-      super(normalized);
-    }
+    static options = normalized;
   };
 
-  window.customElements.define(normalized.tag, CustomElement);
+  window.customElements.define(CustomElement.is, CustomElement);
   return CustomElement;
 }

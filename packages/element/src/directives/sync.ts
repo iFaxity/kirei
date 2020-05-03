@@ -1,4 +1,4 @@
-import { KireiElement, KireiInstances } from '../instance';
+import { KireiElement, instances } from '../instance';
 import { Ref, isRef } from '@kirei/fx';
 import { directive, Directive } from '../compiler';
 import { nextTick } from '../queue';
@@ -97,7 +97,7 @@ function mutationHandlers(dir: Directive) {
       eventName = mods.includes('lazy') ? 'change' : 'input';
       prop = 'value';
     } else {
-      const instance = KireiInstances.get(el as KireiElement);
+      const instance = instances.get(el as KireiElement);
       if (instance) {
         prop = instance.options.sync;
       } else {

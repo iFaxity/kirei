@@ -25,8 +25,7 @@ export function shimAdoptedStyleSheets(
 ): boolean {
   if (styles != null && styles.length) {
     const { ShadyCSS } = window;
-
-    if (ShadyCSS?.nativeShadow === false) {
+    if (!ShadyCSS?.nativeShadow === false) {
       ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(s => s.toString()), tag);
     } else if (supportsAdoptingStyleSheets) {
       shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
@@ -52,27 +51,16 @@ export class CSSResult {
    * @returns {CSSStyleSheet}
    */
   get styleSheet() {
-    if (typeof this.styles != 'undefined') {
-      return this.styles;
-    }
-
-    this.styles = null;
-    if (supportsAdoptingStyleSheets) {
-      this.styles = new CSSStyleSheet();
-      this.styles.replaceSync(this.cssText);
+    if (typeof this.styles == 'undefined') {
+      if (supportsAdoptingStyleSheets) {
+        this.styles = new CSSStyleSheet();
+        this.styles.replaceSync(this.cssText);
+      } else {
+        this.styles = null;
+      }
     }
 
     return this.styles;
-  }
-
-  /**
-   * Creates a style element with style content
-   * @returns {HTMLStyleElement}
-   */
-  get element(): HTMLStyleElement {
-    const $style = document.createElement('style');
-    $style.textContent = this.cssText;
-    return $style;
   }
 
   /**

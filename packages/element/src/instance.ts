@@ -15,7 +15,7 @@ import {
 } from './props';
 
 const activeInstanceStack: KireiInstance[] = [];
-export const KireiInstances = new WeakMap<KireiElement, KireiInstance>();
+export const instances = new WeakMap<KireiElement, KireiInstance>();
 
 export interface ElementOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
@@ -68,8 +68,9 @@ class KireiContext {
 }
 
 export class KireiInstance {
-  private renderTemplate: () => Template;
+  private template: () => Template;
   private shimAdoptedStyleSheets = false;
+  private shadowRoot: ShadowRoot;
 
   readonly parent: KireiInstance;
   readonly el: KireiElement;
@@ -77,10 +78,8 @@ export class KireiInstance {
   readonly hooks: Record<string, Set<Function>>;
   readonly fx: Fx;
   readonly props: PropsData;
-  readonly shadowRoot: ShadowRoot;
   readonly directives?: Record<string, DirectiveFactory>;
   provides: Record<string|symbol, any>;
-  firstMount = true;
 
   static get active(): KireiInstance {
     return activeInstanceStack[activeInstanceStack.length - 1];
@@ -124,9 +123,8 @@ export class KireiInstance {
       scheduler: Queue.push,
     });
 
-    KireiInstances.set(el, this);
-    this.shadowRoot = el.attachShadow({ mode: opts.closed ? 'closed' : 'open' });
     this.setup();
+    instances.set(el, this);
   }
 
   /**
@@ -135,45 +133,76 @@ export class KireiInstance {
    */
   setup(): void {
     const { props, options } = this;
-    const { name, setup, tag, styles } = options;
-    const ctx = new KireiContext(this.el, options);
+    const { name, setup } = options;
+    let proxy: Record<string, unknown>;
+    let ctx: KireiContext;
 
-    // Create a custom proxy for the props
-    const proxy = new Proxy(props, {
-      get(_, key: string) {
-        Fx.track(props, key);
-        return props[key];
-      },
-      set(_, key: string, value: unknown) {
-        if (props.hasOwnProperty(key)) {
-          ctx.emit(`fxsync::${key}`, value, { bubbles: false });
-          return true;
-        }
-        return false;
-      },
-      deleteProperty() {
-        exception('Props are not deletable', name);
-      },
-    });
+    // No need for props or ctx if not in the arguments of the setup method
+    if (setup.length >= 1) {
+      // Create a custom proxy for the props
+      proxy = new Proxy(props, {
+        get: (_, key: string) => {
+          Fx.track(props, key);
+          return props[key];
+        },
+        set: (_, key: string, value: unknown) => {
+          const res = props.hasOwnProperty(key);
+          if (res) {
+            this.el.dispatchEvent(new CustomEvent(`fxsync::${key}`, {
+              detail: value,
+              bubbles: false,
+            }));
+          }
+          return res;
+        },
+        deleteProperty: () => {
+          exception('Props are not deletable, set it to null or undefined instead!', name);
+        },
+      });
+
+      // Create context
+      if (setup.length >= 2) {
+        ctx = new KireiContext(this.el, options);
+      }
+    }
 
     // Run setup function to gather reactive data
     // Pause tracking while calling setup function
     KireiInstance.active = this;
     Fx.pauseTracking();
-    this.renderTemplate = setup.call(null, proxy, ctx);
+    this.template = setup.call(null, proxy, ctx);
     Fx.resetTracking();
     KireiInstance.resetActive();
 
-    if (!isFunction(this.renderTemplate)) {
+    if (!isFunction(this.template)) {
       exception('Setup function must return a TemplateGenerator', `${name}#setup`);
-    }
-
-    // Shim styles for shadow root, if needed
-    if (window.ShadowRoot && this.shadowRoot instanceof window.ShadowRoot) {
-      this.shimAdoptedStyleSheets = shimAdoptedStyleSheets(this.shadowRoot, tag, styles);
     }
   }
 
+  // Create shadow root and shim styles
+  mount() {
+    const { tag, styles, closed } = this.options;
+    this.runHooks(HookTypes.BEFORE_MOUNT);
+
+    // Only run shims on first mount
+    if (!this.shadowRoot) {
+      const { ShadyCSS, ShadowRoot } = window;
+      ShadyCSS?.styleElement(this.el);
+      this.shadowRoot = this.el.attachShadow({ mode: closed ? 'closed' : 'open' });
+
+      if (ShadowRoot && this.shadowRoot instanceof ShadowRoot) {
+        this.shimAdoptedStyleSheets = shimAdoptedStyleSheets(this.shadowRoot, tag, styles);
+      }
+    }
+
+    this.runHooks(HookTypes.MOUNT);
+    this.fx.scheduleRun();
+  }
+
+  // Call unmounting lifecycle hooks
+  unmount() {
+    this.runHooks(HookTypes.UNMOUNT);
+  }
 
   /**
    * Runs all the specified hooks on the Fx instance
@@ -192,98 +221,85 @@ export class KireiInstance {
 
 
   /**
-   * Schedules a run to render updated content
-   * @param {Function} run Runner function
-   * @returns {void}
-   */
-  scheduleUpdate(run: () => void): void {
-    if (!this.mounted) {
-      this.runHooks(HookTypes.BEFORE_MOUNT);
-      run();
-    } else {
-      this.runHooks(HookTypes.BEFORE_UPDATE);
-      run();
-      this.runHooks(HookTypes.UPDATE);
-    }
-  }
-
-
-  /**
    * Renders shadow root content
    * @returns {void}
    */
   update(): void {
-    const { shadowRoot, options, renderTemplate } = this;
+    const { shadowRoot, options, template, mounted } = this;
+    this.runHooks(this.mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
 
     KireiInstance.active = this;
-    render(renderTemplate(), shadowRoot);
+    render(template(), shadowRoot, options.tag);
     KireiInstance.resetActive();
 
+    // Adopted stylesheets not supported, shim with style element
     if (this.shimAdoptedStyleSheets) {
-      options.styles.forEach(style => shadowRoot.appendChild(style.element));
+      const style = document.createElement('style');
+      for (const css of options.styles) {
+        style.textContent += `${css}\n`;
+      }
+
+      shadowRoot.insertBefore(style, shadowRoot.firstChild);
       this.shimAdoptedStyleSheets = false;
+    }
+
+    // Run update hook
+    if (!mounted) {
+      this.runHooks(HookTypes.UPDATE);
     }
   }
 }
 
-// HTMLElement needs es6 classes to instansiate properly
+// HTMLElement needs ES6 classes to instansiate properly
 export class KireiElement extends HTMLElement {
-  static get is(): string { return ''; }
+  static options: NormalizedElementOptions;
+  static get is(): string {
+    return this.options.tag;
+  }
+  static get observedAttributes(): string[] {
+    // TODO: cache this?
+    return Object.keys(this.options.attrs);
+  }
 
   /**
    * Constructs a new KireiElement
-   * @param {NormalizedElementOptions} options Normalized element options
    */
-  constructor(options: NormalizedElementOptions) {
+  constructor() {
     super();
-    const instance = new KireiInstance(this, options);
+    const { options } = this.constructor as typeof KireiElement;
+    const { props } = new KireiInstance(this, options);
 
     // Set props on the element
-    const { props, name } = instance.options;
-    const propsData = instance.props;
-
     // Set props as getters/setters on element
     // props should be a readonly reactive object
-    for (const key of Object.keys(props)) {
+    for (const key of Object.keys(options.props)) {
       // If prop already exists, then we throw error
       if (this.hasOwnProperty(key)) {
-        exception(`Prop ${key} is reserved, please use another.`, name);
+        exception(`Prop ${key} is reserved, please use another.`, options.name);
       }
 
       // Validate props default value
-      validateProp(props, key, propsData[key]);
+      validateProp(options.props, key, props[key]);
       Object.defineProperty(this, key, {
-        get: () => propsData[key],
+        get: () => props[key],
         set: (newValue) => {
-          if (newValue !== propsData[key]) {
+          if (newValue !== props[key]) {
             // Trigger an update on the element
-            propsData[key] = toReactive(validateProp(props, key, newValue));
-            Fx.trigger(propsData, TriggerOpTypes.SET, key);
+            props[key] = toReactive(validateProp(options.props, key, newValue));
+            Fx.trigger(props, TriggerOpTypes.SET, key);
           }
         },
       });
     }
-
-    // Queue the render
-    instance.fx.scheduleRun();
   }
 
   /**
-   * Runs when mounted to the DOM
+   * Runs when mounted from DOM
    * @returns {void}
    */
   connectedCallback() {
-    const instance = KireiInstances.get(this);
-    instance.runHooks(HookTypes.BEFORE_MOUNT);
-
-    // Only run on subsequent connections due to being
-    //  called by shady-render on first run.
-    if (!instance.firstMount) {
-      window.ShadyCSS?.styleElement(this);
-    }
-
-    instance.runHooks(HookTypes.MOUNT);
-    instance.firstMount = false;
+    const instance = instances.get(this);
+    instance.mount();
   }
 
   /**
@@ -291,9 +307,9 @@ export class KireiElement extends HTMLElement {
    * @returns {void}
    */
   disconnectedCallback() {
-    const instance = KireiInstances.get(this);
+    const instance = instances.get(this);
     instance.runHooks(HookTypes.BEFORE_UNMOUNT);
-    Queue.push(() => instance.runHooks(HookTypes.UNMOUNT));
+    Queue.push(instance.unmount);
   }
 
   /**
@@ -303,8 +319,8 @@ export class KireiElement extends HTMLElement {
   attributeChangedCallback(attr: string, oldValue: string, newValue: string) {
     // newValue & oldValue null if not set, string if set, default to empty string
     if (oldValue !== newValue) {
-      const instance = KireiInstances.get(this);
-      const key = instance.options.attrs[attr];
+      const { options } = this.constructor as typeof KireiElement;
+      const key = options.attrs[attr];
       this[key] = newValue;
     }
   }
