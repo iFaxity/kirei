@@ -1,5 +1,10 @@
 # TODO list
 
+## tests
+  * Create tests using cypress
+  * Unit & integration testing
+  * Test browsers with shimming (es6 compatible only)
+
 ## element
   * HMR reloading of element instances (reload setup, props, template, observedAttributes).
   * Find some way to preserve element instance state.

@@ -4,18 +4,28 @@
   "workspaces": [
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "predev": "npm run build",
     "dev": "webpack-dev-server",
     "prebuild": "rm -rf packages/*/dist && rm -f packages/*/*.tsbuildinfo",
     "build": "tsc --b",
-    "bump": "node bin/publish"
+    "bump": "node bin/publish",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:report",
+    "test:unit": "nyc --silent --no-clean mocha -- test/unit/**/*.js",
+    "test:e2e": "cd test/e2e && cypress run",
+    "test:report": "nyc report --reporter=json"
   },
   "devDependencies": {
+    "@cypress/code-coverage": "^3.7.2",
     "@types/node": "^13.13.0",
+    "@types/webpack-env": "^1.15.2",
+    "cypress": "^4.5.0",
     "file-loader": "^5.1.0",
+    "istanbul-instrumenter-loader": "^3.0.1",
+    "istanbul-lib-coverage": "^3.0.0",
     "js-framework-benchmark-utils": "^0.2.5",
-    "mocha": "^7.1.1",
+    "mocha": "^7.1.2",
     "nyc": "^15.0.1",
     "ts-loader": "^6.2.1",
     "tslib": "^1.11.1",

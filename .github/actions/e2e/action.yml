@@ -1,0 +1,5 @@
+name: 'End-to-end testing'
+description: ''
+runs:
+  - name: Run tests in container
+    run: docker-compose up -d coverage

@@ -39,6 +39,4 @@ typings/
 
 # Project specific
 dist/
-# Tests not done
-test/
 package-lock.json
