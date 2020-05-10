@@ -11,7 +11,7 @@
     "build": "tsc --b",
     "bump": "node bin/publish",
     "test": "npm run test:unit && npm run test:e2e && npm run test:report",
-    "test:unit": "nyc mocha -s -n=packages/**/* --clean=true -- test/unit/**/*.js",
+    "test:unit": "nyc --silent --no-clean --include=packages/**/* mocha -- test/unit/**/*.js",
     "test:e2e": "cd test/e2e && cypress run",
     "test:report": "nyc report -r=lcovonly"
   },
