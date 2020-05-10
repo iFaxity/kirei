@@ -25,8 +25,10 @@ jobs:
       run: yarn install
 
     # Run unit tests
-    - name: Run docker containers
-      run: docker-compose up unit
+    - name: Run unit tests
+      run: yarn test:unit
+    #- name: Run docker containers
+    #  run: docker-compose up unit
 
     # Run e2e tests
     #- name: Run tests in container
