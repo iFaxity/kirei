@@ -1,6 +1,0 @@
-# action.yml
-name: 'Unit tests'
-description: 'Greet someone and record the time'
-runs:
-  - name: Run docker containers
-    run: docker-compose up unit

@@ -8,9 +8,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - uses: ./.github/actions/yarn
-    - uses: ./.github/actions/unit
-    #- uses: ./.github/actions/e2e
+
+    # yarn install
+    - name: Get yarn cache directory path
+      id: yarn_cache_path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+    # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+    - uses: actions/cache@v1
+      id: yarn_cache
+      with:
+        path: ${{ steps.yarn_cache_path.outputs.dir }}
+        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+        restore-keys: ${{ runner.os }}-yarn-
+    - name: Install packages
+      id: yarn_install
+      run: yarn install
+
+    # Run unit tests
+    - name: Run docker containers
+      run: docker-compose up unit
+
+    # Run e2e tests
+    #- name: Run tests in container
+    #  run: docker-compose up -d coverage
+
     # Might be automatically done in e2e
     - name: Generate coverage report
       run: yarn test:report
@@ -24,5 +45,6 @@ jobs:
         name: codecov-umbrella
         fail_ci_if_error: true
 
+    # Cleanup
     - name: Stop containers
       run: docker-compose down
