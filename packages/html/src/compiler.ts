@@ -79,6 +79,7 @@ export const defaultCompiler: TemplateCompiler = {
     let value;
     let text: Text;
     const nodeParser = (pending: unknown) => {
+      // TODO: allow object as text, as refs have toString
       if (pending == null) {
         // null, and undefined are used to cleanup previous content
         if (value) {

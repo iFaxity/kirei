@@ -1,4 +1,4 @@
-import parser from 'uparser';
+import sanitize from 'uparser';
 import { persistent, createWalker, createTemplate } from './shared';
 import { defaultCompiler, TemplateCompiler, TemplatePatcher } from './compiler';
 export { TemplateCompiler };
@@ -52,7 +52,7 @@ function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch 
 
 function compileContent(type: string, strings: TemplateStringsArray, scopeName: string): TemplateContent {
   // Compile the template element
-  const template = createTemplate(type, parser(strings, prefix, type == 'svg'));
+  const template = createTemplate(type, sanitize(strings, prefix, type == 'svg'));
   const patches: TemplatePatch[] = [];
   const walker = createWalker(template.content);
   const len = strings.length - 1;
@@ -157,7 +157,6 @@ export class Template {
     // Update instance if template has changed
     if (!instance || instance.strings !== strings || instance.type !== type) {
       instance = (cache.instance = createInstance(this, compiler, scopeName));
-      cache.node = persistent(instance.root);
     }
 
     // Update instance values
@@ -165,7 +164,7 @@ export class Template {
     for (let i = 0; i < values.length; i++) {
       patchers[i](values[i]);
     }
-    return cache.node;
+    return cache.node || (cache.node = persistent(instance.root));
   }
 }
 

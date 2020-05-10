@@ -12,6 +12,9 @@ const refProto = Object.defineProperties(Object.create(null), {
   valueOf: {
     value() { return this.value; },
   },
+  toString: {
+    value() { return this.value.toString(); },
+  },
 });
 
 /**

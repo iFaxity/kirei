@@ -40,26 +40,34 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
   return {
     /**
      * Renders a template to a specific root container
-     * @param {Template} template Template to render from
+     * @param {Template|Node} template Template or Node to render from
      * @param {HTMLElement|ShadowRoot|DocumentFragment} root Root node to render content to
      * @param {string} [scopeName] The custom element tag name, only used for webcomponents shims
      */
-    render(template: Template, root: RootContainer, scopeName?: string): void {
-      if (template instanceof Template) {
+    render(template: Template|Node, root: RootContainer, scopeName?: string): void {
+      if (template) {
         let cache = rendered.get(root);
         if (!cache) {
           rendered.set(root, (cache = createCache()));
         }
-  
-        const current = cache.node;
-        const node = template.update(cache, compiler, scopeName);
-        if (current !== node) {
+
+        let node: Node;
+        if (template instanceof Template) {
+          node = template.update(cache, compiler, scopeName);
+        } else if (template instanceof Node) {
+          node = template;
+        } else {
+          throw new Error('Invalid render template, expected Template or Node');
+        }
+
+        if (cache.node !== node) {
           clearNode(root);
+          cache.node = node;
           root.appendChild(node.valueOf() as Node);
         }
       } else if (template == null) {
         const cache = rendered.get(root);
-  
+
         // Cleanup root and clear cache
         if (cache) {
           clearNode(root);

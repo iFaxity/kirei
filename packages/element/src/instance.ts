@@ -22,7 +22,7 @@ export interface ElementOptions<P = Props, T = ResolvePropTypes<P>> {
   closed?: boolean;
   props?: P;
   sync?: string;
-  setup(this: void, props: T, ctx: KireiContext): () => Template;
+  setup(this: void, props: T, ctx: KireiContext): () => (Template|Node);
   styles?: CSSResult|CSSResult[];
   directives?: Record<string, DirectiveFactory>;
 }
@@ -68,7 +68,7 @@ class KireiContext {
 }
 
 export class KireiInstance {
-  private template: () => Template;
+  private template: () => (Template|Node);
   private shimAdoptedStyleSheets = false;
   private shadowRoot: ShadowRoot;
 
