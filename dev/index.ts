@@ -2,16 +2,18 @@ import './index.html';
 import {
   defineElement, ref, computed, html, css,
   onMount, onBeforeUpdate, onUpdate, onUnmount,
-  provide, inject, Ref
+  provide, inject, Ref, InjectionKey
 } from '@kirei/element';
 import { createRouter, routerView } from '@kirei/router';
+
+const injectText: InjectionKey<Ref<string>> = Symbol();
 
 // create router element
 function create(name: string, title: string) {
   return defineElement({
     name,
     setup() {
-      const text = inject<Ref<string>>('text');
+      const text = inject(injectText);
 
       return () => html`
       <h1>${title}</h1>
@@ -129,7 +131,7 @@ defineElement({
       [ 'Apples', 'apple' ],
     ];
 
-    provide('text', value);
+    provide(injectText, value);
 
     const links = [
       { link: '/', text: 'Welcome page' },
@@ -149,11 +151,11 @@ defineElement({
 
     return () => html`
       <ul>
-      ${html.for(links, item => html`
+      ${links.map(item => html.key(item, html`
         <li>
           <a link=${item.link}>${item.text}
         </li>
-      `)}
+      `))}
       </ul>
       <p>Count: ${num}</p>
       <p>Hello, ${name}!</p>
@@ -176,9 +178,9 @@ defineElement({
       <h3>Fruit</h3>
       <select &=${fruit}>
         <option disabled value="">---Choose a value---</option>
-        ${html.for(fruits, ([ key, value ]) => html`
-          <option value=${value}>${key}</option>
-        `)}
+        ${fruits.map(item => html.key(item, html`
+          <option value=${item[1]}>${item[0]}</option>
+        `))}
       </select>
 
       <h3>OS</h3>

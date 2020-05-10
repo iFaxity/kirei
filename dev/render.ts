@@ -10,11 +10,10 @@ document.body.appendChild($app);
 // element
 let count = 0;
 let text = 'hello';
-const items = [10];
+const items = [];
 
 function onClick() {
-  count++;
-  items.push(items[items.length - 1] + 1);
+  items.push({ id: ++count });
   update();
 }
 
@@ -34,7 +33,7 @@ function update() {
     <p if=${count % 2 == 0}>shh im hidden</p>
 
     <ul>
-      ${html.for(items, item => html`<li>${item}</li>`)}
+      ${items.map(item => html.key(item, item.id, html`<li>${item}</li>`))}
     </ul>
   `, $app);
 }

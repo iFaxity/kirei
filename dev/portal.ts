@@ -63,7 +63,7 @@ export default defineElement({
           <h2>Portal</h2>
           <p>Text: ${text}</p>
           <h3>List</h3>
-          <ol>${html.for(items, item => item.id, item => html`<li>${item.text}</li>`)}</ol>
+          <ol>${items.map(item => html.key(items, item.id, html`<li>${item.text}</li>`))}</ol>
           <button @click=${closePortal}>Close</button>
         </div>
       </div>

@@ -103,7 +103,7 @@ export default defineElement({
         </div>
     </div>
     <table class="table table-hover table-striped test-data" @click=${handleClick}>
-        <tbody>${html.for(rows, item => item.id, item => html`
+        <tbody>${rows.map(item => html.key(item, item.id, html`
             <tr id=${item.id} class=${item.id == selected.value ? 'danger' : ''}>
                 <td class="col-md-1">${item.id}</td>
                 <td class="col-md-4">
@@ -116,7 +116,7 @@ export default defineElement({
                 </a>
                 </td>
                 <td class="col-md-6"></td>
-            </tr>`)}
+            </tr>`))}
         </tbody>
     </table>
     <span class="preloadicon glyphicon glyphicon-remove" aria-hidden="true"></span>
