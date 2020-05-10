@@ -58,7 +58,7 @@ function normalizeOptions(options: ElementOptions): NormalizedElementOptions {
 }
 
 /**
- * Defines a new custom shlim element
+ * Defines a new custom Kirei element
  * @param {ElementOptions} options - Raw element options
  * @returns {KireiElement}
  */

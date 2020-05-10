@@ -1,4 +1,4 @@
-import {
+const {
   isObject,
   isFunction,
   mapObject,
@@ -6,8 +6,8 @@ import {
   exception,
   error,
   warn,
-} from '../../../packages/shared/dist/index.js';
-import { strict as assert } from 'assert';
+} = require('../../../packages/shared/dist');
+const { strict: assert } = require('assert');
 
 describe('@kirei/shared', () => {
   describe('isObject', () => {
@@ -23,7 +23,6 @@ describe('@kirei/shared', () => {
       assert(!isObject(null));
       assert(!isObject('shh'));
       assert(!isObject(100));
-      assert(!isObject(100n));
     });
   });
 

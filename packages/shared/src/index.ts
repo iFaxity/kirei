@@ -62,7 +62,7 @@ export function camelToKebab(str: string): string {
  */
 function formatMessage(message: string, ctx?: string) {
   ctx = ctx && ` in "${ctx}"`;
-  return `[Shlim]: ${message}${ctx}`;
+  return `[Kirei]: ${message}${ctx}`;
 }
 
 /**

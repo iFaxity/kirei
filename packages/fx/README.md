@@ -1,9 +1,9 @@
 @kirei/fx
 ===================
 
-## Shlim frameworks reactivity implementation, basically a slimmed down version of Vue 3's reactivity package.
+## Kirei frameworks reactivity implementation, basically a slimmed down version of Vue 3's reactivity package.
 
-This package is intended for useage within Shlims framework, but nothing is stopping anyone from using it for anything else.
+This package is intended for useage within Kireis framework, but nothing is stopping anyone from using it for anything else.
 
 ------------------
 ## Installation:

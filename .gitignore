@@ -38,5 +38,4 @@ typings/
 .env.test
 
 # Project specific
-dist/
 package-lock.json

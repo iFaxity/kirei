@@ -4,7 +4,6 @@
   "workspaces": [
     "packages/*"
   ],
-  "type": "module",
   "scripts": {
     "predev": "npm run build",
     "dev": "webpack-dev-server",
@@ -12,9 +11,9 @@
     "build": "tsc --b",
     "bump": "node bin/publish",
     "test": "npm run test:unit && npm run test:e2e && npm run test:report",
-    "test:unit": "nyc --silent --no-clean mocha -- test/unit/**/*.js",
+    "test:unit": "nyc mocha -s -n=packages/**/* --clean=true -- test/unit/**/*.js",
     "test:e2e": "cd test/e2e && cypress run",
-    "test:report": "nyc report --reporter=json"
+    "test:report": "nyc report -r=lcovonly"
   },
   "devDependencies": {
     "@cypress/code-coverage": "^3.7.2",

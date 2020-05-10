@@ -92,7 +92,7 @@ directive('@', dir => {
   return (newValue: EventListener) => {
     const fn = newValue ?? NOOP;
     if (!isFunction(fn)) {
-      throw new TypeError('Shlim: Events can only be bound to functions');
+      throw new TypeError('Kirei: Events can only be bound to functions');
     }
 
     if (value !== newValue) {
