@@ -1,5 +1,5 @@
 // https://tc39.github.io/ecma262/#sec-typeof-operator
-export type Primitive = null|undefined|boolean|number|string|Symbol|bigint;
+export type Primitive = null|undefined|boolean|number|string|symbol|bigint;
 
 //export const DEV = process.env.NODE_ENV != 'production';
 export const IS_BROWSER = typeof window != 'undefined' && typeof window.document != 'undefined';
@@ -61,7 +61,7 @@ export function camelToKebab(str: string): string {
  * @returns {string}
  */
 function formatMessage(message: string, ctx?: string) {
-  ctx = ctx && ` in "${ctx}"`;
+  ctx = ctx ? ` in "${ctx}"` : '';
   return `[Kirei]: ${message}${ctx}`;
 }
 

@@ -1,4 +1,4 @@
-export declare type Primitive = null | undefined | boolean | number | string | Symbol | bigint;
+export declare type Primitive = null | undefined | boolean | number | string | symbol | bigint;
 export declare const IS_BROWSER: boolean;
 export declare function isPrimitive(value: unknown): value is Primitive;
 /**

@@ -15,7 +15,7 @@ import './directives/sync';
 import { KireiElement, ElementOptions } from './instance';
 import { Props } from './props';
 /**
- * Defines a new custom shlim element
+ * Defines a new custom Kirei element
  * @param {ElementOptions} options - Raw element options
  * @returns {KireiElement}
  */

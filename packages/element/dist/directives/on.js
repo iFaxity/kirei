@@ -88,7 +88,7 @@ compiler_1.directive('@', dir => {
     return (newValue) => {
         const fn = newValue !== null && newValue !== void 0 ? newValue : NOOP;
         if (!shared_1.isFunction(fn)) {
-            throw new TypeError('Shlim: Events can only be bound to functions');
+            throw new TypeError('Kirei: Events can only be bound to functions');
         }
         if (value !== newValue) {
             if (value != NOOP && fn == NOOP && !forceBind) {

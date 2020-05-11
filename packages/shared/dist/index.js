@@ -58,7 +58,7 @@ exports.camelToKebab = camelToKebab;
  * @returns {string}
  */
 function formatMessage(message, ctx) {
-    ctx = ctx && ` in "${ctx}"`;
+    ctx = ctx ? ` in "${ctx}"` : '';
     return `[Kirei]: ${message}${ctx}`;
 }
 /**
