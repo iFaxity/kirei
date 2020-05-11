@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    # yarn install
+    # Install packages
     - name: Get yarn cache directory path
       id: yarn_cache_path
       run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -27,18 +27,17 @@ jobs:
     # Run unit tests
     - name: Run unit tests
       run: yarn test:unit
-    #- name: Run docker containers
-    #  run: docker-compose up unit
 
     # Run e2e tests
-    #- name: Run tests in container
-    #  run: docker-compose up -d coverage
+    #- name: Start e2e test server
+    #  run: yarn test:e2e-server &
+    #- name: Run e2e tests
+    #  run: yarn test:e2e
 
     # Might be automatically done in e2e
+    # Generate coverage report, upload to codecov
     - name: Generate coverage report
       run: yarn test:report
-
-    # Use the output from the coverage action
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1
       with:
@@ -46,7 +45,3 @@ jobs:
         flags: unittests
         name: codecov-umbrella
         fail_ci_if_error: true
-
-    # Cleanup
-    - name: Stop containers
-      run: docker-compose down
