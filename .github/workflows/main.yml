@@ -35,6 +35,8 @@ jobs:
           path: ${{ github.workspace }}
           key: workspace-${{ github.sha }}
 
+      - name: Build packages
+        run: yarn build
       - name: Run unit tests
         run: yarn test:unit
       #- name: Start e2e test server

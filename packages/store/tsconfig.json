@@ -9,6 +9,6 @@
     "src/*"
   ],
   "references": [
-    { "path": "../shared" },
+    { "path": "../shared" }
   ]
 }

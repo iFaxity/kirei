@@ -3,25 +3,21 @@
     "target": "es2017",
     "module": "commonjs",
     "moduleResolution": "node",
-    "lib": [
-      "es2015",
-      "es2017",
-      "dom"
-    ],
+    "lib": [ "es2015", "es2017", "dom" ],
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
     "baseUrl": "./",
     "paths": {
-      "@kirei/*": ["packages/*"]
+      "@kirei/*": [ "packages/*" ]
     }
   },
   "references": [
     { "path": "packages/shared" },
     { "path": "packages/fx" },
     { "path": "packages/element" },
-    { "path": "packages/router" },
+    { "path": "packages/router" }
   ],
-  "include": ["packages/*"],
-  "exclude": ["**/node_modules"]
+  "include": [ "packages/*" ],
+  "exclude": [ "**/node_modules" ]
 }
