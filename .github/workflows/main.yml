@@ -6,20 +6,22 @@ on:
 jobs:
   # Install yarn packages and setup project
   setup:
-    - uses: actions/checkout@v2
-    - name: Cache node_modules
-      uses: actions/cache@v1
-      with:
-        path: node_modules
-        key: deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node_modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
 
-    - name: Install packages
-      run: yarn --check-files --frozen-lockfile --non-interactive
-    - name: Cache workspace
-      uses: actions/cache@v1
-      with:
-        path: ${{ github.workspace }}
-        key: workspace-${{ github.sha }}
+      - name: Install packages
+        run: yarn --check-files --frozen-lockfile --non-interactive
+      - name: Cache workspace
+        uses: actions/cache@v1
+        with:
+          path: ${{ github.workspace }}
+          key: workspace-${{ github.sha }}
 
   # Run unit and e2e tests
   test:
