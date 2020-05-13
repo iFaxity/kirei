@@ -6,7 +6,7 @@ export const IS_BROWSER = typeof window != 'undefined' && typeof window.document
 
 export function isPrimitive(value: unknown): value is Primitive {
   const type = typeof value;
-  return value == null || type != 'object' && type != 'function';
+  return value == null || type !== 'object' && type !== 'function';
 }
 
 /**

@@ -31,7 +31,7 @@ export class Fx {
    */
   constructor(target: Function|Fx, options: FxOptions = {}) {
     this.options = options;
-    this.raw = (target instanceof Fx) ? target.raw : target;
+    this.raw = target instanceof Fx ? target.raw : target;
     this.run = this.run.bind(this); // bind run
     if (!options.lazy) {
       this.run();
@@ -100,7 +100,9 @@ export class Fx {
    */
   static trigger(target: object, type: string, key?: string|symbol|number): void {
     const depsMap = targetMap.get(target);
-    if (!depsMap) return;
+    if (!depsMap) {
+      return;
+    }
 
     const fxs = new Set<Fx>();
     const computedFxs = new Set<Fx>();
@@ -114,7 +116,7 @@ export class Fx {
       }
     };
 
-    if (type == TriggerOpTypes.CLEAR) {
+    if (type === TriggerOpTypes.CLEAR) {
       // collection being cleared, trigger all fxs for target
       depsMap.forEach(addRunners);
     } else {
@@ -124,7 +126,7 @@ export class Fx {
       }
 
       // also run for iteration key on ADD | DELETE
-      if (type == TriggerOpTypes.ADD || type == TriggerOpTypes.DELETE) {
+      if (type === TriggerOpTypes.ADD || type === TriggerOpTypes.DELETE) {
         const iterKey = Array.isArray(target) ? 'length' : ITERATE_KEY;
         addRunners(depsMap.get(iterKey));
       }

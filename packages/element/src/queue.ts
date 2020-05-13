@@ -25,7 +25,7 @@ export function nextTick(fn?: () => void): Promise<void> {
  * @returns {void}
  */
 export function push(fn: Function): void {
-  const queueFlush = queue.size == 0;
+  const queueFlush = !queue.size;
   queue.add(fn);
   queueFlush && nextTick(flush);
 }
