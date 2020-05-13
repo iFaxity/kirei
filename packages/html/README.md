@@ -1,6 +1,4 @@
-@kirei/html
-===================
-
+# @kirei/html
 ## A uhtml inspired render library, but with custom directives and full typescript support.
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ifaxity/kirei/Tests?style=for-the-badge)](https://github.com/iFaxity/kirei/actions)
@@ -10,7 +8,7 @@
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/min/@kirei/html?label=Bundle%20size&style=for-the-badge)](https://npmjs.org/package/@kirei/html)
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/@kirei/html?label=Bundle%20size%20%28gzip%29&style=for-the-badge)](https://npmjs.org/package/@kirei/html)
 
-------------------
+
 ## Installation:
 
 `npm i --save @kirei/html`
@@ -19,7 +17,7 @@ or if you use yarn
 
 `yarn add @kirei/html`
 
---------
+
 ## Usage
 
 TODO: describe how to use the module:

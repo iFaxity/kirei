@@ -1,6 +1,4 @@
-@kirei
-===================
-
+# @kirei
 ## Monorepo for all Kirei packages
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ifaxity/kirei/Tests?style=for-the-badge)](https://github.com/iFaxity/kirei/actions)
