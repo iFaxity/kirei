@@ -20,8 +20,8 @@ jobs:
           body: TODO; Changelog??
 
       - name: Install dependencies
-        runs: yarn --frozen-lockfile --non-interactive
+        run: yarn --frozen-lockfile --non-interactive
       - name: Build the packages
-        runs: yarn build
+        run: yarn build
       - name: Publish packages
-        runs: ./bin/publish ${{ github.ref }}
+        run: ./bin/publish ${{ github.ref }}
