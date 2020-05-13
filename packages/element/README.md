@@ -1,6 +1,5 @@
 # @kirei/element
-## A next generation frontend library inspired by Vue Composition API and built with Web Components 
-
+## A next generation frontend library inspired by Vue Composition API and built with Web Components
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ifaxity/kirei/Tests?style=for-the-badge)](https://github.com/iFaxity/kirei/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge)](https://codecov.io/gh/iFaxity/kirei)
 [![Codacy grade](https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge)](https://app.codacy.com/manual/iFaxity/kirei/dashboard)
@@ -12,7 +11,6 @@ Of course with typescript support.
 
 
 ## Installation:
-
 `npm install @kirei/element --save`
 
 or if you use yarn
@@ -21,7 +19,6 @@ or if you use yarn
 
 
 ## Usage
-
 As this module has a heavily Vue Composition API inspired syntax, Vue's documentation can apply to most developer level APIs.
 
 With there being some key differences of this syntax.

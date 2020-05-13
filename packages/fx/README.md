@@ -1,6 +1,5 @@
 # @kirei/fx
 ## Kirei frameworks reactivity implementation, basically a slimmed down version of Vue 3's reactivity package.
-
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ifaxity/kirei/Tests?style=for-the-badge)](https://github.com/iFaxity/kirei/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge)](https://codecov.io/gh/iFaxity/kirei)
 [![Codacy grade](https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge)](https://app.codacy.com/manual/iFaxity/kirei/dashboard)
@@ -12,7 +11,6 @@ This package is intended for useage within Kireis framework, but nothing is stop
 
 
 ## Installation:
-
 `npm install @kirei/fx --save`
 
 or if you use yarn
@@ -21,5 +19,4 @@ or if you use yarn
 
 
 ## Usage
-
 TODO: describe how to use the module:
