@@ -15,7 +15,7 @@ jobs:
           path: node_modules
           key: deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
 
-      - name: Install packages
+      - name: Install dependencies
         run: yarn --check-files --frozen-lockfile --non-interactive
       - name: Cache workspace
         uses: actions/cache@v1
@@ -29,7 +29,7 @@ jobs:
     needs: setup
     steps:
       - uses: actions/checkout@v2
-      - name: Restore workspace cache
+      - name: Restore cache
         uses: actions/cache@v1
         with:
           path: ${{ github.workspace }}
