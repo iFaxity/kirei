@@ -25,7 +25,7 @@
     "js-framework-benchmark-utils": "0.2.5",
     "mocha": "7.1.2",
     "nyc": "15.0.1",
-    "ts-loader": "6.2.2",
+    "ts-loader": "7.0.4",
     "tslib": "2.0.0",
     "typescript": "3.8.3",
     "webpack": "4.43.0",
