@@ -15,7 +15,7 @@
     "test:report": "nyc report --reporter=lcovonly && rm -rf .nyc_output"
   },
   "devDependencies": {
-    "@cypress/code-coverage": "3.7.2",
+    "@cypress/code-coverage": "3.7.3",
     "@types/node": "13.13.2",
     "@types/webpack-env": "1.15.2",
     "cypress": "4.5.0",
