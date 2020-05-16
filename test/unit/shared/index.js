@@ -10,50 +10,41 @@ const { strict: assert } = require('assert');
 
 describe('@kirei/shared', () => {
   describe('isPrimitive', () => {
-    it('with valid argument', () => {
-      assert(isPrimitive('string'));
-      assert(isPrimitive(100));
-      assert(isPrimitive(true));
-      assert(isPrimitive(false));
-      assert(isPrimitive(undefined));
-      assert(isPrimitive(null));
-      assert(isPrimitive(Symbol()));
-    });
-    it('with invalid argument', () => {
-      assert(!isPrimitive(() => {}));
-      assert(!isPrimitive({}));
-      assert(!isPrimitive([]));
-    });
+    it('with string', () => assert(isPrimitive('test')));
+    it('with number', () => assert(isPrimitive(123)));
+    it('with boolean', () => assert(isPrimitive(true)));
+    it('with undefined', () => assert(isPrimitive()));
+    it('with null', () => assert(isPrimitive(null)));
+    it('with symbol', () => assert(isPrimitive(Symbol())));
+
+    it('with function', () => assert(!isPrimitive(() => {})));
+    it('with object', () => assert(!isPrimitive({})));
+    it('with array', () => assert(!isPrimitive([])));
   });
 
   describe('isObject', () => {
-    it('with valid argument', () => {
-      assert(isObject({}));
-      assert(isObject([]));
-      assert(isObject(Object.create(null)));
-
+    it('with object', () => assert(isObject({})));
+    it('with array', () => assert(isObject([])));
+    it('with Object.create(null)', () => assert(isObject(Object.create(null))));
+    it('with class instance', () => {
       class Test {}
       assert(isObject(new Test()));
     });
-    it('with invalid argument', () => {
-      assert(!isObject());
-      assert(!isObject(null));
-      assert(!isObject('shh'));
-      assert(!isObject(100));
-    });
+
+    it('with undefined', () => assert(!isObject()));
+    it('with null', () => assert(!isObject(null)));
+    it('with string', () => assert(!isObject('shh')));
+    it('with symbol', () => assert(!isObject(Symbol())));
   });
 
   describe('isFunction', () => {
-    it('with valid argument', () => {
-      assert(isFunction(() => {}));
-      assert(isFunction(assert));
-    });
-    it('with invalid argument', () => {
-      assert(!isFunction());
-      assert(!isFunction(null));
-      assert(!isFunction('notafunction'));
-      assert(!isFunction(false));
-    });
+    it('with lambda fn', () => assert(isFunction(() => {})));
+    it('with function', () => assert(isFunction(assert)));
+
+    it('with undefined', () => assert(!isFunction()));
+    it('with null', () => assert(!isFunction(null)));
+    it('with string', () => assert(!isFunction('abc')));
+    it('with boolean', () => assert(!isFunction(false)));
   });
 
   describe('mapObject', () => {
@@ -63,11 +54,11 @@ describe('@kirei/shared', () => {
       };
 
       const res = mapObject((key, value) => {
-        return [ key, value + 'z' ];
+        return [ key + 'x', value + 'z' ];
       }, input);
 
       assert.deepEqual(res, {
-        foo: 'fooz', bar: 'barz',
+        foox: 'fooz', barx: 'barz',
       });
       assert.deepEqual(input, {
         foo: 'foo', bar: 'bar'
@@ -76,28 +67,20 @@ describe('@kirei/shared', () => {
   });
 
   describe('camelToKebab', () => {
-    it('with valid argument', () => {
-      assert.equal(camelToKebab('HelloWorld'), 'hello-world');
-      assert.equal(camelToKebab('hello-world'), 'hello-world');
-      assert.equal(camelToKebab('helloWorld'), 'hello-world');
-      assert.equal(camelToKebab('Hello-World'), 'hello-world');
-    });
-    it('with invalid argument', () => {
-      assert.throws(() => camelToKebab(100), TypeError);
-      assert.throws(() => camelToKebab(null), TypeError);
-    });
+    it('with PascalCase', () => assert.equal(camelToKebab('HelloWorld'), 'hello-world'));
+    it('with kebab-case', () => assert.equal(camelToKebab('kebab-yum-jum'), 'kebab-yum-jum'));
+    it('with camelCase', () => assert.equal(camelToKebab('heyLittleFriend'), 'hey-little-friend'));
+    it('with Kebab-Case', () => assert.equal(camelToKebab('Foo-Bar'), 'foo-bar'));
+
+    it('with number', () => assert.throws(() => camelToKebab(100), TypeError));
+    it('with null', () => assert.throws(() => camelToKebab(null), TypeError));
   });
 
   describe('exception', () => {
-    it('validate message format', () => {
-      try {
-        exception('Test message');
-      } catch (ex) {
-        assert.equal(ex.message, '[Kirei]: Test message');
-      }
-    })
-    it('throws when called', () => {
-      assert.throws(() => exception('Error'), Error);
+    it('throws with custom message', () => {
+      assert.throws(() => exception('Test message'), {
+        message: '[Kirei]: Test message',
+      });
     });
   });
 })

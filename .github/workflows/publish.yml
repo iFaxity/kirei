@@ -21,7 +21,5 @@ jobs:
 
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive
-      - name: Build the packages
-        run: yarn build
       - name: Publish packages
         run: ./bin/publish ${{ github.ref }}
