@@ -14,7 +14,7 @@ export { watchFx } from './watch';
  * @returns {*}
  */
 export function toRawValue(target: unknown): unknown {
-  return isObject(target) ? (isRef(target) ? target.value : toRaw(target)) : target;
+  return isRef(target) ? target.value : toRaw(target);
 }
 
 /**

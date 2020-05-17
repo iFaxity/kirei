@@ -10,7 +10,7 @@ export const ITERATE_KEY = Symbol('iterate');
 export const fxStack: Fx[] = [];
 export let activeFx: Fx = null;
 let tracking = true;
-const trackStack: boolean[] = [];
+export const trackStack: boolean[] = [];
 
 export interface FxOptions {
   lazy?: boolean;
@@ -19,21 +19,24 @@ export interface FxOptions {
 }
 
 export class Fx {
+  readonly scheduler?: (fn: Function) => void;
+  readonly computed?: boolean;
+  readonly raw: Function;
   active: boolean = true;
-  options: FxOptions;
   deps: Set<Fx>[] = [];
-  raw: Function;
 
   /**
    * Creates a new Fx instance, runs function when a reactive dependents value changes
    * @param {Function|Fx} target - Runner function
    * @param {object} options - Options for the fx
    */
-  constructor(target: Function|Fx, options: FxOptions = {}) {
-    this.options = options;
+  constructor(target: Function|Fx, options?: FxOptions) {
+    const { lazy, computed, scheduler } = options ?? {};
+    this.computed = !!computed;
+    this.scheduler = scheduler;
     this.raw = target instanceof Fx ? target.raw : target;
-    this.run = this.run.bind(this); // bind run
-    if (!options.lazy) {
+    this.run = this.run.bind(this);
+    if (!lazy) {
       this.run();
     }
   }
@@ -110,7 +113,7 @@ export class Fx {
       if (deps && tracking) {
         for (const fx of deps) {
           if (fx !== activeFx) {
-            (fx.options.computed ? computedFxs : fxs).add(fx);
+            (fx.computed ? computedFxs : fxs).add(fx);
           }
         }
       }
@@ -183,8 +186,8 @@ export class Fx {
    * @return {void}
    */
   scheduleRun(): void {
-    if (this.options.scheduler) {
-      this.options.scheduler(this.run);
+    if (this.scheduler) {
+      this.scheduler(this.run);
     } else {
       this.run();
     }

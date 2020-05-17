@@ -11,7 +11,7 @@ export function computedGetter<T>(getter: ComputedFunction<T>): (...args: any[])
   const fx = new Fx(getter, {
     lazy: true,
     computed: true,
-    scheduler: () => { dirty = true; },
+    scheduler() { dirty = true; },
   });
 
   return (...args) => {

@@ -1,18 +1,8 @@
 import { isObject } from '@kirei/shared';
 import { baseHandlers, collectionHandlers, REACTIVE_KEY } from './proxyHandlers';
-import { isObservable, isCollection } from './shared';
+import { isCollection } from './shared';
 const targetToReactive = new WeakMap<any, any>();
 const targetToReadonly = new WeakMap<any, any>();
-
-/**
- * Returns a reactive from an object, native values are unchanged.
- * @param {*} target Target to check
- * @returns {Proxy|*}
- */
-export function toReactive<T>(target: T): T;
-export function toReactive<T extends object>(target: T): T {
-  return isObject(target) ? reactive(target) : target;
-}
 
 /**
  * Checks if an object is a reactive object
@@ -20,7 +10,7 @@ export function toReactive<T extends object>(target: T): T {
  * @returns {boolean}
  */
 export function isReactive(target: any): boolean {
-  return !!target[REACTIVE_KEY];
+  return !!target?.[REACTIVE_KEY];
 }
 
 /**
@@ -29,16 +19,24 @@ export function isReactive(target: any): boolean {
  * @returns {object}
  */
 export function toRaw<T>(target: T): T {
-  return target[REACTIVE_KEY] ?? target;
+  return target?.[REACTIVE_KEY] ?? target;
 }
 
-function createReactive<T extends object>(target: T, immutable: boolean): T {
-  if (isCollection(target)) {
-    return new Proxy(target, collectionHandlers(immutable));
-  } else if (isObservable(target)) {
-    return new Proxy(target, baseHandlers(immutable));
+function observe<T extends object>(target: T, immutable: boolean): T {
+  if (!isObject(target)) {
+    throw new TypeError('Target is not observable');
+  } else if (isReactive(target)) {
+    return target;
   }
-  throw new TypeError('target is not observable');
+
+  const cache = immutable ? targetToReadonly : targetToReactive;
+  let res: T = cache.get(target);
+
+  if (!res) {
+    const handlers = isCollection(target) ? collectionHandlers : baseHandlers;
+    res = new Proxy(target, handlers(immutable, target));
+  }
+  return res;
 }
 
 /**
@@ -47,11 +45,7 @@ function createReactive<T extends object>(target: T, immutable: boolean): T {
  * @returns {Proxy}
  */
 export function reactive<T extends object>(target: T): T {
-  let res: T = targetToReactive.get(target);
-  if (!res) {
-    targetToReactive.set(target, (res = createReactive(target, false)));
-  }
-  return res;
+  return observe(target, false);
 }
 
 /**
@@ -60,9 +54,24 @@ export function reactive<T extends object>(target: T): T {
  * @returns {Proxy}
  */
 export function readonly<T extends object>(target: T): T {
-  let res: T = targetToReadonly.get(target);
-  if (!res) {
-    targetToReadonly.set(target, (res = createReactive(target, false)));
+  return observe(target, true);
+}
+
+/**
+ * Tries to create target as a reactive.
+ * Unlike reactive it returns original value instead of throwing error
+ * @param {*} target Target to wrap
+ * @returns {Proxy|*}
+ */
+export function toReactive<T>(target: T): T;
+export function toReactive<T extends object>(target: T): T {
+  try {
+    return reactive(target);
+  } catch (ex) {
+    if (ex instanceof TypeError) {
+      return target;
+    }
+
+    throw ex;
   }
-  return res;
 }

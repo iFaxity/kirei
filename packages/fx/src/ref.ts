@@ -16,6 +16,7 @@ const refProto = Object.defineProperties(Object.create(null), {
     value() { return this.value.toString(); },
   },
 });
+const isPrototypeOf = Object.prototype.isPrototypeOf.bind(refProto);
 
 /**
  * Creates a ref object from an object with a getter & setter for value
@@ -33,7 +34,7 @@ export function createRef<T>(target: RefTarget<T>): Ref<T> {
  * @returns {boolean}
  */
 export function isRef(target: any): target is Ref {
-  return target instanceof refProto;
+  return isPrototypeOf(target);
 }
 
 /**

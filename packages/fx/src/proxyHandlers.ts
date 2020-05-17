@@ -14,60 +14,65 @@ export const REACTIVE_KEY = Symbol('reactive');
  * @param {*} receiver Target array
  * @returns {Function}
  */
-function arraySearchShim(target: any, key: string): (...args: any[]) => any {
-  return (...args) => {
-    const self = toRaw(target);
-    const len = self.length;
+function arraySearchShim(target: any[], key: string, ...args: any[]): (...args: any[]) => any {
+  const len = target.length;
 
-    // Track all indicies for this effect
-    for (let i = 0; i < len; i++) {
-      Fx.track(self, i + '');
-    }
+  // Track all indicies for this fx
+  for (let i = 0; i < len; i++) {
+    Fx.track(target, i + '');
+  }
 
-    // Args may be reactive, but we try first anyway
-    const res = self[key](...args);
+  // Args may be reactive, but we try first anyway
+  const res = target[key](...args);
 
-    // If res was negative, re-run it again with raw arguments
-    if (res === -1 || res === false) {
-      return self[key](...args.map(toRaw));
-    }
-    return res;
-  };
+  // If res was negative, re-run it again with raw arguments
+  if (res === -1 || res === false) {
+    return target[key](...args.map(toRaw));
+  }
+  return res;
 }
+
+
 
 /**
  * Proxy handlers for reactive objects and arrays
  * @param {boolean} immutable Throw an error every time a property attempts a mutation
  * @returns {ProxyHandler}
  */
-export function baseHandlers<T extends object>(immutable: boolean): ProxyHandler<T> {
+export function baseHandlers<T extends object>(immutable: boolean, target: T): ProxyHandler<T> {
+  const isArray = Array.isArray(target);
   return {
-    get(target, key, receiver) {
+    get(_, key, receiver) {
       // used for reactive unwrapping & detection
       if (key === REACTIVE_KEY) return target;
-      const isArray = Array.isArray(target);
 
       if (isArray && arrayShims.includes(key as string)) {
-        return arraySearchShim(receiver, key as string);
+        //return arraySearchShim(receiver, key as string);
+        return arraySearchShim.bind(null, target, key);
       }
 
       const res = target[key];
-      if (isRef(res) && !isArray) {
+      if (isRef(res)) {
+        if (isArray) {
+          Fx.track(target, key);
+          return res;
+        }
+
         return res.value;
       }
 
       Fx.track(target, key);
       return isObject(res) ? (immutable ? readonly(res) : reactive(res)) : res;
     },
-    set(target, key, newValue, receiver) {
+    set(_, key, newValue, receiver) {
       if (immutable) {
-        throw new TypeError('Collection is readonly');
+        throw new TypeError('Object is readonly');
       }
 
       const oldValue = target[key];
 
       newValue = toRaw(newValue);
-      if (isRef(oldValue) && !isRef(newValue)) {
+      if (!isArray && isRef(oldValue) && !isRef(newValue)) {
         oldValue.value = newValue;
         return true;
       }
@@ -86,9 +91,9 @@ export function baseHandlers<T extends object>(immutable: boolean): ProxyHandler
 
       return res;
     },
-    deleteProperty(target, key) {
+    deleteProperty(_, key) {
       if (immutable) {
-        throw new TypeError('Collection is readonly');
+        throw new TypeError('Object is readonly');
       }
 
       const res = delete target[key];
@@ -98,11 +103,11 @@ export function baseHandlers<T extends object>(immutable: boolean): ProxyHandler
 
       return res;
     },
-    has(target, key) {
+    has(_, key) {
       Fx.track(target, key);
       return key in target;
     },
-    ownKeys(target) {
+    ownKeys(_) {
       Fx.track(target, ITERATE_KEY);
       return Reflect.ownKeys(target);
     },
@@ -114,27 +119,27 @@ export function baseHandlers<T extends object>(immutable: boolean): ProxyHandler
  * @param {boolean} immutable Throw an error every time a property attempts a mutation
  * @returns {ProxyHandler}
  */
-export function collectionHandlers<T extends object>(immutable: boolean): ProxyHandler<T> {
+export function collectionHandlers<T extends object>(immutable: boolean, target: T): ProxyHandler<T> {
   const methods = {
     get(key) {
-      const target = toRaw(this) as MapCollection;
+      const self = target as MapCollection;
       key = toRaw(key);
 
-      Fx.track(target, key);
-      return toReactive(target.get(key));
+      Fx.track(self, key);
+      return toReactive(self.get(key));
     },
     get size() {
-      const target = toRaw(this) as Map<object, object> | Set<object>;
+      const self = target as Map<object, object> | Set<object>;
 
-      Fx.track(target, ITERATE_KEY);
-      return target.size;
+      Fx.track(self, ITERATE_KEY);
+      return self.size;
     },
     has(key) {
-      const target = toRaw(this) as AnyCollection;
+      const self = target as AnyCollection;
       key = toRaw(key);
 
-      Fx.track(target, key);
-      return target.has(key);
+      Fx.track(self, key);
+      return self.has(key);
     },
     add(value) {
       if (immutable) {
@@ -142,12 +147,12 @@ export function collectionHandlers<T extends object>(immutable: boolean): ProxyH
       }
 
       value = toRaw(value)
-      const target = toRaw(this) as SetCollection;
-      const hadKey = target.has(value);
-      const res = target.add(value);
+      const self = target as SetCollection;
+      const hadKey = self.has(value);
+      const res = self.add(value);
 
       if (!hadKey) {
-        Fx.trigger(target, TriggerOpTypes.ADD, value);
+        Fx.trigger(self, TriggerOpTypes.ADD, value);
       }
       return res;
     },
@@ -158,15 +163,15 @@ export function collectionHandlers<T extends object>(immutable: boolean): ProxyH
 
       value = toRaw(value);
       key = toRaw(key);
-      const target = toRaw(this) as MapCollection;
-      const hadKey = target.has(key);
-      const res = target.set(key, value);
-      const oldValue = target.get(key);
+      const self = target as MapCollection;
+      const hadKey = self.has(key);
+      const res = self.set(key, value);
+      const oldValue = self.get(key);
 
       if (!hadKey) {
-        Fx.trigger(target, TriggerOpTypes.ADD, key);
+        Fx.trigger(self, TriggerOpTypes.ADD, key);
       } else if (value !== oldValue && (value === value || oldValue === oldValue)) {
-        Fx.trigger(target, TriggerOpTypes.SET, key);
+        Fx.trigger(self, TriggerOpTypes.SET, key);
       }
       return res;
     },
@@ -176,12 +181,12 @@ export function collectionHandlers<T extends object>(immutable: boolean): ProxyH
       }
 
       key = toRaw(key);
-      const target = toRaw(this) as Collection;
-      const hadKey = target.has(key);
-      const res = target.delete(key);
+      const self = target as Collection;
+      const hadKey = self.has(key);
+      const res = self.delete(key);
 
       if (hadKey) {
-        Fx.trigger(target, TriggerOpTypes.DELETE, key);
+        Fx.trigger(self, TriggerOpTypes.DELETE, key);
       }
       return res;
     },
@@ -190,26 +195,26 @@ export function collectionHandlers<T extends object>(immutable: boolean): ProxyH
         throw new TypeError('Collection is readonly');
       }
 
-      const target = toRaw(this) as Collection;
-      const hadItems = target.size != 0;
-      const res = target.clear();
+      const self = target as Collection;
+      const hadItems = self.size != 0;
+      const res = self.clear();
 
       if (hadItems) {
-        Fx.trigger(target, TriggerOpTypes.CLEAR);
+        Fx.trigger(self, TriggerOpTypes.CLEAR);
       }
       return res;
     },
     forEach(callbackfn, thisArg: ProxyConstructor) {
-      const target = toRaw(this) as Collection;
+      const self = target as Collection;
       const callback = (value, key) => callbackfn.call(this, toReactive(value), toReactive(key), this);
 
-      Fx.track(target, ITERATE_KEY);
-      return target.forEach(callback, thisArg);
+      Fx.track(self, ITERATE_KEY);
+      return self.forEach(callback, thisArg);
     },
   };
 
   return {
-    get(target, key) {
+    get(_, key) {
       // used for reactive unwrapping & detection
       if (key === REACTIVE_KEY) return target;
       const hasKey = methods.hasOwnProperty(key) && key in target;
