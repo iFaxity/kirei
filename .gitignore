@@ -40,4 +40,3 @@ typings/
 # Project specific
 package-lock.json
 dist/
-dev/
