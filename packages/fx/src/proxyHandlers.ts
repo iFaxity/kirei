@@ -129,7 +129,7 @@ export function collectionHandlers<T extends object>(immutable: boolean, target:
       return toReactive(self.get(key));
     },
     get size() {
-      const self = target as Map<object, object> | Set<object>;
+      const self = target as Collection;
 
       Fx.track(self, ITERATE_KEY);
       return self.size;
@@ -204,12 +204,12 @@ export function collectionHandlers<T extends object>(immutable: boolean, target:
       }
       return res;
     },
-    forEach(callbackfn, thisArg: ProxyConstructor) {
+    forEach(callbackfn) {
       const self = target as Collection;
       const callback = (value, key) => callbackfn.call(this, toReactive(value), toReactive(key), this);
 
       Fx.track(self, ITERATE_KEY);
-      return self.forEach(callback, thisArg);
+      return self.forEach(callback);
     },
   };
 

@@ -9,7 +9,8 @@
     "dev": "webpack-dev-server",
     "build": "tsc -b --force",
     "test": "npm run test:unit && npm run test:e2e && npm run test:report",
-    "test:unit": "nyc --silent --no-clean --include=packages/**/* mocha -- test/unit/**/*.js",
+    "mocha": "mocha test/unit/**/*.js",
+    "test:unit": "nyc --silent --no-clean --include=packages/**/* npm run mocha",
     "test:e2e": " cd test/e2e && cypress run",
     "test:report": "nyc report -r=lcovonly -r=text && rm -rf .nyc_output"
   },
@@ -25,6 +26,7 @@
     "mocha": "7.1.2",
     "nyc": "15.0.1",
     "ts-loader": "7.0.4",
+    "ts-node": "^8.10.1",
     "tslib": "2.0.0",
     "typescript": "3.9.3",
     "webpack": "4.43.0",

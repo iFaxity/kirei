@@ -35,6 +35,7 @@ function observe<T extends object>(target: T, immutable: boolean): T {
   if (!res) {
     const handlers = isCollection(target) ? collectionHandlers : baseHandlers;
     res = new Proxy(target, handlers(immutable, target));
+    cache.set(target, res);
   }
   return res;
 }

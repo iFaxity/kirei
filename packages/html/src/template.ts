@@ -164,7 +164,7 @@ export class Template {
     for (let i = 0; i < values.length; i++) {
       patchers[i](values[i]);
     }
-    return cache.node || (cache.node = persistent(instance.root));
+    return cache.node ?? (cache.node = persistent(instance.root));
   }
 }
 

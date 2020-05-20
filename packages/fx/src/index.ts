@@ -1,11 +1,11 @@
-import { mapObject, isObject } from '@kirei/shared';
+import { mapObject } from '@kirei/shared';
 import { isRef, Ref, createRef } from './ref';
 import { toRaw } from './reactive';
 
 export { Fx, TriggerOpTypes } from './fx';
 export { isReactive, toReactive, toRaw, reactive, readonly } from './reactive';
 export { Ref, isRef, unRef, ref } from './ref';
-export { Computed, computed } from './computed';
+export { Computed, computed, computedGetter } from './computed';
 export { watchFx } from './watch';
 
 /**

@@ -1,7 +1,7 @@
 const COLLECTION_TYPES = [ Map, Set, WeakMap, WeakSet ];
-export type MapCollection = Map<object, object> | WeakMap<object, object>;
-export type SetCollection = Set<object> | WeakSet<object>;
-export type Collection = Set<object> | Map<object, object>;
+export type MapCollection = Map<any, any> | WeakMap<object, any>;
+export type SetCollection = Set<any> | WeakSet<object>;
+export type Collection = Set<any> | Map<any, any>;
 export type AnyCollection = MapCollection | SetCollection;
 
 /**

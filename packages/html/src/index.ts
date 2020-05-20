@@ -51,6 +51,7 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
           rendered.set(root, (cache = createCache()));
         }
 
+        const wire = cache.node;
         let node: Node;
         if (template instanceof Template) {
           node = template.update(cache, compiler, scopeName);
@@ -60,9 +61,8 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
           throw new Error('Invalid render template, expected Template or Node');
         }
 
-        if (cache.node !== node) {
+        if (wire !== node) {
           clearNode(root);
-          cache.node = node;
           root.appendChild(node.valueOf() as Node);
         }
       } else if (template == null) {
@@ -99,6 +99,9 @@ function createLiteral<T extends TemplateLiteral>(
   const template: TemplateLiteral = (strings: TemplateStringsArray, ...values: any[]): Template => {
     return new Template(type, strings, values);
   };
+
+  //@ts-ignore
+  template.cache = keyed;
 
   template.key = (ref: object, key: Key|Template, template?: Template): Node => {
     // Key is optional as we can key by the reference object

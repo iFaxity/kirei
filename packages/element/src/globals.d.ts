@@ -3,8 +3,9 @@ interface ShadyCSS {
   nativeShadow: boolean;
   styleElement(host: Element, overrideProps?: {[key: string]: string}): void;
   getComputedStyleValue(element: Element, property: string): string;
-  prepareTemplateDom(template: Element, elementName: string): void;
-  prepareTemplateStyles(template: Element, elementName: string, typeExtension?: string): void;
+  prepareTemplateDom(template: HTMLTemplateElement, name: string): void;
+  prepareTemplate(template: HTMLTemplateElement, name: string, elementExtends?: string): void;
+  prepareTemplateStyles(template: HTMLTemplateElement, name: string, elementExtends?: string): void;
   ScopingShim?: {
     prepareAdoptedCssText(cssText: string[], name: string): void;
   };
