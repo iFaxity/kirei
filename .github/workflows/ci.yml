@@ -33,13 +33,13 @@ jobs:
         with:
           path: ${{ github.workspace }}
           key: workspace-${{ github.sha }}
-     
+
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
         with:
           build: yarn build
           browser: chrome
-            headless: true
+          headless: true
 
       # Upload coverage report to codecov and codacy
       - name: Upload coverage to Codecov
