@@ -5,9 +5,10 @@
     "moduleResolution": "node",
     "lib": [ "es2016", "dom" ],
     "allowJs": true,
-    "baseUrl": "../node_modules",
+    "rootDir": "../",
+    "baseUrl": "../",
     "paths": {
-      "@kirei/*": [ "../packages/*" ]
+      "@kirei/*": [ "packages/*" ]
     },
     "types": [ "cypress" ]
   },

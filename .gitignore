@@ -40,3 +40,5 @@ typings/
 # Project specific
 package-lock.json
 dist/
+cypress/videos
+cypress/screenshots
