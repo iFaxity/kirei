@@ -20,7 +20,7 @@
     "@types/node": "13.13.2",
     "@types/webpack-env": "1.15.2",
     "babel-loader": "8.1.0",
-    "cypress": "4.6.0",
+    "cypress": "4.9.0",
     "file-loader": "6.0.0",
     "istanbul-instrumenter-loader": "3.0.1",
     "istanbul-lib-coverage": "3.0.0",
