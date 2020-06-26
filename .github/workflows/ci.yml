@@ -17,6 +17,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: yarn --check-files --frozen-lockfile --non-interactive
 
   # Run unit and e2e tests
