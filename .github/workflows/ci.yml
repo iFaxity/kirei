@@ -33,6 +33,11 @@ jobs:
         with:
           path: ${{ github.workspace }}
           key: workspace-${{ github.sha }}
+      - name: Install cypress
+        uses: cypress-io/github-action@v2
+        with:
+          browser: chrome
+            headless: true
 
       - name: Build packages
         run: yarn build
