@@ -1,4 +1,4 @@
-import { KireiInstance, directive, computed, watchFx } from '@kirei/element';
+import { KireiInstance, directive, computed, watchEffect } from '@kirei/element';
 import { Link, RouterOptions, RouterInterface, Router } from './router';
 const SUPPORTS_HISTORY = !!(window.history?.pushState);
 
@@ -37,7 +37,7 @@ export class ClientRouter extends Router implements RouterInterface {
         el.classList[isActive ? 'add' : 'remove'](this.activeClass);
         el.classList[isExact ? 'add' : 'remove'](this.exactClass);
       };
-      watchFx(() => commit(this.path.value));
+      watchEffect(() => commit(this.path.value));
 
       // Navigates the route
       el.addEventListener('click', e => {
@@ -77,7 +77,7 @@ export class ClientRouter extends Router implements RouterInterface {
     views.splice(idx, 1);
   }
 
-  push(link: Link, append: boolean): boolean {
+  push(link: Link, append: boolean): void {
     const path = this.resolve(link, append);
     if (this.history) {
       history.pushState(null, null, path);
@@ -85,10 +85,10 @@ export class ClientRouter extends Router implements RouterInterface {
       location.hash = path;
     }
 
-    return this.navigate();
+    this.navigate();
   }
 
-  replace(link: Link, append: boolean): boolean {
+  replace(link: Link, append: boolean): void {
     const path = this.resolve(link, append);
     if (this.history) {
       history.replaceState(null, null, path);
@@ -96,14 +96,14 @@ export class ClientRouter extends Router implements RouterInterface {
       location.hash = path;
     }
 
-    return this.navigate();
+    this.navigate();
   }
 
-  protected navigate(): boolean {
+  protected async navigate(): Promise<void> {
     this.path.value = this.history ? location.pathname : location.hash.slice(1);
 
     const matched = this.matchRoutes();
-    if (matched == null) return false;
+    if (matched == null) return;
 
     const { views, instances } = this;
     for (let idx = 0; idx < matched.length; idx++) {
@@ -114,7 +114,7 @@ export class ClientRouter extends Router implements RouterInterface {
 
       // Replace node if view elements are not the same
       KireiInstance.active = instance;
-      const el = route.element;
+      const el = await route.element();
       if (el !== view) {
         root.replaceChild(el, view);
         views[idx] = el;
@@ -130,6 +130,5 @@ export class ClientRouter extends Router implements RouterInterface {
     }
 
     this.route.value = matched[matched.length - 1];
-    return true;
   }
 }

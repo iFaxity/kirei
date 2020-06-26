@@ -19,8 +19,8 @@ export interface RouterOptions {
 
 export interface RouterInterface {
   resolve(link: Link, append?: boolean): string;
-  push(link: Link, append?: boolean): boolean;
-  replace(link: Link, append?: boolean): boolean;
+  push(link: Link, append?: boolean): void;
+  replace(link: Link, append?: boolean): void;
   attach(instance: KireiInstance): void;
   detach(instance: KireiInstance): void;
 }

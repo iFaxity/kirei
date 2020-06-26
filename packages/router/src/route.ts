@@ -1,10 +1,11 @@
 import { KireiElement } from '@kirei/element';
+import { isFunction } from '@kirei/shared';
 import { pathToRegexp, Key } from 'path-to-regexp';
 const ROUTE_KEYS = [ 'path', 'slot', 'keepAlive', 'meta', 'name', 'redirect', 'caseSensitive' ];
 
 export interface RouteOptions {
   path: string;
-  element: typeof KireiElement | string;
+  element: string | typeof KireiElement | Promise<typeof KireiElement>;
   slot?: string;
   name?: string;
   meta?: any;
@@ -18,10 +19,9 @@ export interface RouteOptions {
 export class Route {
   private readonly regex: RegExp;
   private readonly keys: (string | number)[];
+  private readonly ctor: string | typeof KireiElement | Promise<typeof KireiElement>;
   private el: Element = null;
-  private tag: string;
 
-  params: Record<string|number, string>;
   readonly routes?: Route[];
   readonly path: string;
   readonly slot?: string;
@@ -31,6 +31,7 @@ export class Route {
   readonly redirect?: string | Function;
   readonly caseSensitive?: boolean;
   readonly aliases?: string[];
+  params: Record<string|number, string>;
 
   constructor(opts: RouteOptions) {
     for (const key of Object.keys(opts)) {
@@ -52,10 +53,10 @@ export class Route {
     });
     this.keys = keys.map(key => key.name);
 
-    if (typeof opts.element == 'function') {
-      this.tag = opts.element.is;
-    } else if (typeof opts.element == 'string') {
-      this.tag = opts.element;
+    if (typeof opts.element == 'string') {
+      this.ctor = opts.element;
+    } else if (isFunction(opts.element) || isFunction(opts?.element?.then)) {
+      this.ctor = opts.element;
     } else {
       throw new TypeError('Element is not of a valid type');
     }
@@ -83,8 +84,16 @@ export class Route {
     return !!res;
   }
 
-  get element(): Element {
-    const el = this.el ?? document.createElement(this.tag) as Element;
+  async element(): Promise<Element> {
+    let { el } = this;
+    if (!this.el) {
+      if (typeof this.ctor == 'string') {
+        el = document.createElement(this.ctor);
+      } else {
+        el = new (await this.ctor)();
+      }
+    }
+
     if (this.slot) {
       el.slot = this.slot;
     }
