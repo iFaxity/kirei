@@ -36,7 +36,7 @@ jobs:
 
       - name: Build packages
         run: yarn build
-      - name: Run unit tests
+      - name: Run cypress (e2e and unit tests)
         run: yarn cypress
 
       # Upload coverage report to codecov and codacy
