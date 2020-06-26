@@ -9,12 +9,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Cache node_modules
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
-          path: |
-            **/node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+          path:
+            - '**/node_modules'
+            - '~/.cache/Cypress'
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: Install dependencies
         run: yarn --check-files --frozen-lockfile --non-interactive
@@ -26,12 +26,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Restore cache
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
-          path: |
-            **/node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+          path:
+            - '**/node_modules'
+            - '~/.cache/Cypress'
+          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
