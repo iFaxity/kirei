@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "es2015",
+    "moduleResolution": "node",
+    "lib": [ "es2016", "dom" ],
+    "allowJs": true,
+    "baseUrl": "../node_modules",
+    "paths": {
+      "@kirei/*": [ "../packages/*" ]
+    },
+    "types": [ "cypress" ]
+  },
+  "references": [
+    { "path": "packages/shared" },
+    { "path": "packages/fx" },
+    { "path": "packages/element" },
+    { "path": "packages/router" }
+  ],
+  "include": [ "../packages/*" ],
+  "exclude": [ "**/node_modules" ]
+}

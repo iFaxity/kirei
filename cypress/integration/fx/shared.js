@@ -1,5 +1,5 @@
-const { isCollection } = require('../../../packages/fx/dist/shared');
-const { strict: assert } = require('assert');
+import { isCollection } from '@kirei/fx/src/shared';
+import { strict as assert } from 'assert';
 
 describe('@kirei/fx', () => {
   describe('isCollection', () => {

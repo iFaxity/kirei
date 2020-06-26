@@ -1,19 +1,18 @@
-const {
+import {
   isPrimitive,
   isObject,
   isFunction,
   mapObject,
   camelToKebab,
   exception
-} = require('../../../packages/shared/dist');
-const { strict: assert } = require('assert');
+} from '@kirei/shared';
 
 describe('@kirei/shared', () => {
   describe('isPrimitive', () => {
     it('with string', () => assert(isPrimitive('test')));
     it('with number', () => assert(isPrimitive(123)));
     it('with boolean', () => assert(isPrimitive(true)));
-    it('with undefined', () => assert(isPrimitive()));
+    it('with undefined', () => assert(isPrimitive(undefined)));
     it('with null', () => assert(isPrimitive(null)));
     it('with symbol', () => assert(isPrimitive(Symbol())));
 
@@ -31,7 +30,7 @@ describe('@kirei/shared', () => {
       assert(isObject(new Test()));
     });
 
-    it('with undefined', () => assert(!isObject()));
+    it('with undefined', () => assert(!isObject(undefined)));
     it('with null', () => assert(!isObject(null)));
     it('with string', () => assert(!isObject('shh')));
     it('with symbol', () => assert(!isObject(Symbol())));
@@ -41,7 +40,7 @@ describe('@kirei/shared', () => {
     it('with lambda fn', () => assert(isFunction(() => {})));
     it('with function', () => assert(isFunction(assert)));
 
-    it('with undefined', () => assert(!isFunction()));
+    it('with undefined', () => assert(!isFunction(undefined)));
     it('with null', () => assert(!isFunction(null)));
     it('with string', () => assert(!isFunction('abc')));
     it('with boolean', () => assert(!isFunction(false)));
@@ -72,15 +71,13 @@ describe('@kirei/shared', () => {
     it('with camelCase', () => assert.equal(camelToKebab('heyLittleFriend'), 'hey-little-friend'));
     it('with Kebab-Case', () => assert.equal(camelToKebab('Foo-Bar'), 'foo-bar'));
 
-    it('with number', () => assert.throws(() => camelToKebab(100), TypeError));
-    it('with null', () => assert.throws(() => camelToKebab(null), TypeError));
+    it('with number', () => assert.throws(() => camelToKebab(100 as any)));
+    it('with null', () => assert.throws(() => camelToKebab(null)));
   });
 
   describe('exception', () => {
     it('throws with custom message', () => {
-      assert.throws(() => exception('Test message'), {
-        message: '[Kirei]: Test message',
-      });
+      assert.throws(() => exception('Test message'));
     });
   });
 })

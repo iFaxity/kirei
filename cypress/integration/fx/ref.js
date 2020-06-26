@@ -1,5 +1,5 @@
-const { isRef, unRef, ref, isReactive } = require('../../../packages/fx/dist');
-const { strict: assert } = require('assert');
+import { isRef, unRef, ref, isReactive } from '@kirei/fx';
+import { strict as assert } from 'assert';
 
 describe('@kirei/fx', () => {
   describe('ref', () => {

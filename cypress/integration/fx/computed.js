@@ -1,5 +1,5 @@
-const { computed } = require('../../../packages/fx/dist');
-const { strict: assert } = require('assert');
+import { computed } from '@kirei/fx';
+import { strict as assert } from 'assert';
 
 describe('@kirei/fx', () => {
   describe('computed', () => {
@@ -17,9 +17,10 @@ describe('@kirei/fx', () => {
 
     it('getter and setter', () => {
       let value = 5;
-      const get = () => value;
-      const set = (v) => { value = v; };
-      const r = computed({ get, set });
+      const r = computed({
+        get: () => value,
+        set: (v) => { value = v; }
+      });
 
       // stored value should update on fx.scheduleRun
       // but value variable should update

@@ -37,16 +37,9 @@ jobs:
       - name: Build packages
         run: yarn build
       - name: Run unit tests
-        run: yarn test:unit
-      #- name: Start e2e test server
-      #  run: yarn test:e2e-server &
-      #- name: Run e2e tests
-      #  run: yarn test:e2e
+        run: yarn cypress
 
-      # Might be automatically done by e2e
-      # Generate coverage report, upload to codecov
-      - name: Generate coverage report
-        run: yarn test:report
+      # Upload coverage report to codecov and codacy
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:

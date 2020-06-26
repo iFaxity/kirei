@@ -1,6 +1,5 @@
-const { reactive, ref, toReactive, isReactive, toRaw } = require('../../../packages/fx/dist');
-const { strict: assert } = require('assert');
-const { isProxy } = require('util').types;
+import { reactive, ref, toReactive, isReactive, toRaw } from '@kirei/fx';
+import { strict as assert } from 'assert';
 
 describe('fx/reactive', () => {
   describe('#isReactive()', () => {
@@ -21,7 +20,7 @@ describe('fx/reactive', () => {
       const r = reactive({});
       assert.equal(toReactive(r), r);
     });
-    it('with object', () => assert(isProxy(toReactive({}))));
+    it('with object', () => assert(isReactive(toReactive({}))));
     it('with null', () => assert.equal(toReactive(null), null));
     it('with undefined', () => assert.equal(toReactive(), undefined));
     it('with primitive', () => assert.equal(toReactive(10), 10));
@@ -55,12 +54,17 @@ describe('fx/reactive', () => {
     it('with object', () => {
       const r = reactive({});
       const a = reactive([]);
-      assert(isProxy(r));
-      assert(isProxy(a));
+      assert(isReactive(r));
+      assert(isReactive(a));
     });
     it('prevent reactive cloning', () => {
       const r = reactive({});
       assert.equal(r, reactive(r));
+    });
+    it('check caching', () => {
+      const t = {};
+      const r = reactive(t);
+      assert.equal(r, reactive(t));
     });
     it('with primitives', () => {
       assert.throws(() => reactive('hi'));

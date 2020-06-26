@@ -8,16 +8,18 @@
     "predev": "npm run build",
     "dev": "webpack-dev-server",
     "build": "tsc -b --force",
-    "test": "npm run test:unit && npm run test:e2e && npm run test:report",
     "mocha": "mocha test/unit/**/*.js",
-    "test:unit": "nyc --silent --no-clean --include=packages/**/* npm run mocha",
-    "test:e2e": " cd test/e2e && cypress run",
-    "test:report": "nyc report -r=lcovonly -r=text && rm -rf .nyc_output"
+    "cypress": " cypress run",
+    "docs": "typedoc --name Kirei --excludeNotExported --mode modules --out docs packages/*/src"
   },
   "devDependencies": {
+    "@babel/core": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
     "@cypress/code-coverage": "3.7.4",
+    "@cypress/webpack-preprocessor": "^5.4.1",
     "@types/node": "13.13.2",
     "@types/webpack-env": "1.15.2",
+    "babel-loader": "^8.1.0",
     "cypress": "4.6.0",
     "file-loader": "6.0.0",
     "istanbul-instrumenter-loader": "3.0.1",
@@ -26,10 +28,10 @@
     "mocha": "7.1.2",
     "nyc": "15.0.1",
     "ts-loader": "7.0.4",
-    "ts-node": "^8.10.1",
     "tslib": "2.0.0",
+    "typedoc": "^0.17.7",
     "typescript": "3.9.3",
-    "webpack": "4.43.0",
+    "webpack": "^4.43.0",
     "webpack-cli": "3.3.11",
     "webpack-dev-server": "3.11.0"
   }

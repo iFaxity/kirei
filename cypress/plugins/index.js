@@ -19,5 +19,14 @@ module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
   require('@cypress/code-coverage/task')(on, config);
+
+  // send in the options from your webpack.config.js, so it works the same
+  // as your app's code
+  const webpack = require('@cypress/webpack-preprocessor');
+  on('file:preprocessor', webpack({
+    webpackOptions: require('../webpack.config'),
+    watchOptions: {}
+  }));
+
   return config;
 }
