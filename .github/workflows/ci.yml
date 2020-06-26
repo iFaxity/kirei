@@ -11,16 +11,13 @@ jobs:
       - name: Cache node_modules
         uses: actions/cache@v1
         with:
-          path: node_modules
-          key: deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          path: |
+            **/node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
 
       - name: Install dependencies
         run: yarn --check-files --frozen-lockfile --non-interactive
-      - name: Cache workspace
-        uses: actions/cache@v1
-        with:
-          path: ${{ github.workspace }}
-          key: workspace-${{ github.sha }}
 
   # Run unit and e2e tests
   test:
@@ -31,8 +28,10 @@ jobs:
       - name: Restore cache
         uses: actions/cache@v1
         with:
-          path: ${{ github.workspace }}
-          key: workspace-${{ github.sha }}
+          path: |
+            **/node_modules
+            ~/.cache/Cypress
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
 
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
