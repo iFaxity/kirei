@@ -3,13 +3,22 @@ import { Fx } from './fx';
 //import { Ref, isRef } from './ref';
 
 type StopWatcher = () => void;
+/* TODO: not ready
+interface WatcherOptions {
+  immediate?: boolean;
+  deep?: boolean;
+}
+type WatchTarget<T = any> = Ref<T> | (() => T);
+type InferWatchValues<T> = {
+  [K in keyof T]: T[K] extends WatchTarget<infer V> ? V : never;
+}*/
 
 /**
  * Creates a function that runs anytime a reactive dependency updates.
  * @param {function} target - Target watchers function
  * @returns {void}
  */
-export function watchFx(target: () => void): StopWatcher {
+export function watchEffect(target: () => void): StopWatcher {
   if (!isFunction(target)) {
     throw new TypeError('watchFx can an only watch functions');
   }
@@ -18,16 +27,7 @@ export function watchFx(target: () => void): StopWatcher {
   return fx.stop.bind(fx);
 }
 
-
-/*interface WatcherOptions {
-  immediate?: boolean;
-  deep?: boolean;
-}
-type WatchTarget<T = any> = Ref<T> | (() => T);
-type InferWatchValues<T> = {
-  [K in keyof T]: T[K] extends WatchTarget<infer V> ? V : never;
-}
-
+/* TODO: not ready
 export function watch<T extends WatchTarget[]>(
   target: T,
   callback: (values: InferWatchValues<T>, oldValues: InferWatchValues<T>) => void,
@@ -39,6 +39,7 @@ export function watch<T>(
   options: WatcherOptions
 ): void {
   let fn: () => T|T[];
+
   if (Array.isArray(target)) {
     fn = () => target.map(x => isRef(x) ? x.value : x());
   } else if (isRef(target)) {
@@ -52,4 +53,4 @@ export function watch<T>(
     computed: false,
   });
   return fx.stop.bind(fx);
-}*/
+}*()

@@ -54,7 +54,7 @@ export function reactive<T extends object>(target: T): T {
  * @param {object} target - Object with own properties
  * @returns {Proxy}
  */
-export function readonly<T extends object>(target: T): T {
+export function readonly<T extends object>(target: T): Readonly<T> {
   return observe(target, true);
 }
 
