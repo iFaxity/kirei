@@ -18,7 +18,7 @@
     "@babel/preset-typescript": "^7.10.1",
     "@cypress/code-coverage": "3.8.1",
     "@cypress/webpack-preprocessor": "5.4.1",
-    "@types/mocha": "^7.0.2",
+    "@types/mocha": "7.0.2",
     "@types/webpack-env": "1.15.2",
     "babel-loader": "8.1.0",
     "babel-plugin-istanbul": "^6.0.0",
