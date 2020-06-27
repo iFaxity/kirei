@@ -20,6 +20,7 @@ module.exports = {
   devServer: {
     port: 3000,
     historyApiFallback: true,
+    host: '0.0.0.0',
     setup(app) {
       app.use('/css', express.static(__dirname + '/dev/css'));
     },
@@ -30,10 +31,17 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        use: {
-          loader: 'ts-loader'
-        },
+        test: /\.[jt]s/,
+        exclude: /(node_modules)/,
+        use: [
+          {
+            loader: 'babel-loader',
+            options: {
+              presets: ['@babel/preset-env', '@babel/preset-typescript'],
+              plugins: ['transform-class-properties', 'istanbul'],
+            },
+          },
+        ],
       },
       {
         test: /\.(html|png|svg|jpg|gif)$/,

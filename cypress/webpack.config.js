@@ -1,27 +1,19 @@
 module.exports = {
+  mode: 'development',
+  devtool: 'inline-source-map',
   module: {
     rules: [
       {
-        test: /\.(ts|js)$/,
-        exclude: /node_modules/,
+        test: /\.[jt]s/,
+        exclude: /(node_modules)/,
         use: [
           {
-            loader: 'ts-loader',
+            loader: 'babel-loader',
             options: {
-              context: __dirname,
-            }
-          }
-        ],
-      },
-      {
-        test: /\.(ts|js)$/,
-        exclude: /node_modules/,
-        enforce: 'post',
-        use: [
-          {
-            loader: 'istanbul-instrumenter-loader',
-            options: { esModules: true },
-          }
+              presets: ['@babel/preset-env', '@babel/preset-typescript'],
+              plugins: ['transform-class-properties', 'istanbul'],
+            },
+          },
         ],
       },
     ],
