@@ -31,12 +31,12 @@ export function watchEffect(target: () => void): StopWatcher {
 export function watch<T extends WatchTarget[]>(
   target: T,
   callback: (values: InferWatchValues<T>, oldValues: InferWatchValues<T>) => void,
-  options: WatcherOptions
+  options?: WatcherOptions
 ): void;
 export function watch<T>(
   target: WatchTarget<T>,
   callback: (value: T, oldValue: T) => void,
-  options: WatcherOptions
+  options?: WatcherOptions
 ): void {
   let fn: () => T|T[];
 

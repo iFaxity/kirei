@@ -1,5 +1,6 @@
 import { Fx, TriggerOpTypes } from './fx';
 import { toReactive } from './reactive';
+import { isObject } from '@kirei/shared';
 
 export type Ref<T = any> = { value: T; };
 export type RefTarget<T> = {
@@ -24,6 +25,12 @@ const isPrototypeOf = Object.prototype.isPrototypeOf.bind(refProto);
  * @returns {Ref}
  */
 export function createRef<T>(target: RefTarget<T>): Ref<T> {
+  if (typeof target.get != 'function') {
+    throw new TypeError(`Computed getter expects a function, got ${typeof target.get}`);
+  } else if (target.set != null && typeof target.set != 'function') {
+    throw new TypeError(`Computed setter expects a function, got ${typeof target.set}`);
+  }
+
   const opts = { get: target.get, set: target.set };
   return Object.defineProperty(Object.create(refProto), 'value', opts);
 }

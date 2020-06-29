@@ -41,6 +41,7 @@ function arraySearchShim(target: any[], key: string, ...args: any[]): (...args: 
  */
 export function baseHandlers<T extends object>(immutable: boolean, target: T): ProxyHandler<T> {
   const isArray = Array.isArray(target);
+  // TODO: add entries(), values(), keys() and Symbol.iterator for array
   return {
     get(_, key, receiver) {
       // used for reactive unwrapping & detection
@@ -206,13 +207,17 @@ export function collectionHandlers<T extends object>(immutable: boolean, target:
     },
     forEach(callbackfn) {
       const self = target as Collection;
-      const callback = (value, key) => callbackfn.call(this, toReactive(value), toReactive(key), this);
 
       Fx.track(self, ITERATE_KEY);
-      return self.forEach(callback);
+      return self.forEach((value, key) => {
+        value = isRef(value) ? value : toReactive(value);
+        key = isRef(key) ? key : toReactive(key);
+        return callbackfn.call(self, value, key, self);
+      });
     },
   };
 
+  //TODO: add entries(), values(), keys() and Symbol.iterator (both map and keys)
   return {
     get(_, key) {
       // used for reactive unwrapping & detection

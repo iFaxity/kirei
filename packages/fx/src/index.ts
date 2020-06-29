@@ -1,6 +1,6 @@
 import { mapObject } from '@kirei/shared';
 import { isRef, Ref, createRef } from './ref';
-import { toRaw } from './reactive';
+import { toRaw, isReactive } from './reactive';
 
 export { Fx, TriggerOpTypes } from './fx';
 export { isReactive, toReactive, toRaw, reactive, readonly } from './reactive';
@@ -24,6 +24,10 @@ export function toRawValue(target: unknown): unknown {
  * @returns {Ref}
  */
 export function toRef<T extends object>(target: object, key: string): Ref<T> {
+  if (!isReactive(target)) {
+    throw new TypeError(`toRef expected reactive, got ${target}`);
+  }
+
   return createRef<T>({
     get: () => target[key],
     set: (value) => target[key] = value,
