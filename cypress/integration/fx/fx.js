@@ -1,7 +1,7 @@
-import { Fx, fxStack, activeFx, trackStack } from '@kirei/fx/src/fx';
-import { strict as assert } from 'assert';
+/// <reference types="cypress" />
+import { Fx, fxStack, activeFx, trackStack } from '@kirei/fx/dist/fx';
 
-describe('@kirei/fx', () => {
+describe('@kirei/fx/fx', () => {
   beforeEach(() => {
     // Drain tracking stack on every run
     while(trackStack.length) {

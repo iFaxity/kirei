@@ -1,7 +1,7 @@
+/// <reference types="cypress" />
 import { computed } from '@kirei/fx';
-import { strict as assert } from 'assert';
 
-describe('@kirei/fx', () => {
+describe('@kirei/fx/computed', () => {
   describe('computed', () => {
     it('getter', () => {
       const r = computed(() => 'hello');

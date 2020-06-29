@@ -8,7 +8,7 @@
     "rootDir": "../",
     "baseUrl": "../",
     "paths": {
-      "@kirei/*": [ "packages/*/src" ]
+      "@kirei/*": [ "packages/*" ]
     },
     "types": [ "cypress" ]
   },

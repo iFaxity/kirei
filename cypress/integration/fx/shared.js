@@ -1,8 +1,8 @@
-import { isCollection } from '@kirei/fx/src/shared';
-import { strict as assert } from 'assert';
+/// <reference types="cypress" />
+import { isCollection } from '@kirei/fx/dist/shared';
 
-describe('@kirei/fx', () => {
-  describe('isCollection', () => {
+describe('@kirei/fx/shared', () => {
+  describe('#isCollection', () => {
     it('with Map', () => {
       assert(isCollection(new Map()));
     });

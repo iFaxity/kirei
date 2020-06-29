@@ -1,8 +1,8 @@
+/// <reference types="cypress" />
 import { isRef, unRef, ref, isReactive } from '@kirei/fx';
-import { strict as assert } from 'assert';
 
-describe('@kirei/fx', () => {
-  describe('ref', () => {
+describe('@kirei/fx/ref', () => {
+  describe('#ref', () => {
     it('get/set primitive', () => {
       const r = ref(1);
       assert.equal(r.value, 1);
@@ -22,6 +22,13 @@ describe('@kirei/fx', () => {
       assert.equal(r.value, 'ok');
     });
 
+    it('with another ref as argument', () => {
+      const r = ref({});
+      const e = ref(r);
+
+      assert.equal(r, e);
+    });
+
     it('toString', () => {
       const r = ref(3);
       // Implicit and explicit
@@ -37,7 +44,7 @@ describe('@kirei/fx', () => {
     });
   });
 
-  describe('isRef', () => {
+  describe('#isRef', () => {
     it('with ref argument', () => {
       const r = ref();
       assert(isRef(r));
@@ -54,7 +61,7 @@ describe('@kirei/fx', () => {
     });
   });
 
-  describe('unRef', () => {
+  describe('#unRef', () => {
     it('with ref argument', () => {
       const r = ref('hello');
       assert.equal(unRef(r), 'hello');
@@ -87,4 +94,4 @@ describe('@kirei/fx', () => {
       assert.equal(unRef(), undefined);
     });
   });
-})
+});

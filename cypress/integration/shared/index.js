@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 import {
   isPrimitive,
   isObject,
@@ -10,7 +11,7 @@ import {
 } from '@kirei/shared';
 
 describe('@kirei/shared', () => {
-  describe('isPrimitive', () => {
+  describe('#isPrimitive', () => {
     it('with string', () => assert(isPrimitive('test')));
     it('with number', () => assert(isPrimitive(123)));
     it('with boolean', () => assert(isPrimitive(true)));
@@ -23,7 +24,7 @@ describe('@kirei/shared', () => {
     it('with array', () => assert(!isPrimitive([])));
   });
 
-  describe('isObject', () => {
+  describe('#isObject', () => {
     it('with object', () => assert(isObject({})));
     it('with array', () => assert(isObject([])));
     it('with Object.create(null)', () => assert(isObject(Object.create(null))));
@@ -38,7 +39,7 @@ describe('@kirei/shared', () => {
     it('with symbol', () => assert(!isObject(Symbol())));
   });
 
-  describe('isFunction', () => {
+  describe('#isFunction', () => {
     it('with lambda fn', () => assert(isFunction(() => {})));
     it('with function', () => assert(isFunction(assert)));
 
@@ -48,7 +49,7 @@ describe('@kirei/shared', () => {
     it('with boolean', () => assert(!isFunction(false)));
   });
 
-  describe('mapObject', () => {
+  describe('#mapObject', () => {
     it('basic usage', () => {
       const input = {
         foo: 'foo', bar: 'bar'
@@ -67,7 +68,7 @@ describe('@kirei/shared', () => {
     });
   });
 
-  describe('camelToKebab', () => {
+  describe('#camelToKebab', () => {
     it('with PascalCase', () => assert.equal(camelToKebab('HelloWorld'), 'hello-world'));
     it('with kebab-case', () => assert.equal(camelToKebab('kebab-yum-jum'), 'kebab-yum-jum'));
     it('with camelCase', () => assert.equal(camelToKebab('heyLittleFriend'), 'hey-little-friend'));
@@ -77,7 +78,7 @@ describe('@kirei/shared', () => {
     it('with null', () => assert.throws(() => camelToKebab(null)));
   });
 
-  describe('#warn()', () => {
+  describe('logging', () => {
     let warnMessage, errMessage;
     const warnFn = console.warn;
     const errFn = console.error;
