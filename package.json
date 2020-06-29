@@ -5,12 +5,12 @@
     "packages/*"
   ],
   "scripts": {
-    "predev": "npm run build",
-    "dev": "webpack-dev-server",
     "build": "tsc -b --force",
-    "mocha": "mocha test/unit/**/*.js",
+    "precypress": "npm run build",
     "cypress": " cypress run",
-    "docs": "typedoc --name Kirei --excludeNotExported --mode modules --out docs packages/*/src"
+    "docs": "typedoc --name Kirei --excludeNotExported --mode modules --out docs packages/*/src",
+    "predocker:cypress": "npm run build",
+    "docker:cypress": "docker-compose run --rm cypress"
   },
   "devDependencies": {
     "@babel/core": "7.10.3",
@@ -24,9 +24,6 @@
     "babel-plugin-istanbul": "6.0.0",
     "babel-plugin-transform-class-properties": "6.24.1",
     "cypress": "4.9.0",
-    "file-loader": "6.0.0",
-    "istanbul-lib-coverage": "3.0.0",
-    "tslib": "2.0.0",
     "typedoc": "0.17.7",
     "typescript": "3.9.5",
     "webpack": "4.43.0",

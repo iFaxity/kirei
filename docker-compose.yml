@@ -1,33 +1,25 @@
 version: '3.2'
 services:
   app:
-    build: ./test/e2e
+    build: ./cypress/app
     ports:
       - 8080:80
     volumes:
-      - ./test/e2e/app:/app
+      - ./cypress/app:/app
       - ./node_modules:/app/node_modules
       - ./package.json:/app/package.json
       - ./packages:/app/packages
   cypress:
     image: cypress/included:4.9.0
-    depends_on:
-      - app
-    environment:
-      - CYPRESS_baseUrl=http://app
+    working_dir: /e2e
+    #depends_on:
+    #  - app
+    #environment:
+    #  - CYPRESS_baseUrl=http://app
     volumes:
-      - ./test/e2e/cypress:/app/cypress
-      - ./test/e2e/cypress.json:/app/cypress.json
-      - ./node_modules:/app/node_modules
-      - ./.nyc_output:/app/.nyc_output
-      - ./coverage/:/app/coverage
-      - ./package.json:/app/package.json
-  unit:
-    build: ./test/unit
-    volumes:
-      - ./test/unit:/app/test/unit
-      - ./node_modules:/app/node_modules
-      - ./.nyc_output:/app/.nyc_output
-      - ./coverage:/app/coverage
-      - ./package.json:/app/package.json
-      - ./packages:/app/packages
+      - ./cypress:/e2e/cypress
+      - ./cypress.json:/e2e/cypress.json
+      - ./node_modules:/e2e/node_modules
+      - ./coverage/:/e2e/coverage
+      - ./package.json:/e2e/package.json
+      - ./packages:/e2e/packages
