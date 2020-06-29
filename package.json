@@ -24,7 +24,7 @@
     "babel-plugin-istanbul": "6.0.0",
     "babel-plugin-transform-class-properties": "6.24.1",
     "cypress": "4.9.0",
-    "typedoc": "0.17.7",
+    "typedoc": "0.17.8",
     "typescript": "3.9.5",
     "webpack": "4.43.0",
     "webpack-cli": "3.3.12",
