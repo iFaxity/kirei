@@ -6,11 +6,11 @@
   ],
   "scripts": {
     "build": "tsc -b --force",
-    "precypress": "npm run build",
-    "cypress": " cypress run",
+    "pretest": "npm run build",
+    "test": " cypress run",
     "docs": "typedoc --name Kirei --excludeNotExported --mode modules --out docs packages/*/src",
-    "predocker:cypress": "npm run build",
-    "docker:cypress": "docker-compose run --rm cypress"
+    "pretest:docker": "npm run build",
+    "test:docker": "docker-compose run --rm cypress"
   },
   "devDependencies": {
     "@babel/core": "7.10.3",

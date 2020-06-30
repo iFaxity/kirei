@@ -47,8 +47,10 @@ export function baseHandlers<T extends object>(immutable: boolean, target: T): P
       // used for reactive unwrapping & detection
       if (key === REACTIVE_KEY) return target;
 
+      /*if (isArray) {
+        if (key === Symbol.iterator) {}
+      }*/
       if (isArray && arrayShims.includes(key as string)) {
-        //return arraySearchShim(receiver, key as string);
         return arraySearchShim.bind(null, target, key);
       }
 
@@ -81,7 +83,7 @@ export function baseHandlers<T extends object>(immutable: boolean, target: T): P
       const added = !target.hasOwnProperty(key);
       const res = Reflect.set(target, key, newValue);
 
-      // Only trigger change it target and receiver matches
+      // Only trigger change if target and receiver matches
       if (target === toRaw(receiver)) {
         if (added) {
           Fx.trigger(target, TriggerOpTypes.ADD, key);
@@ -147,7 +149,7 @@ export function collectionHandlers<T extends object>(immutable: boolean, target:
         throw new TypeError('Collection is readonly');
       }
 
-      value = toRaw(value)
+      value = toRaw(value);
       const self = target as SetCollection;
       const hadKey = self.has(value);
       const res = self.add(value);
@@ -217,7 +219,7 @@ export function collectionHandlers<T extends object>(immutable: boolean, target:
     },
   };
 
-  //TODO: add entries(), values(), keys() and Symbol.iterator (both map and keys)
+  //TODO: add entries(), values(), keys() and Symbol.iterator (both map and set)
   return {
     get(_, key) {
       // used for reactive unwrapping & detection
