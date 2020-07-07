@@ -23,18 +23,16 @@ describe('@kirei/fx/fx', () => {
         const fx = new Fx(fn, { lazy: true });
 
         assert.equal(fx.raw, fn);
-        assert.equal(fx.computed, false);
         assert.equal(fx.scheduler, undefined);
       });
 
       it('with options', () => {
         const scheduler = () => {};
         const fx = new Fx(() => {}, {
-          computed: true, scheduler,
+          scheduler,
           lazy: true,
         });
 
-        assert.equal(fx.computed, true);
         assert.equal(fx.scheduler, scheduler);
       });
 

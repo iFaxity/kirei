@@ -1,18 +1,17 @@
 /// <reference types="cypress" />
 import { baseHandlers, collectionHandlers } from '@kirei/fx/dist/proxyHandlers';
-import { ref, isReactive, isRef } from '@kirei/fx';
-
+import { ref, isRef } from '@kirei/fx';
 
 let target, proxy;
 // used to prepare proxy object for testing
 function prepareProxyHook(isCollection, createTarget) {
-  return (immutable, ) => {
+  return (immutable) => {
     return () => {
       target = createTarget();
       const handlers = (isCollection ? collectionHandlers : baseHandlers)(immutable, target);
       proxy = new Proxy(target, handlers);
-    }
-  }
+    };
+  };
 }
 
 describe('@ifaxity/fx/proxyHandlers', () => {
@@ -51,7 +50,7 @@ describe('@ifaxity/fx/proxyHandlers', () => {
           assert.equal(proxy.greeting, 'Hello there');
 
           delete proxy.greeting;
-          assert.equal(typeof proxy.greeting, 'undefined');
+          assert.isUndefined(proxy.greeting);
         });
         it('#has()', () => {
           assert('foo' in proxy);
@@ -125,7 +124,7 @@ describe('@ifaxity/fx/proxyHandlers', () => {
           assert.equal(proxy[5], 'Hello there');
 
           delete proxy[5];
-          assert.equal(proxy[5], undefined);
+          assert.isUndefined(proxy[5]);
         });
         it('#has()', () => {
           assert('1' in proxy);
@@ -135,21 +134,17 @@ describe('@ifaxity/fx/proxyHandlers', () => {
           const keys = Object.keys(proxy);
           assert.deepEqual(keys, [ '0', '1', '2', '3' ]);
         });
-
-        // Test search shims
-        describe('search shims', () => {
-          it('#indexOf()', () => {
-            assert.equal(proxy.indexOf('second'), 1);
-            assert.equal(proxy.indexOf('third'), -1);
-          });
-          it('#lastIndexOf()', () => {
-            assert.equal(proxy.lastIndexOf('first'), 2);
-            assert.equal(proxy.lastIndexOf('fifth'), -1);
-          });
-          it('#includes()', () => {
-            assert(proxy.includes('first'));
-            assert(!proxy.includes('fourth'));
-          });
+        it('#indexOf()', () => {
+          assert.equal(proxy.indexOf('second'), 1);
+          assert.equal(proxy.indexOf('third'), -1);
+        });
+        it('#lastIndexOf()', () => {
+          assert.equal(proxy.lastIndexOf('first'), 2);
+          assert.equal(proxy.lastIndexOf('fifth'), -1);
+        });
+        it('#includes()', () => {
+          assert(proxy.includes('first'));
+          assert(!proxy.includes('fourth'));
         });
       });
 
@@ -175,7 +170,7 @@ describe('@ifaxity/fx/proxyHandlers', () => {
         });
         it('#delete()', () => {
           assert.throws(() => { delete proxy[0]; });
-          assert.notEqual(typeof proxy[0], 'undefined');
+          assert.equal(proxy[0], 'first');
         });
       });
     });
@@ -220,7 +215,7 @@ describe('@ifaxity/fx/proxyHandlers', () => {
           assert.equal(proxy.get('greeting'), 'Hello there');
 
           proxy.delete('greeting');
-          assert.equal(typeof proxy.get('greeting'), 'undefined');
+          assert.isUndefined(proxy.get('greeting'));
         });
         it('#clear()', () => {
           assert.equal(proxy.size, 2);
@@ -231,6 +226,22 @@ describe('@ifaxity/fx/proxyHandlers', () => {
           proxy.forEach((value, key) => {
             assert.equal(value, target.get(key));
           });
+        });
+        it('#keys()', () => {
+          const keys = [...proxy.keys()];
+          assert.deepEqual(keys, ['foo', 'baz']);
+        });
+        it('#values()', () => {
+          const values = [...proxy.values()];
+          assert.deepEqual(values, ['bar', target.get('baz')]);
+        });
+        it('#entries()', () => {
+          const entries = [...proxy.entries()];
+          assert.deepEqual(entries, [ ['foo', 'bar'], ['baz', target.get('baz')] ]);
+        });
+        it('#[Symbol.iterator]()', () => {
+          const iter = [...proxy];
+          assert.deepEqual(iter, [ ['foo', 'bar'], ['baz', target.get('baz')] ]);
         });
       });
 
@@ -243,20 +254,20 @@ describe('@ifaxity/fx/proxyHandlers', () => {
           assert.equal(proxy.get('baz'), 'hi');
         });
         it('#set()', () => {
-          assert.throws(() => { proxy.set('foo', 'fooz'); });
+          assert.throws(() => proxy.set('foo', 'fooz'));
           assert.notEqual(proxy.get('foo'), 'fooz');
 
           assert.notEqual(proxy.get('bar'), 10);
-          assert.throws(() => { proxy.set('bar', 10); });
+          assert.throws(() => proxy.set('bar', 10));
           assert.notEqual(proxy.get('bar'), 10);
         });
         it('#delete()', () => {
-          assert.throws(() => { proxy.delete('foo'); });
-          assert.notEqual(typeof proxy.get('foo'), 'undefined');
+          assert.throws(() => proxy.delete('foo'));
+          assert.equal(proxy.get('foo'), 'bar');
         });
         it('#clear()', () => {
           assert.equal(proxy.size, 2);
-          assert.throws(() => { proxy.clear(); });
+          assert.throws(() => proxy.clear());
           assert.equal(proxy.size, 2);
         });
       });
@@ -265,7 +276,7 @@ describe('@ifaxity/fx/proxyHandlers', () => {
     describe('with Set', () => {
       const proxyHook = prepareProxyHook(
         true,
-        () => new Set(['first', 'second', 'first', ref('hi')]),
+        () => new Set(['first', 'second', 'first', 'fourth']),
       );
 
       describe('mutable', () => {
@@ -294,37 +305,43 @@ describe('@ifaxity/fx/proxyHandlers', () => {
         it('#forEach()', () => {
           proxy.forEach(item => assert(target.has(item)));
         });
-  
+        it('#keys()', () => {
+          const keys = [...proxy.keys()];
+          assert.deepEqual(keys, ['first', 'second', 'fourth']);
+        });
+        it('#values()', () => {
+          const values = [...proxy.values()];
+          assert.deepEqual(values, ['first', 'second', 'fourth']);
+        });
+        it('#entries()', () => {
+          const entries = [...proxy.entries()];
+          assert.deepEqual(entries, [ ['first', 'first'], ['second', 'second'], [ 'fourth', 'fourth' ] ]);
+        });
+        it('#[Symbol.iterator]()', () => {
+          const iter = [...proxy];
+          assert.deepEqual(iter, ['first', 'second', 'fourth']);
+        });
       });
+
       describe('immutable', () => {
         beforeEach(proxyHook(true));
 
         it('#add()', () => {
           assert(!target.has('third'));
-          assert.throws(() => { proxy.add('third'); });
+          assert.throws(() => proxy.add('third'));
           assert(!target.has('third'));
         });
         it('#delete()', () => {
           assert(target.has('first'));
-          assert.throws(() => { proxy.delete('first'); });
+          assert.throws(() => proxy.delete('first'));
           assert(target.has('first'));
         });
         it('#clear()', () => {
           assert.equal(target.size, 3);
-          assert.throws(() => { proxy.clear(); });
+          assert.throws(() => proxy.clear());
           assert.notEqual(target.size, 0);
         });
       });
     });
-
-    /* Maybe skip weak variants as they work in the same way.
-    describe('with WeakMap', () => {
-      describe('mutable', () => {});
-      describe('immutable', () => {});
-    });
-    describe('with WeakSet', () => {
-      describe('mutable', () => {});
-      describe('immutable', () => {});
-    });*/
   });
 });

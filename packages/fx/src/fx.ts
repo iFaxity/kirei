@@ -6,7 +6,8 @@ export enum TriggerOpTypes {
   CLEAR = 'clear',
 }
 
-export const ITERATE_KEY = Symbol('iterate');
+export const ITER_KEY = Symbol('iter');
+export const MAP_KEY_ITER_KEY = Symbol('map_key_iter');
 export const fxStack: Fx[] = [];
 export let activeFx: Fx = null;
 let tracking = true;
@@ -20,7 +21,6 @@ export interface FxOptions {
 
 export class Fx {
   readonly scheduler?: (fn: Function) => void;
-  readonly computed?: boolean;
   readonly raw: Function;
   active: boolean = true;
   deps: Set<Fx>[] = [];
@@ -31,8 +31,7 @@ export class Fx {
    * @param {object} options - Options for the fx
    */
   constructor(target: Function|Fx, options?: FxOptions) {
-    const { lazy, computed, scheduler } = options ?? {};
-    this.computed = !!computed;
+    const { lazy, scheduler } = options ?? {};
     this.scheduler = scheduler;
     this.raw = target instanceof Fx ? target.raw : target;
     this.run = this.run.bind(this);
@@ -101,43 +100,44 @@ export class Fx {
    * @param {string|symbol} key - Property to trigger change on
    * @returns {void}
    */
-  static trigger(target: object, type: string, key?: string|symbol|number): void {
+  static trigger(target: object, type: string, key?: string|symbol|number, newValue?: unknown): void {
     const depsMap = targetMap.get(target);
     if (!depsMap) {
       return;
     }
 
     const fxs = new Set<Fx>();
-    const computedFxs = new Set<Fx>();
-    const addRunners = (deps: Set<Fx>): void => {
+    function add(deps: Set<Fx>): void {
       if (deps && tracking) {
-        for (const fx of deps) {
-          if (fx !== activeFx) {
-            (fx.computed ? computedFxs : fxs).add(fx);
-          }
-        }
-      }
-    };
-
-    if (type === TriggerOpTypes.CLEAR) {
-      // collection being cleared, trigger all fxs for target
-      depsMap.forEach(addRunners);
-    } else {
-      // schedule runs for SET | ADD | DELETE
-      if (key) {
-        addRunners(depsMap.get(key));
-      }
-
-      // also run for iteration key on ADD | DELETE
-      if (type === TriggerOpTypes.ADD || type === TriggerOpTypes.DELETE) {
-        const iterKey = Array.isArray(target) ? 'length' : ITERATE_KEY;
-        addRunners(depsMap.get(iterKey));
+        deps.forEach(fx => fx !== activeFx && fxs.add(fx));
       }
     }
 
-    // Important: computed fx must be run first so that computed getters
-    // can be invalidated before any normal fx that depend on them are run.
-    computedFxs.forEach(fx => fx.scheduleRun());
+    if (type === TriggerOpTypes.CLEAR) {
+      // collection being cleared
+      // trigger all effects for target
+      depsMap.forEach(add);
+    } else if (key == 'length' && Array.isArray(target)) {
+      depsMap.forEach((dep, key) => (key == 'length' || key >= newValue) && add(dep));
+    } else {
+      // schedule runs for SET | ADD | DELETE
+      if (typeof key != 'undefined') {
+        add(depsMap.get(key));
+      }
+
+      // also run for iteration key on ADD | DELETE | Map.SET
+      const isAddOrDelete =
+        type === TriggerOpTypes.ADD ||
+        (type === TriggerOpTypes.DELETE && !Array.isArray(target));
+
+      if (isAddOrDelete || (type === TriggerOpTypes.SET && target instanceof Map)) {
+        add(depsMap.get(Array.isArray(target) ? 'length' : ITER_KEY));
+      }
+      if (isAddOrDelete && target instanceof Map) {
+        add(depsMap.get(MAP_KEY_ITER_KEY));
+      }
+    }
+
     fxs.forEach(fx => fx.scheduleRun());
   }
 

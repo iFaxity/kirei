@@ -10,7 +10,6 @@ export function computedGetter<T>(getter: ComputedFunction<T>): (...args: any[])
   let dirty = true;
   const fx = new Fx(getter, {
     lazy: true,
-    computed: true,
     scheduler() { dirty = true; },
   });
 

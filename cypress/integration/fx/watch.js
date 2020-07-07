@@ -1,14 +1,14 @@
 /// <reference types="cypress" />
-
 import { watchEffect, ref } from '@kirei/fx';
 
 describe('@kirei/fx/watch', () => {
   describe('#watchEffect', () => {
     it('runs when dependency updates', () => {
-      const count = ref(0);
       let res = null;
+      const count = ref(0);
       watchEffect(() => { res = count.value; });
 
+      assert.equal(res, 0);
       count.value += 1;
       assert.equal(res, 1);
       count.value = 10;
@@ -16,10 +16,11 @@ describe('@kirei/fx/watch', () => {
     });
 
     it('stop when calling returning function', () => {
-      const name = ref('Nina');
       let res = null;
+      const name = ref('Nina');
       const stop = watchEffect(() => { res = name.value; });
 
+      assert.equal(res, 'Nina');
       name.value = 'Dan';
       assert.equal(res, 'Dan');
       stop();

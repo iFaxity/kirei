@@ -1,6 +1,6 @@
 import { Fx, TriggerOpTypes } from './fx';
 import { toReactive } from './reactive';
-import { isObject } from '@kirei/shared';
+import { isFunction, isObject } from '@kirei/shared';
 
 export type Ref<T = any> = { value: T; };
 export type RefTarget<T> = {
@@ -17,7 +17,6 @@ const refProto = Object.defineProperties(Object.create(null), {
     value() { return this.value.toString(); },
   },
 });
-const isPrototypeOf = Object.prototype.isPrototypeOf.bind(refProto);
 
 /**
  * Creates a ref object from an object with a getter & setter for value
@@ -25,14 +24,14 @@ const isPrototypeOf = Object.prototype.isPrototypeOf.bind(refProto);
  * @returns {Ref}
  */
 export function createRef<T>(target: RefTarget<T>): Ref<T> {
-  if (typeof target.get != 'function') {
+  const { get, set } = target ?? {};
+  if (!isFunction(get)) {
     throw new TypeError(`Computed getter expects a function, got ${typeof target.get}`);
-  } else if (target.set != null && typeof target.set != 'function') {
+  } else if (set != null && !isFunction(set)) {
     throw new TypeError(`Computed setter expects a function, got ${typeof target.set}`);
   }
 
-  const opts = { get: target.get, set: target.set };
-  return Object.defineProperty(Object.create(refProto), 'value', opts);
+  return Object.defineProperty(Object.create(refProto), 'value', { get, set });
 }
 
 /**
@@ -41,7 +40,7 @@ export function createRef<T>(target: RefTarget<T>): Ref<T> {
  * @returns {boolean}
  */
 export function isRef(target: any): target is Ref {
-  return isPrototypeOf(target);
+  return Object.prototype.isPrototypeOf.call(refProto, target);
 }
 
 /**
@@ -49,10 +48,9 @@ export function isRef(target: any): target is Ref {
  * @param {*} target
  * @returns {*}
  */
-export function unRef(target: any): any {
+export function unRef<T>(target: Ref<T>|T): T {
   return isRef(target) ? target.value : target;
 }
-
 
 /**
  * Creates a reactive reference of a native value
@@ -62,16 +60,15 @@ export function unRef(target: any): any {
 export function ref<T>(target?: T): Ref<T> {
   if (isRef(target)) return target;
 
-  // if target is object create proxy for it
+  // if target is an object, wrap in a reactive
   let value = toReactive(target);
   const r = createRef<T>({
     get() {
-      Fx.track(r, 'value');
-      return value;
+      return Fx.track(r, 'value'), value;
     },
     set(newValue: T) {
       value = toReactive(newValue) as T;
-      Fx.trigger(r, TriggerOpTypes.SET, 'value');
+      Fx.trigger(r, TriggerOpTypes.SET, 'value', value);
     },
   });
 

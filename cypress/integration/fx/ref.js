@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
-import { isRef, unRef, ref, isReactive } from '@kirei/fx';
+import { isRef, unRef, ref, createRef } from '@kirei/fx/dist/ref';
+import { isReactive } from '@kirei/fx';
 
 describe('@kirei/fx/ref', () => {
-  describe('#ref', () => {
+  describe('#ref()', () => {
     it('get/set primitive', () => {
       const r = ref(1);
       assert.equal(r.value, 1);
@@ -44,7 +45,7 @@ describe('@kirei/fx/ref', () => {
     });
   });
 
-  describe('#isRef', () => {
+  describe('#isRef()', () => {
     it('with ref argument', () => {
       const r = ref();
       assert(isRef(r));
@@ -61,7 +62,7 @@ describe('@kirei/fx/ref', () => {
     });
   });
 
-  describe('#unRef', () => {
+  describe('#unRef()', () => {
     it('with ref argument', () => {
       const r = ref('hello');
       assert.equal(unRef(r), 'hello');
@@ -92,6 +93,39 @@ describe('@kirei/fx/ref', () => {
 
     it('with undefined argument', () => {
       assert.equal(unRef(), undefined);
+    });
+  });
+
+  describe('#createRef()', () => {
+    it('getter', () => {
+      const r = createRef({
+        get: () => 'hello',
+      });
+
+      assert.equal(r.value, 'hello');
+      assert.throws(() => { r.value += 'world'; });
+    });
+
+    it('getter and setter', () => {
+      let value = 123;
+      const r = createRef({
+        get: () => value,
+        set: (v) => { value = v; },
+      });
+
+      assert.equal(r.value, 123);
+      r.value = 5;
+      assert.equal(r.value, 5);
+    });
+    it('invalid getter', () => {
+      assert.throws(() => createRef({ get: null }));
+      assert.throws(() => createRef({ get: 100 }));
+      assert.throws(() => createRef({}));
+    });
+    it('invalid setter', () => {
+      const get = () => {}; // no-op
+      assert.throws(() => createRef({ get, set: 100 }));
+      assert.throws(() => createRef({ get, set: 'hello' }));
     });
   });
 });

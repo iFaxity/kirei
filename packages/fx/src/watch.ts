@@ -15,19 +15,21 @@ type InferWatchValues<T> = {
 
 /**
  * Creates a function that runs anytime a reactive dependency updates.
- * @param {function} target - Target watchers function
- * @returns {void}
+ * Runs immediately to collect dependencies.
+ * Returns a function to effectivly stop the watcher.
+ * @param {function} target Target watchers function
+ * @returns {StopEffect}
  */
 export function watchEffect(target: () => void): StopWatcher {
   if (!isFunction(target)) {
-    throw new TypeError('watchFx can an only watch functions');
+    throw new TypeError(`watchEffect expected function as argument, got ${typeof target}.`);
   }
 
   const fx = new Fx(target, { lazy: false, computed: false });
   return fx.stop.bind(fx);
 }
 
-/* TODO: not ready
+/* TODO: not ready, requires more 
 export function watch<T extends WatchTarget[]>(
   target: T,
   callback: (values: InferWatchValues<T>, oldValues: InferWatchValues<T>) => void,

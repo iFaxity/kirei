@@ -1,9 +1,9 @@
 import { mapObject } from '@kirei/shared';
 import { isRef, Ref, createRef } from './ref';
-import { toRaw, isReactive } from './reactive';
+import { toRaw, isObserver } from './reactive';
 
 export { Fx, TriggerOpTypes } from './fx';
-export { isReactive, toReactive, toRaw, reactive, readonly } from './reactive';
+export * from './reactive';
 export { Ref, isRef, unRef, ref } from './ref';
 export { Computed, computed, computedGetter } from './computed';
 export { watchEffect } from './watch';
@@ -13,7 +13,7 @@ export { watchEffect } from './watch';
  * @param {*} target - Target to unpack
  * @returns {*}
  */
-export function toRawValue(target: unknown): unknown {
+export function toRawValue<T>(target: Ref<T>|T): T {
   return isRef(target) ? target.value : toRaw(target);
 }
 
@@ -24,11 +24,11 @@ export function toRawValue(target: unknown): unknown {
  * @returns {Ref}
  */
 export function toRef<T extends object>(target: object, key: string): Ref<T> {
-  if (!isReactive(target)) {
+  if (!isObserver(target)) {
     throw new TypeError(`toRef expected reactive, got ${target}`);
   }
 
-  return createRef<T>({
+  return createRef({
     get: () => target[key],
     set: (value) => target[key] = value,
   });
