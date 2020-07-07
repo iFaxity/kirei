@@ -286,7 +286,7 @@ export class KireiElement extends HTMLElement {
           if (newValue !== props[key]) {
             // Trigger an update on the element
             props[key] = toReactive(validateProp(options.props, key, newValue));
-            Fx.trigger(props, TriggerOpTypes.SET, key);
+            Fx.trigger(props, TriggerOpTypes.SET, key, newValue);
           }
         },
       });

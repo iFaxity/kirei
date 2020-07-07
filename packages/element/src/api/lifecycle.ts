@@ -26,7 +26,7 @@ export function defineHook<T = () => void>(name: string): (hook: T) => void {
   return (hook: T) => {
     const instance = KireiInstance.active;
     if (!instance) {
-      exception('Lifecycle hooks needs have a setup function in it\'s call stack.');
+      exception(`Lifecycle hooks needs have a setup function in its call stack.`);
     } else if (!isFunction(hook)) {
       exception('Lifecycle hooks requires the parameter to be a function.');
     }
