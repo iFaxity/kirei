@@ -1,3 +1,15 @@
+const BABEL_OPTIONS = {
+  presets: [
+    ['@babel/preset-env', {
+      exclude: [ '@babel/plugin-transform-regenerator' ]
+    }],
+  ],
+  plugins: [
+    '@babel/plugin-proposal-class-properties',
+    'istanbul'
+  ],
+};
+
 module.exports = {
   mode: 'development',
   devtool: 'inline-source-map',
@@ -9,16 +21,10 @@ module.exports = {
         use: [
           {
             loader: 'babel-loader',
-            options: {
-              presets: ['@babel/preset-env', '@babel/preset-typescript'],
-              plugins: ['transform-class-properties', 'istanbul'],
-            },
+            options: BABEL_OPTIONS,
           },
         ],
       },
     ],
-  },
-  resolve: {
-    extensions: ['.ts', '.js']
-  },
+  }
 };

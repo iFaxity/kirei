@@ -5,7 +5,6 @@
     "moduleResolution": "node",
     "lib": [ "es2016", "dom" ],
     "allowJs": true,
-    "rootDir": "../",
     "baseUrl": "../",
     "paths": {
       "@kirei/*": [ "packages/*" ]
@@ -13,11 +12,10 @@
     "types": [ "cypress" ]
   },
   "references": [
-    { "path": "packages/shared" },
-    { "path": "packages/fx" },
-    { "path": "packages/element" },
-    { "path": "packages/router" }
+    { "path": "../packages/shared" },
+    { "path": "../packages/fx" },
+    { "path": "../packages/element" },
+    { "path": "../packages/router" }
   ],
-  "include": [ "../packages/*" ],
-  "exclude": [ "**/node_modules" ]
+  "include": [ "../packages/*" ]
 }

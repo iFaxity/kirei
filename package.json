@@ -4,26 +4,26 @@
   "workspaces": [
     "packages/*"
   ],
+  "browserslist": "> 1%, not dead",
   "scripts": {
     "build": "tsc -b --force",
     "pretest": "npm run build",
-    "test": " cypress run",
+    "cypress": "cypress open",
+    "test": "cypress run",
     "docs": "typedoc --name Kirei --excludeNotExported --mode modules --out docs packages/*/src",
     "pretest:docker": "npm run build",
     "test:docker": "docker-compose run --rm cypress"
   },
   "devDependencies": {
     "@babel/core": "7.10.4",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@babel/preset-env": "7.10.4",
-    "@babel/preset-typescript": "7.10.4",
     "@cypress/code-coverage": "3.8.1",
     "@cypress/webpack-preprocessor": "5.4.1",
-    "@types/mocha": "7.0.2",
     "@types/webpack-env": "1.15.2",
     "babel-loader": "8.1.0",
     "babel-plugin-istanbul": "6.0.0",
-    "babel-plugin-transform-class-properties": "6.24.1",
-    "cypress": "4.9.0",
+    "cypress": "^4.9.0",
     "typedoc": "0.17.8",
     "typescript": "3.9.6",
     "webpack": "4.43.0",
