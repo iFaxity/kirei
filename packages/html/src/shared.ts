@@ -12,7 +12,7 @@ export const createWalker = IE
   : node => document.createTreeWalker(node, filter);
 
 // Shamelessly copied from the package uwire
-const nodeType = 123;
+const PERSIST_NODE_TYPE = 123;
 
 function remove(node: Node) {
   const { firstChild } = node;
@@ -23,14 +23,14 @@ function remove(node: Node) {
   return firstChild;
 }
 
-export function clearNode(node: Node|Element) {
+export function clearNode(node: Node) {
   // Check if node is already empty
   if (!node.lastChild) return;
   node.textContent = '';
 }
 
 function diffable(node, operation) {
-  if (node.nodeType === nodeType) {
+  if (node.nodeType === PERSIST_NODE_TYPE) {
     if (1 / operation < 0) {
       return operation ? remove(node) : node.lastChild;
     }
@@ -40,27 +40,31 @@ function diffable(node, operation) {
   return node;
 }
 
+// creates a persistent document fragment
 export function persistent(frag: DocumentFragment): Node {
   const children = frag.childNodes;
   // no content, return undefined (or first child)
   if (children.length < 2) return children[0];
 
   const nodes = Array.from(children);
-  const firstChild = nodes[0];
-  const valueOf = () => {
+  const nodeType = PERSIST_NODE_TYPE;
+  function valueOf() {
     if (children.length !== nodes.length) {
-      for (let i = 0; i < length; i++) {
-        frag.appendChild(nodes[i]);
-      }
+      nodes.forEach(n => frag.appendChild(n));
     }
     return frag;
-  };
-  // @ts-ignore
-  return { nodeType, firstChild, valueOf };
-};
+  }
+
+  //@ts-ignore
+  return { nodeType, valueOf, firstChild: nodes[0] };
+}
 
 // this helper avoid code bloat
-export function diff(node, oldNodes, newNodes) {
+/**
+ * Diffs content after a specific reference node, from old content to new content
+ * 
+ */
+export function diff(refNode: Node, oldNodes: Node[], newNodes: Node[]): Node[] {
   // TODO: there is a possible edge case where a node has been
   //       removed manually, or it was a keyed one, attached
   //       to a shared reference between renders.
@@ -76,14 +80,14 @@ export function diff(node, oldNodes, newNodes) {
   //       and both lighterhtml and hyperHTML might fail with this
   //       very specific edge case, I might as well document this possible
   //       "diffing shenanigan" and call it a day.
-  return domdiff(node.parentNode, oldNodes, newNodes, diffable, node);
+  return domdiff(refNode.parentNode, oldNodes, newNodes, diffable, refNode);
 }
 
-export function createTemplate(type: string, markup: string): HTMLTemplateElement {
+export function createTemplate(svg: boolean, markup: string): HTMLTemplateElement {
   const template = document.createElement('template');
 
-  if (type == 'svg') {
-    // Wrap in a svg element and then move the child nodes back to the template element
+  if (svg) {
+    // Wrap in a svg element and then hoist the child nodes back to the root
     template.innerHTML = `<svg>${markup}</svg>`;
     const { content } = template;
     const svg = content.firstChild;

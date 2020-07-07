@@ -52,7 +52,8 @@ function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch 
 
 function compileContent(type: string, strings: TemplateStringsArray, scopeName: string): TemplateContent {
   // Compile the template element
-  const template = createTemplate(type, sanitize(strings, prefix, type == 'svg'));
+  const isSvg = type === 'svg';
+  const template = createTemplate(isSvg, sanitize(strings, prefix, isSvg));
   const patches: TemplatePatch[] = [];
   const walker = createWalker(template.content);
   const len = strings.length - 1;

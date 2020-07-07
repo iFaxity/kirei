@@ -45,7 +45,7 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
      * @param {string} [scopeName] The custom element tag name, only used for webcomponents shims
      */
     render(template: Template|Node, root: RootContainer, scopeName?: string): void {
-      if (template) {
+      if (template != null) {
         let cache = rendered.get(root);
         if (!cache) {
           rendered.set(root, (cache = createCache()));
@@ -65,7 +65,7 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
           clearNode(root);
           root.appendChild(node.valueOf() as Node);
         }
-      } else if (template == null) {
+      } else {
         const cache = rendered.get(root);
 
         // Cleanup root and clear cache
@@ -73,18 +73,16 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
           clearNode(root);
           cache.node = null;
         }
-      } else {
-        throw new TypeError('Template renderer can expects a valid Template as it\'s first argument');
       }
     },
     /**
      * Creates a template with html content
      */
-    html: createLiteral<T>('html', opts),
+    html: createLiteral('html', opts),
     /**
      * Creates a template with svg content
      */
-    svg: createLiteral<T>('svg', opts),
+    svg: createLiteral('svg', opts),
   }
 }
 
@@ -100,9 +98,6 @@ function createLiteral<T extends TemplateLiteral>(
     return new Template(type, strings, values);
   };
 
-  //@ts-ignore
-  template.cache = keyed;
-
   template.key = (ref: object, key: Key|Template, template?: Template): Node => {
     // Key is optional as we can key by the reference object
     if (!template) {
@@ -112,14 +107,13 @@ function createLiteral<T extends TemplateLiteral>(
 
     let memo = keyed.get(ref);
     if (!memo) {
-      keyed.set(ref, (memo = new Map()));
+      keyed.set(ref, memo = new Map());
     }
 
-    // keyed operations always re-use the same cache and unroll
-    // the template and its interpolations right away
+    // keyed operations always re-use the same cache
     let cache = memo.get(key);
     if (!cache) {
-      memo.set(key, (cache = createCache()))
+      memo.set(key, cache = createCache())
     }
 
     // Update template and return the cached node

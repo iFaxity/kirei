@@ -13,12 +13,21 @@ export interface TemplateCompiler {
  * @param {object|array} className
  * @returns {string}
  */
-function mapAttribute(className: any): any {
-  if (!isObject(className)) return className;
-  if (Array.isArray(className)) {
-    return className.filter(x => x).join(' ');
+function mapAttribute<T = any>(attr: string, value: T): string|T {
+  if (!isObject(value)) return value;
+  if (Array.isArray(value)) {
+    if (attr == 'style') {
+      throw new TypeError('Style attribute expressions cannot map array');
+    }
+
+    return value.filter(x => x).join(' ');
   }
-  return Object.keys(className).filter(key => !!className[key]).join(' ');
+
+  const keys = Object.keys(value).filter(key => value[key]);
+  if (attr == 'style') {
+    return keys.map(key => `${key}=${value[key]}`).join(';');
+  }
+  return keys.join(' ');
 }
 
 // Special patchers for prop and event
@@ -28,7 +37,9 @@ function propPatcher(node: HTMLElement, name: string): TemplatePatcher {
 function eventPatcher(node: HTMLElement, name: string): TemplatePatcher {
   // Using a bound listener prevents frequent remounting
   let listener;
-  const boundListener: EventListener = (e) => listener.call(node, e);
+  function boundListener(e: Event): void {
+    return listener.call(node, e);
+  }
 
   return (pending: unknown) => {
     if (listener !== pending) {
@@ -66,7 +77,7 @@ export const defaultCompiler: TemplateCompiler = {
           mounted = false;
         }
       } else {
-        attr.value = shouldMap ? mapAttribute(value) : value;
+        attr.value = shouldMap ? mapAttribute(name, value) : value;
         if (!mounted) {
           node.setAttributeNode(attr);
           mounted = true;
@@ -118,7 +129,7 @@ export const defaultCompiler: TemplateCompiler = {
           nodeParser(String(pending));
         }
       } else {
-        error('Invalid node expression in html template');
+        throw new Error('Invalid node expression in html template');
       }
     };
 
