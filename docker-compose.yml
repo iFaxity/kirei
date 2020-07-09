@@ -10,7 +10,7 @@ services:
       - ./package.json:/app/package.json
       - ./packages:/app/packages
   cypress:
-    image: cypress/included:4.9.0
+    image: cypress/included:4.10.0
     working_dir: /e2e
     #depends_on:
     #  - app
