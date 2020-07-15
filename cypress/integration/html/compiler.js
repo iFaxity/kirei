@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 import { defaultCompiler } from '@kirei/html';
 
-
 function assertText(value, expected) {
   const node = document.createComment('');
   const patcher = defaultCompiler.text(node);
@@ -49,7 +48,7 @@ function assertNode(value, expected) {
   }
 }
 
-describe('@kirei/html/compiler', () => {
+describe('html/compiler', () => {
   describe('#defaultCompiler', () => {
     describe('#text()', () => {
       it('with string', () => assertText('Hello', 'Hello'));

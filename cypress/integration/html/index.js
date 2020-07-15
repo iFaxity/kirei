@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 import { Template, customize, html, svg, render } from '@kirei/html';
 
-describe('@kirei/html/index', () => {
+describe('html/index', () => {
   describe('#customize()', () => {
     it('without options', () => {
       const res = customize();
