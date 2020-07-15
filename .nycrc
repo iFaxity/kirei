@@ -1,4 +1,0 @@
-{
-  "reporter": "lcov",
-  "report-dir": "cypress/coverage"
-}

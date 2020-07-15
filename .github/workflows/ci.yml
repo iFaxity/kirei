@@ -43,7 +43,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
-          file: ./coverage/lcov.info
+          file: ./cypress/coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
@@ -51,5 +51,5 @@ jobs:
         uses: codacy/codacy-coverage-reporter-action@v0.2.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: ./coverage/lcov.info
+          coverage-reports: ./cypress/coverage/lcov.info
 

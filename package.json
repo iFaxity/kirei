@@ -5,6 +5,10 @@
   "workspaces": [
     "packages/*"
   ],
+  "nyc": {
+    "reporter": "lcov",
+    "report-dir": "./cypress/coverage"
+  },
   "scripts": {
     "build": "tsc -b --force",
     "cypress": "cypress open",
