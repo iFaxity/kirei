@@ -5,7 +5,7 @@
     "reportFilename": "report",
     "consoleReporter": "spec",
     "reportDir": "cypress/report",
-    "reportTitle": "Kirei test report",
+    "reportTitle": "Kirei Cypress Report",
     "overwrite": false,
     "html": false,
     "json": true
