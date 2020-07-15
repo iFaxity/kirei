@@ -3,6 +3,8 @@ import {
   isPrimitive,
   isObject,
   isFunction,
+  isString,
+  isUndefined,
   mapObject,
   camelToKebab,
   exception,
@@ -10,8 +12,38 @@ import {
   warn,
 } from '@kirei/shared';
 
-describe('@kirei/shared', () => {
-  describe('#isPrimitive', () => {
+function assertConsole(name, callback, expected) {
+  let nativeFn = console[name];
+  let message;
+
+  // shim console function
+  console[name] = (msg) => { message = msg; };
+
+  try {
+    callback();
+    assert.equal(message, expected);
+  } finally {
+    console[name] = nativeFn;
+  }
+}
+
+describe('shared/index', () => {
+  it('#exception()', () => {
+    assert.throws(() => exception('Test message'));
+  });
+
+  it('#error()', () => {
+    const fn = () => error('Error message');
+    assertConsole('error', fn, '[Kirei]: Error message');
+  });
+
+  it('#warn()', () => {
+    const fn = () => warn('Warning message');
+    assertConsole('warn', fn, '[Kirei]: Warning message');
+  });
+
+
+  describe('#isPrimitive()', () => {
     it('with string', () => assert(isPrimitive('test')));
     it('with number', () => assert(isPrimitive(123)));
     it('with boolean', () => assert(isPrimitive(true)));
@@ -24,7 +56,7 @@ describe('@kirei/shared', () => {
     it('with array', () => assert(!isPrimitive([])));
   });
 
-  describe('#isObject', () => {
+  describe('#isObject()', () => {
     it('with object', () => assert(isObject({})));
     it('with array', () => assert(isObject([])));
     it('with Object.create(null)', () => assert(isObject(Object.create(null))));
@@ -39,7 +71,7 @@ describe('@kirei/shared', () => {
     it('with symbol', () => assert(!isObject(Symbol())));
   });
 
-  describe('#isFunction', () => {
+  describe('#isFunction()', () => {
     it('with lambda fn', () => assert(isFunction(() => {})));
     it('with function', () => assert(isFunction(assert)));
 
@@ -49,7 +81,26 @@ describe('@kirei/shared', () => {
     it('with boolean', () => assert(!isFunction(false)));
   });
 
-  describe('#mapObject', () => {
+  describe('#isString()', () => {
+    it('with string', () => assert(isString('foo')));
+    it('with string literal', () => assert(isString(`Hello`)));
+
+    it('with undefined', () => assert(!isString()));
+    it('with null', () => assert(!isString(null)));
+    it('with number', () => assert(!isString(3)));
+    it('with boolean', () => assert(!isString(true)));
+  });
+
+  describe('#isUndefined()', () => {
+    it('with implicit undefined', () => assert(isUndefined()));
+    it('with explicit undefined', () => assert(isUndefined(void 0)));
+
+    it('with null', () => assert(!isUndefined(null)));
+    it('with symbol', () => assert(!isUndefined(Symbol())));
+    it('with string', () => assert(!isUndefined('undefined')));
+  });
+
+  describe('#mapObject()', () => {
     it('basic usage', () => {
       const input = {
         foo: 'foo', bar: 'bar'
@@ -68,7 +119,7 @@ describe('@kirei/shared', () => {
     });
   });
 
-  describe('#camelToKebab', () => {
+  describe('#camelToKebab()', () => {
     it('with PascalCase', () => assert.equal(camelToKebab('HelloWorld'), 'hello-world'));
     it('with kebab-case', () => assert.equal(camelToKebab('kebab-yum-jum'), 'kebab-yum-jum'));
     it('with camelCase', () => assert.equal(camelToKebab('heyLittleFriend'), 'hey-little-friend'));
@@ -76,39 +127,5 @@ describe('@kirei/shared', () => {
 
     it('with number', () => assert.throws(() => camelToKebab(100)));
     it('with null', () => assert.throws(() => camelToKebab(null)));
-  });
-
-  describe('logging', () => {
-    let warnMessage, errMessage;
-    const warnFn = console.warn;
-    const errFn = console.error;
-    before(() => {
-      console.warn = (msg, ...params) => {
-        warnMessage = msg;
-        errFn(msg, ...params)
-      };
-      console.error = (msg, ...params) => {
-        errMessage = msg;
-        warnFn(msg, ...params)
-      };
-    });
-    after(() =>{
-      console.warn = warnFn;
-      console.error = warnFn;
-    });
-
-    it('#exception()', () => {
-      assert.throws(() => exception('Test message'));
-    });
-
-    it('#error()', () => {
-      error('Error message');
-      assert.equal(errMessage, '[Kirei]: Error message');
-    });
-
-    it('#warn()', () => {
-      warn('Warning message');
-      assert.equal(warnMessage, '[Kirei]: Warning message');
-    });
   });
 });

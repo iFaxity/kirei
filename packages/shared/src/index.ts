@@ -4,27 +4,50 @@ export type Primitive = null|undefined|boolean|number|string|symbol|bigint;
 //export const DEV = process.env.NODE_ENV != 'production';
 export const IS_BROWSER = typeof window != 'undefined' && typeof window.document != 'undefined';
 
-export function isPrimitive(value: unknown): value is Primitive {
-  const type = typeof value;
-  return value == null || type !== 'object' && type !== 'function';
-}
-
 /**
- * Checks if a variable is an object
- * @param {*} obj
+ * Checks if a variable is a primitive value (not object or function)
+ * @param {*} value
  * @returns {boolean}
  */
-export function isObject<T = object>(target: any): target is T {
-  return target != null && typeof target == 'object';
+export function isPrimitive(value: unknown): value is Primitive {
+  const type = typeof value;
+  return value == null || type != 'object' && type != 'function';
 }
 
 /**
- * Checks if a variable is a function
+ * Checks if a value is an object
+ * @param {*} value
+ * @returns {boolean}
+ */
+export function isObject<T = object>(value: any): value is T {
+  return value != null && typeof value == 'object';
+}
+
+/**
+ * Checks if a value is a function
  * @param {*} fn
  * @returns {boolean}
  */
-export function isFunction(target: any): target is Function {
-  return typeof target == 'function';
+export function isFunction(value: any): value is Function {
+  return typeof value == 'function';
+}
+
+/**
+ * Checks if a value is a string
+ * @param {*} value
+ * @returns {boolean}
+ */
+export function isString(value: any): value is string {
+  return typeof value == 'string';
+}
+
+/**
+ * Checks if a value is undefined
+ * @param {*} value
+ * @returns {boolean}
+ */
+export function isUndefined(value: any): value is undefined {
+  return typeof value == 'undefined';
 }
 
 /**
