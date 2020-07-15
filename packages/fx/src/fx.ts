@@ -1,3 +1,5 @@
+import { isUndefined } from '@kirei/shared';
+
 const targetMap = new WeakMap<object, Map<any, Set<Fx>>>();
 export enum TriggerOpTypes {
   SET = 'set',
@@ -121,7 +123,7 @@ export class Fx {
       depsMap.forEach((dep, key) => (key == 'length' || key >= newValue) && add(dep));
     } else {
       // schedule runs for SET | ADD | DELETE
-      if (typeof key != 'undefined') {
+      if (!isUndefined(key)) {
         add(depsMap.get(key));
       }
 

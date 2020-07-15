@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 import { Fx, fxStack, activeFx, trackStack } from '@kirei/fx/dist/fx';
 
-describe('@kirei/fx/fx', () => {
+describe('fx/fx', () => {
   beforeEach(() => {
     // Drain tracking stack on every run
     while(trackStack.length) {

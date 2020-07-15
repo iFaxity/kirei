@@ -26,9 +26,9 @@ const refProto = Object.defineProperties(Object.create(null), {
 export function createRef<T>(target: RefTarget<T>): Ref<T> {
   const { get, set } = target ?? {};
   if (!isFunction(get)) {
-    throw new TypeError(`Computed getter expects a function, got ${typeof target.get}`);
+    throw new TypeError(`Ref getter expects a function, got ${typeof target.get}`);
   } else if (set != null && !isFunction(set)) {
-    throw new TypeError(`Computed setter expects a function, got ${typeof target.set}`);
+    throw new TypeError(`Ref setter expects a function, got ${typeof target.set}`);
   }
 
   return Object.defineProperty(Object.create(refProto), 'value', { get, set });

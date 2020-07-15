@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 import { computed } from '@kirei/fx';
 
-describe('@kirei/fx/computed', () => {
+describe('fx/computed', () => {
   describe('computed', () => {
     it('getter', () => {
       const r = computed(() => 'hello');

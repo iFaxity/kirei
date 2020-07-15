@@ -14,7 +14,7 @@ function prepareProxyHook(isCollection, createTarget) {
   };
 }
 
-describe('@ifaxity/fx/proxyHandlers', () => {
+describe('fx/proxyHandlers', () => {
   describe('#baseHandlers()', () => {
     describe('with object', () => {
       const proxyHook = prepareProxyHook(

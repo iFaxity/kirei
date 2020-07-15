@@ -1,7 +1,17 @@
 /// <reference types="cypress" />
 import { toRef, toRefs, toRawValue, isRef, ref, reactive, readonly } from '@kirei/fx';
 
-describe('@kirei/fx/index', () => {
+function assertRef(actual, expected) {
+  assert(isRef(actual));
+  assert.equal(actual.value, expected);
+}
+
+function assertRefs(actual) {
+  const refs = toRefs(actual);
+  Object.keys(actual).forEach(key => assertRef(refs[key], actual[key]));
+}
+
+describe('fx/index', () => {
   describe('#toRawValue', () => {
     it('with ref', () => {
       const r = ref('reffy');
@@ -30,8 +40,7 @@ describe('@kirei/fx/index', () => {
       const greeting = toRef(r, 'greeting');
 
       // Test getter
-      assert.equal(greeting.value, 'Hello Matt');
-      assert.equal(greeting.value, r.greeting);
+      assertRef(greeting, 'Hello Matt');
 
       // Test setter
       greeting.value = 'Hello Kate';
@@ -40,19 +49,21 @@ describe('@kirei/fx/index', () => {
     });
     it('with readonly', () => {
       const r = readonly({ greeting: 'Hello Matt', enabled: true, count: 100 });
-      const count = toRef(r, 'count');
-
-      // Test getter
-      assert.equal(count.value, 100);
-      assert.equal(count.value, r.count);
+      assertRef(toRef(r, 'count'), 100);
     });
     it('with ref', () => {
       const r = ref('123');
-      assert.throws(() => toRef(r, 'value'));
+      assertRef(toRef(r, 'value'), '123');
     });
     it('with plain object', () => {
       const o = { abc: 'def' };
-      assert.throws(() => toRef(o, 'abc'));
+      assertRef(toRef(o, 'abc'), 'def');
+    });
+    it('with number', () => {
+      assert.throws(() => assertRef(100, 100));
+    });
+    it('with null', () => {
+      assert.throws(() => assertRef(null, null));
     });
   });
 
@@ -60,16 +71,13 @@ describe('@kirei/fx/index', () => {
     it('with reactive', () => {
       const r = reactive({ greeting: 'Hello Matt', enabled: true, count: 100 });
       const refs = toRefs(r);
-      const keys = Object.keys(refs);
 
-      assert.deepEqual(keys, ['greeting', 'enabled', 'count']);
-      for (const key of keys) {
+      for (const key of Object.keys(r)) {
         // test getter
-        assert(isRef(refs[key]));
-        const value = refs[key].value;
-        assert.equal(value, r[key]);
+        assertRef(refs[key], r[key]);
 
         // test setter
+        const value = r[key];
         refs[key].value += '!';
         assert.equal(refs[key].value, value + '!');
         assert.equal(refs[key].value, r[key]);
@@ -77,24 +85,20 @@ describe('@kirei/fx/index', () => {
     });
     it('with readonly', () => {
       const r = readonly({ greeting: 'Hello Matt', enabled: true, count: 100 });
-      const refs = toRefs(r);
-      const keys = Object.keys(refs);
-
-      assert.deepEqual(keys, ['greeting', 'enabled', 'count']);
-      for (const key of keys) {
-        // test getter
-        assert(isRef(refs[key]));
-        const value = refs[key].value;
-        assert.equal(value, r[key]);
-      }
+      assertRefs(r);
     });
     it('with plain object', () => {
-      const o = { abc: 'def', foo: 'bar', baz: 'fooz' };
-      assert.throws(() => toRefs(o));
+      assertRefs({ abc: 'def', foo: 'bar', baz: 'fooz' });
     });
     it('with Proxy', () => {
       const p = new Proxy({ abc: 'def', foo: 'bar', baz: 'fooz' }, {});
-      assert.throws(() => toRefs(p));
+      assertRefs(p);
+    });
+    it('with string', () => {
+      assert.throws(() => assertRefs('baz'));
+    });
+    it('with undefined', () => {
+      assert.throws(() => assertRefs(undefined));
     });
   });
 })
