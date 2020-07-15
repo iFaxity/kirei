@@ -1,17 +1,21 @@
 {
   "private": true,
   "version": "1.0.1",
+  "name": "kirei",
   "workspaces": [
     "packages/*"
   ],
-  "browserslist": "> 1%, not dead",
   "scripts": {
     "build": "tsc -b --force",
-    "pretest": "npm run build",
     "cypress": "cypress open",
-    "test": "cypress run",
     "docs": "typedoc --name Kirei --excludeNotExported --mode modules --out docs packages/*/src",
-    "pretest:docker": "npm run build",
+    "dev": "webpack-dev-server --quiet --config cypress/app/webpack.config.js",
+    "clean:report": "rm -rf cypress/report; mkdir -p cypress/report",
+    "combine-reports": "mochawesome-merge cypress/report/*.json -o cypress/report/index.json",
+    "generate-report": "marge -o cypress/report cypress/report/index.json",
+    "pretest": "npm run build && npm run clean:report",
+    "test": "cypress run -q || :",
+    "posttest": "npm run combine-reports && npm run generate-report && rm -f cypress/report/report*.json",
     "test:docker": "docker-compose run --rm cypress"
   },
   "devDependencies": {
@@ -24,6 +28,8 @@
     "babel-loader": "8.1.0",
     "babel-plugin-istanbul": "6.0.0",
     "cypress": "4.10.0",
+    "mochawesome": "6.1.1",
+    "mochawesome-merge": "4.1.0",
     "typedoc": "0.17.8",
     "typescript": "3.9.6",
     "webpack": "4.43.0",

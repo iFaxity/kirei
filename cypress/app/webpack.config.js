@@ -1,37 +1,41 @@
+const BABEL_OPTIONS = {
+  presets: [
+    ['@babel/preset-env', {
+      exclude: [ '@babel/plugin-transform-regenerator' ],
+    }]
+  ],
+  plugins: [
+    '@babel/plugin-proposal-class-properties',
+    ['istanbul', {
+      exclude: [ 'cypress' ],
+    }],
+  ]
+};
+
 module.exports = {
-  entry: './main.js',
+  entry: `${__dirname}/main.js`,
   mode: 'development',
+  stats: 'errors-only',
+  //devtool: 'inline-source-map',
   output: {
-    filename: '[name].js',
+    path: `${__dirname}/dist`,
+    filename: 'bundle.js', 
   },
   devServer: {
-    port: 3000,
+    clientLogLevel: 'error',
+    contentBase: `${__dirname}/public`,
+    publicPath: '/',
     historyApiFallback: true,
+    port: 3000,
     host: '0.0.0.0',
-  },
-  resolve: {
-    extensions: ['.js', '.ts'],
   },
   module: {
     rules: [
       {
-        test: /\.ts$/,
-        use: [
-          { loader: 'ts-loader' },
-          {
-            loader: 'istanbul-instrumenter-loader',
-            options: { esModules: true }
-          },
-        ],
-      },
-      {
-        test: /\.html$/,
-        use: {
-          loader: 'file-loader',
-          options: {
-            name: '[name].[ext]',
-          },
-        },
+        test: /\.m?js$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader',
+        options: BABEL_OPTIONS,
       },
     ],
   },

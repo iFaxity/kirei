@@ -6,7 +6,9 @@ const BABEL_OPTIONS = {
   ],
   plugins: [
     '@babel/plugin-proposal-class-properties',
-    'istanbul'
+    ['istanbul', {
+      exclude: [ 'cypress' ],
+    }],
   ],
 };
 
@@ -16,7 +18,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.[jt]s/,
+        test: /\.m?[tj]s$/,
         exclude: /(node_modules)/,
         use: [
           {

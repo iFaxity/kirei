@@ -41,5 +41,7 @@ typings/
 package-lock.json
 dist/
 dev/
+cypress/coverage
+cypress/report
 cypress/videos
 cypress/screenshots

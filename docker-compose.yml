@@ -1,25 +1,13 @@
 version: '3.2'
 services:
-  app:
-    build: ./cypress/app
-    ports:
-      - 8080:80
-    volumes:
-      - ./cypress/app:/app
-      - ./node_modules:/app/node_modules
-      - ./package.json:/app/package.json
-      - ./packages:/app/packages
   cypress:
-    image: cypress/included:4.10.0
-    working_dir: /e2e
-    #depends_on:
-    #  - app
-    #environment:
-    #  - CYPRESS_baseUrl=http://app
+    build: ./cypress
+    ports:
+      - 3000:3000
     volumes:
       - ./cypress:/e2e/cypress
       - ./cypress.json:/e2e/cypress.json
-      - ./node_modules:/e2e/node_modules
-      - ./coverage/:/e2e/coverage
+      - ./tsconfig.json:/e2e/tsconfig.json
       - ./package.json:/e2e/package.json
+      - ./node_modules:/e2e/node_modules
       - ./packages:/e2e/packages
