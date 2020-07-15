@@ -1,9 +1,9 @@
 import { diff } from './shared';
-import { isObject, error } from '@kirei/shared';
+import { isObject } from '@kirei/shared';
 
 export type TemplatePatcher = (pending: any) => void;
 export interface TemplateCompiler {
-  attr?(node: HTMLElement, attr: string): TemplatePatcher|void;
+  attr?(node: Element, attr: string): TemplatePatcher|void;
   node?(ref: Comment): TemplatePatcher|void;
   text?(node: Text): TemplatePatcher|void;
 }
@@ -31,10 +31,10 @@ function mapAttribute<T = any>(attr: string, value: T): string|T {
 }
 
 // Special patchers for prop and event
-function propPatcher(node: HTMLElement, name: string): TemplatePatcher {
+function propPatcher(node: Element, name: string): TemplatePatcher {
   return (pending) => { node[name] = pending };
 }
-function eventPatcher(node: HTMLElement, name: string): TemplatePatcher {
+function eventPatcher(node: Element, name: string): TemplatePatcher {
   // Using a bound listener prevents frequent remounting
   let listener;
   function boundListener(e: Event): void {
@@ -97,7 +97,7 @@ export const defaultCompiler: TemplateCompiler = {
           value = pending;
           nodes = diff(ref, nodes, []);
         }
-      } else if (typeof pending != 'object') {
+      } else if (!isObject(pending)) {
         // primitives are handled as text content
         if (value !== pending) {
           value = pending;
@@ -120,7 +120,7 @@ export const defaultCompiler: TemplateCompiler = {
         // arrays and nodes have a special treatment
         value = pending;
 
-        if (value.length === 0 || typeof value[0] === 'object') {
+        if (value.length === 0 || isObject(value[0])) {
           // arrays can be used to cleanup, if empty
           // or diffed, if these contains nodes or "wires"
           nodes = diff(ref, nodes, value);

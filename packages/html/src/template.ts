@@ -131,7 +131,7 @@ function createInstance(template: Template, compiler: TemplateCompiler, scopeNam
   const root = document.importNode(node.content, true);
   const patchers = patches.map(({type, attr, path}) => {
     // Fallback to defaultCompiler
-    const node = path.reduceRight<Node>((n, i) => n.childNodes[i], root) as HTMLElement&Comment&Text;
+    const node = path.reduceRight<Node>((n, i) => n.childNodes[i], root) as Element&Comment&Text;
     return compiler?.[type]?.(node, attr) || defaultCompiler[type](node, attr) as TemplatePatcher;
   });
 

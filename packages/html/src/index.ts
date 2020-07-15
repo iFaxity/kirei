@@ -41,7 +41,7 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
     /**
      * Renders a template to a specific root container
      * @param {Template|Node} template Template or Node to render from
-     * @param {HTMLElement|ShadowRoot|DocumentFragment} root Root node to render content to
+     * @param {Element|ShadowRoot|DocumentFragment} root Root node to render content to
      * @param {string} [scopeName] The custom element tag name, only used for webcomponents shims
      */
     render(template: Template|Node, root: RootContainer, scopeName?: string): void {
