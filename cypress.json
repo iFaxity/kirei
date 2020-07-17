@@ -2,14 +2,14 @@
   "reporter": "mochawesome",
   "reporterOptions": {
     "quiet": true,
-    "reportFilename": "report",
+    "reportFilename": "index",
     "consoleReporter": "spec",
     "reportDir": "cypress/report",
     "reportTitle": "Kirei Cypress Report",
-    "overwrite": false,
-    "html": false,
+    "html": true,
     "json": true
   },
+  "testFiles": "bootstrap.js",
   "screenshotOnRunFailure": true,
   "video": false,
   "experimentalShadowDomSupport": true,

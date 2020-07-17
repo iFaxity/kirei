@@ -3558,7 +3558,7 @@ fs-extra@9.0.0:
     jsonfile "^6.0.1"
     universalify "^1.0.0"
 
-fs-extra@^7.0.0, fs-extra@^7.0.1:
+fs-extra@^7.0.0:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-7.0.1.tgz#4f189c44aa123b895f722804f55ea23eadc348e9"
   integrity sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==
@@ -5013,16 +5013,6 @@ mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@^0.5.3, mkdirp@^0.5.4:
   integrity sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==
   dependencies:
     minimist "^1.2.5"
-
-mochawesome-merge@4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/mochawesome-merge/-/mochawesome-merge-4.1.0.tgz#25a514460c6e106e2c8399daaec2d085b6e89b56"
-  integrity sha512-cDMzSmYu1dRKcr+ZrjjUEuXSiirU8LTG6R8hrAPlZ7zy1EeL7LLpi+a156obxzqh8quTWmYxKtUbTF2PQt0l7A==
-  dependencies:
-    fs-extra "^7.0.1"
-    glob "^7.1.6"
-    uuid "^3.3.2"
-    yargs "^15.3.1"
 
 mochawesome-report-generator@^5.1.0:
   version "5.1.0"
@@ -7479,23 +7469,6 @@ yargs@^15.0.2:
   dependencies:
     cliui "^6.0.0"
     decamelize "^3.2.0"
-    find-up "^4.1.0"
-    get-caller-file "^2.0.1"
-    require-directory "^2.1.1"
-    require-main-filename "^2.0.0"
-    set-blocking "^2.0.0"
-    string-width "^4.2.0"
-    which-module "^2.0.0"
-    y18n "^4.0.0"
-    yargs-parser "^18.1.2"
-
-yargs@^15.3.1:
-  version "15.4.1"
-  resolved "https://registry.yarnpkg.com/yargs/-/yargs-15.4.1.tgz#0d87a16de01aee9d8bec2bfbf74f67851730f4f8"
-  integrity sha512-aePbxDmcYW++PaqBsJ+HYUFwCdv4LVvdnhBy78E57PIor8/OVvhMrADFFEDh8DHDFRv/O9i3lPhsENjO7QX0+A==
-  dependencies:
-    cliui "^6.0.0"
-    decamelize "^1.2.0"
     find-up "^4.1.0"
     get-caller-file "^2.0.1"
     require-directory "^2.1.1"

@@ -14,12 +14,7 @@
     "cypress": "cypress open",
     "docs": "typedoc --name Kirei --excludeNotExported --mode modules --out docs packages/*/src",
     "dev": "webpack-dev-server --quiet --config cypress/app/webpack.config.js",
-    "clean:report": "rm -rf cypress/report; mkdir -p cypress/report",
-    "combine-reports": "mochawesome-merge cypress/report/*.json -o cypress/report/index.json",
-    "generate-report": "marge -o cypress/report cypress/report/index.json",
-    "pretest": "npm run build && npm run clean:report",
-    "test": "cypress run -q || :",
-    "posttest": "npm run combine-reports && npm run generate-report && rm -f cypress/report/report*.json",
+    "test": "cypress run",
     "test:docker": "docker-compose run --rm cypress"
   },
   "devDependencies": {
@@ -33,7 +28,6 @@
     "babel-plugin-istanbul": "6.0.0",
     "cypress": "4.10.0",
     "mochawesome": "6.1.1",
-    "mochawesome-merge": "4.1.0",
     "typedoc": "0.17.8",
     "typescript": "3.9.7",
     "webpack": "4.43.0",
