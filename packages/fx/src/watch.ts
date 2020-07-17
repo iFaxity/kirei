@@ -1,3 +1,9 @@
+/*!
+ * Based on https://github.com/vuejs/vue-next/blob/master/packages/reactivity
+ * Copyright(c) 2019-2020 Vuejs Maintainers, http://vuejs.org
+ * Copyright(c) 2020 Christian Norrman
+ * MIT Licensed
+ */
 import { isFunction } from '@kirei/shared';
 import { Fx } from './fx';
 //import { Ref, isRef } from './ref';

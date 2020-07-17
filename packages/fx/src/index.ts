@@ -1,3 +1,9 @@
+/*!
+ * Based on https://github.com/vuejs/vue-next/blob/master/packages/reactivity
+ * Copyright(c) 2019-2020 Vuejs Maintainers, http://vuejs.org
+ * Copyright(c) 2020 Christian Norrman
+ * MIT Licensed
+ */
 import { mapObject, isObject } from '@kirei/shared';
 import { isRef, Ref, createRef } from './ref';
 import { toRaw } from './reactive';

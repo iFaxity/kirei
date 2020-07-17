@@ -1,3 +1,9 @@
+/*!
+ * Based on https://github.com/vuejs/vue-next/blob/master/packages/reactivity
+ * Copyright(c) 2019-2020 Vuejs Maintainers, http://vuejs.org
+ * Copyright(c) 2020 Christian Norrman
+ * MIT Licensed
+ */
 import { isObject } from '@kirei/shared';
 import { baseHandlers, collectionHandlers, REACTIVE_KEY, READONLY_KEY, OBSERVER_KEY } from './proxyHandlers';
 import { isCollection } from './shared';

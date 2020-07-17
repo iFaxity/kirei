@@ -1,5 +1,5 @@
 import { KireiElement } from '@kirei/element';
-import { isFunction } from '@kirei/shared';
+import { isFunction, isString } from '@kirei/shared';
 import { pathToRegexp, Key } from 'path-to-regexp';
 const ROUTE_KEYS = [ 'path', 'slot', 'keepAlive', 'meta', 'name', 'redirect', 'caseSensitive' ];
 
@@ -53,7 +53,7 @@ export class Route {
     });
     this.keys = keys.map(key => key.name);
 
-    if (typeof opts.element == 'string') {
+    if (isString(opts.element)) {
       this.ctor = opts.element;
     } else if (isFunction(opts.element) || isFunction(opts?.element?.then)) {
       this.ctor = opts.element;
@@ -85,12 +85,12 @@ export class Route {
   }
 
   async element(): Promise<Element> {
-    let { el } = this;
+    let { el, ctor } = this;
     if (!this.el) {
-      if (typeof this.ctor == 'string') {
-        el = document.createElement(this.ctor);
+      if (isString(ctor)) {
+        el = document.createElement(ctor);
       } else {
-        el = new (await this.ctor)();
+        el = new (await ctor)();
       }
     }
 

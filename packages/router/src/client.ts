@@ -113,13 +113,13 @@ export class ClientRouter extends Router implements RouterInterface {
       const view = views[idx];
 
       // Replace node if view elements are not the same
-      KireiInstance.active = instance;
+      instance.activate();
       const el = await route.element();
       if (el !== view) {
         root.replaceChild(el, view);
         views[idx] = el;
       }
-      KireiInstance.resetActive();
+      instance.deactivate();
 
       // Send params as props
       if (route.params) {

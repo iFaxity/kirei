@@ -1,3 +1,9 @@
+/*!
+ * Based on https://github.com/vuejs/vue-next/blob/master/packages/reactivity
+ * Copyright(c) 2019-2020 Vuejs Maintainers, http://vuejs.org
+ * Copyright(c) 2020 Christian Norrman
+ * MIT Licensed
+ */
 import { Fx, ITER_KEY, MAP_KEY_ITER_KEY, TriggerOpTypes } from './fx';
 import { isRef } from './ref';
 import { toRaw, toReactive, toReadonly } from './reactive';
