@@ -5,19 +5,26 @@ interface HMRCache {
   ctor: typeof KireiElement;
   instances: Set<KireiInstance>;
 }
-const hmrCache = new Map<string, HMRCache>();
+const hmrCache = new Map<string|number, HMRCache>();
 
-export function registerElement(name: string, ctor: typeof KireiElement) {
-  if (hmrCache.has(name)) {
+export function registerElement(id: string, ctor: typeof KireiElement) {
+  const cache = hmrCache.get(id);
+
+  if (cache) {
     // Overwrite the static options
-    const cache = hmrCache.get(name);
     cache.ctor.options = ctor.options;
+    cache.instances.forEach(instance => {
+      // gather all attributes, then remount
+      // force element to remount
+      const attrs = instance.el.attributes;
+      instance.props
+    });
 
-    // reload elements?
+    // force reload elements
     // update options on live instances
   } else {
     const instances = new Set<KireiInstance>();
-    hmrCache.set(name, { instances, ctor });
+    hmrCache.set(id, { instances, ctor });
   }
 }
 
@@ -25,24 +32,26 @@ export function active() {
   return !!module.hot;
 }
 
-export function accept() {
+export function accept(id): void {
   // update observedAttributes and every instance
   // then reload every instance setup function and force re-render
   // keep the setup functions data?
-
-  let id = '';
   let cache = hmrCache.get(id);
 }
 
-export function dispose(data: any) {
+export function dispose(id: string, callback: (data: any) => void): void {
   //??
 }
 
-// this should somehow be in the code of the element...
-// Maybe through some webpack plugin
-if (module.hot) {
-  module.hot.accept(accept);
-  module.hot.dispose(dispose);
+export default function hot(srcModule: NodeModule) {
+  // this should somehow be in the code of the element...
+  // Maybe through some webpack plugin
+  const id = srcModule.id ?? srcModule.filename;
+  if (srcModule.hot) {
+    accept(id);
+    srcModule.hot.accept();
+    srcModule.hot.dispose(callback => dispose(id, callback));
+  }
 }
 
 /*module.hot.accept(() => {

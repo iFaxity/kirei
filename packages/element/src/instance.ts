@@ -1,9 +1,9 @@
 import { Template } from '@kirei/html';
 import { Fx, TriggerOpTypes, toReactive } from '@kirei/fx';
-import { isFunction, exception } from '@kirei/shared';
+import { isFunction, isUndefined, exception } from '@kirei/shared';
 import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
-import { CSSResult, shimAdoptedStyleSheets } from './css';
+import { CSSResult } from './css';
 import { render, DirectiveFactory } from './compiler';
 import {
   Props,
@@ -17,11 +17,15 @@ import {
 const activeInstanceStack: KireiInstance[] = [];
 export const instances = new WeakMap<KireiElement, KireiInstance>();
 
+export interface SyncOptions {
+  prop: string;
+  event?: string;
+}
 export interface ElementOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
   closed?: boolean;
   props?: P;
-  sync?: string;
+  sync?: string|SyncOptions;
   setup(this: void, props: T, ctx: KireiContext): () => (Template|Node);
   styles?: CSSResult|CSSResult[];
   directives?: Record<string, DirectiveFactory>;
@@ -32,11 +36,12 @@ export interface NormalizedElementOptions extends Required<ElementOptions> {
   props: NormalizedProps;
   attrs: Record<string, string>;
   styles: CSSResult[];
+  sync: SyncOptions;
 }
 
 class KireiContext {
   readonly el: KireiElement;
-  readonly sync: string;
+  readonly sync: SyncOptions;
   readonly attrs: Record<string, string>;
   readonly props: NormalizedProps;
 
@@ -59,7 +64,7 @@ class KireiContext {
    * @returns {void}
    */
   emit(eventName: string, detail?: any, options?: EventInit): void {
-    let e = typeof detail != 'undefined'
+    let e = isUndefined(detail)
       ? new CustomEvent(eventName, { detail, ...options })
       : new Event(eventName, options);
 
@@ -77,17 +82,18 @@ export class KireiInstance {
   readonly options: NormalizedElementOptions;
   readonly hooks: Record<string, Set<Function>>;
   readonly fx: Fx;
-  readonly props: PropsData;
-  readonly directives?: Record<string, DirectiveFactory>;
-  provides: Record<string|symbol, any>;
+  props: PropsData;
+  directives?: Record<string, DirectiveFactory>;
+  provides: Record<string|number|symbol, any>;
 
   static get active(): KireiInstance {
     return activeInstanceStack[activeInstanceStack.length - 1];
   }
-  static set active(instance: KireiInstance) {
-    activeInstanceStack.push(instance);
+
+  activate(): void {
+    activeInstanceStack.push(this);
   }
-  static resetActive(): void {
+  deactivate(): void {
     activeInstanceStack.pop();
   }
 
@@ -110,14 +116,9 @@ export class KireiInstance {
       this.provides = Object.create(null);
     }
 
-    if (opts.directives) {
-      this.directives = opts.directives;
-    }
-
     this.el = el;
     this.options = opts;
     this.hooks = Object.create(null);
-    this.props = opts.props ? propDefaults(opts.props) : {};
     this.fx = new Fx(this.update.bind(this), {
       lazy: true,
       scheduler: Queue.push,
@@ -134,29 +135,29 @@ export class KireiInstance {
   setup(): void {
     const { props, options } = this;
     const { name, setup } = options;
-    let proxy: Record<string, unknown>;
+    let propsProxy: Record<string, unknown>;
     let ctx: KireiContext;
+
+    this.props = options.props ? propDefaults(options.props) : {};
+    this.directives = options.directives;
 
     // No need for props or ctx if not in the arguments of the setup method
     if (setup.length >= 1) {
-      // Create a custom proxy for the props
-      proxy = new Proxy(props, {
-        get: (_, key: string) => {
-          Fx.track(props, key);
-          return props[key];
+      // Create a custom Proxy for the props
+      propsProxy = new Proxy(props, {
+        get(_, key: string) {
+          return Fx.track(props, key), props[key];
         },
-        set: (_, key: string, value: unknown) => {
+        set(_, key: string, value: unknown) {
           const res = props.hasOwnProperty(key);
           if (res) {
-            this.el.dispatchEvent(new CustomEvent(`fxsync::${key}`, {
-              detail: value,
-              bubbles: false,
-            }));
+            const opts = { detail: value, bubbles: false };
+            this.el.dispatchEvent(new CustomEvent(`fxsync::${key}`, opts));
           }
           return res;
         },
-        deleteProperty: () => {
-          exception('Props are not deletable, set it to null or undefined instead!', name);
+        deleteProperty() {
+          exception('Props are non-removable, set it to null or undefined instead!', name);
         },
       });
 
@@ -168,11 +169,16 @@ export class KireiInstance {
 
     // Run setup function to gather reactive data
     // Pause tracking while calling setup function
-    KireiInstance.active = this;
-    Fx.pauseTracking();
-    this.template = setup.call(null, proxy, ctx);
-    Fx.resetTracking();
-    KireiInstance.resetActive();
+    try {
+      this.activate();
+      Fx.pauseTracking();
+      this.template = setup.call(null, propsProxy, ctx);
+    } catch (ex) {
+      exception(ex.message, options.tag);
+    } finally {
+      Fx.resetTracking();
+      this.deactivate();
+    }
 
     if (!isFunction(this.template)) {
       exception('Setup function must return a TemplateGenerator', `${name}#setup`);
@@ -191,7 +197,7 @@ export class KireiInstance {
       this.shadowRoot = this.el.attachShadow({ mode: closed ? 'closed' : 'open' });
 
       if (ShadowRoot && this.shadowRoot instanceof ShadowRoot) {
-        this.shimAdoptedStyleSheets = shimAdoptedStyleSheets(this.shadowRoot, tag, styles);
+        this.shimAdoptedStyleSheets = !CSSResult.adoptStyleSheets(this.shadowRoot, tag, styles);
       }
     }
 
@@ -228,9 +234,14 @@ export class KireiInstance {
     const { shadowRoot, options, template, mounted } = this;
     this.runHooks(this.mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
 
-    KireiInstance.active = this;
-    render(template(), shadowRoot, options.tag);
-    KireiInstance.resetActive();
+    try {
+      this.activate();
+      render(template(), shadowRoot, options.tag);
+    } catch (ex) {
+      exception(ex.message, options.tag);
+    } finally {
+      this.deactivate();
+    }
 
     // Adopted stylesheets not supported, shim with style element
     if (this.shimAdoptedStyleSheets) {
@@ -278,8 +289,11 @@ export class KireiElement extends HTMLElement {
         exception(`Prop ${key} is reserved, please use another.`, options.name);
       }
 
-      // Validate props default value
-      validateProp(options.props, key, props[key]);
+      // Validate props default value (if defined)
+      if (!isUndefined(props[key])) {
+        validateProp(options.props, key, props[key]);
+      }
+
       Object.defineProperty(this, key, {
         get: () => props[key],
         set: (newValue) => {
@@ -309,7 +323,7 @@ export class KireiElement extends HTMLElement {
   disconnectedCallback() {
     const instance = instances.get(this);
     instance.runHooks(HookTypes.BEFORE_UNMOUNT);
-    Queue.push(instance.unmount);
+    Queue.push(() => instance.unmount());
   }
 
   /**

@@ -1,5 +1,6 @@
-import { KireiElement, instances } from '../instance';
+import { isString } from '@kirei/shared';
 import { Ref, isRef } from '@kirei/fx';
+import { KireiElement, instances } from '../instance';
 import { directive, Directive } from '../compiler';
 import { nextTick } from '../queue';
 
@@ -66,12 +67,13 @@ function checkboxCommit(el: HTMLInputElement, ref: Ref): void {
 
 function mutationHandlers(dir: Directive) {
   const { el, arg, mods } = dir;
-  let eventName: string;
+  let event: string;
   let prop: string = arg;
-  let handler: (el: HTMLElement, ref: Ref) => any;
-  let commit = (el: HTMLElement, ref: Ref) => {
+  let handler: (el: Element, ref: Ref) => any;
+  let commit = (el: Element, ref: Ref) => {
     el[prop] = ref.value;
   };
+  let sync = false;
 
   // bind to default sync, like form fields or using the sync name on instance
   // This sets value on the fx from child
@@ -81,48 +83,50 @@ function mutationHandlers(dir: Directive) {
     const isInput = tag == 'input';
 
     if (tag == 'select') {
-      eventName = 'change';
+      event = 'change';
       handler = selectHandler;
       commit = selectCommit;
     } else if (isInput && type == 'checkbox') {
-      eventName = 'change';
+      event = 'change';
       handler = checkboxHandler;
       commit = checkboxCommit;
     } else if (isInput && type == 'radio') {
-      eventName = 'change';
+      event = 'change';
       prop = 'value';
       commit = radioCommit;
     } else if (isInput || tag == 'textarea') {
       // lazy modifier only for text input
-      eventName = mods.includes('lazy') ? 'change' : 'input';
+      event = mods.includes('lazy') ? 'change' : 'input';
       prop = 'value';
     } else {
       const instance = instances.get(el as KireiElement);
       if (instance) {
-        prop = instance.options.sync;
+        sync = true;
+        event = instance.options.sync.event;
+        prop = instance.options.sync.prop;
       } else {
         throw new Error(`Default syncing not supported for element '${tag}'.`);
       }
     }
   }
 
-  return { commit, handler, prop, eventName };
+  return { commit, handler, prop, event, sync };
 }
 
 // directive format &[value.number.trim.lazy]=${ref}
 directive('&', dir => {
   const { el, mods } = dir;
-  const { commit, handler, prop, eventName } = mutationHandlers(dir);
+  const { commit, handler, prop, event, sync } = mutationHandlers(dir);
   const castNumber = mods.includes('number');
   const trimValue = mods.includes('trim');
   let ref: Ref;
 
-  el.addEventListener(eventName ?? `fxsync::${prop}`, (e: Event) => {
+  function listener(e: Event) {
     e.stopPropagation();
     let value = handler?.(el, ref) ?? (e instanceof CustomEvent ? e.detail : el[prop]);
 
     // Cast value if set
-    if (typeof value == 'string') {
+    if (isString(value)) {
       if (castNumber) {
         const num = parseFloat(value);
 
@@ -135,14 +139,21 @@ directive('&', dir => {
     }
 
     ref.value = value;
-  }, false);
+  }
 
-  return (newRef: Ref) => {
-    if (!isRef(newRef)) {
+  // Only bind to event name if defined
+  // Sync event always binds when kirei element sync is defined
+  // Custom event name for kirei elements is for compatability with non kirei elements
+  event && el.addEventListener(event, listener, false);
+  if (sync || !event) {
+    el.addEventListener(`fxsync::${prop}`, listener, false);
+  }
+  return (pending: any) => {
+    if (!isRef(pending)) {
       throw new TypeError(`Sync directive requires a ref as its value`);
     }
 
-    ref = newRef;
+    ref = pending;
     commit(el, ref);
   };
 });

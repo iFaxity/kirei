@@ -28,9 +28,9 @@ export function portal(target: string, templateFn: () => Template): void {
   let portal = portals.get(root);
   if (!portal || portal.instance !== instance) {
     const fx = new Fx(() => {
-      KireiInstance.active = instance;
+      instance.activate();
       render(templateFn(), root);
-      KireiInstance.resetActive();
+      instance.deactivate();
     }, { scheduler: Queue.push });
 
     portal = { instance, fx };

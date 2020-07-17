@@ -1,13 +1,16 @@
-let queue = new Set<Function>();
+import { isFunction } from '@kirei/shared';
+
 const tickPromise = Promise.resolve();
+// exported for testing
+export const queue = new Set<Function>();
 
 /**
- * Flushes the queue, calling all the functions
+ * Flushes the queue, calling all the functions in the queue
  * @returns {void}
  */
-function flush(): void {
-  queue.forEach(fn => fn());
-  queue = new Set();
+export function flush(): void {
+  for (const fn of queue) fn();
+  queue.clear();
 }
 
 /**
@@ -16,6 +19,10 @@ function flush(): void {
  * @returns {Promise}
  */
 export function nextTick(fn?: () => void): Promise<void> {
+  if (fn != null && !isFunction(fn)) {
+    throw new TypeError(`nextTick expected a function or undefined, got ${typeof fn}`);
+  }
+
   return fn ? tickPromise.then(fn) : tickPromise;
 }
 
@@ -24,11 +31,13 @@ export function nextTick(fn?: () => void): Promise<void> {
  * @param {Function} fn Function to enqueue
  * @returns {void}
  */
-export function push(fn: Function): void {
-  const queueFlush = !queue.size;
-  queue.add(fn);
+export function push(fn: () => void): void {
+  if (!isFunction(fn)) {
+    throw new TypeError(`Queue push expected a function, got ${typeof fn}`);
+  }
 
-  if (queueFlush) {
+  if (!queue.size) {
     nextTick(flush);
   }
+  queue.add(fn);
 }

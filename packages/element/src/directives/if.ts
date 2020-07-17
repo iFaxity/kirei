@@ -5,7 +5,7 @@ directive('if', dir => {
   const { el, arg } = dir;
   const invert = arg == 'not';
   const ref = document.createComment('');
-  let node: HTMLElement|Comment = el;
+  let node: Element|Comment = el;
 
   return (pending) => {
     const value = unRef(pending);

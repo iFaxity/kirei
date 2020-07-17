@@ -1,4 +1,4 @@
-import { mapObject, isFunction, isObject } from '@kirei/shared';
+import { mapObject, isFunction, isObject, isUndefined } from '@kirei/shared';
 
 type DefaultFactory<T = any> = () => T | null | undefined;
 type PropConstructor<T = any> = { new (...args: any[]): T & object } | { (): T };
@@ -86,9 +86,9 @@ export function normalizeProps(props: Props): NormalizedProps {
 export function propDefaults(props: NormalizedProps): PropsData {
   return mapObject((key, prop) => {
     const { type, default: def } = prop;
-    let value = isFunction(def) ? (def as DefaultFactory)() : def;
+    let value = isFunction(def) ? def() : def;
 
-    if (type != null && typeof def == 'undefined' && type.length == 1 && type[0] == Boolean) {
+    if (type != null && isUndefined(def) && type.length == 1 && type[0] == Boolean) {
       value = true;
     }
 
@@ -103,7 +103,7 @@ export function propDefaults(props: NormalizedProps): PropsData {
  * @param {*} value Value to validate
  * @returns {*}
  */
-export function validateProp(props: NormalizedProps, key: string, value: unknown): unknown {
+export function validateProp(props: NormalizedProps, key: string, value: any): any {
   // Validate prop
   const { type, required, validator, cast } = props[key];
 
@@ -114,7 +114,7 @@ export function validateProp(props: NormalizedProps, key: string, value: unknown
     }
   }
 
-  if (required && typeof value == 'undefined') {
+  if (required && isUndefined(value)) {
     throw new Error(`Value required in prop '${key}'.`);
   }
 
