@@ -1,1 +1,1 @@
-import './index.html';
+import './App.js';

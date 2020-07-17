@@ -1,17 +1,24 @@
 import { defineElement, html, css, toRef } from '@kirei/element';
 
 export default defineElement({
-  name: 'AppTextfield',
-  sync: 'value',
+  name: 'AppSelect',
+  sync: 'selected',
   props: {
+    id: String,
+    selected: String,
+    required: Boolean,
     label: {
       type: String,
       required: true,
     },
-    type: String,
-    value: String,
-    required: Boolean,
-    max: Number,
+    items: {
+      type: Array,
+      required: true,
+    },
+  },
+  model: {
+    prop: 'selected',
+    event: 'change',
   },
   styles: css`
     :host {
@@ -19,10 +26,10 @@ export default defineElement({
       min-width: 100px;
       margin: 0.3em 0;
       width: 100%;
-      color: #405863;
       height: 52px;
     }
-    input {
+    select {
+      color: #405863;
       background: #e6e6e6;
       font-size: 1em;
       padding: 1.5em 1em 0.5em;
@@ -34,17 +41,20 @@ export default defineElement({
       outline: none;
       box-sizing: border-box;
       opacity: 0.5;
+      -webkit-appearance: none;
+      cursor: pointer;
     }
-    input:hover {
+    select:hover {
       opacity: 0.8;
     }
-    input:focus {
+    select:focus {
       border-color: #c60000;
       opacity: 1;
     }
     label {
+      color: #405863;
       position: absolute;
-      top: -0.5em;
+      top: 1em;
       left: 1em;
       opacity: 0.5;
       transition: transform 0.2s ease, opacity 0.2s ease, color 0.2s ease;
@@ -52,20 +62,39 @@ export default defineElement({
       transform-origin: top left;
       pointer-events: none;
     }
-    input:focus + label,
-    input:not(:placeholder-shown) + label {
+    select:focus + label,
+    select:valid + label {
       color: #c60000;
       transform: translateY(-60%) scale(0.9);
       opacity: 1;
     }
+    select > option:first-child {
+      display: none;
+    }
+    :host::after {
+      content: '';
+      position: absolute;
+      top: 1.5em;
+      right: 1em;
+      width: 0;
+      height: 0;
+      border-left: 0.3em solid transparent;
+      border-right: 0.3em solid transparent;
+      border-top: 0.3em solid #405863;
+      transition: transform .2s ease;
+      pointer-events: none;
+    }
   `,
   setup(props) {
     const uuid = Math.random().toString(16).slice(2);
-    const sync = toRef(props, 'value');
+    const sync = toRef(props, 'selected');
 
     return () => html`
-    <input &=${sync} id=${uuid} type=${props.type} maxlength=${props.max ?? ''} required=${props.required} placeholder=" ">
+    <select &=${sync} id=${uuid} required=${props.required}>
+      <option></option>
+      ${props.items.map(item => html`<option>${item}</option>`)}
+    </select>
     <label for=${uuid}>${props.label}</label>
     `;
-  },
+  }
 });
