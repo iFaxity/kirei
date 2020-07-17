@@ -12,6 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Cache node_modules
+        id: cache
         uses: actions/cache@v2
         with:
           path: |
@@ -40,8 +41,8 @@ jobs:
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
-      - name: Run dev server
-        run: yarn dev
+      - name: Start dev server
+        run: yarn dev &
       - name: Wait for dev server to start
         uses: ifaxity/wait-on-action@v1
         with:
