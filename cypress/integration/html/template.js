@@ -18,7 +18,7 @@ function mountTemplate(tpl, cache, compiler) {
   return [ node, cache ];
 }
 
-describe('html/template', () => {
+describe('template', () => {
   it('#createCache()', () => {
     const cache = createCache();
     assert.isEmpty(cache.stack);

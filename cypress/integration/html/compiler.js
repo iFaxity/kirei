@@ -48,7 +48,7 @@ function assertNode(value, expected) {
   }
 }
 
-describe('html/compiler', () => {
+describe('compiler', () => {
   describe('#defaultCompiler', () => {
     describe('#text()', () => {
       it('with string', () => assertText('Hello', 'Hello'));

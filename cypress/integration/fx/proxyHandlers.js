@@ -14,7 +14,7 @@ function prepareProxyHook(isCollection, createTarget) {
   };
 }
 
-describe('fx/proxyHandlers', () => {
+describe('proxyHandlers', () => {
   describe('#baseHandlers()', () => {
     describe('with object', () => {
       const proxyHook = prepareProxyHook(

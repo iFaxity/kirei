@@ -27,7 +27,7 @@ function assertNodes(node, nodes) {
   }
 }
 
-describe('html/shared', () => {
+describe('shared', () => {
   describe('#clearNode()', () => {
     it('with node', () => {
       const node = document.createElement('div');

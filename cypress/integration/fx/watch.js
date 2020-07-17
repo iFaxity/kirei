@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 import { watchEffect, ref } from '@kirei/fx';
 
-describe('fx/watch', () => {
-  describe('#watchEffect', () => {
+describe('watch', () => {
+  describe('#watchEffect()', () => {
     it('runs when dependency updates', () => {
       let res = null;
       const count = ref(0);

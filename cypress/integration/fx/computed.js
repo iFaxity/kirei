@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 import { computed } from '@kirei/fx';
 
-describe('fx/computed', () => {
-  describe('computed', () => {
+describe('computed', () => {
+  describe('#computed()', () => {
     it('getter', () => {
       const r = computed(() => 'hello');
       assert.equal(r.value, 'hello');
@@ -44,4 +44,4 @@ describe('fx/computed', () => {
       assert.equal(+r, -10);
     });
   });
-})
+});

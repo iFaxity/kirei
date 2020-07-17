@@ -2,7 +2,7 @@
 import { isRef, unRef, ref, createRef } from '@kirei/fx/dist/ref';
 import { isReactive } from '@kirei/fx';
 
-describe('fx/ref', () => {
+describe('ref', () => {
   describe('#ref()', () => {
     it('get/set primitive', () => {
       const r = ref(1);

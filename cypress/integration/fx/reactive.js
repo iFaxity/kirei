@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 import { reactive, readonly, toReactive, toReadonly, isReactive, isReadonly, isObserver, toRaw } from '@kirei/fx';
 
-describe('fx/reactive', () => {
+describe('reactive', () => {
   describe('#isObserver()', () => {
     it('with reactive', () => {
       const r = reactive({});
