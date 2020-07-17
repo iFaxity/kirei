@@ -34,7 +34,7 @@ export class CSSResult {
     if (styles != null && styles.length) {
       const { ShadyCSS } = window;
 
-      if (!ShadyCSS?.nativeShadow === false) {
+      if (ShadyCSS?.nativeShadow === false) {
         ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(s => s.toString()), tag);
       } else if (this.supportsAdoptingStyleSheets) {
         shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
