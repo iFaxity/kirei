@@ -5,10 +5,7 @@ on:
 jobs:
   # Install yarn packages and setup project
   setup:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Cache node_modules
@@ -27,10 +24,7 @@ jobs:
   # Run unit and e2e tests
   test:
     needs: setup
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Restore cache
