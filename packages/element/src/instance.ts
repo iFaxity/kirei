@@ -133,13 +133,14 @@ export class KireiInstance {
    * @returns {void}
    */
   setup(): void {
-    const { props, options } = this;
+    const { options, directives, el } = this;
     const { name, setup } = options;
     let propsProxy: Record<string, unknown>;
     let ctx: KireiContext;
 
-    this.props = options.props ? propDefaults(options.props) : {};
-    this.directives = options.directives;
+    const props = options.props ? propDefaults(options.props) : {};
+    this.props = props;
+    this.directives = directives;
 
     // No need for props or ctx if not in the arguments of the setup method
     if (setup.length >= 1) {
@@ -156,14 +157,14 @@ export class KireiInstance {
           }
           return res;
         },
-        deleteProperty() {
-          exception('Props are non-removable, set it to null or undefined instead!', name);
+        deleteProperty(_, key: string) {
+          exception('Props are non-removable, set it to null or undefined instead!', `${name}#${key}`);
         },
       });
 
       // Create context
       if (setup.length >= 2) {
-        ctx = new KireiContext(this.el, options);
+        ctx = new KireiContext(el, options);
       }
     }
 
@@ -172,16 +173,17 @@ export class KireiInstance {
     try {
       this.activate();
       Fx.pauseTracking();
-      this.template = setup.call(null, propsProxy, ctx);
+      const template = setup.call(null, propsProxy, ctx);
+
+      if (!isFunction(template)) {
+        throw new TypeError('Setup function must return a TemplateGenerator');
+      }
+      this.template = template;
     } catch (ex) {
-      exception(ex.message, options.tag);
+      exception(ex.message, name);
     } finally {
       Fx.resetTracking();
       this.deactivate();
-    }
-
-    if (!isFunction(this.template)) {
-      exception('Setup function must return a TemplateGenerator', `${name}#setup`);
     }
   }
 
@@ -291,7 +293,7 @@ export class KireiElement extends HTMLElement {
 
       // Validate props default value (if defined)
       if (!isUndefined(props[key])) {
-        validateProp(options.props, key, props[key]);
+        validateProp(options.props[key], key, props[key]);
       }
 
       Object.defineProperty(this, key, {
@@ -299,7 +301,7 @@ export class KireiElement extends HTMLElement {
         set: (newValue) => {
           if (newValue !== props[key]) {
             // Trigger an update on the element
-            props[key] = toReactive(validateProp(options.props, key, newValue));
+            props[key] = toReactive(validateProp(options.props[key], key, newValue));
             Fx.trigger(props, TriggerOpTypes.SET, key, newValue);
           }
         },

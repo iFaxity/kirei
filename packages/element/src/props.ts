@@ -1,4 +1,4 @@
-import { mapObject, isFunction, isObject, isUndefined } from '@kirei/shared';
+import { mapObject, isFunction, isObject, isUndefined, warn } from '@kirei/shared';
 
 type DefaultFactory<T = any> = () => T | null | undefined;
 type PropConstructor<T = any> = { new (...args: any[]): T & object } | { (): T };
@@ -7,18 +7,22 @@ type PropType<T> = PropConstructor<T> | PropConstructor<T>[];
 interface PropInstance<T = any> {
   type: PropType<T>;
   required?: boolean;
-  validator?(value: unknown): boolean;
+  validator?(value: any): boolean;
   default?: DefaultFactory<T> | T;
 }
 type Prop<T> = PropInstance<T> | PropType<T> | null;
-export type PropsData = Record<string, unknown>;
-export type Props<P = PropsData> = { [K in keyof P]: Prop<P[K]> };
+export type Props<P = Record<string, any>> = { [K in keyof P]: Prop<P[K]> };
 
 interface NormalizedProp<T = any> extends PropInstance<T> {
   type: PropConstructor<T>[] | null;
   cast?: boolean;
 }
-export type NormalizedProps = Record<string, NormalizedProp>;
+export type NormalizedProps<T = Props> = {
+  [K in keyof T]: NormalizedProp<T[K] extends Prop<infer V> ? V : any>;
+}
+export type PropsData<T extends NormalizedProps = any> = {
+  [K in keyof T]: T[K] extends NormalizedProp<infer V> ? V : any;
+}
 
 type RequiredKeys<T> = {
   [K in keyof T]: T[K] extends { required: true } | { default: any } ? K : never;
@@ -43,20 +47,24 @@ export type ResolvePropTypes<T> =
  * @param {Props} props Props to normalize
  * @returns {NormalizedProps}
  */
-export function normalizeProps(props: Props): NormalizedProps {
+export function normalizeProps<T = Props>(props: T): NormalizedProps<T> {
   for (const key of Object.keys(props)) {
     const prop = props[key];
-    const normal = prop as NormalizedProp;
-    if (isObject<PropInstance>(prop)) {
-      normal.type = (prop.type as PropConstructor[]) ?? null;
-      normal.default = prop.default ?? void 0;
+    // @ts-ignore
+    let normal = prop as NormalizedProp;
+
+    if (isObject<PropInstance>(prop) && !Array.isArray(prop)) {
+      normal.type = prop.type as PropConstructor[];
+      normal.default = prop.default;
       normal.validator = prop.validator ?? null;
       normal.required = !!prop.required;
     } else {
-      normal.type = (prop as PropConstructor[]) ?? null;
-      normal.default = void 0;
-      normal.validator = null;
-      normal.required = false;
+      // @ts-ignore
+      normal = props[key] = {
+        type: prop as PropConstructor[],
+        validator: null,
+        required: false,
+      } as NormalizedProp;
     }
 
     if (normal.type) {
@@ -68,14 +76,15 @@ export function normalizeProps(props: Props): NormalizedProps {
       }
 
       // Enable casting if needed
-      const master = normal.type[0];
-      normal.cast = master === Boolean || master === Number;
+      const [ first ] = normal.type;
+      normal.cast = first === Boolean || first === Number;
     } else {
       normal.cast = false;
     }
   }
 
-  return props as NormalizedProps;
+  // @ts-ignore
+  return props as NormalizedProps<T>;
 }
 
 /**
@@ -83,13 +92,17 @@ export function normalizeProps(props: Props): NormalizedProps {
  * @param {NormalizedProps} props Props model to extract defaults from
  * @returns {PropsData}
  */
-export function propDefaults(props: NormalizedProps): PropsData {
-  return mapObject((key, prop) => {
+export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> {
+  return mapObject<T, string, PropsData<T>>((key, prop) => {
     const { type, default: def } = prop;
-    let value = isFunction(def) ? def() : def;
+    if (isObject(def)) {
+      warn(`Prop defaults requires Objects to be returned by a factory function
+ to avoid cross referencing across elements.`);
+    }
 
-    if (type != null && isUndefined(def) && type.length == 1 && type[0] == Boolean) {
-      value = true;
+    let value = isFunction(def) ? def() : def;
+    if (type != null && isUndefined(def) && type[0] === Boolean) {
+      value = false;
     }
 
     return [ key, value ];
@@ -98,14 +111,14 @@ export function propDefaults(props: NormalizedProps): PropsData {
 
 /**
  * Validates a prop against a value, casts value if needed
- * @param {NormalizedProps} props Prop model to validate from
+ * @param {NormalizedProp<V>} props Normalized prop model to validate from
  * @param {string} key Attribute key
  * @param {*} value Value to validate
- * @returns {*}
+ * @returns {V}
  */
-export function validateProp(props: NormalizedProps, key: string, value: any): any {
+export function validateProp<T extends NormalizedProp, V = T extends NormalizedProp<infer I> ? I : any>(prop: T, key: string, value: any): V {
   // Validate prop
-  const { type, required, validator, cast } = props[key];
+  const { type, required, validator, cast } = prop;
 
   // Type checking
   if (type != null) {
@@ -122,23 +135,29 @@ export function validateProp(props: NormalizedProps, key: string, value: any): a
     throw new Error(`Validation error in prop '${key}'.`);
   }
 
-  // TODO: look over this, could use some tweaking
-  // Different parsing based on master type
+  // Different parsing based on first type
   if (cast) {
-    if (type[0] === Boolean) {
-      // If primary type boolean, null is false, '' is true
-      if (value == null || value == 'false') {
-        value = false;
-      } else if (value === '' || value == 'true') {
-        value = true;
-      }
-    } else if (type[0] === Number) {
-      // If number as first type, try parse value as number
-      // Implicit better than parseFloat, ensures whole string is number
-      let n = +value;
-      if (!isNaN(n)) {
-        value = n;
-      }
+    switch (type[0]) {
+      case Boolean:
+        // If primary type boolean, null or undefined is false, '' is true
+        const str = String(value);
+        if (value == null || str === 'false') {
+          // @ts-ignore
+          return false;
+        } else if (str === '' || str === 'true') {
+          // @ts-ignore
+          return true;
+        }
+        break;
+
+      case Number:
+        // If number as first type, try parse value as number
+        // Implicit better than parseFloat, ensures whole string is number
+        let n = +value;
+        if (!isNaN(n)) {
+          // @ts-ignore
+          return n;
+        }
     }
   }
 
