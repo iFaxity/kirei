@@ -138,7 +138,7 @@ export class KireiInstance {
     let propsProxy: Record<string, unknown>;
     let ctx: KireiContext;
 
-    const props = options.props ? propDefaults(options.props) : {};
+    const props = options.props ? propDefaults(options.props, name) : {};
     this.props = props;
     this.directives = directives;
 
@@ -289,11 +289,6 @@ export class KireiElement extends HTMLElement {
       // If prop already exists, then we throw error
       if (this.hasOwnProperty(key)) {
         exception(`Prop ${key} is reserved, please use another.`, options.name);
-      }
-
-      // Validate props default value (if defined)
-      if (!isUndefined(props[key])) {
-        validateProp(options.props[key], key, props[key]);
       }
 
       Object.defineProperty(this, key, {

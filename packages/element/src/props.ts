@@ -1,4 +1,4 @@
-import { mapObject, isFunction, isObject, isUndefined, warn } from '@kirei/shared';
+import { mapObject, isFunction, isObject, isUndefined, warn, exception } from '@kirei/shared';
 
 type DefaultFactory<T = any> = () => T | null | undefined;
 type PropConstructor<T = any> = { new (...args: any[]): T & object } | { (): T };
@@ -92,7 +92,7 @@ export function normalizeProps<T = Props>(props: T): NormalizedProps<T> {
  * @param {NormalizedProps} props Props model to extract defaults from
  * @returns {PropsData}
  */
-export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> {
+export function propDefaults<T extends NormalizedProps>(props: T, ctx: string): PropsData<T> {
   return mapObject<T, string, PropsData<T>>((key, prop) => {
     const { type, default: def } = prop;
     if (isObject(def)) {
@@ -100,12 +100,21 @@ export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> 
  to avoid cross referencing across elements.`);
     }
 
-    let value = isFunction(def) ? def() : def;
-    if (type != null && isUndefined(def) && type[0] === Boolean) {
+    // Validate props default value (if defined)
+    let value: unknown;
+    if (!isUndefined(def)) {
+      value = isFunction(def) ? def() : def;
+      try {
+        // Validate default value
+        validateProp(prop, key, value);
+      } catch (ex) {
+        exception(`Default prop value invalid for prop "${key}", type "${typeof value}" unexpected.`, ctx);
+      }
+    } else if (type != null && type[0] === Boolean) {
       value = false;
     }
 
-    return [ key, value ];
+    return [ key, value as string ];
   }, props);
 }
 
@@ -152,8 +161,7 @@ export function validateProp<T extends NormalizedProp, V = T extends NormalizedP
 
       case Number:
         // If number as first type, try parse value as number
-        // Implicit better than parseFloat, ensures whole string is number
-        let n = +value;
+        let n = Number(value);
         if (!isNaN(n)) {
           // @ts-ignore
           return n;
