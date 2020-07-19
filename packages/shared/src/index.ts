@@ -56,13 +56,13 @@ export function isUndefined(value: any): value is undefined {
  * @param {object} obj Object to map
  * @returns {object}
  */
-export function mapObject<T, V>(callback: (key: string, value: any) => [ string, V ], obj: T): Record<string, V> {
+export function mapObject<T, V, R = Record<string, V>>(callback: (key: string, value: any) => [ string, V ], obj: T): R {
   return Object.keys(obj).reduce((acc, key) => {
     let [ k, v ] = callback(key, obj[key]);
     acc[k] = v;
 
     return acc;
-  }, {}) as Record<string, V>;
+  }, {}) as R;
 }
 
 /**
