@@ -26,7 +26,7 @@
     "@types/webpack-env": "1.15.2",
     "babel-loader": "8.1.0",
     "babel-plugin-istanbul": "6.0.0",
-    "cypress": "4.10.0",
+    "cypress": "4.11.0",
     "mochawesome": "6.1.1",
     "typedoc": "0.17.8",
     "typescript": "3.9.7",
