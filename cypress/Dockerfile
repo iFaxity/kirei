@@ -1,4 +1,4 @@
-FROM cypress/included:4.10.0
+FROM cypress/included:4.12.1
 WORKDIR /e2e
 
 RUN apt-get -q update && apt-get -qy install netcat wget
