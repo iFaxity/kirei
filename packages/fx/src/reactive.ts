@@ -10,7 +10,17 @@ import { isCollection } from './shared';
 const targetToReactive = new WeakMap<any, any>();
 const targetToReadonly = new WeakMap<any, any>();
 
-function observe<T extends object>(target: T, immutable: boolean): T {
+// TODO: make readonly deep
+type Reactive<T> = { [P in keyof T]: T[P] };
+type Observer<T> = Readonly<T> | Reactive<T>;
+
+/**
+ * Wraps an object into an observeble proxy
+ * @param {object} target Target to check
+ * @param {boolean} immutable If proxy should be readonly
+ * @private
+ */
+function observe<T extends object>(target: T, immutable: boolean): Observer<T> {
   if (!isObject(target)) {
     throw new TypeError('Target is not observable');
   }
@@ -31,7 +41,7 @@ function observe<T extends object>(target: T, immutable: boolean): T {
  * @param {*} target Target to check
  * @returns {boolean}
  */
-export function isObserver(target: any): boolean {
+export function isObserver<T>(target: T): target is Observer<T> {
   return !!target?.[OBSERVER_KEY];
 }
 
@@ -40,7 +50,7 @@ export function isObserver(target: any): boolean {
  * @param {*} target Target to check
  * @returns {boolean}
  */
-export function isReactive(target: any): boolean {
+export function isReactive<T>(target: T): target is Reactive<T> {
   return !!target?.[REACTIVE_KEY];
 }
 
@@ -49,7 +59,7 @@ export function isReactive(target: any): boolean {
  * @param {*} target Target to check
  * @returns {boolean}
  */
-export function isReadonly(target: any): boolean {
+export function isReadonly<T>(target: T): target is Readonly<T> {
   return !!target?.[READONLY_KEY];
 }
 
@@ -58,7 +68,7 @@ export function isReadonly(target: any): boolean {
  * @param {object} target Target to convert
  * @returns {object}
  */
-export function toRaw<T>(target: T): T {
+export function toRaw<T>(target: T|Reactive<T>|Readonly<T>): T {
   return target?.[OBSERVER_KEY] ?? target;
 }
 
@@ -67,7 +77,7 @@ export function toRaw<T>(target: T): T {
  * @param {object} target - Object with own properties
  * @returns {Proxy}
  */
-export function reactive<T extends object>(target: T): T {
+export function reactive<T extends object>(target: T): Reactive<T> {
   if (isReactive(target)) {
     return target;
   }
@@ -92,8 +102,8 @@ export function readonly<T extends object>(target: T): Readonly<T> {
  * @param {*} target Target to wrap
  * @returns {Proxy|*}
  */
-export function toReactive<T>(target: T): T;
-export function toReactive<T extends object>(target: T): T {
+export function toReactive<T>(target: T): Reactive<T>;
+export function toReactive<T extends object>(target: T): Reactive<T> {
   try {
     return reactive(target);
   } catch (ex) {
@@ -111,8 +121,8 @@ export function toReactive<T extends object>(target: T): T {
  * @param {*} target Target to wrap
  * @returns {Proxy|*}
  */
-export function toReadonly<T>(target: T): T;
-export function toReadonly<T extends object>(target: T): T {
+export function toReadonly<T>(target: T): Readonly<T>;
+export function toReadonly<T extends object>(target: T): Readonly<T> {
   try {
     return readonly(target);
   } catch (ex) {
