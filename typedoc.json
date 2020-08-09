@@ -1,0 +1,18 @@
+{
+  "name": "Kirei",
+  "mode": "modules",
+  "out": "docs",
+  "readme": "./README.md",
+  "exclude": "**/node_modules/**",
+  "external-modulemap": "packages\/([^\/]+)\/.*",
+  "excludeNotExported": true,
+  "excludePrivate": true,
+  "excludeProtected": true,
+  "ignoreCompilerErrors": false,
+  "preserveConstEnums": true,
+  "stripInternal": true,
+  "plugin": [
+    "typedoc-plugin-exclude-references",
+    "@strictsoftware/typedoc-plugin-monorepo"
+  ]
+}
