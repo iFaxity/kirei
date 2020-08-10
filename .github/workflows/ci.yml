@@ -35,17 +35,18 @@ jobs:
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
+      - name: Build packages
+        run: yarn build
+
       - name: Start dev server
         run: yarn dev &
       - name: Wait for dev server to start
         uses: ifaxity/wait-on-action@v1
         with:
           resource: http://localhost:3000
-
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
         with:
-          build: yarn build
           browser: chrome
           headless: true
 
