@@ -30,7 +30,7 @@
     "babel-plugin-istanbul": "6.0.0",
     "cypress": "4.12.1",
     "mochawesome": "6.1.1",
-    "typedoc": "0.17.8",
+    "typedoc": "0.18.0",
     "typedoc-plugin-exclude-references": "^1.0.0",
     "typedoc-plugin-markdown": "^2.4.0",
     "typescript": "3.9.7",
