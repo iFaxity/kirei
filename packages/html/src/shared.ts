@@ -1,20 +1,39 @@
 import domdiff from 'udomdiff';
 
-// this "hack" tells the library if the browser is IE11 or old Edge
+/**
+ * This "hack" tells the library if the browser is IE11 or old Edge
+ * @const {boolean}
+ */
 const IE = document.importNode.length != 1;
 
-// IE11 and old Edge have a different createTreeWalker signature that
-// has been deprecated in other browsers. This export is needed only
-// to guarantee the TreeWalker doesn't show warnings and, ultimately, works
+/**
+ * Node filter for createWalker
+ * @const {number}
+ */
 const filter = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT;
+
+/**
+ * Node type of a persistent document fragment
+ * @const {number}
+ */
+const PERSIST_NODE_TYPE = 123;
+
+/**
+ * IE11 and old Edge have a different createTreeWalker signature that
+ * has been deprecated in other browsers. This export is needed only
+ * to guarantee the TreeWalker doesn't show warnings and, ultimately, works
+ * @const {() => TreeWalker}
+ * @private
+ */
 export const createWalker = IE
   ? node => document.createTreeWalker(node, filter, null, false)
   : node => document.createTreeWalker(node, filter);
 
-// Shamelessly copied from the package uwire
-const PERSIST_NODE_TYPE = 123;
-
-function remove(node: Node) {
+/**
+ * @param {Node} node
+ * @private
+ */
+function remove(node: Node): Node {
   const { firstChild } = node;
   const parent = firstChild.parentNode;
   while (parent.firstChild != parent.lastChild) {
@@ -23,13 +42,24 @@ function remove(node: Node) {
   return firstChild;
 }
 
-export function clearNode(node: Node) {
+/**
+ * Clears all the content of the node
+ * @param {Node} node
+ * @private
+ */
+export function clearNode(node: Node): void {
   // Check if node is already empty
   if (!node.lastChild) return;
   node.textContent = '';
 }
 
-function diffable(node, operation) {
+/**
+ * Differ function for domdiff to handle persistent fragments
+ * @param {Node} node Node to diff
+ * @param {number} operation Diffing operation, see udomdiff for more info
+ * @private
+ */
+function diffable(node: Node, operation: number) {
   if (node.nodeType === PERSIST_NODE_TYPE) {
     if (1 / operation < 0) {
       return operation ? remove(node) : node.lastChild;
@@ -40,7 +70,12 @@ function diffable(node, operation) {
   return node;
 }
 
-// creates a persistent document fragment
+/**
+ * creates a persistent document fragment
+ * @param {DocumentFragment} frag
+ * @returns {Node}
+ * @private
+ */
 export function persistent(frag: DocumentFragment): Node {
   const children = frag.childNodes;
   // no content, return undefined (or first child)
@@ -59,12 +94,15 @@ export function persistent(frag: DocumentFragment): Node {
   return { nodeType, valueOf, firstChild: nodes[0] };
 }
 
-// this helper avoid code bloat
 /**
  * Diffs content after a specific reference node, from old content to new content
- * 
+ * @param {Node} ref Reference node, where to set content after
+ * @param {Node[]} oldNodes Current content of the node
+ * @param {Node[]} newNodes New nodes to replace the current content with
+ * @returns {Node[]}
+ * @private
  */
-export function diff(refNode: Node, oldNodes: Node[], newNodes: Node[]): Node[] {
+export function diff(ref: Node, oldNodes: Node[], newNodes: Node[]): Node[] {
   // TODO: there is a possible edge case where a node has been
   //       removed manually, or it was a keyed one, attached
   //       to a shared reference between renders.
@@ -80,15 +118,23 @@ export function diff(refNode: Node, oldNodes: Node[], newNodes: Node[]): Node[] 
   //       and both lighterhtml and hyperHTML might fail with this
   //       very specific edge case, I might as well document this possible
   //       "diffing shenanigan" and call it a day.
-  return domdiff(refNode.parentNode, oldNodes, newNodes, diffable, refNode);
+  return domdiff(ref.parentNode, oldNodes, newNodes, diffable, ref);
 }
 
+/**
+ * Creates a template element from HTML or SVG markup
+ * @param {boolean} svg Set to true to parse within the SVG namespace
+ * @param {string} markup Markup, either HTML or SVG
+ * @returns {HTMLTemplateElement}
+ * @private
+ */
 export function createTemplate(svg: boolean, markup: string): HTMLTemplateElement {
   const template = document.createElement('template');
 
   if (svg) {
     // Wrap in a svg element and then hoist the child nodes back to the root
     template.innerHTML = `<svg>${markup}</svg>`;
+
     const { content } = template;
     const svg = content.firstChild;
     content.removeChild(svg);

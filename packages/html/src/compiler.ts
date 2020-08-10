@@ -1,21 +1,52 @@
 import { diff } from './shared';
 import { isObject } from '@kirei/shared';
 
-export type TemplatePatcher = (pending: any) => void;
+/**
+ * Template patcher function to update a dynamic value in the DOM
+ * @type
+ */
+export type TemplatePatcher = (pending: unknown) => void;
+
+/**
+ * Used to configure how the template values are translated into the DOM,
+ * each method should return a function which takes one parameter as the interpolated value.
+ * Otherwise it fallbacks to the default compiler.
+ * @interface
+ */
 export interface TemplateCompiler {
+  /**
+   * Compiles a TemplatePatcher for an attribute value, does not have the attribute mounted
+   * @param {Element} node Element which the attribute was applied to
+   * @param {string} attr Attribute name
+   * @returns {TemplatePatcher|void}
+   */
   attr?(node: Element, attr: string): TemplatePatcher|void;
+
+  /**
+   * Compiles a TemplatePatcher for a node value
+   * @param {Comment} ref Reference where to apply update after
+   * @returns {TemplatePatcher|void}
+   */
   node?(ref: Comment): TemplatePatcher|void;
+
+  /**
+   * Compiles a TemplatePatcher for a text node
+   * @param {Text} node Text node to set text value to
+   * @returns {TemplatePatcher|void}
+   */
   text?(node: Text): TemplatePatcher|void;
 }
 
 /**
  * Maps a style or class attribute from an array or an object to a string
- * @param {object|array} className
+ * @param {string} attr
+ * @param {object} value
  * @returns {string}
  */
-function mapAttribute<T = any>(attr: string, value: T): string|T {
-  if (!isObject(value)) return value;
-  if (Array.isArray(value)) {
+function mapAttribute<T extends object>(attr: string, value: T): string|T {
+  if (!isObject(value)) {
+    return value;
+  } else if (Array.isArray(value)) {
     if (attr == 'style') {
       throw new TypeError('Style attribute expressions cannot map array');
     }
@@ -30,10 +61,23 @@ function mapAttribute<T = any>(attr: string, value: T): string|T {
   return keys.join(' ');
 }
 
-// Special patchers for prop and event
+/**
+ * Special patchers for prop and event
+ * @param {Element} node
+ * @param {string} name
+ * @returns {TemplatePatcher}
+ * @private
+ */
 function propPatcher(node: Element, name: string): TemplatePatcher {
   return (pending) => { node[name] = pending };
 }
+
+/**
+ * @param {Element} node
+ * @param {string} name
+ * @returns {TemplatePatcher}
+ * @private
+ */
 function eventPatcher(node: Element, name: string): TemplatePatcher {
   // Using a bound listener prevents frequent remounting
   let listener;
@@ -41,7 +85,7 @@ function eventPatcher(node: Element, name: string): TemplatePatcher {
     return listener.call(node, e);
   }
 
-  return (pending: unknown) => {
+  return (pending) => {
     if (listener !== pending) {
       if (pending == null) {
         node.removeEventListener(name, boundListener, false);
@@ -53,35 +97,30 @@ function eventPatcher(node: Element, name: string): TemplatePatcher {
   };
 }
 
+/**
+ * Default template compiler
+ * @const {TemplateCompiler}
+ */
 export const defaultCompiler: TemplateCompiler = {
-  attr(node, name) {
-    const prefix = name[0];
+  attr(node, attr) {
+    const prefix = attr[0];
     if (prefix == '.') {
-      return propPatcher(node, name.slice(1));
+      return propPatcher(node, attr.slice(1));
     } else if (prefix == '@') {
-      return eventPatcher(node, name.slice(1));
+      return eventPatcher(node, attr.slice(1));
     }
 
     // Default to attribute parsing
-    const shouldMap = name == 'class' || name == 'style';
-    const attr = document.createAttribute(name);
+    const shouldMap = attr == 'class' || attr == 'style';
     let value;
-    let mounted = false;
-    return (pending: unknown) => {
+    return (pending) => {
       if (value === pending) return;
       value = pending;
 
       if (value == null) {
-        if (mounted) {
-          node.removeAttributeNode(attr);
-          mounted = false;
-        }
+        node.removeAttribute(attr);
       } else {
-        attr.value = shouldMap ? mapAttribute(name, value) : value;
-        if (!mounted) {
-          node.setAttributeNode(attr);
-          mounted = true;
-        }
+        node.setAttribute(attr, shouldMap ? mapAttribute(attr, value) : value);
       }
     };
   },
@@ -89,7 +128,7 @@ export const defaultCompiler: TemplateCompiler = {
     let nodes: Node[] = [];
     let value;
     let text: Text;
-    const nodeParser = (pending: unknown) => {
+    const nodeParser: TemplatePatcher = (pending) => {
       // TODO: allow object as text, as refs have toString
       if (pending == null) {
         // null, and undefined are used to cleanup previous content
@@ -137,7 +176,7 @@ export const defaultCompiler: TemplateCompiler = {
   },
   text(node) {
     let value;
-    return (pending: unknown) => {
+    return (pending) => {
       if (value !== pending) {
         value = pending;
         node.textContent = value == null ? '' : value;
