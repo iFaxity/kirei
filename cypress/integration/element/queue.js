@@ -1,100 +1,96 @@
 /// <reference types="cypress" />
-import { nextTick, push, flush, queue } from '@kirei/element/dist/queue';
+import * as queue from '@kirei/element/dist/queue';
 
 describe('queue', () => {
   beforeEach(() => queue.clear());
 
   describe('#nextTick()', () => {
-    it('without argument', async () => {
-      const res = nextTick();
+    it('without argument', () => {
+      const res = queue.nextTick();
       assert.instanceOf(res, Promise);
-      await res;
+      return res;
     });
     it('with function', async () => {
       let count = 0;
-      await nextTick(() => { count++; });
+      await queue.nextTick(() => { count++; });
       assert.equal(count, 1);
     });
     it('with string', () => {
-      assert.throws(() => nextTick('hello world'));
+      assert.throws(() => queue.nextTick('hello world'));
     });
-    it('with Promise', async () => {
+    it('with Promise', () => {
       const p = Promise.resolve();
-      assert.throws(() => nextTick(p));
+      assert.throws(() => queue.nextTick(p));
     });
   });
 
   describe('#push()', () => {
     it('without argument', () => {
-      assert.isEmpty(queue);
-      assert.throws(() => push());
-      assert.isEmpty(queue);
+      assert(!queue.has());
+      assert.throws(() => queue.push());
+      assert(!queue.has());
     });
     it('with function', () => {
       const fn = () => {};
 
-      assert.isEmpty(queue);
-      push(fn);
-      assert.isNotEmpty(queue);
+      assert(!queue.has(fn));
+      queue.push(fn);
       assert(queue.has(fn));
     });
     it('with null', () => {
-      assert.isEmpty(queue);
-      assert.throws(() => push(null));
-      assert.isEmpty(queue);
+      assert(!queue.has(null));
+      assert.throws(() => queue.push(null));
+      assert(!queue.has(null));
     });
     it('with Promise', () => {
-      assert.isEmpty(queue);
-      assert.throws(() => push(Promise.resolve()));
-      assert.isEmpty(queue);
+      let p = Promise.resolve();
+      assert(!queue.has(p));
+      assert.throws(() => queue.push(p));
+      assert(!queue.has(p));
     });
     it('check flush + call order', async () => {
+      const fn = () => assert.equal(++tick, 1);
       let tick = 0;
-      assert.isEmpty(queue);
-      push(() => assert.equal(++tick, 1));
-      assert.isNotEmpty(queue);
+
+      assert(!queue.has(fn));
+      queue.push(fn);
+      assert(queue.has(fn));
 
       // pre and post-flush check
       assert.equal(tick, 0);
-      await nextTick();
+      await queue.nextTick();
       assert.equal(tick, 1);
-      assert.isEmpty(queue);
+      assert(!queue.has(fn));
     });
   });
 
   describe('#flush()', () => {
-    it('with empty queue', () => {
-      assert.isEmpty(queue)
-      flush();
-      assert.isEmpty(queue);
-    });
-    it('with one item', () => {
+    it('with empty queue', () => queue.flush());
+    it('with single item', () => {
       let tick = 0;
-      assert.isEmpty(queue);
-      queue.add(() => assert.equal(++tick, 1));
+      assert.equal(queue.size(), 0);
+      queue.push(() => assert.equal(++tick, 1));
 
       // pre and post-flush check
       assert.equal(tick, 0);
-      flush();
+      assert.equal(queue.size(), 1);
+      queue.flush();
       assert.equal(tick, 1);
+      assert.equal(queue.size(), 0);
     });
     it('with multiple items', () => {
       let tick = 0;
-      assert.isEmpty(queue);
-      queue.add(() => assert.equal(++tick, 1));
-      queue.add(() => assert.equal(++tick, 2));
-      queue.add(() => assert.equal(++tick, 3));
+      assert.equal(queue.size(), 0);
+
+      // push calls flush async, but call it sync later
+      queue.push(() => assert.equal(++tick, 1));
+      queue.push(() => assert.equal(++tick, 2));
+      queue.push(() => assert.equal(++tick, 3));
 
       // pre and post-flush check
       assert.equal(tick, 0);
-      flush();
+      queue.flush();
       assert.equal(tick, 3);
-    });
-    it('with non function in queue', () => {
-      assert.isEmpty(queue);
-      queue.add(200);
-
-      assert.throws(() => flush());
     });
   });
 });

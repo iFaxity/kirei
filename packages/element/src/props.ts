@@ -1,4 +1,5 @@
-import { mapObject, isFunction, isObject, isUndefined, warn, exception } from '@kirei/shared';
+import { mapObject, isFunction, isObject, isUndefined } from '@kirei/shared';
+import { warn } from './logging';
 
 type DefaultFactory<T = any> = () => T | null | undefined;
 type PropConstructor<T = any> = { new (...args: any[]): T & object } | { (): T };
@@ -92,7 +93,7 @@ export function normalizeProps<T = Props>(props: T): NormalizedProps<T> {
  * @param {NormalizedProps} props Props model to extract defaults from
  * @returns {PropsData}
  */
-export function propDefaults<T extends NormalizedProps>(props: T, ctx: string): PropsData<T> {
+export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> {
   return mapObject<T, string, PropsData<T>>((key, prop) => {
     const { type, default: def } = prop;
     if (isObject(def)) {
@@ -108,7 +109,7 @@ export function propDefaults<T extends NormalizedProps>(props: T, ctx: string): 
         // Validate default value
         validateProp(prop, key, value);
       } catch (ex) {
-        exception(`Default prop value invalid for prop "${key}", type "${typeof value}" unexpected.`, ctx);
+        throw new TypeError(`Default prop value invalid for prop "${key}", type "${typeof value}" unexpected.`);
       }
     } else if (type != null && type[0] === Boolean) {
       value = false;

@@ -1,6 +1,7 @@
-import { exception, isFunction } from '@kirei/shared';
+import { isFunction } from '@kirei/shared';
 import { KireiInstance } from '../instance';
-const HOOKS: string[] = [];
+import { exception } from '../logging';
+const HOOKS = new Set<string>();
 
 export enum HookTypes {
   BEFORE_MOUNT = 'beforeMount',
@@ -17,23 +18,22 @@ export enum HookTypes {
  * @return {Function}
  */
 export function defineHook<T = () => void>(name: string): (hook: T) => void {
-  if (HOOKS.includes(name)) {
-    exception('A lifecycle hook with that key already exists', `defineHook(${name})`);
+  if (HOOKS.has(name)) {
+    exception('A lifecycle hook with that identifier already exists', `defineHook(${name})`);
   }
 
   // Keep track of what hook keys are used
-  HOOKS.push(name);
-  return (hook: T) => {
-    const instance = KireiInstance.active;
-    if (!instance) {
-      exception(`Lifecycle hooks needs have a setup function in its call stack.`);
-    } else if (!isFunction(hook)) {
-      exception('Lifecycle hooks requires the parameter to be a function.');
+  HOOKS.add(name);
+  return (hook) => {
+    if (!isFunction(hook)) {
+        exception('Lifecycle hooks requires the parameter to be a function.', `${hook}()`);
     }
 
-    const { hooks } = instance;
-    hooks[name] = hooks[name] ?? new Set();
-    hooks[name].add(hook);
+    const instance = KireiInstance.active;
+    if (!instance) {
+        exception(`Lifecycle hooks needs have a setup function in its call stack.`, `${hook}()`);
+    }
+    instance.injectHook(name, hook);
   };
 }
 

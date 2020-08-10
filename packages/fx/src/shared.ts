@@ -8,6 +8,7 @@ export type AnyCollection = MapCollection | SetCollection;
  * Checks if a variable is a collection (Set, Map, WeakSet, WeakMap)
  * @param {*} obj
  * @returns {boolean}
+ * @private
  */
 export function isCollection(target: any): target is AnyCollection {
   return COLLECTION_TYPES.some(t => target instanceof t);

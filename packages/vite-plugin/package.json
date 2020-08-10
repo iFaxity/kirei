@@ -1,10 +1,8 @@
 {
-  "name": "@kirei/store",
-  "version": "1.0.0",
-  "private": true,
+  "name": "@kirei/vite-plugin",
+  "version": "1.0.1",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
-  "type": "module",
   "module": "dist/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -17,7 +15,7 @@
     "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
     "build": "tsc -b"
   },
-  "homepage": "https://github.com/ifaxity/kirei",
+  "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/vite-plugin",
   "repository": {
     "type": "git",
     "url": "https://github.com/ifaxity/kirei.git"
@@ -34,11 +32,14 @@
     "custom elements",
     "shadow dom"
   ],
-  "peerDependencies": {
-    "@kirei/element": "^1.0.0"
-  },
   "dependencies": {
-    "@kirei/fx": "^1.0.0",
-    "@kirei/shared": "^1.0.0"
+    "babel-plugin-kirei": "^1.0.1",
+    "micromatch": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/micromatch": "^4.0.1"
+  },
+  "peerDependencies": {
+    "vite": "^1.0.0-rc.4"
   }
 }

@@ -15,7 +15,9 @@
     { "path": "../packages/shared" },
     { "path": "../packages/fx" },
     { "path": "../packages/element" },
-    { "path": "../packages/router" }
+    { "path": "../packages/router" },
+    { "path": "../packages/vite-plugin" },
+    { "path": "../packages/webpacl-loader" },
   ],
   "include": [ "../packages/*" ]
 }

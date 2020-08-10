@@ -6,15 +6,18 @@
  */
 import { Fx, TriggerOpTypes } from './fx';
 import { toReactive } from './reactive';
-import { isFunction, isObject } from '@kirei/shared';
+import { isFunction } from '@kirei/shared';
 
-export type Ref<T = any> = { value: T; };
+export type Ref<T = any> = { value: T; valueOf(): T, toString(): string; };
 export type RefTarget<T> = {
   get(): T;
   set(value: T): void;
 };
 
-// Prorotype for all ref types
+/**
+ * Prototype for all ref types
+ * @private
+ */
 const refProto = Object.defineProperties(Object.create(null), {
   valueOf: {
     value() { return this.value; },
@@ -28,6 +31,7 @@ const refProto = Object.defineProperties(Object.create(null), {
  * Creates a ref object from an object with a getter & setter for value
  * @param {RefTarget} target Target to create a ref from
  * @returns {Ref}
+ * @private
  */
 export function createRef<T>(target: RefTarget<T>): Ref<T> {
   const { get, set } = target ?? {};

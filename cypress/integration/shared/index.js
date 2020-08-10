@@ -7,39 +7,7 @@ import {
   isUndefined,
   mapObject,
   camelToKebab,
-  exception,
-  error,
-  warn,
 } from '@kirei/shared';
-
-function assertConsole(name, callback, expected) {
-  let nativeFn = console[name];
-  let message;
-
-  // shim console function
-  console[name] = (msg) => { message = msg; };
-
-  try {
-    callback();
-    assert.equal(message, expected);
-  } finally {
-    console[name] = nativeFn;
-  }
-}
-
-it('#exception()', () => {
-  assert.throws(() => exception('Test message'));
-});
-
-it('#error()', () => {
-  const fn = () => error('Error message');
-  assertConsole('error', fn, '[Kirei]: Error message');
-});
-
-it('#warn()', () => {
-  const fn = () => warn('Warning message');
-  assertConsole('warn', fn, '[Kirei]: Warning message');
-});
 
 describe('#isPrimitive()', () => {
   it('with string', () => assert(isPrimitive('test')));

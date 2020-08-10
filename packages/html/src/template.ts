@@ -3,29 +3,67 @@ import { persistent, createWalker, createTemplate } from './shared';
 import { defaultCompiler, TemplateCompiler, TemplatePatcher } from './compiler';
 export { TemplateCompiler };
 
+/**
+ * Tags to force text only from node content
+ * @const
+ */
 const TEXT_TAGS = ['style', 'textarea'];
-const prefix = 'isµ';
+
+/**
+ * Prefix to glue template strings by the interpolated value slot
+ * @const
+ */
+const PREFIX = 'isµ';
+
+/**
+ * Cache to store precompiled templates indexed by the template strings
+ * @const
+ */
 const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
 
+/**
+ * Template cache, used with template to remember past renders
+ * @interface
+ */
 export interface TemplateCache {
   stack: TemplateCache[];
   instance: TemplateInstance;
   node: Node;
 }
+
+/**
+ * Compiled template from strings and patcher function
+ * @interface
+ */
 interface TemplateContent {
   node: HTMLTemplateElement;
   patches: TemplatePatch[];
 }
+
+/**
+ * Type of patcher to use for compiling a TemplatePatcher
+ * @enum
+ */
 enum PatchType {
   NODE = 'node',
   ATTR = 'attr',
   TEXT = 'text',
 }
+
+/**
+ * Patch information for TemplatePatcher node traversal
+ * @interface
+ */
 interface TemplatePatch {
   type: PatchType;
   attr: string;
   path: number[];
 }
+
+/**
+ * 
+ * @interface
+ */
 interface TemplateInstance {
   strings: TemplateStringsArray;
   type: string;
@@ -33,10 +71,23 @@ interface TemplateInstance {
   root: DocumentFragment;
 }
 
+/**
+ * Creates an empty template cache instance
+ * @returns {TemplateCache}
+ * @private
+ */
 export function createCache(): TemplateCache {
   return { stack: [], instance: null, node: null };
 }
 
+/**
+ * Creates a patch walker for a node
+ * @param {Node} node Node to create patch for
+ * @param {PatchType} type patch type
+ * @param {string} attr Attribute name (only if type is PatchType.Attr)
+ * @param {TemplatePatch}
+ * @private
+ */
 function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch {
   // Index the node relative to the root, essentialy "paving" a path
   const path: number[] = [];
@@ -50,15 +101,23 @@ function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch 
   return { attr, type, path };
 }
 
-function compileContent(type: string, strings: TemplateStringsArray, scopeName: string): TemplateContent {
+/**
+ * Compiles a DOM Tree from template strings, compiles dynamic patches
+ * @param {string} type Template type, svg or html.
+ * @param {TemplateStringsArray} strings Template strings
+ * @param {string} scopeName Custom Element tag name, only required for Shady Shims
+ * @returns {TemplateContent}
+ * @private
+ */
+function compileContent(type: string, strings: TemplateStringsArray, scopeName?: string): TemplateContent {
   // Compile the template element
   const isSvg = type === 'svg';
-  const template = createTemplate(isSvg, sanitize(strings, prefix, isSvg));
+  const template = createTemplate(isSvg, sanitize(strings, PREFIX, isSvg));
   const patches: TemplatePatch[] = [];
   const walker = createWalker(template.content);
   const len = strings.length - 1;
   let i = 0;
-  let search = `${prefix}${i}`;
+  let search = `${PREFIX}${i}`;
 
   // Before we map the patchers we need to reconstruct the template styles
   // Merge all style elements and hoist the master up to the top
@@ -87,7 +146,7 @@ function compileContent(type: string, strings: TemplateStringsArray, scopeName: 
       if (node.textContent === search) {
         node.textContent = '';
         patches[i] = createPatch(node, PatchType.NODE);
-        search = `${prefix}${++i}`;
+        search = `${PREFIX}${++i}`;
       }
     } else {
       const el = node as Element;
@@ -100,7 +159,7 @@ function compileContent(type: string, strings: TemplateStringsArray, scopeName: 
       while ((attr = el.getAttribute(search))) {
         el.removeAttribute(search);
         patches[i] = createPatch(node, PatchType.ATTR, attr);
-        search = `${prefix}${++i}`;
+        search = `${PREFIX}${++i}`;
       }
 
       // if the node was a style or a textarea one, check its content
@@ -108,87 +167,131 @@ function compileContent(type: string, strings: TemplateStringsArray, scopeName: 
       if (TEXT_TAGS.includes(el.localName) && node.textContent.trim() === `<!--${search}-->`) {
         node.textContent = '';
         patches[i] = createPatch(node, PatchType.TEXT);
-        search = `${prefix}${++i}`;
+        search = `${PREFIX}${++i}`;
       }
     }
   }
 
-  // Apply shady shim, runs both prepareTemplateDom and prepareTemplateStyles
+  // Apply shady shim, if available
   if (scopeName) {
     window.ShadyCSS?.prepareTemplate(template, scopeName);
   }
   return { node: template, patches };
 }
 
-function createInstance(template: Template, compiler: TemplateCompiler, scopeName: string): TemplateInstance {
-  const { strings, type } = template;
-  let content = contentCache.get(strings);
-  if (!content) {
-    contentCache.set(strings, (content = compileContent(type, strings, scopeName)));
-  }
-
-  const { patches, node } = content;
-  const root = document.importNode(node.content, true);
-  const patchers = patches.map(({type, attr, path}) => {
-    // Fallback to defaultCompiler
-    const node = path.reduceRight<Node>((n, i) => n.childNodes[i], root) as Element&Comment&Text;
-    return compiler?.[type]?.(node, attr) || defaultCompiler[type](node, attr) as TemplatePatcher;
-  });
-
-  return { strings, type, patchers, root };
-}
-
+/**
+ * Class for composing template content and patching
+ * @class
+ */
 export class Template {
+  /**
+   * Template type, html or svg
+   * @var {string}
+   */
   readonly type: string;
+
+  /**
+   * Template strings
+   * @var {TemplateStringsArray}
+   */
   readonly strings: TemplateStringsArray;
+
+  /**
+   * Interpolated template values
+   * @var {any[]}
+   */
   readonly values: any[];
 
+  /**
+   * Updates values and does recursive template caching for templates
+   * @param {TemplateCache} cache Template cache
+   * @param {any[]} values Template values, dynamic content
+   * @param {TemplateCompiler} compiler Template compiler for interpolated values
+   * @private
+   */
+  private static updateValues(cache: TemplateCache, values: any[], compiler: TemplateCompiler): void {
+    const { stack } = cache;
+
+    for (let i = 0; i < values.length; i++) {
+      const value = values[i];
+      let cache: TemplateCache;
+
+      if (value instanceof Template) {
+        cache = stack[i] ?? createCache();
+        values[i] = value.update(cache, compiler);
+      } else if (Array.isArray(value)) {
+        cache = stack[i] ?? createCache();
+        Template.updateValues(cache, value, compiler);
+      }
+
+      stack[i] = cache;
+    }
+
+    // This will make sure the stack is fully drained
+    if (values.length < stack.length) {
+      stack.splice(values.length);
+    }
+  }
+
+  /**
+   * Constructs a new template
+   * @param {string} type Template type (html or svg)
+   * @param {TemplateStringsArray} strings Template strings
+   * @param {any[]} values Interpolated template values
+   */
   constructor(type: string, strings: TemplateStringsArray, values: any[]) {
     this.type = type;
     this.strings = strings;
     this.values = values;
   }
 
+  /**
+   * Creates or updates the rendered template, if already rendered to cache root
+   * @param {TemplateCache} cache Template cache
+   * @param {TemplateCompiler} compiler Compiler to use for patching dynamic content
+   * @param {string} scopeName Custom Element tag name, only required for Shady Shims
+   * @returns {Node}
+   */
   update(cache: TemplateCache, compiler: TemplateCompiler, scopeName?: string): Node {
     const { strings, type, values } = this;
     let { instance } = cache;
-    updateValues(cache, values, compiler);
-
-    // Create instance if first cache is empty
-    // Update instance if template has changed
     if (!instance || instance.strings !== strings || instance.type !== type) {
-      instance = (cache.instance = createInstance(this, compiler, scopeName));
+      // Create instance if cache is empty, update instance if template changed
+      instance = (cache.instance = this.instansiate(compiler, scopeName));
     }
 
     // Update instance values
     const { patchers } = instance;
+    Template.updateValues(cache, values, compiler);
+
     for (let i = 0; i < values.length; i++) {
       patchers[i](values[i]);
     }
     return cache.node ?? (cache.node = persistent(instance.root));
   }
-}
 
-function updateValues(cache: TemplateCache, values: any[], compiler: TemplateCompiler): void {
-  const { stack } = cache;
-
-  for (let i = 0; i < values.length; i++) {
-    const value = values[i];
-    let cache: TemplateCache;
-
-    if (value instanceof Template) {
-      cache = stack[i] ?? createCache();
-      values[i] = value.update(cache, compiler);
-    } else if (Array.isArray(value)) {
-      cache = stack[i] ?? createCache();
-      updateValues(cache, value, compiler);
+  /**
+   * Compiles the template and patchers
+   * @param {TemplateCompiler} compiler Compiler to use when parsing interpolated values
+   * @param {string} scopeName Custom Element tag name, only required for Shady Shims
+   * @returns {TemplateInstance}
+   * @private
+   */
+  private instansiate(compiler: TemplateCompiler, scopeName?: string): TemplateInstance {
+    const { strings, type } = this;
+    let content = contentCache.get(strings);
+    if (!content) {
+      contentCache.set(strings, (content = compileContent(type, strings, scopeName)));
     }
 
-    stack[i] = cache;
-  }
+    const { patches, node } = content;
+    const root = document.importNode(node.content, true);
+    const patchers = patches.map(({type, attr, path}) => {
+      // Fallback to defaultCompiler
+      const node = path.reduceRight<Node>((n, i) => n.childNodes[i], root) as Element&Comment&Text;
+      return compiler?.[type]?.(node, attr) || defaultCompiler[type](node, attr) as TemplatePatcher;
+    });
 
-  // This will make sure the stack is fully drained
-  if (values.length < stack.length) {
-    stack.splice(values.length);
+    return { strings, type, patchers, root };
   }
 }

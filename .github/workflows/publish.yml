@@ -12,14 +12,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --non-interactive
+
+      - name: Publish packages to npm
+        run: ./bin/publish ${{ github.ref }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         with:
           tag_name: ${{ github.ref }}
           body: TODO; Changelog??
-
-      - name: Install dependencies
-        run: yarn --frozen-lockfile --non-interactive
-      - name: Publish packages
-        run: ./bin/publish ${{ github.ref }}

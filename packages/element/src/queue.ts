@@ -1,21 +1,50 @@
 import { isFunction } from '@kirei/shared';
 
+let queue: Function[] = [];
 const tickPromise = Promise.resolve();
-// exported for testing
-export const queue = new Set<Function>();
+
+/**
+ * Clears queue stack, only intended for testing
+ * @returns {void}
+ * @private
+ */
+export function clear(): void {
+  queue = [];
+}
+
+/**
+ * Checks if queue has function in its stack, only intended for testing
+ * @param {Function} fn Function to check for
+ * @returns {boolean}
+ * @private
+ */
+export function has(fn: Function): boolean {
+  return queue.includes(fn);
+}
+
+/**
+ * Checks if queue has function in its stack, only intended for testing
+ * @returns {number}
+ * @private
+ */
+export function size(): number {
+  return queue.length;
+}
 
 /**
  * Flushes the queue, calling all the functions in the queue
  * @returns {void}
  */
 export function flush(): void {
-  for (const fn of queue) fn();
-  queue.clear();
+  for (let i = 0; i < queue.length; i++) {
+    queue[i]();
+  }
+  clear();
 }
 
 /**
  * Wait for next flush of the queue, as a Promise or as a callback function
- * @param {Function} [fn] Optional callback function
+ * @param {Function} fn Optional callback function
  * @returns {Promise}
  */
 export function nextTick(fn?: () => void): Promise<void> {
@@ -36,8 +65,6 @@ export function push(fn: () => void): void {
     throw new TypeError(`Queue push expected a function, got ${typeof fn}`);
   }
 
-  if (!queue.size) {
-    nextTick(flush);
-  }
-  queue.add(fn);
+  queue.length || nextTick(flush);
+  has(fn) || queue.push(fn);
 }

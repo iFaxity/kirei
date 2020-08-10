@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "composite": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "esModuleInterop": true,
+  },
+  "include": [
+    "src/*"
+  ],
+  "references": [
+    { "path": "../babel-plugin" }
+  ]
+}

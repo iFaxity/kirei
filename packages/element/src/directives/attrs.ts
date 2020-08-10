@@ -1,5 +1,6 @@
 import { directive } from '../compiler';
-import { isObject, warn } from '@kirei/shared';
+import { isObject } from '@kirei/shared';
+import { warn } from '../logging';
 
 directive('attrs', dir => {
   const { el } = dir;

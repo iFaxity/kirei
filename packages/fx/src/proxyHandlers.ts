@@ -9,9 +9,27 @@ import { isRef } from './ref';
 import { toRaw, toReactive, toReadonly } from './reactive';
 import { MapCollection, SetCollection, AnyCollection, Collection } from './shared';
 
+/**
+ * @private
+ */
 const ARRAY_SHIMS = [ 'indexOf', 'lastIndexOf', 'includes' ];
+
+/**
+ * Symbol for identifying a reactive proxy
+ * @private
+ */
 export const REACTIVE_KEY = Symbol('reactive');
+
+/**
+ * Symbol for identifying a readonly proxy
+ * @private
+ */
 export const READONLY_KEY = Symbol('readonly');
+
+/**
+ * Symbol for identifying a observable proxy
+ * @private
+ */
 export const OBSERVER_KEY = Symbol('observer');
 
 /**
@@ -20,6 +38,7 @@ export const OBSERVER_KEY = Symbol('observer');
  * @param {string} key Array function key
  * @param {any[]} args Optional arguments
  * @returns {Function}
+ * @private
  */
 function arraySearchShim(
   target: any[],
@@ -49,6 +68,7 @@ function arraySearchShim(
  * @param {string|symbol} method Method to shim
  * @param {boolean} immutable If collection is considered readonly
  * @returns {Generator}
+ * @private
  */
 function wrapCollectionIterator<T extends object>(
   target: T,
@@ -77,6 +97,7 @@ function wrapCollectionIterator<T extends object>(
  * Proxy handlers for reactive objects and arrays
  * @param {boolean} immutable Throw an error every time a property attempts a mutation
  * @returns {ProxyHandler}
+ * @private
  */
 export function baseHandlers<T extends object>(immutable: boolean, target: T): ProxyHandler<T> {
   const isArray = Array.isArray(target);
@@ -158,6 +179,7 @@ export function baseHandlers<T extends object>(immutable: boolean, target: T): P
  * Proxy handlers for collection objects
  * @param {boolean} immutable Throw an error every time a property attempts a mutation
  * @returns {ProxyHandler}
+ * @private
  */
 export function collectionHandlers<T extends object>(immutable: boolean, target: T): ProxyHandler<T> {
   const wrap = immutable ? toReadonly : toReactive;

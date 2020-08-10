@@ -44,7 +44,6 @@ export function toRef<T extends object>(target: object, key: string): Ref<T> {
 /**
  * Creates ref wrappers for all properties within a reactive object
  * @param {Proxy} target
- *
  * @return {object} of refs
  */
 export function toRefs<T extends object>(target: T): Record<string, Ref<T>> {

@@ -9,6 +9,7 @@
     "src/*"
   ],
   "references": [
+    { "path": "../element" },
     { "path": "../shared" }
   ]
 }

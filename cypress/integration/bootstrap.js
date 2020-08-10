@@ -26,7 +26,3 @@ describe('@kirei/shared', () => {
   const mods = require.context('./ssr', true);
   mods.keys().forEach(mods);
 });*/
-/*describe('@kirei/store', () => {
-  const mods = require.context('./store', true);
-  mods.keys().forEach(mods);
-};*/

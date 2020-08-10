@@ -7,17 +7,23 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "baseUrl": "./",
     "paths": {
-      "@kirei/*": [ "packages/*" ]
+      "@kirei/*": [ "packages/*" ],
+      "babel-plugin-kirei": [ "packages/babel-plugin" ]
     }
   },
+  "include": [ "packages/*" ],
+  "exclude": [ "**/node_modules" ],
   "references": [
     { "path": "packages/shared" },
     { "path": "packages/fx" },
     { "path": "packages/element" },
-    { "path": "packages/router" }
-  ],
-  "include": [ "packages/*" ],
-  "exclude": [ "**/node_modules" ]
+    { "path": "packages/router" },
+    { "path": "packages/babel-plugin" },
+    { "path": "packages/hmr-api" },
+    { "path": "packages/vite-plugin" }
+  ]
 }

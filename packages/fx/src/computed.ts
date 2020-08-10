@@ -11,10 +11,16 @@ import { Fx, activeFx } from './fx';
 type ComputedFunction<T> = () => T;
 export type Computed<T> = ComputedFunction<T> | RefTarget<T>;
 
-export function computedGetter<T>(getter: ComputedFunction<T>): (...args: any[]) => T {
+/**
+ * Creates a computed getter only function
+ * @param {Function} target- function if getter only or object with get and set as functions.
+ * @returns {Function}
+ * @private
+ */
+export function computedGetter<T>(target: ComputedFunction<T>): (...args: any[]) => T {
   let value: T;
   let dirty = true;
-  const fx = new Fx(getter, {
+  const fx = new Fx(target, {
     lazy: true,
     scheduler() { dirty = true; },
   });

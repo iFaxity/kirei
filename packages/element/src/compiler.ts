@@ -46,7 +46,7 @@ const compiler: TemplateCompiler = {
     }
 
     const name = match[1];
-    const factory = KireiInstance.active.directives?.[name] ?? directives.get(name);
+    const factory = KireiInstance.active?.directives?.[name] ?? directives.get(name);
     if (factory) {
       return factory({
         el: node, name,

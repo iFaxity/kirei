@@ -14,12 +14,36 @@ export enum TriggerOpTypes {
   CLEAR = 'clear',
 }
 
+/**
+ * Symbol to track list iteration
+ * @private
+ */
 export const ITER_KEY = Symbol('iter');
+
+/**
+ * Symbol to track map iteration
+ * @private
+ */
 export const MAP_KEY_ITER_KEY = Symbol('map_key_iter');
-export const fxStack: Fx[] = [];
+
+/**
+ * Stack of active effects
+ * @private
+ */
+export const activeStack: Fx[] = [];
+
+/**
+ * Stack to toggle tracking along a stack
+ * @private
+ */
+export const trackStack: boolean[] = [];
+
+/**
+ * 
+ * @private
+ */
 export let activeFx: Fx = null;
 let tracking = true;
-export const trackStack: boolean[] = [];
 
 export interface FxOptions {
   lazy?: boolean;
@@ -122,27 +146,44 @@ export class Fx {
     }
 
     if (type === TriggerOpTypes.CLEAR) {
-      // collection being cleared
-      // trigger all effects for target
+      // collection being cleared, trigger all effects for target
       depsMap.forEach(add);
-    } else if (key == 'length' && Array.isArray(target)) {
-      depsMap.forEach((dep, key) => (key == 'length' || key >= newValue) && add(dep));
     } else {
-      // schedule runs for SET | ADD | DELETE
-      if (!isUndefined(key)) {
-        add(depsMap.get(key));
-      }
+      const isArray = Array.isArray(target);
 
-      // also run for iteration key on ADD | DELETE | Map.SET
-      const isAddOrDelete =
-        type === TriggerOpTypes.ADD ||
-        (type === TriggerOpTypes.DELETE && !Array.isArray(target));
+      if (key == 'length' && isArray) {
+        // Add for each key in array
+        depsMap.forEach((dep, key) => (key == 'length' || key >= newValue) && add(dep));
+      } else {
+        // schedule runs for SET | ADD | DELETE
+        if (!isUndefined(key)) {
+          add(depsMap.get(key));
+        }
 
-      if (isAddOrDelete || (type === TriggerOpTypes.SET && target instanceof Map)) {
-        add(depsMap.get(Array.isArray(target) ? 'length' : ITER_KEY));
-      }
-      if (isAddOrDelete && target instanceof Map) {
-        add(depsMap.get(MAP_KEY_ITER_KEY));
+        if (target instanceof Map) {
+          switch (type) {
+            case TriggerOpTypes.ADD:
+            case TriggerOpTypes.DELETE:
+              add(depsMap.get(MAP_KEY_ITER_KEY));
+              break;
+
+            case TriggerOpTypes.SET:
+              add(depsMap.get(ITER_KEY));
+              break;
+          }
+        } else if (type === TriggerOpTypes.ADD || (!isArray && type === TriggerOpTypes.DELETE)) {
+          add(depsMap.get(isArray ? 'length' : ITER_KEY));
+        }
+        /* also run for iteration key on ADD | DELETE | Map.SET
+        const isAddOrDelete =
+          type === TriggerOpTypes.ADD ||
+          (type === TriggerOpTypes.DELETE && !Array.isArray(target));
+        if (isAddOrDelete || (type === TriggerOpTypes.SET && target instanceof Map)) {
+          add(depsMap.get(Array.isArray(target) ? 'length' : ITER_KEY));
+        }
+        if (isAddOrDelete && target instanceof Map) {
+          add(depsMap.get(MAP_KEY_ITER_KEY));
+        }*/
       }
     }
 
@@ -159,17 +200,17 @@ export class Fx {
       return this.raw(...args);
     }
 
-    if (!fxStack.includes(this)) {
+    if (!activeStack.includes(this)) {
       try {
         this.cleanup();
         Fx.resumeTracking();
 
-        fxStack.push(this);
+        activeStack.push(this);
         activeFx = this;
         return this.raw(...args);
       } finally {
-        fxStack.pop();
-        activeFx = fxStack[fxStack.length - 1];
+        activeStack.pop();
+        activeFx = activeStack[activeStack.length - 1];
       }
     }
   }

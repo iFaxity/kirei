@@ -58,23 +58,46 @@ describe('props', () => {
       });
     });
     it('with expanded types', () => {
+      const validator = () => true;
       assertProps({
-        text: String,
-        value: [ Boolean, String ],
-        count: Number,
-        any: null,
+        text: {
+          type: String,
+        },
+        value: {
+          type: [ Boolean, String ],
+          required: true,
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
+        any: {
+          type: null,
+          validator,
+          cast: true,
+        }
       }, {
         text: { type: [ String ] },
         value: {
           type: [ Boolean, String ],
+          required: true,
           cast: true,
         },
         count: {
           type: [ Number ],
+          default: 0,
           cast: true,
         },
-        any: { type: null },
+        any: {
+          type: null,
+          validator,
+          cast: false,
+        },
       });
+
+      it('with invalid type', () => {
+        assert.throws(() => normalizeProps({ text: true }));
+      })
     });
   });
 
