@@ -76,7 +76,7 @@ describe('template', () => {
 
           assert.equal(node, cache.node);
           assert.isNotEmpty(cache.instance.patchers);
-          cy.get(node).click().should('contain.text', 'Clicked!');
+          cy.get(node).click().should('have.text', 'Clicked!');
         });
         it('with node interpolation', () => {
           const tpl = html`<div>${html`<p>Some content</p>`}</div>`;
@@ -92,7 +92,7 @@ describe('template', () => {
 
           assert.equal(node, cache.node);
           assert.isNotEmpty(cache.instance.patchers);
-          cy.get(node).should('contain.text', 'Type here!');
+          cy.get(node).should('have.text', 'Type here!');
         });
         it('with mixed interpolations', () => {
           function onInput(e) {
@@ -107,13 +107,13 @@ describe('template', () => {
           `;
 
           mountTemplate(tpl);
-          cy.get('span').should('contain.text', 'Normal text');
+          cy.get('span').should('have.text', 'Normal text');
           cy.get('input')
             .should('have.attr', 'value', 'Type here')
             .clear().type('success')
             .should('have.attr', 'class', 'success');
-          cy.get('p').should('contain.text', 'Some text');
-          cy.get('#text').should('contain.text', 'Type here!');
+          cy.get('p').should('have.text', 'Some text');
+          cy.get('#text').should('have.text', 'Type here!');
         });
       });
     });
@@ -168,7 +168,7 @@ describe('template', () => {
 
           assert.equal(node, cache.node);
           assert.isNotEmpty(cache.instance.patchers);
-          cy.get('rect').click().should('contain.text', 'Clicked!');
+          cy.get('rect').click().should('have.text', 'Clicked!');
         });
         it('with node interpolation', () => {
           const tpl = svg`<text>Hello, ${svg`<a href="#link">click me</a>`}</text>`;
@@ -176,7 +176,7 @@ describe('template', () => {
 
           assert.equal(node, cache.node);
           assert.isNotEmpty(cache.instance.patchers);
-          cy.get(node).should('contain.html', '<a href="#link">click me</a>');
+          cy.get(node).should('contain.html', 'Hello, <a href="#link">click me</a>');
         });
         it('with text interpolation', () => {
           const tpl = svg`<style>${'color: red'}</style>`;
@@ -184,7 +184,7 @@ describe('template', () => {
 
           assert.equal(node, cache.node);
           assert.isNotEmpty(cache.instance.patchers);
-          cy.get(node).should('contain.text', 'color: red');
+          cy.get(node).should('have.text', 'color: red');
         });
         it('with mixed interpolations', () => {
           function onMouseUp(e) {
@@ -206,8 +206,8 @@ describe('template', () => {
             .should('have.prop', 'stroke', 'red')
             .click()
             .should('have.prop', 'stroke', 'black');
-          cy.get('text').should('contain.text', 'Foo bar');
-          cy.get('style').should('contain.text', 'color: green');
+          cy.get('text').should('have.text', 'Foo bar');
+          cy.get('style').should('have.text', 'color: green');
         });
       });
     });

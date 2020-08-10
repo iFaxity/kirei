@@ -6,6 +6,9 @@ const BABEL_OPTIONS = {
   ],
   plugins: [
     '@babel/plugin-proposal-class-properties',
+    ['kirei', {
+      include: /app\/(views|element)/,
+    }],
     ['istanbul', {
       exclude: [ 'cypress' ],
     }],
@@ -28,6 +31,7 @@ module.exports = {
     historyApiFallback: true,
     port: 3000,
     host: '0.0.0.0',
+    hot: true,
   },
   module: {
     rules: [

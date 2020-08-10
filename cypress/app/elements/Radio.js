@@ -57,8 +57,7 @@ export default defineElement({
       transform: scale(1);
     }
     input {
-      width: 0;
-      height: 0;
+      display: none;
     }
   `,
   setup(props) {
@@ -67,8 +66,8 @@ export default defineElement({
 
     return () => html`
     <label for=${uuid}>
-      ${props.label ?? ''}
-      <input type="radio" &=${sync} value=${props.value} id=${uuid}>
+      ${props.label || ''}
+      <input type="radio" id=${uuid} value=${props.value} &=${sync}>
       <span class="check"></span>
     </label>
     `;

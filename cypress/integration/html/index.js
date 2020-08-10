@@ -109,12 +109,12 @@ describe('#customize()', () => {
     describe('#key()', () => {
       it('basic usage', () => {
         const node = svg.key({}, svg`<rect width="100" height="100" />`);
-        assert.instanceOf(node, Node)
+        assert.instanceOf(node, Node);
       });
       it('validate cache', () => {
         const o = {};
         const node = svg.key(o, svg`<rect width="100" height="100" />`);
-        assert.instanceOf(node, Node)
+        assert.instanceOf(node, Node);
 
         const cached = svg.key(o, svg`<rect width="100" height="100" />`);
         assert.instanceOf(cached, Node);

@@ -64,7 +64,7 @@ export default defineElement({
     const sync = toRef(props, 'value');
 
     return () => html`
-    <input &=${sync} id=${uuid} type=${props.type} maxlength=${props.max ?? ''} required=${props.required} placeholder=" ">
+    <input &=${sync} id=${uuid} type=${props.type} maxlength=${props.max || ''} required=${props.required} placeholder=" ">
     <label for=${uuid}>${props.label}</label>
     `;
   },

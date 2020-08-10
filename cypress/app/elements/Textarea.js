@@ -114,7 +114,7 @@ export default defineElement({
     const sync = toRef(props, 'value');
     const charCount = computed(() => {
       if (props.max) {
-        return html`<span class="count">${props.value?.length ?? 0} / ${props.max}</span>`;
+        return html`<span class="count">${props.value.length || 0} / ${props.max}</span>`;
       }
     });
 
