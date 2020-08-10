@@ -2,16 +2,46 @@ import { KireiInstance, KireiElement, HookTypes, CSSResult, defineElement } from
 import { normalizeOptions, ElementOptions, NormalizedElementOptions } from '@kirei/element/dist/element';
 import { isObject } from '@kirei/shared';
 
-// TODO: reflow sync but if sync changed, then reflow parent too.
-const DENY_OPTIONS = [ 'name', 'tag', 'hooks', 'closed', 'sync' ];
+/**
+ * List of properties to ignore when updating the element options
+ * @const {string[]}
+ * @private
+ */
+const DENY_OPTIONS = [ 'name', 'tag', 'hooks', 'closed' ];
+
+/**
+ * Cache for an element and its instances
+ * @const {Map<string, HMRCache>}
+ * @private
+ */
 const hmrCache = new Map<string, HMRCache>();
 
+/**
+ * HMR cache item
+ * @instance
+ */
 interface HMRCache {
+  /**
+   * Element constructor, to modify static options
+   * @type {typeof KireiElement}
+   */
   ctor: typeof KireiElement;
+
+  /**
+   * Active instances with HMR enabled
+   * @type {Set<KireiInstance>}
+   */
   instances: Set<KireiInstance>;
 }
 
-// Utility functions
+/**
+ * Injects a global hook on the element,
+ * will last throughout every instances lifecycle
+ * @param {typeof KireiElement} ctor
+ * @param {string} key
+ * @param {Function} fn
+ * @returns {void}
+ */
 function injectHook(ctor: typeof KireiElement, key: string, fn: Function): void {
   const { options } = ctor;
   if (!options.hooks) {
@@ -25,6 +55,12 @@ function injectHook(ctor: typeof KireiElement, key: string, fn: Function): void 
   }
 }
 
+/**
+ * Checks if the styles changed, prevents unnecessary reflow
+ * @param {CSSResult[]} oldStyles
+ * @param {CSSResult[]} newStyles
+ * @returns {boolean}
+ */
 function stylesChanged(oldStyles: CSSResult[], newStyles: CSSResult[]): boolean {
   if (oldStyles.length != newStyles.length) {
     return true;
@@ -33,10 +69,15 @@ function stylesChanged(oldStyles: CSSResult[], newStyles: CSSResult[]): boolean 
   return !oldStyles.every((style, idx) => style.cssText === newStyles[idx].cssText);
 }
 
+/**
+ * Checks if the sync option changed, to force update on the parent
+ * @param {NormalizedElementOptions} oldOptions
+ * @param {NormalizedElementOptions} newOptions
+ * @returns {boolean}
+ */
 function syncChanged(oldOptions: NormalizedElementOptions, newOptions: NormalizedElementOptions): boolean {
   const oldSync = oldOptions.sync;
   const newSync = newOptions.sync;
-
   if (oldSync !== newSync) {
     if (isObject(oldSync) && isObject(newSync)) {
       if (oldSync.event !== newSync.event || oldSync.prop !== newSync.prop) {
@@ -50,20 +91,42 @@ function syncChanged(oldOptions: NormalizedElementOptions, newOptions: Normalize
   return false;
 }
 
-// API methods
+/**
+ * Generates an ID for an element
+ * @param {string} filename
+ * @param {ElementOptions} opts
+ * @returns {string}
+ */
 function generateId(filename: string, opts: ElementOptions): string {
   return `${filename}#${opts.name}`;
 }
 
-export function has(id: string, opts: ElementOptions): boolean {
-  return hmrCache.has(generateId(id, opts));
+/**
+ * Checks if HMR already has element with the same id stored
+ * @param {string} filename
+ * @param {ElementOptions} opts
+ * @returns {boolean}
+ */
+export function has(filename: string, opts: ElementOptions): boolean {
+  return hmrCache.has(generateId(filename, opts));
 }
 
+/**
+ * Stores an Element to cache or updates it and all of its active instances
+ * @param {string} id
+ * @param {ElementOptions} opts
+ * @returns {typeof KireiElement}
+ */
 export function createOrUpdate(id: string, opts: ElementOptions): typeof KireiElement {
   return has(id, opts) ? update(id, opts) : create(id, opts);
 }
 
-// Solely creates a new element, won't recreate
+/**
+ * Solely creates a new element, if element already exists, it will return its constructor
+ * @param {string} filename
+ * @param {ElementOptions} opts
+ * @returns {typeof KireiElement}
+ */
 export function create(filename: string, opts: ElementOptions): typeof KireiElement {
   const id = generateId(filename, opts);
   const cache = hmrCache.get(id);
@@ -72,9 +135,8 @@ export function create(filename: string, opts: ElementOptions): typeof KireiElem
   }
 
   const ctor = defineElement(opts);
-  ctor.options.filename = filename;
-
   const instances = new Set<KireiInstance>();
+  ctor.options.filename = filename;
   hmrCache.set(id, { ctor, instances });
 
   // Inject lifecycle hooks to track HMR
@@ -83,29 +145,33 @@ export function create(filename: string, opts: ElementOptions): typeof KireiElem
   return ctor;
 }
 
-export function update(filename: string, options: ElementOptions): typeof KireiElement {
-  const { ctor, instances } = hmrCache.get(generateId(filename, options));
-  const opts = normalizeOptions(options);
+/**
+ * Updates element options and all of its instances
+ * @param {string} filename
+ * @param {ElementOptions} opts
+ * @returns {typeof KireiElement}
+ */
+export function update(filename: string, opts: ElementOptions): typeof KireiElement {
+  const { ctor, instances } = hmrCache.get(generateId(filename, opts));
+  const options = normalizeOptions(opts);
 
   // update options (persist vital options)
   let reflowStyles = false;
   let updateParent = false;
-  for (const key of Object.keys(opts)) {
-    if (!DENY_OPTIONS.includes(key)) {
-      if (key == 'styles') {
-        reflowStyles = stylesChanged(ctor.options[key], opts[key]);
-      } else if (key == 'sync') {
-        updateParent = syncChanged(ctor.options, opts);
-      }
-
-      ctor.options[key] = opts[key];
+  for (const key of Object.keys(options).filter(key => !DENY_OPTIONS.includes(key))) {
+    if (key == 'styles') {
+      reflowStyles = stylesChanged(ctor.options[key], options[key]);
+    } else if (key == 'sync') {
+      updateParent = syncChanged(ctor.options, options);
     }
+
+    ctor.options[key] = options[key];
   }
 
   /* TODO: only reflow styles if template or styles changed.
    * 1. update options
    * 2. reload setup function
-   * 3. schedule update (will only full re-render if template changed, otherwise only reflow directives)
+   * 3. schedule update (will only full re-render if template changed, otherwise only reflow patchers)
    */
   for (const instance of instances) {
     instance.options = ctor.options;
