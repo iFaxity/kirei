@@ -3,7 +3,11 @@
   "mode": "modules",
   "out": "docs",
   "readme": "./README.md",
-  "exclude": "**/node_modules/**",
+  "exclude": [
+    "**/node_modules/**",
+    "packages/babel-plugin/**",
+    "packages/vite-plugin/**"
+  ],
   "external-modulemap": "packages\/([^\/]+)\/.*",
   "excludeNotExported": true,
   "excludePrivate": true,
