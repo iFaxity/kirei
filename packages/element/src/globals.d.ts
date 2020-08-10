@@ -1,8 +1,8 @@
 interface ShadyCSS {
   nativeCss: boolean;
   nativeShadow: boolean;
-  styleElement(host: Element, overrideProps?: {[key: string]: string}): void;
-  getComputedStyleValue(element: Element, property: string): string;
+  styleElement(host: Element, properties?: Record<string, string>): void;
+  styleSubtree(element: HTMLElement, properties?: Record<string, string>): void;
   prepareTemplateDom(template: HTMLTemplateElement, name: string): void;
   prepareTemplate(template: HTMLTemplateElement, name: string, elementExtends?: string): void;
   prepareTemplateStyles(template: HTMLTemplateElement, name: string, elementExtends?: string): void;

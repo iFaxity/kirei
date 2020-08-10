@@ -1,46 +1,20 @@
-import { Template } from '@kirei/html';
-import { Fx, TriggerOpTypes, toReactive } from '@kirei/fx';
-import { isFunction, isUndefined, exception } from '@kirei/shared';
+import { Fx } from '@kirei/fx';
+import { isFunction, isUndefined } from '@kirei/shared';
+import { exception } from './logging';
 import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult } from './css';
 import { render, DirectiveFactory } from './compiler';
-import {
-  Props,
-  PropsData,
-  ResolvePropTypes,
-  NormalizedProps,
-  validateProp,
-  propDefaults,
-} from './props';
+import { propDefaults, NormalizedProps, PropsData } from './props';
+import type { Template } from '@kirei/html';
+import type { InjectionKey } from './api/inject';
+import type { IKireiElement, IKireiInstance, NormalizedElementOptions, SyncOptions } from './types';
 
 const activeInstanceStack: KireiInstance[] = [];
-export const instances = new WeakMap<KireiElement, KireiInstance>();
+const instances = new WeakMap<IKireiElement, KireiInstance>();
 
-export interface SyncOptions {
-  prop: string;
-  event?: string;
-}
-export interface ElementOptions<P = Props, T = ResolvePropTypes<P>> {
-  name: string;
-  closed?: boolean;
-  props?: P;
-  sync?: string|SyncOptions;
-  setup(this: void, props: T, ctx: KireiContext): () => (Template|Node);
-  styles?: CSSResult|CSSResult[];
-  directives?: Record<string, DirectiveFactory>;
-}
-
-export interface NormalizedElementOptions extends Required<ElementOptions> {
-  tag: string;
-  props: NormalizedProps;
-  attrs: Record<string, string>;
-  styles: CSSResult[];
-  sync: SyncOptions;
-}
-
-class KireiContext {
-  readonly el: KireiElement;
+class KireiContext<T> {
+  readonly el: IKireiElement;
   readonly sync: SyncOptions;
   readonly attrs: Record<string, string>;
   readonly props: NormalizedProps;
@@ -50,187 +24,252 @@ class KireiContext {
    * @param {KireiElement} el Element to relate context to
    * @param {NormalizedElementOptions} options Normalized element options
    */
-  constructor(el: KireiElement, options: NormalizedElementOptions) {
+  constructor(el: IKireiElement, options: NormalizedElementOptions) {
     this.el = el;
     this.sync = options.sync;
     this.attrs = options.attrs;
     this.props = options.props;
   }
-
   /**
    * Dispatches an event from the host element
    * @param {string} eventName Event to emit
    * @param {*} detail Custom event value
    * @returns {void}
    */
-  emit(eventName: string, detail?: any, options?: EventInit): void {
+  emit(eventName: string, detail: any, options: object) {
     let e = isUndefined(detail)
       ? new CustomEvent(eventName, { detail, ...options })
       : new Event(eventName, options);
-
     this.el.dispatchEvent(e);
   }
 }
 
-export class KireiInstance {
-  private template: () => (Template|Node);
-  private shimAdoptedStyleSheets = false;
-  private shadowRoot: ShadowRoot;
-
-  readonly parent: KireiInstance;
-  readonly el: KireiElement;
-  readonly options: NormalizedElementOptions;
-  readonly hooks: Record<string, Set<Function>>;
+export class KireiInstance implements IKireiInstance {
+  private template: () => Template;
+  private shimAdoptedStyleSheets: boolean = false;
+  private hooks: Map<string, Set<Function>>;
   readonly fx: Fx;
+  readonly parent?: KireiInstance;
+  readonly el: IKireiElement;
+  shadowRoot: ShadowRoot;
+  options: NormalizedElementOptions;
   props: PropsData;
   directives?: Record<string, DirectiveFactory>;
-  provides: Record<string|number|symbol, any>;
+  provides: Record<string | number | symbol, any>;
 
+  /**
+   * Gets an instance from its element
+   * @returns {KireiInstance}
+   */
+  static get(el: IKireiElement): KireiInstance {
+    return instances.get(el);
+  }
+
+  /**
+   * Gets the active instance
+   * @returns {KireiInstance}
+   */
   static get active(): KireiInstance {
     return activeInstanceStack[activeInstanceStack.length - 1];
   }
 
-  activate(): void {
-    activeInstanceStack.push(this);
-  }
-  deactivate(): void {
-    activeInstanceStack.pop();
-  }
-
-  get mounted(): boolean {
-    return this.el?.parentNode != null;
-  }
-
   /**
    * Constructs a new element instance, holds all the functionality to avoid polluting element
-   * @param {KireiElement} el Element to create instance from
+   * @param {IKireiElement} el Element to create instance from
    * @param {NormalizedElementOptions} opts Normalized element options
    */
-  constructor(el: KireiElement, opts: NormalizedElementOptions) {
+  constructor(el: IKireiElement, opts: NormalizedElementOptions) {
+    this.shimAdoptedStyleSheets = false;
     const parent = KireiInstance.active;
     // Inherit provides from parent
-    if (parent) {
-      this.parent = parent;
-      this.provides = parent.provides;
-    } else {
-      this.provides = Object.create(null);
-    }
-
+    this.parent = parent;
+    this.provides = parent?.provides ?? Object.create(null);
     this.el = el;
     this.options = opts;
-    this.hooks = Object.create(null);
     this.fx = new Fx(this.update.bind(this), {
       lazy: true,
       scheduler: Queue.push,
     });
-
+    this.props = opts.props ? propDefaults(opts.props) : {};
     this.setup();
     instances.set(el, this);
   }
 
   /**
-   * Runs the setup function to collect dependencies and hold logic
-   * @returns {void}
+   * Checks if the element instance is currently mounted
+   * @returns {boolean}
+   */
+  get mounted(): boolean {
+    return !!this.el?.parentNode;
+  }
+
+  /**
+   * Runs the setup function to collect dependencies and run logic
    */
   setup(): void {
     const { options, directives, el } = this;
-    const { name, setup } = options;
-    let propsProxy: Record<string, unknown>;
-    let ctx: KireiContext;
-
-    const props = options.props ? propDefaults(options.props, name) : {};
-    this.props = props;
+    const { setup } = options;
+    this.hooks = Object.create(null);
     this.directives = directives;
 
-    // No need for props or ctx if not in the arguments of the setup method
-    if (setup.length >= 1) {
-      // Create a custom Proxy for the props
-      propsProxy = new Proxy(props, {
-        get(_, key: string) {
-          return Fx.track(props, key), props[key];
-        },
-        set(_, key: string, value: unknown) {
-          const res = props.hasOwnProperty(key);
-          if (res) {
-            const opts = { detail: value, bubbles: false };
-            this.el.dispatchEvent(new CustomEvent(`fxsync::${key}`, opts));
-          }
-          return res;
-        },
-        deleteProperty(_, key: string) {
-          exception('Props are non-removable, set it to null or undefined instead!', `${name}#${key}`);
-        },
-      });
-
-      // Create context
-      if (setup.length >= 2) {
-        ctx = new KireiContext(el, options);
+    // Inject global hooks to instance
+    if (options.hooks) {
+      for (const key of Object.keys(options.hooks)) {
+        this.hooks[key] = new Set(options.hooks[key]);
       }
+    }
+
+    let propsProxy;
+    let ctx;
+    try {
+      this.activate();
+
+      // No need for props or ctx if not in the arguments of the setup method
+      if (setup.length >= 1) {
+        const { props } = this;
+        // Create a custom Proxy for the props
+        propsProxy = new Proxy(props, {
+          get(_, key: string) {
+            return Fx.track(props, key), props[key];
+          },
+          set(_, key: string, value: any) {
+            const res = props.hasOwnProperty(key);
+            if (res) {
+              const opts = { detail: value, bubbles: false };
+              el.dispatchEvent(new CustomEvent(`fxsync::${key}`, opts));
+            }
+            return res;
+          },
+          deleteProperty(_, key: string) {
+            exception('Props are non-removable, set it to null or undefined instead!', `props.${key}`);
+          },
+        });
+
+        // Create context
+        if (setup.length >= 2) {
+          ctx = new KireiContext(el, options);
+        }
+      }
+    } catch (ex) {
+      this.deactivate();
+      exception(ex);
     }
 
     // Run setup function to gather reactive data
     // Pause tracking while calling setup function
     try {
-      this.activate();
       Fx.pauseTracking();
       const template = setup.call(null, propsProxy, ctx);
-
       if (!isFunction(template)) {
-        throw new TypeError('Setup function must return a TemplateGenerator');
+        throw new TypeError('Setup function must return a TemplateFactory');
       }
       this.template = template;
     } catch (ex) {
-      exception(ex.message, name);
+      exception(ex);
     } finally {
       Fx.resetTracking();
       this.deactivate();
     }
   }
 
-  // Create shadow root and shim styles
-  mount() {
-    const { tag, styles, closed } = this.options;
+  /**
+   * Provides a value for the instance
+   */
+  provide<T>(key: InjectionKey<T>|string, value: T): void {
+    const { parent } = this;
+    if (parent?.provides === this.provides) {
+      this.provides = Object.create(parent.provides);
+    }
+
+    this.provides[key as string] = value;
+  }
+
+  /**
+   * Pushes this instance to the front of the active stack
+   */
+  activate(): void {
+    if (KireiInstance.active !== this) {
+      activeInstanceStack.push(this);
+    }
+  }
+
+  /**
+   * Removes this instance from the front of the active stack
+   * Will be no-op of the instance is not at the front
+   */
+  deactivate(): void {
+    if (KireiInstance.active === this) {
+      activeInstanceStack.pop();
+    }
+  }
+
+  /**
+   * Reflows styles
+   */
+  reflowStyles(mount: boolean = false): void {
+    const { ShadyCSS, ShadowRoot } = window;
+    const { tag, styles } = this.options;
+
+    // stylesubtree on updates
+    if (mount) {
+      ShadyCSS?.styleElement(this.el);
+    } else {
+      ShadyCSS?.styleSubtree(this.el);
+    }
+
+    if (ShadowRoot && this.shadowRoot instanceof ShadowRoot) {
+      this.shimAdoptedStyleSheets = !CSSResult.adoptStyleSheets(this.shadowRoot, tag, styles);
+    }
+  }
+
+  /**
+   * Create shadow root and shim styles
+   */
+  mount(): void {
+    const { closed } = this.options;
     this.runHooks(HookTypes.BEFORE_MOUNT);
 
     // Only run shims on first mount
     if (!this.shadowRoot) {
-      const { ShadyCSS, ShadowRoot } = window;
-      ShadyCSS?.styleElement(this.el);
       this.shadowRoot = this.el.attachShadow({ mode: closed ? 'closed' : 'open' });
-
-      if (ShadowRoot && this.shadowRoot instanceof ShadowRoot) {
-        this.shimAdoptedStyleSheets = !CSSResult.adoptStyleSheets(this.shadowRoot, tag, styles);
-      }
+      this.reflowStyles(true);
     }
 
     this.runHooks(HookTypes.MOUNT);
     this.fx.scheduleRun();
   }
 
-  // Call unmounting lifecycle hooks
-  unmount() {
+  /**
+   * Call unmounting lifecycle hooks
+   */
+  unmount(): void {
     this.runHooks(HookTypes.UNMOUNT);
   }
 
   /**
    * Runs all the specified hooks on the Fx instance
    * @param {string} hook Specified hook name
-   * @returns {void}
    */
   runHooks(hook: string, ...args: any[]): void {
     const hooks = this.hooks[hook];
-
-    if (hooks?.size) {
+    if (hooks === null || hooks === void 0 ? void 0 : hooks.size) {
       Fx.pauseTracking();
-      hooks.forEach(hook => hook.apply(null, args));
+      hooks.forEach(hook => hook.apply(this, args));
       Fx.resetTracking();
     }
   }
 
+  /**
+   * Adds a lifecycle hook to instance
+   */
+  injectHook(name: string, hook: Function): void {
+    const { hooks } = this;
+    hooks[name] = hooks[name] ?? new Set();
+    hooks[name].add(hook);
+  }
 
   /**
    * Renders shadow root content
-   * @returns {void}
    */
   update(): void {
     const { shadowRoot, options, template, mounted } = this;
@@ -240,7 +279,7 @@ export class KireiInstance {
       this.activate();
       render(template(), shadowRoot, options.tag);
     } catch (ex) {
-      exception(ex.message, options.tag);
+      exception(ex);
     } finally {
       this.deactivate();
     }
@@ -259,80 +298,6 @@ export class KireiInstance {
     // Run update hook
     if (!mounted) {
       this.runHooks(HookTypes.UPDATE);
-    }
-  }
-}
-
-// HTMLElement needs ES6 classes to instansiate properly
-export class KireiElement extends HTMLElement {
-  static options: NormalizedElementOptions;
-  static get is(): string {
-    return this.options.tag;
-  }
-  static get observedAttributes(): string[] {
-    // TODO: cache this?
-    return Object.keys(this.options.attrs);
-  }
-
-  /**
-   * Constructs a new KireiElement
-   */
-  constructor() {
-    super();
-    const { options } = this.constructor as typeof KireiElement;
-    const { props } = new KireiInstance(this, options);
-
-    // Set props on the element
-    // Set props as getters/setters on element
-    // props should be a readonly reactive object
-    for (const key of Object.keys(options.props)) {
-      // If prop already exists, then we throw error
-      if (this.hasOwnProperty(key)) {
-        exception(`Prop ${key} is reserved, please use another.`, options.name);
-      }
-
-      Object.defineProperty(this, key, {
-        get: () => props[key],
-        set: (newValue) => {
-          if (newValue !== props[key]) {
-            // Trigger an update on the element
-            props[key] = toReactive(validateProp(options.props[key], key, newValue));
-            Fx.trigger(props, TriggerOpTypes.SET, key, newValue);
-          }
-        },
-      });
-    }
-  }
-
-  /**
-   * Runs when mounted from DOM
-   * @returns {void}
-   */
-  connectedCallback() {
-    const instance = instances.get(this);
-    instance.mount();
-  }
-
-  /**
-   * Runs when unmounted from DOM
-   * @returns {void}
-   */
-  disconnectedCallback() {
-    const instance = instances.get(this);
-    instance.runHooks(HookTypes.BEFORE_UNMOUNT);
-    Queue.push(() => instance.unmount());
-  }
-
-  /**
-   * Observes attribute changes, triggers updates on props
-   * @returns {void}
-   */
-  attributeChangedCallback(attr: string, oldValue: string, newValue: string) {
-    // newValue & oldValue null if not set, string if set, default to empty string
-    if (oldValue !== newValue) {
-      const { options } = this.constructor as typeof KireiElement;
-      const key = options.attrs[attr];
-      this[key] = newValue;
     }
   }
 }

@@ -1,10 +1,11 @@
 import { isString } from '@kirei/shared';
 import { Ref, isRef } from '@kirei/fx';
-import { KireiElement, instances } from '../instance';
+import { KireiInstance } from '../instance';
 import { directive, Directive } from '../compiler';
-import { nextTick } from '../queue';
+import { push } from '../queue';
+import { IKireiElement } from '../types';
 
-function selectHandler(el: HTMLSelectElement, ref: Ref): string | string[] {
+function selectHandler(el: HTMLSelectElement): string | string[] {
   const options = el.selectedOptions;
   if (el.multiple) {
     return !options.length ? [] : Array.from(options).map(o => o.value);
@@ -12,14 +13,10 @@ function selectHandler(el: HTMLSelectElement, ref: Ref): string | string[] {
 
   return options[0]?.value;
 }
-async function selectCommit(el: HTMLSelectElement, ref: Ref): Promise<void> {
-  const { options } = el;
-  const value = ref.value;
 
-  // Synced select elements has to be committed on the nextTick.
-  // As dynamic content could have not loaded yet.
-  // Another solution is to execute all attribute patches last, but is more cumbersome.
-  await nextTick();
+function selectCommit(el: HTMLSelectElement, value: unknown): void {
+  const { options } = el;
+
   if (el.multiple) {
     const values = value as string[];
 
@@ -35,8 +32,8 @@ async function selectCommit(el: HTMLSelectElement, ref: Ref): Promise<void> {
   }
 }
 
-function radioCommit(el: HTMLInputElement, ref: Ref): void {
-  el.checked = ref.value === el.value;
+function radioCommit(el: HTMLInputElement, value: unknown): void {
+  el.checked = value === el.value;
 }
 
 function checkboxHandler(el: HTMLInputElement, ref: Ref): boolean | string | string[] {
@@ -54,9 +51,7 @@ function checkboxHandler(el: HTMLInputElement, ref: Ref): boolean | string | str
 
   return el.value ?? el.checked;
 }
-function checkboxCommit(el: HTMLInputElement, ref: Ref): void {
-  const value = ref.value;
-
+function checkboxCommit(el: HTMLInputElement, value: unknown): void {
   if (Array.isArray(value)) {
     const values = value;
     el.checked = values.includes(el.value);
@@ -70,8 +65,8 @@ function mutationHandlers(dir: Directive) {
   let event: string;
   let prop: string = arg;
   let handler: (el: Element, ref: Ref) => any;
-  let commit = (el: Element, ref: Ref) => {
-    el[prop] = ref.value;
+  let commit = (el: Element, value: unknown) => {
+    el[prop] = value;
   };
   let sync = false;
 
@@ -99,7 +94,8 @@ function mutationHandlers(dir: Directive) {
       event = mods.includes('lazy') ? 'change' : 'input';
       prop = 'value';
     } else {
-      const instance = instances.get(el as KireiElement);
+      const instance = KireiInstance.get(el as IKireiElement);
+
       if (instance) {
         sync = true;
         event = instance.options.sync.event;
@@ -148,12 +144,17 @@ directive('&', dir => {
   if (sync || !event) {
     el.addEventListener(`fxsync::${prop}`, listener, false);
   }
-  return (pending: any) => {
+
+  return (pending: Ref<any>) => {
     if (!isRef(pending)) {
       throw new TypeError(`Sync directive requires a ref as its value`);
     }
 
+    // Synced select elements has to be committed on the nextTick.
+    // As dynamic content could have not loaded yet.
+    // TODO. applies to all elements, asyncing happening in queue now instead
     ref = pending;
-    commit(el, ref);
+    const value = ref.value;
+    push(() => commit(el, value));
   };
 });
