@@ -1,0 +1,45 @@
+{
+  "name": "@kirei/vite-plugin",
+  "version": "1.0.1",
+  "author": "iFaxity (christian@faxity.se)",
+  "license": "MIT",
+  "module": "dist/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*",
+    "src/*"
+  ],
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
+    "build": "tsc -b"
+  },
+  "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/vite-plugin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ifaxity/kirei.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifaxity/kirei/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "composition",
+    "frontend",
+    "web components",
+    "custom elements",
+    "shadow dom"
+  ],
+  "dependencies": {
+    "babel-plugin-kirei": "^1.0.1",
+    "micromatch": "^4.0.2"
+  },
+  "devDependencies": {
+    "@types/micromatch": "^4.0.1"
+  },
+  "peerDependencies": {
+    "vite": "^1.0.0-rc.4"
+  }
+}
