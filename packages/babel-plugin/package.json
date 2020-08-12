@@ -37,9 +37,9 @@
     "@kirei/shared": "1.x"
   },
   "devDependencies": {
-    "@babel/core": "^7.10.5",
+    "@babel/core": "7.11.1",
     "@kirei/hmr-api": "^1.0.1",
-    "@types/babel__core": "^7.1.9",
-    "test-exclude": "^6.0.0"
+    "@types/babel__core": "7.1.9",
+    "test-exclude": "6.0.0"
   }
 }

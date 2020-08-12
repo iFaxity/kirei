@@ -37,7 +37,7 @@
     "micromatch": "^4.0.2"
   },
   "devDependencies": {
-    "@types/micromatch": "^4.0.1"
+    "@types/micromatch": "4.0.1"
   },
   "peerDependencies": {
     "vite": "^1.0.0-rc.4"
