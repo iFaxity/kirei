@@ -37,9 +37,7 @@
     "@kirei/shared": "1.x"
   },
   "devDependencies": {
-    "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",
-    "@babel/plugin-transform-modules-commonjs": "^7.10.4",
     "@kirei/hmr-api": "^1.0.1",
     "@types/babel__core": "^7.1.9",
     "test-exclude": "^6.0.0"
