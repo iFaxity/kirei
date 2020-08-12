@@ -12,6 +12,7 @@ interface KireiPluginOptions {
 
 function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
   let shouldSkip: (filename: string) => boolean;
+  const cwd = process.cwd();
   const plugins: PluginItem[] = [
     // Add kirei plugin first, disable guard as we guard in the vite plugin
     [ BabelPluginKirei, { harmony: true, guard: false, }],
@@ -37,7 +38,7 @@ function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
     },
     transform(ctx) {
       const { code, map } = transformSync(ctx.code, {
-        plugins,
+        plugins, cwd,
         ast: false,
         sourceMaps: true,
         filename: ctx.path,

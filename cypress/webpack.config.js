@@ -6,9 +6,9 @@ const BABEL_OPTIONS = {
   ],
   plugins: [
     '@babel/plugin-proposal-class-properties',
-    /*['istanbul', {
+    ['istanbul', {
       exclude: [ 'cypress' ],
-    }],*/
+    }],
   ],
 };
 
