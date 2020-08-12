@@ -5,6 +5,7 @@ import {
   isFunction,
   isString,
   isUndefined,
+  isPromise,
   mapObject,
   camelToKebab,
 } from '@kirei/shared';
@@ -64,6 +65,22 @@ describe('#isUndefined()', () => {
   it('with null', () => assert(!isUndefined(null)));
   it('with symbol', () => assert(!isUndefined(Symbol())));
   it('with string', () => assert(!isUndefined('undefined')));
+});
+
+describe('#isPromise()', () => {
+  it('with null', () => assert(!isPromise(null)));
+  it('with symbol', () => assert(!isPromise(Symbol())));
+  it('with string', () => assert(!isPromise('undefined')));
+  it('with function', () => {
+    const fn = () => {};
+    assert(!isPromise(fn));
+  });
+
+  it('with promise', () => assert(isPromise(Promise.resolve())));
+  it('with thenable', () => {
+    const thenable = { then: () => {} };
+    assert(isPromise(thenable));
+  });
 });
 
 describe('#mapObject()', () => {

@@ -1,53 +1,66 @@
 // https://tc39.github.io/ecma262/#sec-typeof-operator
 export type Primitive = null|undefined|boolean|number|string|symbol|bigint;
 
-//export const DEV = process.env.NODE_ENV != 'production';
+export const DEV = process?.env?.NODE_ENV != 'production';
+/**
+ * True if the current environment is in the browser
+ * @const {boolean}
+ */
 export const IS_BROWSER = typeof window != 'undefined' && typeof window.document != 'undefined';
 
 /**
  * Checks if a variable is a primitive value (not object or function)
- * @param {*} value
+ * @param {*} target
  * @returns {boolean}
  */
-export function isPrimitive(value: unknown): value is Primitive {
-  const type = typeof value;
-  return value == null || type != 'object' && type != 'function';
+export function isPrimitive(target: unknown): target is Primitive {
+  const type = typeof target;
+  return target == null || type != 'object' && type != 'function';
 }
 
 /**
  * Checks if a value is an object
- * @param {*} value
+ * @param {*} target
  * @returns {boolean}
  */
-export function isObject<T = object>(value: any): value is T {
-  return value != null && typeof value == 'object';
+export function isObject<T = object>(target: any): target is T {
+  return target != null && typeof target == 'object';
 }
 
 /**
  * Checks if a value is a function
- * @param {*} fn
+ * @param {*} target
  * @returns {boolean}
  */
-export function isFunction(value: any): value is Function {
-  return typeof value == 'function';
+export function isFunction(target: any): target is Function {
+  return typeof target == 'function';
 }
 
 /**
  * Checks if a value is a string
- * @param {*} value
+ * @param {*} target
  * @returns {boolean}
  */
-export function isString(value: any): value is string {
-  return typeof value == 'string';
+export function isString(target: any): target is string {
+  return typeof target == 'string';
 }
 
 /**
  * Checks if a value is undefined
- * @param {*} value
+ * @param {*} target
  * @returns {boolean}
  */
-export function isUndefined(value: any): value is undefined {
-  return typeof value == 'undefined';
+export function isUndefined(target: any): target is undefined {
+  return typeof target == 'undefined';
+}
+
+/**
+ * Checks if a value is a Promise or a PromiseLike, aka an object with a then function.
+ * @param {*} target
+ * @returns {boolean}
+ */
+export function isPromise<T = any>(target: any|PromiseLike<T>): target is Promise<T> {
+  return typeof target?.then == 'function';
 }
 
 /**
