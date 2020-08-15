@@ -7,12 +7,42 @@
 import { isObject } from '@kirei/shared';
 import { baseHandlers, collectionHandlers, REACTIVE_KEY, READONLY_KEY, OBSERVER_KEY } from './proxyHandlers';
 import { isCollection } from './shared';
-const targetToReactive = new WeakMap<any, any>();
-const targetToReadonly = new WeakMap<any, any>();
+
+/**
+ * Recursively immutable observable object
+ * @type
+ */
+//export type Readonly<T = unknown> = { readonly [P in keyof T]: T[P] extends object ? Readonly<T[P]> : T[P] };
+//export type Reactive<T = unknown> = { [P in keyof T]: T[P] extends object ? Reactive<T[P]> : T[P] };
 
 // TODO: make readonly deep
-type Reactive<T> = { [P in keyof T]: T[P] };
+// TODO: better type inferance
+
+/**
+ * Recursive mutable observable object
+ * @type
+ */
+export type Reactive<T> = { [P in keyof T]: T[P] };
+
+/**
+ * Type for a Observable, mutable or immutable
+ * @type
+ */
 type Observer<T> = Readonly<T> | Reactive<T>;
+
+/**
+ * Weak cache to resolve targets to a mutable observer
+ * @const
+ * @private
+ */
+const targetToReactive = new WeakMap<any, Reactive<any>>();
+
+/**
+ * Weak cache to resolve targets to a immutable observer
+ * @const
+ * @private
+ */
+const targetToReadonly = new WeakMap<any, Readonly<any>>();
 
 /**
  * Wraps an object into an observeble proxy
@@ -25,6 +55,7 @@ function observe<T extends object>(target: T, immutable: boolean): Observer<T> {
     throw new TypeError('Target is not observable');
   }
 
+  target = toRaw(target);
   const cache = immutable ? targetToReadonly : targetToReactive;
   let res: T = cache.get(target);
 
@@ -78,10 +109,7 @@ export function toRaw<T>(target: T|Reactive<T>|Readonly<T>): T {
  * @returns {Proxy}
  */
 export function reactive<T extends object>(target: T): Reactive<T> {
-  if (isReactive(target)) {
-    return target;
-  }
-  return observe(toRaw(target), false);
+  return isReactive(target) ? target : observe(target, false);
 }
 
 /**
@@ -90,10 +118,7 @@ export function reactive<T extends object>(target: T): Reactive<T> {
  * @returns {Proxy}
  */
 export function readonly<T extends object>(target: T): Readonly<T> {
-  if (isReadonly(target)) {
-    return target;
-  }
-  return observe(toRaw(target), true);
+  return isReadonly(target) ? target : observe(target, true);
 }
 
 /**

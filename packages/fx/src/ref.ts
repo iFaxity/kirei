@@ -8,14 +8,40 @@ import { Fx, TriggerOpTypes } from './fx';
 import { toReactive } from './reactive';
 import { isFunction } from '@kirei/shared';
 
-export type Ref<T = any> = { value: T; valueOf(): T, toString(): string; };
-export type RefTarget<T> = {
+/**
+ * @interface
+ */
+export interface Ref<T = any> {
+  /**
+   * The current value of the ref
+   * @var {T}
+   */
+  value: T;
+
+  /**
+   * Returns the value of the ref, same as accessing .value
+   * @returns {T}
+   */
+  valueOf(): T;
+
+  /**
+   * Returns a string representation of the ref value
+   * @returns {string}
+   */
+  toString(): string;
+}
+
+/**
+ * @interface
+ */
+export interface RefTarget<T> {
   get(): T;
   set(value: T): void;
-};
+}
 
 /**
  * Prototype for all ref types
+ * @const
  * @private
  */
 const refProto = Object.defineProperties(Object.create(null), {
@@ -49,7 +75,7 @@ export function createRef<T>(target: RefTarget<T>): Ref<T> {
  * @param {*} target Target to check
  * @returns {boolean}
  */
-export function isRef(target: any): target is Ref {
+export function isRef<T = unknown>(target: any): target is Ref<T> {
   return Object.prototype.isPrototypeOf.call(refProto, target);
 }
 
@@ -67,8 +93,8 @@ export function unRef<T>(target: Ref<T>|T): T {
  * @param {*} target
  * @returns {Ref}
  */
-export function ref<T>(target?: T): Ref<T> {
-  if (isRef(target)) return target;
+export function ref<T>(target?: T|Ref<T>): Ref<T> {
+  if (isRef<T>(target)) return target;
 
   // if target is an object, wrap in a reactive
   let value = toReactive(target);
@@ -77,7 +103,7 @@ export function ref<T>(target?: T): Ref<T> {
       return Fx.track(r, 'value'), value;
     },
     set(newValue: T) {
-      value = toReactive(newValue) as T;
+      value = toReactive(newValue);
       Fx.trigger(r, TriggerOpTypes.SET, 'value', value);
     },
   });

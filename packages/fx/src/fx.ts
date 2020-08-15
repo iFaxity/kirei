@@ -45,15 +45,16 @@ export const trackStack: boolean[] = [];
 export let activeFx: Fx = null;
 let tracking = true;
 
-export interface FxOptions {
+type FxTarget<T> = (...args: any[]) => T;
+
+export interface FxOptions<T> {
   lazy?: boolean;
-  computed?: boolean;
-  scheduler?(fn: Function): void;
+  scheduler?(fn: FxTarget<T>): void;
 }
 
-export class Fx {
-  readonly scheduler?: (fn: Function) => void;
-  readonly raw: Function;
+export class Fx<T = unknown> {
+  readonly scheduler?: (...args: any[]) => void;
+  readonly raw: FxTarget<T>;
   active: boolean = true;
   deps: Set<Fx>[] = [];
 
@@ -62,7 +63,7 @@ export class Fx {
    * @param {Function|Fx} target - Runner function
    * @param {object} options - Options for the fx
    */
-  constructor(target: Function|Fx, options?: FxOptions) {
+  constructor(target: FxTarget<T>|Fx<T>, options?: FxOptions<T>) {
     const { lazy, scheduler } = options ?? {};
     this.scheduler = scheduler;
     this.raw = target instanceof Fx ? target.raw : target;
@@ -195,7 +196,7 @@ export class Fx {
    * @param {array} args
    * @returns {*}
    */
-  run<T>(...args: any[]): T {
+  run(...args: any[]): T {
     if (!this.active) {
       return this.raw(...args);
     }

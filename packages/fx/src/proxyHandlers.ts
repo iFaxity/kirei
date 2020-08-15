@@ -10,6 +10,7 @@ import { toRaw, toReactive, toReadonly } from './reactive';
 import { MapCollection, SetCollection, AnyCollection, Collection } from './shared';
 
 /**
+ * List of methods to shim for reactivity to work properly
  * @private
  */
 const ARRAY_SHIMS = [ 'indexOf', 'lastIndexOf', 'includes' ];
