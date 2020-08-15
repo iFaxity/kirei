@@ -12,7 +12,7 @@ export { Fx, TriggerOpTypes } from './fx';
 export * from './reactive';
 export { Ref, isRef, unRef, ref } from './ref';
 export { Computed, computed, computedGetter } from './computed';
-export { watchEffect } from './watch';
+export { watchEffect, watch } from './watch';
 
 /**
  * Unpacks a ref or reactive to it's raw value, otherwise returns target
@@ -35,6 +35,7 @@ export function toRef<T extends object>(target: object, key: string): Ref<T> {
   if (!isObject(target)) {
     throw new TypeError(`toRef expected object, got ${target}`);
   }
+
   return createRef({
     get: () => target[key],
     set: (value) => target[key] = value,
