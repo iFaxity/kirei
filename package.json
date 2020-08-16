@@ -16,7 +16,7 @@
     "docs": "typedoc packages/*/src",
     "dev": "vite serve cypress/app -c ./cypress/app/vite.config.js",
     "webpack": "webpack-dev-server --config cypress/app/webpack.config.js",
-    "test": "cypress run",
+    "test": "cypress run -C cypress/cypress.json",
     "test:docker": "docker-compose run --rm cypress"
   },
   "devDependencies": {

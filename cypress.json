@@ -1,16 +1,9 @@
 {
-  "reporter": "mochawesome",
-  "reporterOptions": {
-    "quiet": true,
-    "reportFilename": "index",
-    "consoleReporter": "spec",
-    "reportDir": "cypress/report",
-    "reportTitle": "Kirei Cypress Report",
-    "html": true,
-    "json": true
+  "testFiles": "*/*.js",
+  "env": {
+    "DISABLE_COV": true
   },
-  "testFiles": "bootstrap.js",
-  "screenshotOnRunFailure": true,
+  "screenshotOnRunFailure": false,
   "video": false,
   "experimentalShadowDomSupport": true,
   "experimentalFetchPolyfill": true,

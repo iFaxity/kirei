@@ -49,6 +49,7 @@ jobs:
         with:
           browser: chrome
           headless: true
+          config-file: cypress/cypress.json
 
       # Upload coverage report to codecov and codacy
       - name: Upload coverage to Codecov
