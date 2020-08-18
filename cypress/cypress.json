@@ -12,7 +12,6 @@
   "env": {
     "coverage": true
   },
-  "testFiles": "bootstrap.js",
   "baseUrl": "http://localhost:3000",
   "screenshotOnRunFailure": false,
   "video": false,
