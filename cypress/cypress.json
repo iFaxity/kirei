@@ -1,5 +1,8 @@
 {
   "reporter": "mochawesome",
+  "env": {
+    "DISABLE_COV": true
+  },
   "reporterOptions": {
     "quiet": true,
     "reportFilename": "index",
@@ -9,7 +12,7 @@
     "html": true,
     "json": true
   },
-  "testFiles": "bootstrap.js",
+  "testFiles": "**/*",
   "screenshotOnRunFailure": true,
   "video": false,
   "experimentalShadowDomSupport": true,
