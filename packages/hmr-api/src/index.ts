@@ -5,14 +5,12 @@ import { isObject } from '@kirei/shared';
 /**
  * List of properties to ignore when updating the element options
  * @const {string[]}
- * @private
  */
 const DENY_OPTIONS = [ 'name', 'tag', 'hooks', 'closed' ];
 
 /**
  * Cache for an element and its instances
  * @const {Map<string, HMRCache>}
- * @private
  */
 const hmrCache = new Map<string, HMRCache>();
 

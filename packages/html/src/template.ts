@@ -86,7 +86,6 @@ export function createCache(): TemplateCache {
  * @param {PatchType} type patch type
  * @param {string} attr Attribute name (only if type is PatchType.Attr)
  * @param {TemplatePatch}
- * @private
  */
 function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch {
   // Index the node relative to the root, essentialy "paving" a path
@@ -107,7 +106,6 @@ function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch 
  * @param {TemplateStringsArray} strings Template strings
  * @param {string} scopeName Custom Element tag name, only required for Shady Shims
  * @returns {TemplateContent}
- * @private
  */
 function compileContent(type: string, strings: TemplateStringsArray, scopeName?: string): TemplateContent {
   // Compile the template element
@@ -257,7 +255,7 @@ export class Template {
     let { instance } = cache;
     if (!instance || instance.strings !== strings || instance.type !== type) {
       // Create instance if cache is empty, update instance if template changed
-      instance = (cache.instance = this.instansiate(compiler, scopeName));
+      instance = (cache.instance = this.compile(compiler, scopeName));
     }
 
     // Update instance values
@@ -277,7 +275,7 @@ export class Template {
    * @returns {TemplateInstance}
    * @private
    */
-  private instansiate(compiler: TemplateCompiler, scopeName?: string): TemplateInstance {
+  private compile(compiler: TemplateCompiler, scopeName?: string): TemplateInstance {
     const { strings, type } = this;
     let content = contentCache.get(strings);
     if (!content) {
