@@ -7,7 +7,8 @@
   ],
   "nyc": {
     "reporter": "lcov",
-    "report-dir": "./cypress/coverage"
+    "report-dir": "./cypress/coverage",
+    "exclude": [ "cypress" ]
   },
   "scripts": {
     "build": "tsc -b --force",
@@ -15,6 +16,7 @@
     "docs": "typedoc packages/*/src",
     "dev": "vite serve cypress/app -c ./cypress/app/vite.config.js",
     "webpack": "webpack-dev-server --config cypress/app/webpack.config.js",
+    "pretest": "rm -rf .nyc_output",
     "test": "cypress run -C cypress/cypress.json",
     "test:docker": "docker-compose run --rm cypress"
   },

@@ -11,7 +11,6 @@
 
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
-
 const coverage = require('@cypress/code-coverage/task');
 const webpack = require('@cypress/webpack-preprocessor');
 const webpackOptions = require('../webpack.config');
@@ -27,6 +26,5 @@ module.exports = (on, config) => {
   // send in the options from your webpack.config.js, so it works the same
   // as your app's code
   on('file:preprocessor', webpack({ webpackOptions }));
-
   return config;
 }

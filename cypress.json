@@ -1,7 +1,7 @@
 {
   "testFiles": "*/*.js",
   "env": {
-    "DISABLE_COV": true
+    "coverage": false
   },
   "screenshotOnRunFailure": false,
   "video": false,
