@@ -3,16 +3,13 @@ import { directive } from '../compiler';
 
 directive('show', dir => {
   const el = dir.el as HTMLElement;
-  let value: boolean = true;
+  let value = true;
 
   return (pending) => {
     const newValue = !!unRef(pending);
-    if (newValue) {
-      if (!value) {
-        el.style.display = '';
-      }
-    } else if (value) {
-      el.style.display = 'none';
+
+    if (newValue != value) {
+      el.style.display = newValue ? '' : 'none';
     }
 
     value = newValue;

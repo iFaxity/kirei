@@ -3,7 +3,7 @@ import { Ref, isRef } from '@kirei/fx';
 import { KireiInstance } from '../instance';
 import { directive, Directive } from '../compiler';
 import { push } from '../queue';
-import { IKireiElement } from '../types';
+import { IKireiElement } from '../interfaces';
 
 function selectHandler(el: HTMLSelectElement): string | string[] {
   const options = el.selectedOptions;

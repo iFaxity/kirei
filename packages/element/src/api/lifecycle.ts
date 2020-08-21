@@ -3,6 +3,10 @@ import { KireiInstance } from '../instance';
 import { exception } from '../logging';
 const HOOKS = new Set<string>();
 
+/**
+ * @enum
+ * @private
+ */
 export enum HookTypes {
   BEFORE_MOUNT = 'beforeMount',
   MOUNT = 'mount',
@@ -26,13 +30,14 @@ export function defineHook<T = () => void>(name: string): (hook: T) => void {
   HOOKS.add(name);
   return (hook) => {
     if (!isFunction(hook)) {
-        exception('Lifecycle hooks requires the parameter to be a function.', `${hook}()`);
+      exception('Lifecycle hooks requires the parameter to be a function.', `${hook}()`);
     }
 
     const instance = KireiInstance.active;
     if (!instance) {
-        exception(`Lifecycle hooks needs have a setup function in its call stack.`, `${hook}()`);
+      exception(`Lifecycle hooks needs have a setup function in its call stack.`, `${hook}()`);
     }
+
     instance.injectHook(name, hook);
   };
 }

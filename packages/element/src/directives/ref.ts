@@ -3,8 +3,8 @@ import { directive } from '../compiler';
 
 // This is a special directive
 directive('ref', dir => {
-  return (ref: Ref<Element>) => {
-    if (!isRef(ref)) {
+  return ref => {
+    if (!isRef<Element>(ref)) {
       throw new TypeError(`Ref directive requires a ref as its expression value`);
     }
 

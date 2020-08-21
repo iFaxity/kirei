@@ -6,7 +6,7 @@ import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { validateProp, normalizeProps } from './props';
 import type { CSSResult } from './css';
-import { IKireiElement, ElementOptions, NormalizedElementOptions } from './types';
+import type { IKireiElement, ElementOptions, NormalizedElementOptions } from './interfaces';
 
 export { ElementOptions, NormalizedElementOptions };
 
@@ -15,6 +15,7 @@ export { ElementOptions, NormalizedElementOptions };
  * @param {CSSResult[]} styles Stylesheets to collect
  * @param {Set} set Set to hold all stylesheets
  * @returns {Set}
+ * @private
  */
 function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult> {
   set = set ?? new Set();
@@ -27,6 +28,7 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
  * Normalizes the raw options object to a more predictable format
  * @param {ElementOptions} options Raw element options
  * @returns {NormalizedElementOptions}
+ * @private
  */
 export function normalizeOptions(options: ElementOptions): NormalizedElementOptions {
   let { sync, styles } = options;
@@ -58,7 +60,15 @@ export function normalizeOptions(options: ElementOptions): NormalizedElementOpti
 }
 
 // HTMLElement needs ES6 classes to instansiate properly
+/**
+ * Element to use custom elements functionality, as it required a class
+ * @class
+ */
 export class KireiElement extends HTMLElement implements IKireiElement {
+  /**
+   * Options for this element, used for creating Kirei instances
+   * @var {NormalizedElementOptions}
+   */
   static options: NormalizedElementOptions;
 
   /**

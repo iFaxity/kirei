@@ -4,12 +4,13 @@ import { unRef } from '@kirei/fx';
 directive('if', dir => {
   const { el, arg } = dir;
   const invert = arg == 'not';
-  const ref = document.createComment('');
+  const placeholder = document.createComment('');
   let node: Element|Comment = el;
 
-  return (pending) => {
+  return pending => {
     const value = unRef(pending);
-    const newNode = (invert ? !value : !!value) ? el : ref;
+    const newNode = (invert ? !value : !!value) ? el : placeholder;
+
     if (newNode !== node) {
       node.parentNode?.replaceChild(newNode, node);
       node = newNode;

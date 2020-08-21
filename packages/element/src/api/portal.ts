@@ -13,7 +13,7 @@ interface Portal {
 }
 
 /**
- * Portals content to a element, useful for popups
+ * Portals content to a element, useful for dialogs
  * @param {string} target Target element as querySelector string
  * @param {Function} template Template to render
  * @returns {void}

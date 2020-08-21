@@ -5,11 +5,31 @@ import { KireiInstance } from './instance';
 const INDENT_STEP = 2;
 const INDENT = 4;
 
-class KireiError extends Error {
-  type: string;
+/**
+ * Error class for Kirei errors within the Kirei element
+ * @class
+ * @private
+ */
+export class KireiError extends Error {
+  /**
+   * Error level, 'info', 'error 'or 'warn'
+   * @var
+   */
+  level: string;
+
+  /**
+   * Function context of error, if any
+   * @var
+   */
   context?: string;
 
-  constructor(message: string, type: string, context?: string) {
+  /**
+   * Creates a new KireiError instance
+   * @param {string} message Error message
+   * @param {string} level Logging level
+   * @param {string} context Function context, if any
+   */
+  constructor(message: string, level: 'info'|'error'|'warn', context?: string) {
     super();
     const instance = KireiInstance.active;
 
@@ -26,9 +46,9 @@ class KireiError extends Error {
       message += this.createStackTrace(instance);
     }
 
-    this.type = type;
+    this.level = level;
     this.message = message;
-    this.name = `[Kirei ${type}]`;
+    this.name = `[Kirei ${level}]`;
     Error.captureStackTrace(this, KireiError);
   }
 
@@ -36,6 +56,7 @@ class KireiError extends Error {
    * Creates an iterator to walk the instance tree
    * @param {KireiInstance} instance Instance to walk up from
    * @returns {Generator}
+   * @private
    */
   private *walkInstanceTree(instance: KireiInstance): Generator<KireiInstance> {
     while (instance) {
@@ -46,6 +67,11 @@ class KireiError extends Error {
 
   /**
    * Formats element name from an instance
+   * @param {KireiInstance} instance Instance where stack trace should start
+   * @param {number} indent
+   * @param {number} recursiveCount
+   * @returns {string}
+   * @private
    */
   private formatElementName(instance: KireiInstance, indent: number, recursiveCount?: number): string {
     const { name, filename } = instance.options;
@@ -100,6 +126,7 @@ class KireiError extends Error {
  * @param {string|Error} message Exception message
  * @param {string} context Optional context (instance name, function name)
  * @returns {void}
+ * @private
  */
 export function exception(message: string | Error, context?: string): never {
   throw new KireiError(message.toString(), 'error', context);
@@ -110,6 +137,7 @@ export function exception(message: string | Error, context?: string): never {
  * @param {string|Error} message Exception message
  * @param {string} context Optional context (instance name, function name)
  * @returns {void}
+ * @private
  */
 export function error(message: string | Error, context?: string): void {
   console.error(new KireiError(message.toString(), 'error', context));
@@ -120,6 +148,7 @@ export function error(message: string | Error, context?: string): void {
  * @param {string|Error} message Warning message
  * @param {string} context Optional context (instance name, function name)
  * @returns {void}
+ * @private
  */
 export function warn(message: string | Error, context?: string): void {
   console.warn(new KireiError(message.toString(), 'warn', context));

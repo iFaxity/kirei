@@ -10,8 +10,7 @@ export { provide, inject } from './api/inject';
 
 import { KireiElement, normalizeOptions } from './element';
 import { warn } from './logging';
-import type { ElementOptions } from './types';
-import type { Props } from './props';
+import type { ElementOptions, Props } from './interfaces';
 
 // load directives
 import './directives/attrs';

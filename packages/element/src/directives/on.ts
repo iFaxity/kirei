@@ -27,17 +27,20 @@ const MOUSE_KEYS = [ 'left', 'right', 'middle' ];
 function hasMeta(e: KeyboardEvent|MouseEvent, meta: string[]): boolean {
   return !meta.length || meta.every(name => e[`${name}Key`]);
 }
+
 // Checks if mod exists and removes it if it does.
 function hasMod(mods: string[], mod: string): boolean {
   const idx = mods.indexOf(mod);
+
   if (idx != -1) {
-    mods.splice(idx, 1);
+    return mods.splice(idx, 1), true;
   }
-  return idx != -1;
+  return false;
 }
 
 function keyboardListener(listener: EventListener, mods: string[]): EventListener {
   const meta = KEYBOARD_MODS.filter(mod => hasMod(mods, mod));
+
   return (e: KeyboardEvent) => {
     if (meta.length && !hasMeta(e, meta)) return;
 
@@ -51,6 +54,7 @@ function mouseListener(listener: EventListener, mods: string[]): EventListener {
   const meta = KEYBOARD_MODS.filter(mod => hasMod(mods, mod));
   const idx = MOUSE_KEYS.findIndex(mod => hasMod(mods, mod))
   const button = 2 * (1 + idx);
+
   return (e: MouseEvent) => {
     if (meta.length && !hasMeta(e, meta)) return;
     if (button && e.button != button) return;
@@ -64,11 +68,11 @@ directive('@', dir => {
   const stop = hasMod(mods, 'stop');
   const self = hasMod(mods, 'self');
   const forceBind = prevent || stop;
-  const options = {
+  const options: AddEventListenerOptions  = {
     capture: hasMod(mods, 'capture'),
     once: hasMod(mods, 'once'),
     passive: hasMod(mods, 'passive'),
-  } as AddEventListenerOptions;
+  };
 
   let value: EventListener = NOOP;
   const boundListener: EventListener = (e: CustomEvent) => {
@@ -89,13 +93,13 @@ directive('@', dir => {
     }
   }
 
-  return (newValue: EventListener) => {
-    const fn = newValue ?? NOOP;
+  return (pending: EventListener) => {
+    const fn = pending ?? NOOP;
     if (!isFunction(fn)) {
       throw new TypeError('Kirei: Events can only be bound to functions');
     }
 
-    if (value !== newValue) {
+    if (value !== pending) {
       if (value != NOOP && fn == NOOP && !forceBind) {
         el.removeEventListener(eventName, listener, options);
       } else if (value == NOOP && fn != NOOP || forceBind) {

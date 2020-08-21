@@ -3,7 +3,9 @@ import { unRef } from '@kirei/fx';
 import { KireiInstance } from './instance';
 import { isFunction, isString } from '@kirei/shared';
 
-export type DirectiveFactory = (directive: Directive) => TemplatePatcher;
+/**
+ * @interface
+ */
 export interface Directive {
   el: Element;
   name: string;
@@ -11,12 +13,38 @@ export interface Directive {
   mods: string[];
 }
 
-// Exported for CI tests
+/**
+ * Function that is used to describe a directive, for custom interpolation
+ * @type
+ */
+export type DirectiveFactory = (directive: Directive) => TemplatePatcher;
+
+/**
+ * , only exported for testing
+ * @const {Set<string>}
+ * @private
+ */
 export const aliases = new Set<string>();
+
+/**
+ * , only exported for testing
+ * @const {Map<string, DirectiveFactory>}
+ * @private
+ */
 export const directives = new Map<string, DirectiveFactory>();
+
+/**
+ * Regex to validate directive names and aliases
+ * @const {RegExp}
+ */
 const DIRECTIVE_REGEX = /^([a-z0-9@#&$%*!?;=^-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
 
-// directive name
+/**
+ * Assigns a new global directive, active for all elements
+ * @param {string} name if name is only one char, it is considered an alias
+ * @param {DirectiveFactory} directive Directive factory, a function that returns a function with one parameter
+ * @returns {void}
+ */
 export function directive(name: string, directive: DirectiveFactory): void {
   if (!isString(name)) {
     throw new TypeError('Invalid directive name');
@@ -32,7 +60,10 @@ export function directive(name: string, directive: DirectiveFactory): void {
   directives.set(name, directive);
 }
 
-// Custom compiler for directives and to unpack reactives
+/**
+ * Custom compiler for directives and to unpack reactives
+ * @const {TemplateCompiler}
+ */
 const compiler: TemplateCompiler = {
   attr(node, attr) {
     // Check if directive exists for attribute

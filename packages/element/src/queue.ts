@@ -34,6 +34,7 @@ export function size(): number {
 /**
  * Flushes the queue, calling all the functions in the queue
  * @returns {void}
+ * @private
  */
 export function flush(): void {
   for (let i = 0; i < queue.length; i++) {
@@ -59,6 +60,7 @@ export function nextTick(fn?: () => void): Promise<void> {
  * Pushes a function to the queue, if it doesn't already exist
  * @param {Function} fn Function to enqueue
  * @returns {void}
+ * @private
  */
 export function push(fn: () => void): void {
   if (!isFunction(fn)) {

@@ -1,19 +1,24 @@
 import { Fx } from '@kirei/fx';
 import { isFunction, isUndefined } from '@kirei/shared';
-import { exception } from './logging';
+import { exception, KireiError } from './logging';
 import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult } from './css';
 import { render, DirectiveFactory } from './compiler';
-import { propDefaults, NormalizedProps, PropsData } from './props';
+import { propDefaults } from './props';
 import type { Template } from '@kirei/html';
 import type { InjectionKey } from './api/inject';
-import type { IKireiElement, IKireiInstance, NormalizedElementOptions, SyncOptions } from './types';
+import type { IKireiElement, IKireiInstance, NormalizedElementOptions, SyncOptions, NormalizedProps, PropsData } from './interfaces';
 
 const activeInstanceStack: KireiInstance[] = [];
 const instances = new WeakMap<IKireiElement, KireiInstance>();
 
-class KireiContext<T> {
+/**
+ * Optional context to have access to higher level APIs in the setup function
+ * @class
+ * @private
+ */
+class KireiContext {
   readonly el: IKireiElement;
   readonly sync: SyncOptions;
   readonly attrs: Record<string, string>;
@@ -30,13 +35,15 @@ class KireiContext<T> {
     this.attrs = options.attrs;
     this.props = options.props;
   }
+
   /**
    * Dispatches an event from the host element
    * @param {string} eventName Event to emit
    * @param {*} detail Custom event value
+   * @param {EventInit} options Custom event value
    * @returns {void}
    */
-  emit(eventName: string, detail: any, options: object) {
+  emit(eventName: string, detail: any, options: EventInit = {}) {
     let e = isUndefined(detail)
       ? new CustomEvent(eventName, { detail, ...options })
       : new Event(eventName, options);
@@ -44,6 +51,12 @@ class KireiContext<T> {
   }
 }
 
+
+/**
+ * Instance to sandbox functionality of a KireiElement
+ * @class
+ * @private
+ */
 export class KireiInstance implements IKireiInstance {
   private template: () => Template;
   private shimAdoptedStyleSheets: boolean = false;
@@ -59,6 +72,7 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Gets an instance from its element
+   * @param {IKireiElement} el
    * @returns {KireiInstance}
    */
   static get(el: IKireiElement): KireiInstance {
@@ -105,6 +119,7 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Runs the setup function to collect dependencies and run logic
+   * @returns {void}
    */
   setup(): void {
     const { options, directives, el } = this;
@@ -152,6 +167,10 @@ export class KireiInstance implements IKireiInstance {
       }
     } catch (ex) {
       this.deactivate();
+      if (ex instanceof KireiError) {
+        throw ex;
+      }
+
       exception(ex);
     }
 
@@ -165,7 +184,11 @@ export class KireiInstance implements IKireiInstance {
       }
       this.template = template;
     } catch (ex) {
-      exception(ex);
+      if (ex instanceof KireiError) {
+        throw ex;
+      }
+
+      exception(ex, 'setup()');
     } finally {
       Fx.resetTracking();
       this.deactivate();
@@ -174,6 +197,9 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Provides a value for the instance
+   * @param {InjectionKey<T>|string}
+   * @param {T} value
+   * @returns {void}
    */
   provide<T>(key: InjectionKey<T>|string, value: T): void {
     const { parent } = this;
@@ -186,6 +212,7 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Pushes this instance to the front of the active stack
+   * @returns {void}
    */
   activate(): void {
     if (KireiInstance.active !== this) {
@@ -196,6 +223,7 @@ export class KireiInstance implements IKireiInstance {
   /**
    * Removes this instance from the front of the active stack
    * Will be no-op of the instance is not at the front
+   * @returns {void}
    */
   deactivate(): void {
     if (KireiInstance.active === this) {
@@ -205,6 +233,8 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Reflows styles
+   * @param {boolean} mount
+   * @returns {void}
    */
   reflowStyles(mount: boolean = false): void {
     const { ShadyCSS, ShadowRoot } = window;
@@ -224,6 +254,7 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Create shadow root and shim styles
+   * @returns {void}
    */
   mount(): void {
     const { closed } = this.options;
@@ -241,6 +272,7 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Call unmounting lifecycle hooks
+   * @returns {void}
    */
   unmount(): void {
     this.runHooks(HookTypes.UNMOUNT);
@@ -249,6 +281,8 @@ export class KireiInstance implements IKireiInstance {
   /**
    * Runs all the specified hooks on the Fx instance
    * @param {string} hook Specified hook name
+   * @param {...any[]} args Arguments to pass to every hook
+   * @returns {void}
    */
   runHooks(hook: string, ...args: any[]): void {
     const hooks = this.hooks[hook];
@@ -261,6 +295,9 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Adds a lifecycle hook to instance
+   * @param {string} name Specified hook name
+   * @param {Function} hook Hook function to attach to the lifecycle
+   * @returns {void}
    */
   injectHook(name: string, hook: Function): void {
     const { hooks } = this;
@@ -270,6 +307,7 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Renders shadow root content
+   * @returns {void}
    */
   update(): void {
     const { shadowRoot, options, template, mounted } = this;

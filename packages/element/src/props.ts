@@ -1,52 +1,13 @@
 import { mapObject, isFunction, isObject, isUndefined } from '@kirei/shared';
 import { warn } from './logging';
 
-type DefaultFactory<T = any> = () => T | null | undefined;
-type PropConstructor<T = any> = { new (...args: any[]): T & object } | { (): T };
-type PropType<T> = PropConstructor<T> | PropConstructor<T>[];
-
-interface PropInstance<T = any> {
-  type: PropType<T>;
-  required?: boolean;
-  validator?(value: any): boolean;
-  default?: DefaultFactory<T> | T;
-}
-type Prop<T> = PropInstance<T> | PropType<T> | null;
-export type Props<P = Record<string, any>> = { [K in keyof P]: Prop<P[K]> };
-
-interface NormalizedProp<T = any> extends PropInstance<T> {
-  type: PropConstructor<T>[] | null;
-  cast?: boolean;
-}
-export type NormalizedProps<T = Props> = {
-  [K in keyof T]: NormalizedProp<T[K] extends Prop<infer V> ? V : any>;
-}
-export type PropsData<T extends NormalizedProps = any> = {
-  [K in keyof T]: T[K] extends NormalizedProp<infer V> ? V : any;
-}
-
-type RequiredKeys<T> = {
-  [K in keyof T]: T[K] extends { required: true } | { default: any } ? K : never;
-}[keyof T];
-type OptionalKeys<T> = Exclude<keyof T, RequiredKeys<T>>;
-
-type InferPropType<T> = T extends null | { type: null }
-  ? any
-  : T extends typeof Object | { type: typeof Object }
-    ? { [key: string]: any }
-    : T extends Prop<infer V>
-      ? V
-      : T
-;
-export type ResolvePropTypes<T> =
-  { [K in RequiredKeys<T>]: InferPropType<T[K]> } &
-  { [K in OptionalKeys<T>]?: InferPropType<T[K]> }
-;
+import type { Props, PropsData, NormalizedProps, NormalizedProp, PropInstance, PropConstructor } from './interfaces';
 
 /**
  * Normalizes a props model, making it more predictable
  * @param {Props} props Props to normalize
  * @returns {NormalizedProps}
+ * @private
  */
 export function normalizeProps<T = Props>(props: T): NormalizedProps<T> {
   for (const key of Object.keys(props)) {
@@ -92,6 +53,7 @@ export function normalizeProps<T = Props>(props: T): NormalizedProps<T> {
  * Extracts the default values from a props model
  * @param {NormalizedProps} props Props model to extract defaults from
  * @returns {PropsData}
+ * @private
  */
 export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> {
   return mapObject<T, string, PropsData<T>>((key, prop) => {
@@ -125,6 +87,7 @@ export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> 
  * @param {string} key Attribute key
  * @param {*} value Value to validate
  * @returns {V}
+ * @private
  */
 export function validateProp<T extends NormalizedProp, V = T extends NormalizedProp<infer I> ? I : any>(prop: T, key: string, value: any): V {
   // Validate prop

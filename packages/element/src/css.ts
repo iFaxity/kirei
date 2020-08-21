@@ -5,17 +5,27 @@ import { isUndefined } from '@kirei/shared';
  * @class
  */
 export class CSSResult {
-  private styles: CSSStyleSheet;
-  readonly cssText: string;
-
   /**
    * Boolean to indicate if client supports adopting style sheets,
    *   exposed as static for testing purposes
    * @private
+   * @constant
    */
-  static supportsAdoptingStyleSheets =
+  static readonly supportsAdoptingStyleSheets =
     'adoptedStyleSheets' in Document.prototype &&
     'replace' in CSSStyleSheet.prototype;
+
+  /**
+   * Cached stylesheet, created by the styleSheet getter
+   * @var {CSSStyleSheet}
+   */
+  private styles: CSSStyleSheet;
+
+  /**
+   * Raw CSS styles, as passed in to the template literal
+   * @var {string}
+   */
+  readonly cssText: string;
 
   /**
    * Applies adopted stylesheets if available or tries to shim,
@@ -75,7 +85,7 @@ export class CSSResult {
   }
 
   /**
-   * Gets the CSS styles as a string
+   * Gets the raw CSS styles as a string
    * @returns {string}
    */
   toString(): string {
