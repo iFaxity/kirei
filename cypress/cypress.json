@@ -9,9 +9,6 @@
     "html": true,
     "json": true
   },
-  "env": {
-    "coverage": true
-  },
   "baseUrl": "http://localhost:3000",
   "screenshotOnRunFailure": false,
   "video": false,
