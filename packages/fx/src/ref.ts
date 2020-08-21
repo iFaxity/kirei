@@ -33,6 +33,7 @@ export interface Ref<T = any> {
 
 /**
  * @interface
+ * @private
  */
 export interface RefTarget<T> {
   get(): T;
@@ -42,7 +43,6 @@ export interface RefTarget<T> {
 /**
  * Prototype for all ref types
  * @const
- * @private
  */
 const refProto = Object.defineProperties(Object.create(null), {
   valueOf: {

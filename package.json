@@ -8,7 +8,9 @@
   "nyc": {
     "reporter": "lcov",
     "report-dir": "./cypress/coverage",
-    "exclude": [ "cypress" ]
+    "exclude": [
+      "cypress"
+    ]
   },
   "scripts": {
     "build": "tsc -b --force",
@@ -35,7 +37,7 @@
     "typedoc": "0.18.0",
     "typedoc-plugin-exclude-references": "1.0.0",
     "typedoc-plugin-markdown": "2.4.1",
-    "typescript": "3.9.7",
+    "typescript": "4.0.2",
     "vite": "1.0.0-rc.4",
     "vite-plugin-istanbul": "1.0.2",
     "webpack": "4.44.1"

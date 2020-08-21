@@ -33,14 +33,12 @@ type Observer<T> = Readonly<T> | Reactive<T>;
 /**
  * Weak cache to resolve targets to a mutable observer
  * @const
- * @private
  */
 const targetToReactive = new WeakMap<any, Reactive<any>>();
 
 /**
  * Weak cache to resolve targets to a immutable observer
  * @const
- * @private
  */
 const targetToReadonly = new WeakMap<any, Readonly<any>>();
 
@@ -48,7 +46,6 @@ const targetToReadonly = new WeakMap<any, Readonly<any>>();
  * Wraps an object into an observeble proxy
  * @param {object} target Target to check
  * @param {boolean} immutable If proxy should be readonly
- * @private
  */
 function observe<T extends object>(target: T, immutable: boolean): Observer<T> {
   if (!isObject(target)) {

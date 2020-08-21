@@ -11,24 +11,27 @@ import { MapCollection, SetCollection, AnyCollection, Collection } from './share
 
 /**
  * List of methods to shim for reactivity to work properly
- * @private
+ * @const
  */
 const ARRAY_SHIMS = [ 'indexOf', 'lastIndexOf', 'includes' ];
 
 /**
  * Symbol for identifying a reactive proxy
+ * @const
  * @private
  */
 export const REACTIVE_KEY = Symbol('reactive');
 
 /**
  * Symbol for identifying a readonly proxy
+ * @const
  * @private
  */
 export const READONLY_KEY = Symbol('readonly');
 
 /**
  * Symbol for identifying a observable proxy
+ * @const
  * @private
  */
 export const OBSERVER_KEY = Symbol('observer');
@@ -39,7 +42,6 @@ export const OBSERVER_KEY = Symbol('observer');
  * @param {string} key Array function key
  * @param {any[]} args Optional arguments
  * @returns {Function}
- * @private
  */
 function arraySearchShim(
   target: any[],
@@ -69,7 +71,6 @@ function arraySearchShim(
  * @param {string|symbol} method Method to shim
  * @param {boolean} immutable If collection is considered readonly
  * @returns {Generator}
- * @private
  */
 function wrapCollectionIterator<T extends object>(
   target: T,

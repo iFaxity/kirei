@@ -8,7 +8,7 @@ import { isObject, isFunction } from '@kirei/shared';
 import { createRef, Ref, RefTarget } from './ref';
 import { Fx, activeFx } from './fx';
 
-type ComputedFunction<T> = () => T;
+export type ComputedFunction<T> = () => T;
 export type Computed<T> = ComputedFunction<T> | RefTarget<T>;
 
 /**
@@ -40,6 +40,7 @@ export function computedGetter<T>(target: ComputedFunction<T>): (...args: any[])
         }
       }
     }
+
     return value;
   };
 }

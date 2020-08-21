@@ -6,7 +6,17 @@
  */
 import { isUndefined } from '@kirei/shared';
 
+
+/**
+ * Weak cache to track dependencies
+ * @const {WeakMap<object, Map<any, Set<Fx>>>}
+ */
 const targetMap = new WeakMap<object, Map<any, Set<Fx>>>();
+
+/**
+ * @enum
+ * @private
+ */
 export enum TriggerOpTypes {
   SET = 'set',
   ADD = 'add',
@@ -16,46 +26,89 @@ export enum TriggerOpTypes {
 
 /**
  * Symbol to track list iteration
+ * @const {symbol}
  * @private
  */
 export const ITER_KEY = Symbol('iter');
 
 /**
  * Symbol to track map iteration
+ * @const {symbol}
  * @private
  */
 export const MAP_KEY_ITER_KEY = Symbol('map_key_iter');
 
 /**
  * Stack of active effects
+ * @const {Fx[]}
  * @private
  */
 export const activeStack: Fx[] = [];
 
 /**
  * Stack to toggle tracking along a stack
+ * @const {boolean[]}
  * @private
  */
 export const trackStack: boolean[] = [];
 
 /**
- * 
+ * @var {Fx}
  * @private
  */
 export let activeFx: Fx = null;
 let tracking = true;
 
+/**
+ * @type
+ */
 type FxTarget<T> = (...args: any[]) => T;
 
+
+/**
+ * @type
+ */
 export interface FxOptions<T> {
+  /**
+   * If true does not automatically run on instansiation
+   * @var {boolean}
+   */
   lazy?: boolean;
-  scheduler?(fn: FxTarget<T>): void;
+
+  /**
+   * Function to schedule a runners effect
+   * @param {FxTarget<T>} runner
+   * @returns {void}
+   */
+  scheduler?(runner: FxTarget<T>): void;
 }
 
+/**
+ * @class
+ */
 export class Fx<T = unknown> {
-  readonly scheduler?: (...args: any[]) => void;
+  /**
+   * Scheduling function
+   * @var {Function}
+   */
+  readonly scheduler?: (runner: FxTarget<T>) => void;
+
+  /**
+   * Raw runner function
+   * @var {FxTarget<T>}
+   */
   readonly raw: FxTarget<T>;
+
+  /**
+   * If effect should be active
+   * @var {boolean}
+   */
   active: boolean = true;
+
+  /**
+   * List of tracked dependencies
+   * @var {Set<Fx>[]}
+   */
   deps: Set<Fx>[] = [];
 
   /**
@@ -193,7 +246,7 @@ export class Fx<T = unknown> {
 
   /**
    * Runs the runner function to track dependencies, may run other runners recursively
-   * @param {array} args
+   * @param {...any[]} args
    * @returns {*}
    */
   run(...args: any[]): T {
