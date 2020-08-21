@@ -27,11 +27,12 @@ type InferWatchValues<T> = {
   [K in keyof T]: T[K] extends WatchTarget<infer V> ? V : never;
 }
 
+
 /**
  * Optional configuration to pass to a watcher
  * @interface
  */
-interface WatcherOptions {
+interface WatchOptions {
   /**
    * If watcher should be run immediately, with undefined value(s)
    * @var {boolean}
@@ -56,39 +57,42 @@ export function watchEffect(target: () => void): StopWatcher {
   return fx.stop.bind(fx);
 }
 
-// TODO: not ready, requires more experimenting
-// TODO: add deep functionality
-// TODO: add functionality for reactive
 
+// TODO: add deep functionality, for reactive objects
 /**
- * 
+ * Watches one or multiple sources for changes, to easily consume the updates with a before and after value.
+ * Has an option to trigger an immediate call (with oldValue set to undefined or empty array).
+ * Returns a function to effectivly stop the watcher.
  * @param {WatchTarget<T>|WatchTarget[]} target Target or targets to watch
  * @param {Function} callback Callback to run when a target is updated
- * @param {WatcherOptions} options Optional watcher options
+ * @param {WatchOptions} options Optional watcher options
  * @returns {StopWatcher}
  */
 export function watch<T extends WatchTarget[]>(
   target: T,
   callback: (values: InferWatchValues<T>, oldValues: InferWatchValues<T>) => void,
-  options?: WatcherOptions
+  options?: WatchOptions
 ): StopWatcher;
-export function watch<T>(
+export function watch<T extends WatchTarget>(
   target: WatchTarget<T>,
   callback: (values: T, oldValues: T) => void,
-  options?: WatcherOptions
+  options?: WatchOptions
 ): StopWatcher;
 export function watch<T>(
-  target: WatchTarget<T>,
+  target: WatchTarget<T>|WatchTarget<T>[],
   callback: (value: T, oldValue: T) => void,
-  options?: WatcherOptions
+  options?: WatchOptions
 ): StopWatcher {
-  const immediate = !!options?.immediate;
   let fn: () => T|T[];
   let value: T|T[];
 
+  if (!isFunction(callback)) {
+    throw new TypeError(`Unexpected type in "callback", expected function got ${typeof callback}`);
+  }
+
   if (Array.isArray(target)) {
-    fn = () => target.map(x => isRef(x) ? x.value : x());
-    value = [] as T[];
+    fn = () => target.map(t => isRef(t) ? t.value : t());
+    value = [];
   } else if (isRef(target)) {
     fn = () => target.value;
   } else if (isFunction(target)) {
@@ -97,6 +101,7 @@ export function watch<T>(
     throw new TypeError(`Unexpected type, cannot watch ${typeof target}`);
   }
 
+  const { immediate } = options ?? {};
   const fx = new Fx(fn, {
     lazy: true,
     scheduler(run) {
@@ -107,13 +112,11 @@ export function watch<T>(
     }
   });
 
-  // Immediate runs scheduler, otherwise cache values for next run.
+  // If immediate, run scheduler, otherwise cache value(s) for next run.
   if (immediate) {
     fx.scheduleRun();
   } else {
     value = fx.run();
   }
-
   return fx.stop.bind(fx);
 }
-
