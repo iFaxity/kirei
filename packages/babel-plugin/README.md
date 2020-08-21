@@ -25,10 +25,10 @@ API
 --------------------------
 
 ```js
-import kireiPlugin from 'babel-plugin-kirei';
+import babelPlugin from 'babel-plugin-kirei';
 ```
 
-### [kireiPlugin( [ opts ] )](#kirei-plugin)
+### [babelPlugin( [ opts ] )](#kirei-plugin)
 
 Creates the Babel plugin from a set of optional plugin options.
 

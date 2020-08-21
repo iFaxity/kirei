@@ -1,8 +1,14 @@
 import { relative } from 'path';
 import { types as t, BabelFile, ConfigAPI, PluginObj } from '@babel/core';
-import { assignVarExpr, callExpr, declareVar, generateUids, importNamespace, variableExpr } from './util';
+import { declare } from '@babel/helper-plugin-utils';
+
+import { assignVarExpr, callExpr, declareVar, generateUids, importNamespace, variableExpr } from './node';
 import compileSkip from './skip';
 
+/**
+ * 
+ * @const
+ */
 const TARGET_MODULE_NAME = '@kirei/element';
 const HMR_MODULE_PATH = '@kirei/hmr-api';
 const DEFINE_ELEMENT_FN = 'defineElement';
@@ -16,10 +22,15 @@ interface PluginOptions {
     extension?: string|string[];
     guard?: boolean;
   };
+
   file?: BabelFile;
 }
 
-// Main babel plugin
+/**
+ * Main babel plugin
+ * @param {ConfigAPI} api
+ * @returns {PluginObj<PluginOptions>}
+ */
 function kireiPlugin(api: ConfigAPI): PluginObj<PluginOptions> {
   api.assertVersion(7);
   let definitions: { oid: string, eid: string, expr: t.Expression } [] = [];
@@ -165,4 +176,4 @@ function kireiPlugin(api: ConfigAPI): PluginObj<PluginOptions> {
   };
 }
 
-export = kireiPlugin;
+export = declare(kireiPlugin);
