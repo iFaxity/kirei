@@ -8,6 +8,7 @@ import HomeView from './views/Home/View';
 import HomeNews from './views/Home/News';
 import User from './views/User';
 import Users from './views/Users';
+import Clock from './views/Clock';
 
 createRouter({
   base: '',
@@ -24,5 +25,6 @@ createRouter({
     },
     { path: '/user', element: Users },
     { path: '/user/:user', element: User },
+    { path: '/clock', element: Clock },
   ]
 });
