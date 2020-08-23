@@ -1,9 +1,10 @@
-import { KireiInstance, directive, computed, watchEffect } from '@kirei/element';
-import { Link, RouterOptions, RouterInterface, Router } from './router';
+import { KireiInstance, KireiElement, directive, watchEffect, HookTypes } from '@kirei/element';
+import { Link, RouterOptions, IRouter, Router, ROUTER_KEY, ROUTE_KEY } from './router';
+import { Route } from './route';
 const SUPPORTS_HISTORY = !!(window.history?.pushState);
 
-export class ClientRouter extends Router implements RouterInterface {
-  readonly views: Node[] = [];
+export class ClientRouter extends Router implements IRouter {
+  private views: Node[] = [];
   readonly history: boolean;
 
   /*get path(): string {
@@ -14,12 +15,20 @@ export class ClientRouter extends Router implements RouterInterface {
     super(opts);
     // Force hash mode if HistoryAPI not supported
     this.history = SUPPORTS_HISTORY && (opts.history !== false);
-    this.path.value = this.history ? location.pathname : location.hash.slice(1);
+    this.path = this.history ? location.pathname : location.hash.slice(1);
 
     // Watch for changes to location state
     const navigate = () => this.navigate();
     window.addEventListener(this.history ? 'popstate' : 'hashchange', navigate, false);
     window.addEventListener('DOMContentLoaded', navigate, false);
+
+    // Mount root as view and provide route and router as state
+    // TODO: Inject global hook instead?
+    const root = KireiInstance.get(this.root);
+    root.provide(ROUTER_KEY, this);
+    root.provide(ROUTE_KEY, this.route);
+    this.mountView(root);
+    this.registerView(root);
 
     // Add link directive
     directive('link', dir => {
@@ -30,14 +39,15 @@ export class ClientRouter extends Router implements RouterInterface {
       let link: Link;
       let linkpath: string;
 
-      const commit = (path: string) => {
-        let isActive = path.startsWith(linkpath);
+      // hook into router and watch for route changes
+      watchEffect(() => {
+        const route = this.route.value;
+        const isActive = this.path.startsWith(linkpath);
+        const isExact = isActive && exact && linkpath === this.path;
 
-        const isExact = isActive && exact && linkpath === path;
         el.classList[isActive ? 'add' : 'remove'](this.activeClass);
         el.classList[isExact ? 'add' : 'remove'](this.exactClass);
-      };
-      watchEffect(() => commit(this.path.value));
+      });
 
       // Navigates the route
       el.addEventListener('click', e => {
@@ -59,7 +69,7 @@ export class ClientRouter extends Router implements RouterInterface {
     });
   }
 
-  attach(instance: KireiInstance): void {
+  private mountView(instance: KireiInstance) {
     const { views, instances } = this;
 
     // Comment node is used to mark the node reference
@@ -69,12 +79,16 @@ export class ClientRouter extends Router implements RouterInterface {
     views.push(ref);
   }
 
-  detach(instance: KireiInstance): void {
+  private unmountView(instance: KireiInstance) {
     const { views, instances } = this;
-
     const idx = instances.indexOf(instance);
     instances.splice(idx, 1);
     views.splice(idx, 1);
+  }
+
+  registerView(instance: KireiInstance): void {
+    instance.injectHook(HookTypes.BEFORE_MOUNT, this.mountView.bind(this, instance));
+    instance.injectHook(HookTypes.BEFORE_UNMOUNT, this.unmountView.bind(this, instance));
   }
 
   push(link: Link, append: boolean): void {
@@ -99,36 +113,41 @@ export class ClientRouter extends Router implements RouterInterface {
     this.navigate();
   }
 
-  protected async navigate(): Promise<void> {
-    this.path.value = this.history ? location.pathname : location.hash.slice(1);
-
-    const matched = this.matchRoutes();
-    if (matched == null) return;
-
+  async renderView(matched: Route[], idx: number) {
     const { views, instances } = this;
-    for (let idx = 0; idx < matched.length; idx++) {
-      const instance = instances[idx];
-      const route = matched[idx];
-      const root = instance.el;
-      const view = views[idx];
+    const instance = instances[idx];
+    const route = matched[idx];
+    const view = views[idx];
+    const root = instance.el;
 
-      // Replace node if view elements are not the same
-      instance.activate();
-      const el = await route.element();
-      if (el !== view) {
-        root.replaceChild(el, view);
-        views[idx] = el;
-      }
-      instance.deactivate();
+    // Replace node if view elements are not the same
+    instance.activate();
 
-      // Send params as props
-      if (route.params) {
-        for (let key of Object.keys(route.params)) {
-          el[key] = route.params[key];
-        }
+    // Just a boolean indicating if it has an element cached
+    const register = !route.context;
+    const el = await route.element();
+    if (el !== view) {
+      if (register) {
+        this.registerView(KireiInstance.get(el));
       }
+
+      root.replaceChild(el, view);
+      views[idx] = el;
     }
 
-    this.route.value = matched[matched.length - 1];
+    if (matched.length > ++idx) {
+      await this.renderView(matched, idx);
+    }
+    instance.deactivate();
+  }
+
+  protected async navigate(): Promise<void> {
+    this.path = this.history ? location.pathname : location.hash.slice(1);
+
+    const matched = this.matchRoutes();
+    if (matched) {
+      this.route.value = matched[matched.length - 1];
+      await this.renderView(matched, 0);
+    }
   }
 }

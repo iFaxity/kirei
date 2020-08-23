@@ -1,5 +1,17 @@
-import { KireiInstance, ref, Ref } from '@kirei/element';
+import { KireiInstance, ref, Ref, KireiElement, inject } from '@kirei/element';
 import { Route, RouteOptions } from './route';
+import { isString } from '@kirei/shared';
+
+// Route and router injection
+export const ROUTER_KEY = Symbol('router');
+export const ROUTE_KEY = Symbol('route');
+
+export function useRoute(): Route {
+  return inject<Ref<Route>>(ROUTE_KEY).value;
+}
+export function useRouter<T extends IRouter>(): T {
+  return inject<Ref<T>>(ROUTER_KEY).value;
+}
 
 export type Link = string|LinkOptions;
 export interface LinkOptions {
@@ -15,22 +27,22 @@ export interface RouterOptions {
   exactClass?: string;
   activeClass?: string;
   routes: RouteOptions[];
+  root: KireiElement|string;
 }
 
-export interface RouterInterface {
+export interface IRouter {
   resolve(link: Link, append?: boolean): string;
   push(link: Link, append?: boolean): void;
   replace(link: Link, append?: boolean): void;
-  attach(instance: KireiInstance): void;
-  detach(instance: KireiInstance): void;
+  registerView(instance: KireiInstance): void;
 }
 
 export enum RouterHooks {
-  ENTER = 'enter',
-  UPDATE = 'update',
-  LEAVE = 'leave',
-  BEFORE_EACH = 'beforeEach',
-  AFTER_EACH = 'afterEach',
+  ENTER = 'routeEnter',
+  UPDATE = 'routeUpdate',
+  LEAVE = 'routeLeave',
+  BEFORE_EACH = 'routeBeforeEach',
+  AFTER_EACH = 'routeAfterEach',
 }
 
 export type RouterHook = (to: Route, from: Route) => void|Promise<void>;
@@ -38,21 +50,22 @@ export class Router {
   private afterHooks = new WeakSet<Function>();
   private beforeHooks = new WeakSet<Function>();
   protected readonly routes: Route[];
-  protected readonly instances: KireiInstance[] = [];
+  protected instances: KireiInstance[] = [];
 
-  readonly path: Ref<string>;
   readonly route: Ref<Route>;
+  readonly root: KireiElement;
   base: string = '';
   exactClass: string = 'link-exact';
   activeClass: string = 'link-active';
+  path: string = '';
 
   constructor(opts: RouterOptions) {
     this.base = opts.base ?? this.base;
     this.exactClass = opts.exactClass ?? this.exactClass;
     this.activeClass = opts.activeClass ?? this.activeClass;
     this.routes = opts.routes.map(o => new Route(o));
-    this.path = ref('');
     this.route = ref(null);
+    this.root = isString(opts.root) ? document.querySelector(opts.root) : opts.root;
   }
 
   /*protected runHooks(before: boolean, to: Route, from: Route)
@@ -76,7 +89,7 @@ export class Router {
     this.afterHooks.add(hook);
   }
 
-  resolve(link: Link, append?: boolean) {
+  resolve(link: Link, append?: boolean): string {
     let path: string;
 
     if (typeof link == 'string') {
@@ -100,25 +113,21 @@ export class Router {
   }
 
   protected matchRoutes(): Route[] {
-    let { base, routes } = this;
-    const route = this.route.value;
-    const path = this.path.value;
-
-    if (route?.path === path) {
+    const { base, path } = this;
+    const curRoute = this.route.value;
+    if (curRoute?.path === path) {
       return null;
     }
 
     const matched: Route[] = [];
     const relative = path.substring(base.length);
 
-    // Go down the routing tree
-    while (true) {
-      const route = routes.find(r => r.match(relative));
-      if (!route) {
-        break;
-      }
-
+    // Traverse route tree
+    let { routes } = this;
+    let route: Route;
+    while (route = routes.find(r => r.match(relative))) {
       matched.push(route);
+
       if (route.routes) {
         routes = route.routes;
       } else {

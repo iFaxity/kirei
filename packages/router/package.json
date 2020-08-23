@@ -17,7 +17,7 @@
     "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
     "build": "tsc -b"
   },
-  "homepage": "https://github.com/ifaxity/kirei",
+  "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/router",
   "repository": {
     "type": "git",
     "url": "https://github.com/ifaxity/kirei.git"

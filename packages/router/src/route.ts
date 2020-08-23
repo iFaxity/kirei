@@ -1,11 +1,11 @@
-import { KireiElement } from '@kirei/element';
-import { isFunction, isString } from '@kirei/shared';
+import type { KireiElement, KireiInstance } from '@kirei/element';
+import { isFunction, isPromise } from '@kirei/shared';
 import { pathToRegexp, Key } from 'path-to-regexp';
 const ROUTE_KEYS = [ 'path', 'slot', 'keepAlive', 'meta', 'name', 'redirect', 'caseSensitive' ];
 
 export interface RouteOptions {
   path: string;
-  element: string | typeof KireiElement | Promise<typeof KireiElement>;
+  element: typeof KireiElement | Promise<typeof KireiElement>;
   slot?: string;
   name?: string;
   meta?: any;
@@ -19,8 +19,8 @@ export interface RouteOptions {
 export class Route {
   private readonly regex: RegExp;
   private readonly keys: (string | number)[];
-  private readonly ctor: string | typeof KireiElement | Promise<typeof KireiElement>;
-  private el: Element = null;
+  private readonly ctor: Promise<typeof KireiElement>;
+  private el: KireiElement = null;
 
   readonly routes?: Route[];
   readonly path: string;
@@ -34,10 +34,8 @@ export class Route {
   params: Record<string|number, string>;
 
   constructor(opts: RouteOptions) {
-    for (const key of Object.keys(opts)) {
-      if (ROUTE_KEYS.includes(key)) {
-        this[key] = opts[key];
-      }
+    for (const key of Object.keys(opts).filter(key => ROUTE_KEYS.includes(key))) {
+      this[key] = opts[key];
     }
 
     // Map the routes and compile the regex
@@ -53,52 +51,50 @@ export class Route {
     });
     this.keys = keys.map(key => key.name);
 
-    if (isString(opts.element)) {
-      this.ctor = opts.element;
-    } else if (isFunction(opts.element) || isFunction(opts?.element?.then)) {
-      this.ctor = opts.element;
+    if (isFunction(opts.element) || isPromise(opts.element)) {
+      this.ctor = Promise.resolve(opts.element);
     } else {
       throw new TypeError('Element is not of a valid type');
     }
   }
 
+  get context(): KireiElement {
+    return this.el;
+  }
+
   match(path: string): boolean {
     const { keys } = this;
 
-    // Required for subroutes '/ to work
+    // Required for subroutes '/' to work
     // Not a problem as it's ignored by the regex anyways
     if (this.routes.length == 0 && !path.endsWith('/')) {
       path += '/';
     }
 
     const res = this.regex.exec(path);
-    if (res) {
-      if (keys.length) {
-        this.params = keys.reduce((acc, key, idx) => {
-          acc[key] = res[1 + idx];
-          return acc;
-        }, {});
-      }
+    if (res && keys.length) {
+      this.params = keys.reduce((acc, key, idx) => {
+        acc[key] = res[1 + idx];
+        return acc;
+      }, {});
     }
 
     return !!res;
   }
 
-  async element(): Promise<Element> {
-    let { el, ctor } = this;
-    if (!this.el) {
-      if (isString(ctor)) {
-        el = document.createElement(ctor);
-      } else {
-        el = new (await ctor)();
+  async element(): Promise<KireiElement> {
+    let { el } = this;
+    if (!el) {
+      const Constructor = await this.ctor;
+      el = new Constructor();
+
+      if (this.keepAlive) {
+        this.el = el;
       }
     }
 
     if (this.slot) {
       el.slot = this.slot;
-    }
-    if (this.keepAlive) {
-      this.el = el;
     }
 
     return el;
