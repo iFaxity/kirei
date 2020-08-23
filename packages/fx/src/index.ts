@@ -10,7 +10,7 @@ import { toRaw } from './reactive';
 
 export { Fx, TriggerOpTypes } from './fx';
 export * from './reactive';
-export { Ref, isRef, unRef, ref } from './ref';
+export { Ref, isRef, unRef, ref, shallowRef } from './ref';
 export { Computed, computed, computedGetter } from './computed';
 export { watchEffect, watch } from './watch';
 

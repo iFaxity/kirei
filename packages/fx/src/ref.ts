@@ -5,7 +5,7 @@
  * MIT Licensed
  */
 import { Fx, TriggerOpTypes } from './fx';
-import { toReactive } from './reactive';
+import { toReactive, toRaw } from './reactive';
 import { isFunction } from '@kirei/shared';
 
 /**
@@ -89,8 +89,8 @@ export function unRef<T>(target: Ref<T>|T): T {
 }
 
 /**
- * Creates a reactive reference of a native value
- * @param {*} target
+ * Creates a reactive reference of a native value, forces objects to a reactive proxy
+ * @param {*} target Initial value of the ref
  * @returns {Ref}
  */
 export function ref<T>(target?: T|Ref<T>): Ref<T> {
@@ -102,9 +102,32 @@ export function ref<T>(target?: T|Ref<T>): Ref<T> {
     get() {
       return Fx.track(r, 'value'), value;
     },
-    set(newValue: T) {
+    set(newValue) {
       value = toReactive(newValue);
       Fx.trigger(r, TriggerOpTypes.SET, 'value', value);
+    },
+  });
+
+  return r;
+}
+
+/**
+ * Creates a reactive reference of a native value, however does not force objects to a reactive proxy
+ * @param {*} target Initial value of the ref
+ * @returns {Ref}
+ */
+export function shallowRef<T>(target?: T|Ref<T>): Ref<T> {
+  if (isRef<T>(target)) return target;
+
+  // if target is an object, wrap in a reactive
+  let value = toRaw(target);
+  const r = createRef<T>({
+    get() {
+      return Fx.track(r, 'value'), value;
+    },
+    set(newValue) {
+      value = toRaw(newValue);
+      Fx.trigger(r, TriggerOpTypes.SET, 'value', newValue);
     },
   });
 
