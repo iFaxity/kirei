@@ -7042,10 +7042,10 @@ typedoc-plugin-exclude-references@1.0.0:
   resolved "https://registry.yarnpkg.com/typedoc-plugin-exclude-references/-/typedoc-plugin-exclude-references-1.0.0.tgz#d4367e5f432d88077d0da51717e213b86e6539f0"
   integrity sha512-1BqEOHxnLfBqImhVTqp74nWJ+cbI9uCBm43qFNkqypZ4ae6BSZv1I7N6dToinbl1u6YGUQHeHI/1lBkU0AGSIw==
 
-typedoc-plugin-markdown@2.4.1:
-  version "2.4.1"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-2.4.1.tgz#7a2f9cbe3f78ce4b3e8dc2ee6670fdcc411bb750"
-  integrity sha512-AvGhD1+fqIjLuahJtm3n2CHYSAQT6YkZdlBYJR3giCKFltN5HSA5lzxJVtoz5Vs6OIK8SBHbA6GoOMrHeahITg==
+typedoc-plugin-markdown@2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-2.4.2.tgz#2d83fe4f279643436ebc44ca2f937855b0fd9f12"
+  integrity sha512-BBH+9/Uq5XbsqfzCDl8Jq4iaLXRMXRuAHZRFarAZX7df8+F3vUjDx/WHWoWqbZ/XUFzduLC2Iuy2qwsJX8SQ7A==
   dependencies:
     fs-extra "^9.0.1"
     handlebars "^4.7.6"
