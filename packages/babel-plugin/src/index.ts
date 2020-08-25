@@ -3,7 +3,7 @@ import { types as t, BabelFile, ConfigAPI, PluginObj } from '@babel/core';
 import { declare } from '@babel/helper-plugin-utils';
 
 import { assignVarExpr, callExpr, declareVar, generateUids, importNamespace, variableExpr } from './node';
-import compileSkip from './skip';
+import compileExclude from './exclude';
 
 /**
  * 
@@ -37,7 +37,7 @@ function kireiPlugin(api: ConfigAPI): PluginObj<PluginOptions> {
   let exportNodes: t.ExportDeclaration[] = [];
   let filepath: string;
   let skip: boolean = false;
-  let shouldSkip: (filename: string) => boolean;
+  let exclude: (filename: string) => boolean;
 
   // disable plugin in production and test
   const { NODE_ENV } = process.env;
@@ -57,14 +57,13 @@ function kireiPlugin(api: ConfigAPI): PluginObj<PluginOptions> {
           exportNodes = [];
           filepath = filenameRelative ?? relative(cwd, filename);
 
-          if (opts.guard === false) {
-            return;
-          }
+          if (opts.guard !== false) {
+            if (!exclude) {
+              exclude = compileExclude(opts);
+            }
 
-          if (!shouldSkip) {
-            shouldSkip = compileSkip(opts);
+            skip = exclude(filepath);
           }
-          skip = shouldSkip(filepath);
         },
         exit(path, { opts }) {
           // if elements populated, generate HMR code

@@ -1,7 +1,7 @@
 import type { Transform, Plugin } from 'vite';
 import { transformSync, PluginItem } from '@babel/core';
 import BabelPluginKirei from 'babel-plugin-kirei';
-import compileSkip from 'babel-plugin-kirei/dist/skip';
+import compileExclude from 'babel-plugin-kirei/dist/exclude';
 
 /**
  * @interface
@@ -10,6 +10,7 @@ interface KireiPluginOptions {
   include?: string|string[];
   exclude?: string|string[];
   extension?: string|string[];
+  cwd?: string;
   plugins?: PluginItem[];
 }
 
@@ -19,7 +20,7 @@ interface KireiPluginOptions {
  * @returns {Plugin}
  */
 function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
-  let shouldSkip: (filename: string) => boolean;
+  let exclude: (filename: string) => boolean;
   const cwd = process.cwd();
   const plugins: PluginItem[] = [
     // Add kirei plugin first, disable guard as we guard in the vite plugin
@@ -38,11 +39,11 @@ function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
       } else if (ctx.path.startsWith('/@modules/') || ctx.path.includes('node_modules')) {
         // do not transform if this is a dep
         return false;
-      } else if (!shouldSkip) {
-        shouldSkip = compileSkip(opts);
+      } else if (!exclude) {
+        exclude = compileExclude(opts);
       }
 
-      return shouldSkip(ctx.path);
+      return !exclude(ctx.path);
     },
     transform(ctx) {
       const { code, map } = transformSync(ctx.code, {
