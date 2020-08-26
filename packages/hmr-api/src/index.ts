@@ -171,6 +171,8 @@ export function update(filename: string, opts: ElementOptions): typeof KireiElem
    * 2. reload setup function
    * 3. schedule update (will only full re-render if template changed, otherwise only reflow patchers)
    */
+
+  // TODO: maybe call unmount and mount hooks?
   for (const instance of instances) {
     instance.options = ctor.options;
     instance.setup();

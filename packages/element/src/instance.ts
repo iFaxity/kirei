@@ -275,7 +275,8 @@ export class KireiInstance implements IKireiInstance {
    * @returns {void}
    */
   unmount(): void {
-    this.runHooks(HookTypes.UNMOUNT);
+    this.runHooks(HookTypes.BEFORE_UNMOUNT);
+    Queue.push(() => this.runHooks(HookTypes.UNMOUNT));
   }
 
   /**
@@ -311,7 +312,9 @@ export class KireiInstance implements IKireiInstance {
    */
   update(): void {
     const { shadowRoot, options, template, mounted } = this;
-    this.runHooks(this.mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
+    if (mounted) {
+      this.runHooks(HookTypes.BEFORE_UPDATE);
+    }
 
     try {
       this.activate();
@@ -334,7 +337,7 @@ export class KireiInstance implements IKireiInstance {
     }
 
     // Run update hook
-    if (!mounted) {
+    if (mounted) {
       this.runHooks(HookTypes.UPDATE);
     }
   }

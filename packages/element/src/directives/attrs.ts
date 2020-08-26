@@ -1,5 +1,5 @@
-import { directive } from '../compiler';
 import { isObject } from '@kirei/shared';
+import { directive } from '../compiler';
 import { warn } from '../logging';
 
 directive('attrs', dir => {

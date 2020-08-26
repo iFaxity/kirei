@@ -1,5 +1,5 @@
-import { directive } from '../compiler';
 import { unRef } from '@kirei/fx';
+import { directive } from '../compiler';
 
 directive('if', dir => {
   const { el, arg } = dir;

@@ -142,8 +142,7 @@ export class KireiElement extends HTMLElement implements IKireiElement {
    */
   disconnectedCallback(): void {
     const instance = KireiInstance.get(this);
-    instance.runHooks(HookTypes.BEFORE_UNMOUNT);
-    Queue.push(() => instance.unmount());
+    instance.unmount();
   }
 
   /**
