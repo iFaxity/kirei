@@ -14,7 +14,6 @@
   },
   "scripts": {
     "build": "tsc -b --force",
-    "cypress": "cypress open -d",
     "docs": "typedoc packages/*/src",
     "dev": "vite serve cypress/app -c ./cypress/app/vite.config.js",
     "webpack": "webpack-dev-server --config cypress/app/webpack.config.js",
