@@ -49,7 +49,7 @@ export class KireiError extends Error {
     this.level = level;
     this.message = message;
     this.name = `[Kirei ${level}]`;
-    Error.captureStackTrace(this, KireiError);
+    Error.captureStackTrace?.(this, KireiError);
   }
 
   /**
