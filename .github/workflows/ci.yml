@@ -10,12 +10,18 @@ env:
   CY_COVERAGE_OUTPUT: ./cypress/coverage/lcov.info
 
 jobs:
-  # Install yarn packages and setup project
-  setup:
-    runs-on: ubuntu-latest
+  # Run unit and e2e tests
+  test:
+    strategy:
+      matrix:
+        browser: [ chrome, firefox ]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
+
+    runs-on: ${{ matrix.os }}
     steps:
+      # Install yarn packages and setup project
       - uses: actions/checkout@v2
-      - name: Cache node_modules
+      - name: Cache packages
         id: cache
         uses: actions/cache@v2
         with:
@@ -27,25 +33,6 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn --check-files --frozen-lockfile --non-interactive
-
-  # Run unit and e2e tests
-  test:
-    needs: setup
-    strategy:
-      matrix:
-        browser: [ chrome, firefox ]
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
-
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v2
-      - name: Restore cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            **/node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
