@@ -8,6 +8,7 @@ env:
   CY_CFG_FILE: ./cypress/cypress.json
   CY_BOOTSTRAP: ./cypress/integration/bootstrap.js
   CY_COVERAGE_OUTPUT: ./cypress/coverage/lcov.info
+  CYPRESS_CACHE_FOLDER: ~/.cache/Cypress
 
 jobs:
   # Run unit and e2e tests
@@ -28,7 +29,6 @@ jobs:
           path: |
             **/node_modules
             ~/.cache/Cypress
-            %LOCALAPPDATA%\Cypress\Cache
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: Install dependencies
