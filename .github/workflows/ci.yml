@@ -14,7 +14,7 @@ jobs:
   test:
     strategy:
       matrix:
-        browser: [ chrome, firefox ]
+        browser: [ Chrome, Firefox ]
         os: [ macos-latest, windows-latest, ubuntu-latest ]
 
     runs-on: ${{ matrix.os }}
@@ -51,11 +51,13 @@ jobs:
         with:
           file: ${{ env.CY_COVERAGE_OUTPUT }}
           flags: unittests
-          name: codecov-umbrella
+          name: ${{ matrix.browser }} - ${{ runner.os }}
           fail_ci_if_error: true
-
+      
+      # Doesn't yet support macOS or Windows
       - name: Upload coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v0.2.0
+        if: runner.os == 'Linux'
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: ${{ env.CY_COVERAGE_OUTPUT }}
