@@ -14,9 +14,14 @@ jobs:
   # Run unit and e2e tests
   test:
     strategy:
+      fail-fast: false
       matrix:
         browser: [ chrome, firefox ]
         os: [ macos-latest, windows-latest, ubuntu-latest ]
+        include:
+          - os: windows-latest
+            browser: edge
+
 
     runs-on: ${{ matrix.os }}
     steps:
