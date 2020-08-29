@@ -24,7 +24,12 @@ jobs:
   # Run unit and e2e tests
   test:
     needs: setup
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        browser: [ chrome, firefox ]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
+
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
       - name: Restore cache
@@ -35,20 +40,14 @@ jobs:
             ~/.cache/Cypress
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
-      - name: Build packages
-        run: yarn build
-
-      - name: Start dev server
-        run: yarn dev &
-      - name: Wait for dev server to start
-        uses: ifaxity/wait-on-action@v1
-        with:
-          resource: http://localhost:3000
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
         with:
-          browser: chrome
+          browser: ${{ matrix.browser }}
           headless: true
+          build: yarn build
+          start: yarn dev
+          wait-on: http://localhost:3000
           config-file: ./cypress/cypress.json
           spec: ./cypress/integration/bootstrap.js
 
