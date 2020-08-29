@@ -8,33 +8,43 @@ import { isObject } from '@kirei/shared';
 export type TemplatePatcher = (pending: unknown) => void;
 
 /**
+ * Type of patcher to use for compiling a TemplatePatcher
+ * @enum
+ */
+export enum PatchType {
+  NODE = 'node',
+  ATTR = 'attr',
+  TEXT = 'text',
+}
+
+/**
  * Used to configure how the template values are translated into the DOM,
  * each method should return a function which takes one parameter as the interpolated value.
  * Otherwise it fallbacks to the default compiler.
  * @interface
  */
-export interface TemplateCompiler {
+export interface TemplateCompiler<T = TemplatePatcher|void> {
   /**
    * Compiles a TemplatePatcher for an attribute value, does not have the attribute mounted
    * @param {Element} node Element which the attribute was applied to
    * @param {string} attr Attribute name
    * @returns {TemplatePatcher|void}
    */
-  attr?(node: Element, attr: string): TemplatePatcher|void;
+  attr?(node: Element, attr: string): T;
 
   /**
    * Compiles a TemplatePatcher for a node value
    * @param {Comment} ref Reference where to apply update after
    * @returns {TemplatePatcher|void}
    */
-  node?(ref: Comment): TemplatePatcher|void;
+  node?(ref: Comment): T;
 
   /**
    * Compiles a TemplatePatcher for a text node
    * @param {Text} node Text node to set text value to
    * @returns {TemplatePatcher|void}
    */
-  text?(node: Text): TemplatePatcher|void;
+  text?(node: Text): T;
 }
 
 /**
@@ -101,7 +111,7 @@ function eventPatcher(node: Element, name: string): TemplatePatcher {
  * Default template compiler
  * @const {TemplateCompiler}
  */
-export const defaultCompiler: TemplateCompiler = {
+export const defaultCompiler: TemplateCompiler<TemplatePatcher> = {
   attr(node, attr) {
     const prefix = attr[0];
     if (prefix == '.') {

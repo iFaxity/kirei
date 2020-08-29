@@ -1,6 +1,6 @@
 import sanitize from 'uparser';
 import { persistent, createWalker, createTemplate } from './shared';
-import { defaultCompiler, TemplateCompiler, TemplatePatcher } from './compiler';
+import { defaultCompiler, TemplateCompiler, TemplatePatcher, PatchType } from './compiler';
 export { TemplateCompiler };
 
 /**
@@ -38,16 +38,6 @@ export interface TemplateCache {
 interface TemplateContent {
   node: HTMLTemplateElement;
   patches: TemplatePatch[];
-}
-
-/**
- * Type of patcher to use for compiling a TemplatePatcher
- * @enum
- */
-enum PatchType {
-  NODE = 'node',
-  ATTR = 'attr',
-  TEXT = 'text',
 }
 
 /**
