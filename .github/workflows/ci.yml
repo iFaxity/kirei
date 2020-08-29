@@ -2,6 +2,13 @@ name: E2E and Unit Tests
 on:
   - push
 
+# Tweak these to alter config
+env:
+  CY_URL: http://localhost:3000
+  CY_CFG_FILE: ./cypress/cypress.json
+  CY_BOOTSTRAP: ./cypress/integration/bootstrap.js
+  CY_COVERAGE_OUTPUT: ./cypress/coverage/lcov.info
+
 jobs:
   # Install yarn packages and setup project
   setup:
@@ -47,21 +54,22 @@ jobs:
           headless: true
           build: yarn build
           start: yarn dev
-          wait-on: http://localhost:3000
-          config-file: ./cypress/cypress.json
-          spec: ./cypress/integration/bootstrap.js
+          wait-on: ${{ env.CY_URL }}
+          config-file: ${{ env.CY_CFG_FILE }}
+          spec: ${{ env.CY_BOOTSTRAP }}
 
       # Upload coverage report to codecov and codacy
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
-          file: ./cypress/coverage/lcov.info
+          file: ${{ env.CY_COVERAGE_OUTPUT }}
           flags: unittests
           name: codecov-umbrella
           fail_ci_if_error: true
+
       - name: Upload coverage to Codacy
         uses: codacy/codacy-coverage-reporter-action@v0.2.0
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: ./cypress/coverage/lcov.info
+          coverage-reports: ${{ env.CY_COVERAGE_OUTPUT }}
 
