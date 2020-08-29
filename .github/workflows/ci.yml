@@ -28,6 +28,7 @@ jobs:
           path: |
             **/node_modules
             ~/.cache/Cypress
+            %LOCALAPPDATA%\Cypress\Cache
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
       - name: Install dependencies
