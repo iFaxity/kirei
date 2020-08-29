@@ -1,7 +1,7 @@
 import { unRef } from '@kirei/fx';
 import { directive } from '../compiler';
 
-directive('show', dir => {
+export default directive('show', dir => {
   const el = dir.el as HTMLElement;
   let value = true;
 

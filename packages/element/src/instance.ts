@@ -236,11 +236,11 @@ export class KireiInstance implements IKireiInstance {
    * @param {boolean} mount
    * @returns {void}
    */
-  reflowStyles(mount: boolean = false): void {
+  reflowStyles(mount?: boolean): void {
     const { ShadyCSS, ShadowRoot } = window;
     const { tag, styles } = this.options;
 
-    // stylesubtree on updates
+    // stylesubtree on updates, as per ShadyCSS documentation
     if (mount) {
       ShadyCSS?.styleElement(this.el);
     } else {

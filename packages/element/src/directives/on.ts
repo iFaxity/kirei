@@ -62,7 +62,7 @@ function mouseListener(listener: EventListener, mods: string[]): EventListener {
   };
 }
 
-directive('@', dir => {
+export default directive('@', dir => {
   const { el, arg: eventName, mods } = dir;
   const prevent = hasMod(mods, 'prevent');
   const stop = hasMod(mods, 'stop');

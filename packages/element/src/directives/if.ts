@@ -1,7 +1,7 @@
 import { unRef } from '@kirei/fx';
 import { directive } from '../compiler';
 
-directive('if', dir => {
+export default directive('if', dir => {
   const { el, arg } = dir;
   const invert = arg == 'not';
   const placeholder = document.createComment('');

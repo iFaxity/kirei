@@ -110,7 +110,7 @@ function mutationHandlers(dir: Directive) {
 }
 
 // directive format &[value.number.trim.lazy]=${ref}
-directive('&', dir => {
+export default directive('&', dir => {
   const { el, mods } = dir;
   const { commit, handler, prop, event, sync } = mutationHandlers(dir);
   const castNumber = mods.includes('number');

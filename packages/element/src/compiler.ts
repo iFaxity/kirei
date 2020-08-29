@@ -4,6 +4,24 @@ import { KireiInstance } from './instance';
 import { isFunction, isString } from '@kirei/shared';
 
 /**
+ * String of allowed characters to use as a directive alias
+ * @const {string}
+ */
+const ALIAS_NAMES = '@#&$%*!?;=^¶§€';
+
+/**
+ * Regex to validate a directive alias
+ * @const {RegExp}
+ */
+const ALIAS_REGEX = new RegExp(`^([${ALIAS_NAMES}])([a-z0-9-]*)((?:\.[a-z0-9-]+)*)$`, 'i');
+
+/**
+ * Regex to validate directive names
+ * @const {RegExp}
+ */
+const DIRECTIVE_REGEX = /^([a-z0-9-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
+
+/**
  * @interface
  */
 export interface Directive {
@@ -20,44 +38,31 @@ export interface Directive {
 export type DirectiveFactory = (directive: Directive) => TemplatePatcher;
 
 /**
- * , only exported for testing
- * @const {Set<string>}
- * @private
- */
-export const aliases = new Set<string>();
-
-/**
- * , only exported for testing
+ * Map of global directives, only exported for testing purposes
  * @const {Map<string, DirectiveFactory>}
  * @private
  */
 export const directives = new Map<string, DirectiveFactory>();
 
 /**
- * Regex to validate directive names and aliases
- * @const {RegExp}
- */
-const DIRECTIVE_REGEX = /^([a-z0-9@#&$%*!?;=^-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
-
-/**
  * Assigns a new global directive, active for all elements
  * @param {string} name if name is only one char, it is considered an alias
  * @param {DirectiveFactory} directive Directive factory, a function that returns a function with one parameter
- * @returns {void}
+ * @returns {DirectiveFactory}
  */
-export function directive(name: string, directive: DirectiveFactory): void {
+export function directive(name: string, directive: DirectiveFactory): DirectiveFactory {
   if (!isString(name)) {
     throw new TypeError('Invalid directive name');
-  } else if (directives.has(name)) {
-    throw new Error('Directive already exists');
   } else if (!isFunction(directive)) {
     throw new TypeError('Directive has to be a function.');
+  } else if (directives.has(name)) {
+    throw new Error('Directive already exists');
   }
 
-  if (name.length == 1) {
-    aliases.add(name);
+  if (name.length == 1 && !ALIAS_NAMES.includes(name)) {
+    throw new TypeError('Alias invalid, use a special character instead');
   }
-  directives.set(name, directive);
+  return directives.set(name, directive), directive;
 }
 
 /**
@@ -66,14 +71,10 @@ export function directive(name: string, directive: DirectiveFactory): void {
  */
 const compiler: TemplateCompiler = {
   attr(node, attr) {
-    // Check if directive exists for attribute
-    if (aliases.has(attr[0])) {
-      attr = `${attr[0]}:${attr.slice(1)}`;
-    }
-
-    const match = attr.match(DIRECTIVE_REGEX);
+    const isAlias = ALIAS_NAMES.includes(attr[0]);
+    const match = attr.match(isAlias ? ALIAS_REGEX : DIRECTIVE_REGEX);
     if (!match) {
-      throw new TypeError('Invalid directive format');
+      throw new TypeError(`Invalid directive format '${attr}'.`);
     }
 
     const name = match[1];
@@ -87,15 +88,15 @@ const compiler: TemplateCompiler = {
     }
 
     // Use default patcher
-    const patch = defaultCompiler.attr(node, attr) as TemplatePatcher;
+    const patch = defaultCompiler.attr(node, attr);
     return (newValue) => patch(unRef(newValue));
   },
   node(ref) {
-    const patch = defaultCompiler.node(ref) as TemplatePatcher;
+    const patch = defaultCompiler.node(ref)
     return (newValue) => patch(unRef(newValue));
   },
   text(node) {
-    const patch = defaultCompiler.text(node) as TemplatePatcher;
+    const patch = defaultCompiler.text(node);
     return (newValue) => patch(unRef(newValue));
   },
 };

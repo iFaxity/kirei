@@ -2,7 +2,7 @@ import { isObject } from '@kirei/shared';
 import { directive } from '../compiler';
 import { warn } from '../logging';
 
-directive('attrs', dir => {
+export default directive('attrs', dir => {
   const { el } = dir;
 
   return pending => {
