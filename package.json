@@ -8,6 +8,7 @@
   "nyc": {
     "reporter": "lcov",
     "report-dir": "./cypress/coverage",
+    "temp-dir": "./.nyc_output",
     "exclude": [
       "cypress"
     ]
