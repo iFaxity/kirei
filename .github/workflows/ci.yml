@@ -14,7 +14,7 @@ jobs:
   test:
     strategy:
       matrix:
-        browser: [ Chrome, Firefox ]
+        browser: [ chrome, firefox ]
         os: [ macos-latest, windows-latest, ubuntu-latest ]
 
     runs-on: ${{ matrix.os }}
@@ -37,7 +37,7 @@ jobs:
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
         with:
-          browser: ${{ matrix.browser.toLowerCase() }}
+          browser: ${{ matrix.browser }}
           headless: true
           build: yarn build
           start: yarn dev
@@ -51,7 +51,7 @@ jobs:
         with:
           file: ${{ env.CY_COVERAGE_OUTPUT }}
           flags: unittests
-          name: ${{ matrix.browser }} - ${{ runner.os }}
+          name: ${{ runner.os }} - ${{ matrix.browser }}
           fail_ci_if_error: true
       
       # Doesn't yet support macOS or Windows
