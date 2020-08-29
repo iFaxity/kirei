@@ -1,5 +1,5 @@
 /// <reference types="cypress" />
-import { directive, aliases, directives, html, render } from '@kirei/element/dist/compiler';
+import { directive, directives, html, render } from '@kirei/element/dist/compiler';
 import { ref } from '@kirei/fx';
 
 function renderTemplate(template) {
@@ -16,18 +16,13 @@ function renderTemplate(template) {
 }
 
 const denyDirectives = [...directives.keys()];
-const denyAliases = [...aliases.keys()];
 
 describe('compiler', () => {
   // Ensure only standard directives are loaded
   afterEach(() => {
     const directiveKeys = [...directives.keys()];
-    const aliasKeys = [...aliases.keys()];
     for (const key of directiveKeys.filter(x => !denyDirectives.includes(x))) {
       directives.delete(key);
-    }
-    for (const key of aliasKeys.filter(x => !denyAliases.includes(x))) {
-      aliases.delete(key);
     }
   });
 

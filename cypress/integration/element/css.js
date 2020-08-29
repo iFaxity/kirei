@@ -30,8 +30,15 @@ describe('css', () => {
         const $shadow = $div.attachShadow({ mode: 'open' });
         const res = CSSResult.adoptStyleSheets($shadow, 'div', styleSheets);
 
-        assert.isTrue(res);
-        assert.deepEqual($shadow.adoptedStyleSheets, styleSheets.map(s => s.styleSheet));
+        if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
+          assert.isTrue(res);
+          assert.deepEqual($shadow.adoptedStyleSheets, styleSheets.map(s => s.styleSheet));
+        } else {
+          assert.isFalse(res);
+          assert.notProperty($shadow, 'adoptedStyleSheets');
+          assert.deepEqual([ null, null, null ], styleSheets.map(s => s.styleSheet));
+        }
+
       });
       it('without adopt support', () => {
         CSSResult.supportsAdoptingStyleSheets = false;
@@ -40,7 +47,12 @@ describe('css', () => {
         const $shadow = $span.attachShadow({ mode: 'open' });
         const res = CSSResult.adoptStyleSheets($shadow, 'span', styleSheets);
 
-        assert.isEmpty($shadow.adoptedStyleSheets);
+        if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
+          assert.isEmpty($shadow.adoptedStyleSheets);
+        } else {
+          assert.notProperty($shadow, 'adoptedStyleSheets');
+        }
+
         assert.isFalse(res);
       });
     });
@@ -79,13 +91,19 @@ describe('css', () => {
 
     describe('#styleSheet()', () => {
       afterEach(resetAdoptingStyleSheets);
+
       it('with adopting shim', () => {
         const res = new CSSResult(['.red { color: ', '; }'], ['red']);
-        assert.instanceOf(res.styleSheet, CSSStyleSheet);
 
-        const { rules } = res.styleSheet;
-        assert.equal(rules.length, 1);
-        assert.equal(rules[0].cssText, '.red { color: red; }');
+        if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
+          assert.instanceOf(res.styleSheet, CSSStyleSheet);
+
+          const { rules } = res.styleSheet;
+          assert.equal(rules.length, 1);
+          assert.equal(rules[0].cssText, '.red { color: red; }');
+        } else {
+          assert.isNull(res.styleSheet);
+        }
       });
       it('without adopting shim', () => {
         CSSResult.supportsAdoptingStyleSheets = false;
@@ -94,14 +112,24 @@ describe('css', () => {
       });
       it('with invalid content', () => {
         const res = new CSSResult([100, {}], ['foo']);
-        assert.instanceOf(res.styleSheet, CSSStyleSheet);
-        assert.isEmpty(res.styleSheet.rules);
+
+        if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
+          assert.instanceOf(res.styleSheet, CSSStyleSheet);
+          assert.isEmpty(res.styleSheet.rules);
+        } else {
+          assert.isNull(res.styleSheet);
+        }
       });
       it('lazy caching', () => {
         const res = new CSSResult([''], []);
-
         const styles = res.styleSheet;
-        assert.instanceOf(styles, CSSStyleSheet);
+
+        if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
+          assert.instanceOf(styles, CSSStyleSheet);
+        } else {
+          assert.isNull(styles);
+        }
+
         assert.equal(styles, res.styleSheet);
       });
     });

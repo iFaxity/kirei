@@ -1,63 +1,57 @@
 /// <reference types="cypress" />
 import { exception, error, warn } from '@kirei/element/dist/logging';
 
-function assertConsole(name, callback, expected) {
-  const nativeFn = console[name];
-  let message;
+const assertWarn = (callback, expected) => assertConsole('warn', callback, expected);
+const assertError = (callback, expected) => assertConsole('error', callback, expected);
 
-  // shim console function (substring to remove enclosing square brackets)
-  console[name] = function (data) {
-    message = data instanceof Error ? data.message : data;
-  };
+function assertConsole(name, callback, expected) {
+  const spy = cy.spy(console, name);
   try {
     callback();
-    assert.equal(message, expected);
+    spy.calledWith(expected);
   } finally {
-    console[name] = nativeFn;
+    spy.restore();
+  }
+}
+
+function assertException(callback, error) {
+  try {
+    callback();
+    assert.fail('Expected exception to be thrown.');
+  } catch (ex) {
+    if (typeof error == 'string') {
+      assert.equal(ex.message, error, `Expected '${ex}' to equal '${error}'.`);
+    } else {
+      assert.instanceOf(ex, error, `Expected exception to be an instance of '${error.constructor.name}', got ${ex.constructor.name}.`);
+    }
   }
 }
 
 describe('logging', () => {
   describe('#exception()', () => {
     it('with message', () => {
-      try {
-        exception('Test message');
-      } catch (ex) {
-        assert.equal(ex.message, 'Test message');
-        return;
-      }
-      assert.fail('expected exception to be thrown');
+      assertException(() => exception('Test message'), 'Test message');
     });
     it('with context', () => {
-      try {
-        exception('Test message', 'context()');
-      } catch (ex) {
-        assert.equal(ex.message, 'Test message in #context().');
-        return;
-      }
-      assert.fail('expected exception to be thrown');
+      assertException(() => exception('Test message', 'context()'), 'Test message in #context().');
     });
   });
 
   describe('#error()', () => {
     it('with message', () => {
-      const fn = () => error('Error message');
-      assertConsole('error', fn, 'Error message');
+      assertError(() => error('Error message'), 'Error message');
     });
     it('with context', () => {
-      const fn = () => error('Error message', 'hello()');
-      assertConsole('error', fn, 'Error message in #hello().');
+      assertError(() => error('Error message', 'hello()'), 'Error message in #hello().');
     });
   });
 
   describe('#warn()', () => {
     it('with message', () => {
-      const fn = () => warn('Warning message');
-      assertConsole('warn', fn, 'Warning message');
+      assertWarn(() => warn('Warning message'), 'Warning message');
     });
     it('with context', () => {
-      const fn = () => warn('Warning message', 'warn()');
-      assertConsole('warn', fn, 'Warning message in #warn().');
+      assertWarn(() => warn('Warning message', 'warn()'), 'Warning message in #warn().');
     });
   });
 });
