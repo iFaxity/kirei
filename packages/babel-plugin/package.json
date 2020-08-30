@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-kirei",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "module": "dist/index.js",
