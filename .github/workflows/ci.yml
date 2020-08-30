@@ -24,7 +24,7 @@ jobs:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
       - uses: actions/checkout@v2
-      - name: Cache node_modules
+      - name: Cache dependencies
         id: cache
         uses: actions/cache@v2
         with:
@@ -33,7 +33,7 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: yarn --check-files --frozen-lockfile --non-interactive
+        run: yarn --frozen-lockfile --non-interactive
 
   # Run unit and e2e tests
   test:
@@ -55,6 +55,10 @@ jobs:
         with:
           path: ${{ env.CACHE_PATHS }}
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+
+      # Required to fix links
+      - name: Setup workspace
+        run: yarn --check-files --frozen-lockfile --non-interactive
 
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
