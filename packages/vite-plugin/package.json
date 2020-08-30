@@ -33,7 +33,7 @@
     "shadow dom"
   ],
   "dependencies": {
-    "babel-plugin-kirei": "^1.0.1",
+    "babel-plugin-kirei": "^1.0.2",
     "micromatch": "^4.0.2"
   },
   "devDependencies": {
