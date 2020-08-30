@@ -4,6 +4,7 @@ on:
 
 # Tweak these to alter config
 env:
+  DEBUG: code-coverage
   CY_URL: http://localhost:3000
   CY_CFG_FILE: ./cypress/cypress.json
   CY_BOOTSTRAP: ./cypress/integration/bootstrap.js
