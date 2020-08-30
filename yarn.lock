@@ -7252,10 +7252,10 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-vite-plugin-istanbul@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/vite-plugin-istanbul/-/vite-plugin-istanbul-1.0.2.tgz#108ce3cb5af8e9ed21e99914e7a40be64efcfa4b"
-  integrity sha512-g6BCidQgpRU7a+zLPb+oMJdCQBXxk871P59Xq/UGMcaV3vcLXvCEDN61UW07kF8QFO9v7CPRJctpG6h3RUPgIA==
+vite-plugin-istanbul@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/vite-plugin-istanbul/-/vite-plugin-istanbul-1.1.0.tgz#470e5a2b65d0943abdcc1d0dd0c381368067bef5"
+  integrity sha512-PMBwolm2rhPWH0CSaDAEsBUTi/umlkc4cQKe8hIGeg4uUJe5d1cQbCWuXenwfb6J12hTJB4/WZaST08wzQWYCw==
 
 vite@1.0.0-rc.4:
   version "1.0.0-rc.4"
