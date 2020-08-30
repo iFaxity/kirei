@@ -56,10 +56,6 @@ jobs:
           path: ${{ env.CACHE_PATHS }}
           key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 
-      # Required to fix links
-      - name: Setup workspace
-        run: yarn --check-files --frozen-lockfile --non-interactive
-
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
         with:
