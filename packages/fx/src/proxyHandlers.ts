@@ -280,7 +280,7 @@ export function collectionHandlers<T extends object>(immutable: boolean, target:
         return callbackfn.call(self, value, key, self);
       });
     },
-    // TODO: shim these
+    // Shimmed iterators
     [Symbol.iterator]: wrapCollectionIterator(target, Symbol.iterator, immutable),
     values: wrapCollectionIterator(target, 'values', immutable),
     keys: wrapCollectionIterator(target, 'keys', immutable),
