@@ -51,7 +51,7 @@ function shell(cmd, package) {
 // Bumps the version from the root package
 function bumpVersion(tag) {
   if (tag[0] == 'v') {
-    tag = tag.substring(1);
+    return tag.substring(1);
   }
 
   const idx = semver.indexOf(tag);
