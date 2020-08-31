@@ -12,16 +12,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
       # Not using cache, we want fresh builds
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive
-
       - name: Publish packages to npm
         run: ./bin/publish ${{ github.ref }}
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         with:
           release_name: Release ${{ github.ref }}
           tag_name: ${{ github.ref }}
-          #body: TODO; Changelog??
+          #body: TODO refer to Changelog for every package

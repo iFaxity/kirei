@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+//
+// Script to synchronize publishing for all packages
+//
+
 const { promisify } = require('util');
 const fs = require('fs');
 const readdir = promisify(fs.readdir);
@@ -12,21 +16,32 @@ const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
 const pkgPrefix = '@kirei/';
 
+// Switch for debugging
+const DRY_RUN = false;
+
 // json file operations
-function writeJSON(filepath, data) {
-  return new Promise((resolve, reject) => {
-    const json = JSON.stringify(data, null, 2);
-    fs.writeFile(filepath, json, 'utf8', (ex) => ex ? reject(ex) : resolve());
-  });
-}
 function readJSON(filepath) {
   return new Promise((resolve, reject) => {
     fs.readFile(filepath, 'utf8', (ex, data) => ex ? reject(ex) : resolve(JSON.parse(data)));
   });
 }
+function writeJSON(filepath, data) {
+  if (DRY_RUN) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    const json = JSON.stringify(data, null, 2);
+    fs.writeFile(filepath, json, 'utf8', (ex) => ex ? reject(ex) : resolve());
+  });
+}
 
 // Executes a shell command
 function shell(cmd, package) {
+  if (DRY_RUN) {
+    return Promise.resolve();
+  }
+
   return new Promise((resolve, reject) => {
     const cwd = package ? path.join(PACKAGES_DIR, package) : ROOT_DIR;
     exec(cmd, { cwd, encoding: 'utf8' }, ex => ex ? reject(ex) : resolve());
@@ -57,7 +72,7 @@ function bumpVersion(tag) {
 }
 
 // Assures that all linked dependencies gets bumped too
-async function bumpDependencies(pkg, version) {
+async function bumpDependencies(dir, pkg, version) {
   const keys = [ 'dependencies', 'peerDependencies', 'devDependencies'];
 
   for (const key of keys) {
@@ -71,19 +86,19 @@ async function bumpDependencies(pkg, version) {
     }
   }
 
-  const package = pkg.name.split('/')[1];
-  await writeJSON(path.join(PACKAGES_DIR, package, 'package.json'), pkg);
+  await writeJSON(path.join(dir, 'package.json'), pkg);
 }
 
 // Program entrypoint
 async function main() {
-  const tag = process.argv[2];
+  const tag = process.argv[2] || 'patch';
   const version = bumpVersion(tag);
   const packages = await readdir(PACKAGES_DIR);
 
   // Do yarn publish on all packages individually
-  // This assumes prepublish script hook for rebuilding the typescript sources
-  console.log(`Next version v${version}`);
+  // Then create tag and commit
+  console.log(`v${rootPkg.version} --> v${version}`);
+
   for (const package of packages) {
     const dir = path.join(PACKAGES_DIR, package);
     const stats = await stat(dir);
@@ -93,8 +108,8 @@ async function main() {
       const pkg = await readJSON(path.join(dir, 'package.json'));
 
       if (pkg.private !== true) {
-        console.log(`Publishing package ${package}`);
-        await bumpDependencies(pkg, version);
+        console.log(`Publishing package ${package} (v${version})`);
+        await bumpDependencies(dir, pkg, version);
         await shell(`yarn publish --new-version ${version} --no-git-tag-version --access public`, package);
       }
     }
@@ -106,7 +121,8 @@ async function main() {
 
   // Create a commit with a release tag
   await shell(`git commit -am v${version}`);
-  await shell(`git tag -a v${version} -m v${version}`);
+  await shell('git push');
+  console.log('Done');
 }
 
 main().catch(console.error);
