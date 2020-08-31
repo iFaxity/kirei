@@ -45,3 +45,4 @@ docs/
 cypress/report
 cypress/videos
 cypress/screenshots
+packages/store/

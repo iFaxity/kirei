@@ -1,27 +1,27 @@
 # TODO list
 
 ## tests
-* Create tests using cypress
-* Unit & integration testing
-* Test browsers with shimming (es6 compatible only)
+* [o] Create tests using cypress
+* [o] Unit & integration testing
+* [ ] Test browsers with shimming (es6 compatible only)
 
 ## element
-* HMR reloading of element instances (reload setup, props, template, observedAttributes).
-* Find some way to preserve element instance state.
-* Optimize partial updates of element instances.
+* [x] HMR reloading of element instances (reload setup, props, template, observedAttributes).
+* [ ] Find some way to preserve element instance state.
+* [ ] Optimize partial updates of element instances.
+* [ ] Add CSS variables to host element from setup (maybe?)
 
 ## fx
-* Investigate optimizations
+* [ ] Investigate optimizations
 
 ## html
-* Optimize partial updates
+* [ ] Optimize partial updates
+* [ ] Add support for SSR, no access to WebDOM (e.g template element)
 
 ## router
-* Client router
-* Server router
+* [ ] Client router
+* [ ] Server router
 
 ## ssr
-* Investigate how to do this
-
-## store
-* Investigate how to do this
+* [ ] Investigate how to do this, or if to do this
+* [ ] Content is provided by slots and attributes

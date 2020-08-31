@@ -1,4 +1,4 @@
-import { defineElement, html, shallowRef, computed, css } from '@kirei/element';
+import { defineElement, html, shallowRef, computed, css, onMount, onUnmount } from '@kirei/element';
 
 export default defineElement({
   name: 'AppClock',
@@ -6,23 +6,34 @@ export default defineElement({
     
   },
   styles: css`
-    #clock {
+    .clock {
       max-width: 300px;
     }
-
-    #face {
+    .face {
       stroke-width: 2px; stroke: #fff;
     }
-    #hour, #min, #sec {
-      stroke-width: 1px; fill: #333; stroke: #555;
+    .hand {
+      stroke-width: 1px;
+      fill: #333;
+      stroke: #555;
     }
-    #sec { stroke: #f55; }
+    .hand.sec {
+      stroke: #f55;
+    }
   `,
   setup() {
-    let date = shallowRef(new Date());
-    setInterval(() => {
-      date.value = new Date();
-    }, 1000);
+    const date = shallowRef(new Date());
+    let interval = null;
+
+    onMount(() => {
+      interval = setInterval(() => {
+        date.value = new Date();
+      }, 1000);
+    });
+    onUnmount(() => {
+      clearInterval(interval);
+      interval = null;
+    });
 
     function transformTime(deg) {
       return `rotate(${deg} 50 50)`;
@@ -44,12 +55,12 @@ export default defineElement({
     });
 
     return () => html`
-    <svg id="clock" viewBox="0 0 100 100">
-      <circle id="face" cx="50" cy="50" r="45"/>
-      <g id="hands">
-        <rect id="hour" transform=${hours} x="48.5" y="12.5" width="5" height="40" rx="2.5" ry="2.55" />
-        <rect id="min" transform=${minutes} x="48" y="12.5" width="3" height="40" rx="2" ry="2"/>
-        <line id="sec" transform=${seconds} x1="50" y1="50" x2="50" y2="16" />
+    <svg class="clock" viewBox="0 0 100 100">
+      <circle class="face" cx="50" cy="50" r="45"/>
+      <g class="hands">
+        <rect class="hand hour" transform=${hours} x="48.5" y="12.5" width="5" height="40" rx="2.5" ry="2.55" />
+        <rect class="hand min" transform=${minutes} x="48" y="12.5" width="3" height="40" rx="2" ry="2"/>
+        <line class="hand sec" transform=${seconds} x1="50" y1="50" x2="50" y2="16" />
       </g>
     </svg>
     `;

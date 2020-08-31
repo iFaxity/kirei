@@ -66,7 +66,7 @@ function bumpVersion(tag) {
       version[2] = idx == 2 ? version[2] + 1 : 0;
       break;
     default:
-      throw new Error('Version tag not recognised');
+      throw new Error(`Version '${tag}' tag not recognised`);
   }
   return version.join('.');
 }

@@ -1,6 +1,6 @@
 {
   "name": "@kirei/hmr-api",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "module": "dist/index.js",
@@ -34,8 +34,8 @@
   ],
   "peerDependencies": {
     "@babel/core": "^7.0.0-0",
-    "@kirei/element": "1.x",
-    "@kirei/shared": "1.x"
+    "@kirei/element": "^1.1.0",
+    "@kirei/shared": "^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "7.11.4",

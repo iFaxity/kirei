@@ -1,8 +1,9 @@
 import {
   defineElement, ref, html, css,
   onMount, onBeforeUpdate, onUpdate, onUnmount,
-  provide
+  provide, inject, watch
 } from '@kirei/element';
+import { useStore } from '../store/Auth';
 
 import '../elements/Checkbox.js';
 import '../elements/Radio.js';
@@ -14,24 +15,27 @@ export const Button = defineElement({
   name: 'AppButton',
   sync: 'count',
   props: {
-    count: {
+    /*count: {
       type: Number,
       default: 0,
-    },
+    },*/
     text: {
       type: String,
       default: '',
     },
   },
   setup(props) {
+    const Store = inject('store');
+    onUpdate(() => console.log('Updating AppButton'));
+
     function onClick() {
       console.log('CLICK');
       props.text += props.text ? ', a' : 'a';
-      props.count++;
+      Store.increment();
     }
 
     return () => html`
-      <button @click=${onClick}>Clicked ${props.count} times</button>
+      <button @click=${onClick}>Clicked ${Store.count} times</button>
       <p>${props.text}</p>
     `;
   },
@@ -81,7 +85,7 @@ export default defineElement({
 
   setup(props) {
     const name = 'AppRoot';
-    const count = ref(props.count);
+    //const count = ref(props.count);
     const text = ref('');
     const value = ref('Try me');
     const fruit = ref('apple');
@@ -94,7 +98,20 @@ export default defineElement({
       [ 'Apples', 'apple' ],
     ];
 
+    const Store = useStore();
+    Store.count.value = props.count;
+    provide('store', Store);
     provide('text', value);
+
+    watch([ value, fruit ], (value, oldValue) => {
+      if (Array.isArray(value)) {
+        for (let i = 0; i < value.length; i++) {
+          console.log(`${i}: ${oldValue[i]} updated to ${value[i]}`);
+        }
+      } else {
+        console.log(`${oldValue} updated to ${value}`);
+      }
+    }, { immediate: true });
 
     const links = [
       { link: '/', text: 'Welcome page' },
@@ -102,6 +119,7 @@ export default defineElement({
       { link: '/home/news', text: 'News' },
       { link: '/user', text: 'Users view' },
       { link: '/user/test', text: 'Test user view' },
+      { link: '/clock', text: 'Clock' }
     ];
 
     console.log(`created ${name}`);
@@ -118,10 +136,10 @@ export default defineElement({
         </li>
       `))}
       </ul>
-      <p>Count: ${count}</p>
+      <p>Count: ${Store.count}</p>
       <p>Hello, ${name}!</p>
       <p>Text: ${text}</p>
-      <app-button &=${count} &text=${text}></app-button>
+      <app-button &text=${text}></app-button>
       <hr>
 
       <p>Text: ${value}</p>
