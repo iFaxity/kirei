@@ -50,7 +50,10 @@ function shell(cmd, package) {
 
 // Bumps the version from the root package
 function bumpVersion(tag) {
-  if (tag[0] == 'v') {
+  // ${{ github.ref }} format
+  if (tag.startsWith('refs/tags/v')) {
+    return tag.substring(11);
+  } else if (tag[0] == 'v') {
     return tag.substring(1);
   }
 
