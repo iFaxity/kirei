@@ -38,7 +38,7 @@
     "@kirei/shared": "^1.1.0"
   },
   "devDependencies": {
-    "@babel/core": "7.11.4",
+    "@babel/core": "7.11.5",
     "@babel/helper-plugin-utils": "7.10.4",
     "@types/babel__core": "7.1.9"
   }
