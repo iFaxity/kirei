@@ -54,7 +54,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.CACHE_PATHS }}
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}__${{ hashFiles('yarn.lock') }}
 
       - name: Run cypress (e2e and unit tests)
         uses: cypress-io/github-action@v2
