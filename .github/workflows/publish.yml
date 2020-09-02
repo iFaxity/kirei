@@ -16,6 +16,10 @@ jobs:
       # Not using cache, we want fresh builds
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive
+
+      - name: Set Publishing Token
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
       - name: Publish packages to npm
         run: ./bin/publish ${{ github.ref }}
 
