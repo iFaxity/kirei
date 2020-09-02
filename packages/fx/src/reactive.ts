@@ -48,10 +48,6 @@ const targetToReadonly = new WeakMap<any, Readonly<any>>();
  * @param {boolean} immutable If proxy should be readonly
  */
 function observe<T extends object>(target: T, immutable: boolean): Observer<T> {
-  if (!isObject(target)) {
-    throw new TypeError('Target is not observable');
-  }
-
   target = toRaw(target);
   const cache = immutable ? targetToReadonly : targetToReactive;
   let res: T = cache.get(target);
@@ -106,6 +102,10 @@ export function toRaw<T>(target: T|Reactive<T>|Readonly<T>): T {
  * @returns {Proxy}
  */
 export function reactive<T extends object>(target: T): Reactive<T> {
+  if (!isObject(target)) {
+    throw new TypeError('Target is not observable');
+  }
+
   return isReactive(target) ? target : observe(target, false);
 }
 
@@ -115,6 +115,10 @@ export function reactive<T extends object>(target: T): Reactive<T> {
  * @returns {Proxy}
  */
 export function readonly<T extends object>(target: T): Readonly<T> {
+  if (!isObject(target)) {
+    throw new TypeError('Target is not observable');
+  }
+
   return isReadonly(target) ? target : observe(target, true);
 }
 
@@ -126,15 +130,7 @@ export function readonly<T extends object>(target: T): Readonly<T> {
  */
 export function toReactive<T>(target: T): Reactive<T>;
 export function toReactive<T extends object>(target: T): Reactive<T> {
-  try {
-    return reactive(target);
-  } catch (ex) {
-    if (ex instanceof TypeError) {
-      return target;
-    }
-
-    throw ex;
-  }
+  return isObject(target) ? observe(target, false) : target;
 }
 
 /**
@@ -145,13 +141,5 @@ export function toReactive<T extends object>(target: T): Reactive<T> {
  */
 export function toReadonly<T>(target: T): Readonly<T>;
 export function toReadonly<T extends object>(target: T): Readonly<T> {
-  try {
-    return readonly(target);
-  } catch (ex) {
-    if (ex instanceof TypeError) {
-      return target;
-    }
-
-    throw ex;
-  }
+  return isObject(target) ? observe(target, true) : target;
 }
