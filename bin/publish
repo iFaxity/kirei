@@ -3,11 +3,8 @@
 // Script to synchronize publishing for all packages
 //
 
-const { promisify } = require('util');
-const fs = require('fs');
-const readdir = promisify(fs.readdir);
-const stat = promisify(fs.stat);
-const { exec } = require('child_process');
+const { readdirSync, readFileSync, writeFileSync, statSync } = require('fs');
+const { execSync } = require('child_process');
 const path = require('path');
 
 const ROOT_DIR = path.join(__dirname, '../');
@@ -21,31 +18,27 @@ const DRY_RUN = false;
 
 // json file operations
 function readJSON(filepath) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filepath, 'utf8', (ex, data) => ex ? reject(ex) : resolve(JSON.parse(data)));
-  });
+  const data = readFileSync(filepath, 'utf8');
+  return JSON.parse(data);
 }
+
 function writeJSON(filepath, data) {
   if (DRY_RUN) {
-    return Promise.resolve();
+    return;
   }
 
-  return new Promise((resolve, reject) => {
-    const json = JSON.stringify(data, null, 2);
-    fs.writeFile(filepath, json, 'utf8', (ex) => ex ? reject(ex) : resolve());
-  });
+  const json = JSON.stringify(data, null, 2);
+  writeFileSync(filepath, json, 'utf8');
 }
 
 // Executes a shell command
 function shell(cmd, package) {
   if (DRY_RUN) {
-    return Promise.resolve();
+    return;
   }
 
-  return new Promise((resolve, reject) => {
-    const cwd = package ? path.join(PACKAGES_DIR, package) : ROOT_DIR;
-    exec(cmd, { cwd, encoding: 'utf8' }, ex => ex ? reject(ex) : resolve());
-  });
+  const cwd = package ? path.join(PACKAGES_DIR, package) : ROOT_DIR;
+  execSync(cmd, { cwd, encoding: 'utf8' });
 }
 
 // Bumps the version from the root package
@@ -75,7 +68,7 @@ function bumpVersion(tag) {
 }
 
 // Assures that all linked dependencies gets bumped too
-async function bumpDependencies(dir, pkg, version) {
+function bumpDependencies(dir, pkg, version) {
   const keys = [ 'dependencies', 'peerDependencies', 'devDependencies'];
 
   for (const key of keys) {
@@ -83,49 +76,56 @@ async function bumpDependencies(dir, pkg, version) {
     if (!deps) continue;
 
     for (const dep of Object.keys(deps)) {
-      if (dep.startsWith(pkgPrefix)) {
+      if (dep in packages) {
         deps[dep] = `^${version}`;
       }
     }
   }
 
-  await writeJSON(path.join(dir, 'package.json'), pkg);
+  writeJSON(path.join(dir, 'package.json'), pkg);
 }
 
 // Program entrypoint
-async function main() {
-  const tag = process.argv[2] || 'patch';
-  const version = bumpVersion(tag);
-  const packages = await readdir(PACKAGES_DIR);
+const tag = process.argv[2] || 'patch';
+const version = bumpVersion(tag);
+let packages = readdirSync(PACKAGES_DIR);
 
-  // Do yarn publish on all packages individually
-  // Then create tag and commit
-  console.log(`v${rootPkg.version} --> v${version}`);
+// Upgrade peer packages
+console.log(`v${rootPkg.version} --> v${version}`);
 
-  for (const package of packages) {
-    const dir = path.join(PACKAGES_DIR, package);
-    const stats = await stat(dir);
+packages = packages.reduce((acc, key) => {
+  const dir = path.join(PACKAGES_DIR, package);
+  const stats = statSync(dir);
 
-    // Only publish directories with package.json set to public
-    if (stats.isDirectory()) {
-      const pkg = await readJSON(path.join(dir, 'package.json'));
+  // Only publish directories with package.json set to public
+  if (stats.isDirectory()) {
+    const pkg = readJSON(path.join(dir, 'package.json'));
 
-      if (pkg.private !== true) {
-        console.log(`Publishing package ${package} (v${version})`);
-        await bumpDependencies(dir, pkg, version);
-        await shell(`yarn publish --new-version ${version} --no-git-tag-version --access public`, package);
-      }
+    if (pkg.private !== true) {
+      acc[key] = pkg;
     }
   }
 
-  // Update version in root package
-  rootPkg.version = version;
-  await writeJSON(path.join(ROOT_DIR, 'package.json'), rootPkg);
+  return acc;
+}, {});
 
-  // Create a commit with a release tag
-  await shell(`git commit -am v${version}`);
-  await shell('git push');
-  console.log('Done');
+// Update version in root package
+rootPkg.version = version;
+writeJSON(path.join(ROOT_DIR, 'package.json'), rootPkg);
+
+for (const [ key, pkg ] of packages.entries) {
+  const dir = path.join(PACKAGES_DIR, key);
+  bumpDependencies(dir, pkg, version);
 }
 
-main().catch(console.error);
+// Create a commit with a release tag
+shell(`git commit -am v${version}`);
+shell('git push');
+
+// Finally publish to NPM
+for (const package of packages) {
+  console.log(`Publishing package ${package} (v${version})`);
+  shell(`yarn publish --new-version ${version} --no-git-tag-version --access public`, package);
+}
+
+console.log('Done');
