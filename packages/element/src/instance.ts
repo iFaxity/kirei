@@ -178,11 +178,11 @@ export class KireiInstance implements IKireiInstance {
     // Pause tracking while calling setup function
     try {
       Fx.pauseTracking();
-      const template = setup.call(null, propsProxy, ctx);
-      if (!isFunction(template)) {
+      this.template = setup.call(null, propsProxy, ctx);
+
+      if (!isFunction(this.template)) {
         throw new TypeError('Setup function must return a TemplateFactory');
       }
-      this.template = template;
     } catch (ex) {
       if (ex instanceof KireiError) {
         throw ex;

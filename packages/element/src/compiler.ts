@@ -56,7 +56,7 @@ export function directive(name: string, directive: DirectiveFactory): DirectiveF
   } else if (!isFunction(directive)) {
     throw new TypeError('Directive has to be a function.');
   } else if (directives.has(name)) {
-    throw new Error('Directive already exists');
+    throw new TypeError('Directive already exists');
   }
 
   if (name.length == 1 && !ALIAS_NAMES.includes(name)) {
