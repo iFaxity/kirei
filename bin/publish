@@ -13,7 +13,7 @@ const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
 
 // Switch for debugging
-const DRY_RUN = false;
+const DRY_RUN = true;
 
 // json file operations
 function readJSON(filepath) {
@@ -84,8 +84,8 @@ function bumpDependencies(dir, pkg, version) {
 function resolvePackages(rootDir) {
   const packages = readdirSync(rootDir);
 
-  return packages.reduce((acc, key) => {
-    const dir = path.join(PACKAGES_DIR, key);
+  return packages.reduce((acc, name) => {
+    const dir = path.join(PACKAGES_DIR, name);
     const stats = statSync(rootDir);
 
     // Only publish directories with package.json set to public
@@ -118,13 +118,13 @@ for (const { package, path } of packages.values()) {
 }
 
 // Create a commit with a release tag
-shell(`git commit -am v${version}`);
+shell(`git commit -am 'Release v${version}'`);
 shell('git push');
 
 // Finally publish to NPM
-for (const package of packages.keys()) {
-  console.log(`Publishing package ${package} (v${version})`);
-  shell(`yarn publish --new-version ${version} --no-git-tag-version --access public`, package);
+for (const [ name, package ] of packages) {
+  console.log(`Publishing package ${name} (v${version})`);
+  shell(`yarn publish --new-version ${version} --no-git-tag-version --access public`, package.path);
 }
 
 console.log('Done');
