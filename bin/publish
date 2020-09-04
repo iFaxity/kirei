@@ -12,9 +12,6 @@ const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
 const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
 
-// Switch for debugging
-const DRY_RUN = true;
-
 // json file operations
 function readJSON(filepath) {
   const data = readFileSync(filepath, 'utf8');
@@ -22,18 +19,14 @@ function readJSON(filepath) {
 }
 
 function writeJSON(filepath, data) {
-  if (!DRY_RUN) {
-    const json = JSON.stringify(data, null, 2);
-    writeFileSync(filepath, json, 'utf8');
-  }
+  const json = JSON.stringify(data, null, 2);
+  writeFileSync(filepath, json, 'utf8');
 }
 
 // Executes a shell command
 function shell(cmd, package) {
-  if (!DRY_RUN) {
-    const cwd = package ? path.join(PACKAGES_DIR, package) : ROOT_DIR;
-    execSync(cmd, { cwd, encoding: 'utf8' });
-  }
+  const cwd = package ? path.join(PACKAGES_DIR, package) : ROOT_DIR;
+  execSync(cmd, { cwd, encoding: 'utf8' });
 }
 
 // Bumps the version from the root package

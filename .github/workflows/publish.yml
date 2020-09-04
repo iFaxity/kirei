@@ -18,7 +18,7 @@ jobs:
         run: yarn --frozen-lockfile --non-interactive
 
       - name: Set Publishing Token
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+        run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}' > ~/.npmrc
 
       - name: Set Git config
         run: |
@@ -26,7 +26,6 @@ jobs:
           git config --global user.email christian@faxity.se && \
           git config credential.helper store && \
           echo 'https://ifaxity:${{ secrets.GITHUB_TOKEN }}@github.com' > ~/.git-credentials && \
-
 
       - name: Publish packages to npm
         run: ./bin/publish ${{ github.ref }}
