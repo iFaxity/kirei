@@ -11,7 +11,6 @@ const ROOT_DIR = path.join(__dirname, '../');
 const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
 const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
-const pkgPrefix = '@kirei/';
 
 // Switch for debugging
 const DRY_RUN = false;
@@ -23,22 +22,18 @@ function readJSON(filepath) {
 }
 
 function writeJSON(filepath, data) {
-  if (DRY_RUN) {
-    return;
+  if (!DRY_RUN) {
+    const json = JSON.stringify(data, null, 2);
+    writeFileSync(filepath, json, 'utf8');
   }
-
-  const json = JSON.stringify(data, null, 2);
-  writeFileSync(filepath, json, 'utf8');
 }
 
 // Executes a shell command
 function shell(cmd, package) {
-  if (DRY_RUN) {
-    return;
+  if (!DRY_RUN) {
+    const cwd = package ? path.join(PACKAGES_DIR, package) : ROOT_DIR;
+    execSync(cmd, { cwd, encoding: 'utf8' });
   }
-
-  const cwd = package ? path.join(PACKAGES_DIR, package) : ROOT_DIR;
-  execSync(cmd, { cwd, encoding: 'utf8' });
 }
 
 // Bumps the version from the root package
@@ -52,7 +47,8 @@ function bumpVersion(tag) {
 
   const idx = semver.indexOf(tag);
   const version = rootPkg.version.split('.').map(Number);
-  // We need fallthrough
+
+  // Fallthrough for version
   switch(idx) {
     case 0:
       version[0] += 1;
@@ -85,37 +81,40 @@ function bumpDependencies(dir, pkg, version) {
   writeJSON(path.join(dir, 'package.json'), pkg);
 }
 
+function resolvePackages(rootDir) {
+  const packages = readdirSync(rootDir);
+
+  return packages.reduce((acc, key) => {
+    const dir = path.join(PACKAGES_DIR, key);
+    const stats = statSync(rootDir);
+
+    // Only publish directories with package.json set to public
+    if (stats.isDirectory()) {
+      const package = readJSON(path.join(dir, 'package.json'));
+
+      if (package.private !== true) {
+        acc.set(package.name, { package, path: dir });
+      }
+    }
+
+    return acc;
+  }, new Map());
+}
+
 // Program entrypoint
 const tag = process.argv[2] || 'patch';
 const version = bumpVersion(tag);
-let packages = readdirSync(PACKAGES_DIR);
+const packages = resolvePackages(PACKAGES_DIR);
 
-// Upgrade peer packages
 console.log(`v${rootPkg.version} --> v${version}`);
-
-packages = packages.reduce((acc, key) => {
-  const dir = path.join(PACKAGES_DIR, package);
-  const stats = statSync(dir);
-
-  // Only publish directories with package.json set to public
-  if (stats.isDirectory()) {
-    const pkg = readJSON(path.join(dir, 'package.json'));
-
-    if (pkg.private !== true) {
-      acc[key] = pkg;
-    }
-  }
-
-  return acc;
-}, {});
 
 // Update version in root package
 rootPkg.version = version;
 writeJSON(path.join(ROOT_DIR, 'package.json'), rootPkg);
 
-for (const [ key, pkg ] of packages.entries) {
-  const dir = path.join(PACKAGES_DIR, key);
-  bumpDependencies(dir, pkg, version);
+// Upgrade peer packages
+for (const { package, path } of packages.values()) {
+  bumpDependencies(path, package, version);
 }
 
 // Create a commit with a release tag
@@ -123,7 +122,7 @@ shell(`git commit -am v${version}`);
 shell('git push');
 
 // Finally publish to NPM
-for (const package of packages) {
+for (const package of packages.keys()) {
   console.log(`Publishing package ${package} (v${version})`);
   shell(`yarn publish --new-version ${version} --no-git-tag-version --access public`, package);
 }
