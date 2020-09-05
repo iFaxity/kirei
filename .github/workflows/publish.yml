@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      # Required for pushes to work
+      - name: Prepare repo
+        run: git checkout "${GITHUB_REF:11}"
 
       # Not using cache, we want fresh builds
       - name: Install dependencies
