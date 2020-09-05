@@ -11,6 +11,10 @@ const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
 const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
 
+const tag = process.argv[2] || 'patch';
+const version = bumpVersion(tag);
+const packages = resolvePackages(PACKAGES_DIR);
+
 // json file operations
 function readJSON(filepath) {
   const data = readFileSync(filepath, 'utf8');
@@ -56,7 +60,7 @@ function bumpVersion(tag) {
 }
 
 // Assures that all linked dependencies gets bumped too
-function bumpDependencies(dir, pkg, version) {
+function bumpPackage(dir, pkg, version) {
   const keys = [ 'dependencies', 'peerDependencies', 'devDependencies'];
 
   for (const key of keys) {
@@ -64,12 +68,14 @@ function bumpDependencies(dir, pkg, version) {
     if (!deps) continue;
 
     for (const dep of Object.keys(deps)) {
-      if (dep in packages) {
+      if (packages.has(dep)) {
         deps[dep] = `^${version}`;
       }
     }
   }
 
+  // Upgrade package version
+  pkg.version = version;
   writeJSON(path.join(dir, 'package.json'), pkg);
 }
 
@@ -94,10 +100,6 @@ function resolvePackages(rootDir) {
 }
 
 // Program entrypoint
-const tag = process.argv[2] || 'patch';
-const version = bumpVersion(tag);
-const packages = resolvePackages(PACKAGES_DIR);
-
 console.log(`v${rootPkg.version} --> v${version}`);
 
 // Update version in root package
@@ -106,7 +108,7 @@ writeJSON(path.join(ROOT_DIR, 'package.json'), rootPkg);
 
 // Upgrade peer packages
 for (const { package, path } of packages.values()) {
-  bumpDependencies(path, package, version);
+  bumpPackage(path, package, version);
 }
 
 // Create a commit with a release tag
