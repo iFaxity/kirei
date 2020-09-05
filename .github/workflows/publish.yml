@@ -25,7 +25,7 @@ jobs:
           git config --global user.name 'Christian Norrman' && \
           git config --global user.email christian@faxity.se && \
           git config credential.helper store && \
-          echo 'https://ifaxity:${{ secrets.GITHUB_TOKEN }}@github.com' > ~/.git-credentials && \
+          echo 'https://ifaxity:${{ secrets.GITHUB_TOKEN }}@github.com' > ~/.git-credentials
 
       - name: Publish packages to npm
         run: ./bin/publish ${{ github.ref }}
