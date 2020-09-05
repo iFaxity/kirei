@@ -7,7 +7,7 @@
 
 ## element
 * [x] HMR reloading of element instances (reload setup, props, template, observedAttributes).
-* [ ] Find some way to preserve element instance state.
+* [-] Find some way to preserve element instance state. (not possible without external state)
 * [ ] Optimize partial updates of element instances.
 * [ ] Add CSS variables to host element from setup (maybe?)
 
