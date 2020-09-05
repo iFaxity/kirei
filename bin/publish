@@ -27,8 +27,8 @@ function writeJSON(filepath, data) {
 }
 
 // Executes a shell command
-function shell(cmd, package) {
-  const cwd = package ? path.join(PACKAGES_DIR, package) : ROOT_DIR;
+function shell(cmd) {
+  const cwd = ROOT_DIR;
   execSync(cmd, { cwd, encoding: 'utf8' });
 }
 
@@ -113,12 +113,12 @@ for (const { package, path } of packages.values()) {
 
 // Create a commit with a release tag
 shell(`git commit -am 'Release v${version}'`);
-shell('git push');
 
 // Finally publish to NPM
 for (const [ name, package ] of packages) {
   console.log(`Publishing package ${name} (v${version})`);
-  shell(`yarn publish --new-version ${version} --no-git-tag-version --access public`, package.path);
+  //shell(`yarn publish '${package.path}' --new-version ${version} --access public --no-git-tag-version`);
 }
+shell('git push');
 
 console.log('Done');
