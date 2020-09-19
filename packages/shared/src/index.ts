@@ -1,7 +1,12 @@
 // https://tc39.github.io/ecma262/#sec-typeof-operator
 export type Primitive = null|undefined|boolean|number|string|symbol|bigint;
 
-export const DEV = process?.env?.NODE_ENV != 'production';
+/**
+ * True if the current environment is in developer mode
+ * @const {boolean}
+ */
+export const DEV = typeof process == 'object' && process.env?.NODE_ENV != 'production';
+
 /**
  * True if the current environment is in the browser
  * @const {boolean}

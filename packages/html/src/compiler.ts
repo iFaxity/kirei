@@ -178,7 +178,7 @@ export const defaultCompiler: TemplateCompiler<TemplatePatcher> = {
           nodeParser(String(pending));
         }
       } else {
-        throw new Error('Invalid node expression in html template');
+        throw new TypeError('Invalid node expression in html template');
       }
     };
 

@@ -101,7 +101,7 @@ function mutationHandlers(dir: Directive) {
         event = instance.options.sync.event;
         prop = instance.options.sync.prop;
       } else {
-        throw new Error(`Default syncing not supported for element '${tag}'.`);
+        throw new TypeError(`Default syncing not supported for element '${tag}'.`);
       }
     }
   }

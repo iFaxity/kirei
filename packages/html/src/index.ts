@@ -114,7 +114,7 @@ export function customize<T extends TemplateLiteral>(opts: CustomizeOptions<T> =
         } else if (template instanceof Node) {
           node = template;
         } else {
-          throw new Error('Invalid render template, expected Template or Node');
+          throw new TypeError('Invalid render template, expected Template or Node');
         }
 
         if (wire !== node) {
@@ -176,7 +176,7 @@ function createLiteral<T extends TemplateLiteral>(
   if (isObject(literals)) {
     for (let key of Object.keys(literals)) {
       if (key in template) {
-        throw new Error('Cannot override properties in literals');
+        throw new TypeError('Cannot override properties in literals');
       }
 
       template[key] = literals[key];

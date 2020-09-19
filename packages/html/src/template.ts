@@ -161,7 +161,7 @@ function compileContent(type: string, strings: TemplateStringsArray, scopeName?:
   }
 
   // Apply shady shim, if available
-  if (scopeName) {
+  if (scopeName && typeof window != 'undefined') {
     window.ShadyCSS?.prepareTemplate(template, scopeName);
   }
   return { node: template, patches };
