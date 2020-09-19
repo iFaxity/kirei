@@ -1,4 +1,4 @@
-import { Fx } from '@kirei/fx';
+import { ReactiveEffect, effect, stop } from '@vue/reactivity';
 import { Template } from '@kirei/html';
 import { render } from '../compiler';
 import { onUnmount } from './lifecycle';
@@ -9,7 +9,7 @@ const roots = new Map<string, Element>();
 const portals = new WeakMap<Element, Portal>();
 interface Portal {
   instance: KireiInstance;
-  fx: Fx;
+  fx: ReactiveEffect;
 }
 
 /**
@@ -27,7 +27,7 @@ export function portal(target: string, templateFn: () => Template): void {
 
   let portal = portals.get(root);
   if (!portal || portal.instance !== instance) {
-    const fx = new Fx(() => {
+    const fx = effect(() => {
       instance.activate();
       render(templateFn(), root);
       instance.deactivate();
@@ -36,7 +36,8 @@ export function portal(target: string, templateFn: () => Template): void {
     portal = { instance, fx };
     onUnmount(() => {
       const p = portals.get(root);
-      fx.stop();
+      stop(fx);
+
       if (p === portal) {
         render(null, root);
         portals.delete(root);

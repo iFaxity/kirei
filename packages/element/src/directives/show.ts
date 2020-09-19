@@ -1,4 +1,4 @@
-import { unRef } from '@kirei/fx';
+import { unref } from '@vue/reactivity';
 import { directive } from '../compiler';
 
 export default directive('show', dir => {
@@ -6,7 +6,7 @@ export default directive('show', dir => {
   let value = true;
 
   return (pending) => {
-    const newValue = !!unRef(pending);
+    const newValue = !!unref(pending);
 
     if (newValue != value) {
       el.style.display = newValue ? '' : 'none';

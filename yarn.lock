@@ -18,7 +18,7 @@
     invariant "^2.2.4"
     semver "^5.5.0"
 
-"@babel/core@7.11.6":
+"@babel/core@7.11.6", "@babel/core@^7.7.5":
   version "7.11.6"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.11.6.tgz#3a9455dc7387ff1bac45770650bc13ba04a15651"
   integrity sha512-Wpcv03AGnmkgm6uS6k8iwhIwTrcP0m17TL1n1sy7qD0qelDu4XNeW0dN0mHfa+Gei211yDaLoEe/VlbXQzM4Bg==
@@ -60,38 +60,7 @@
     semver "^5.4.1"
     source-map "^0.5.0"
 
-"@babel/core@^7.7.5":
-  version "7.11.6"
-  resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.11.6.tgz#3a9455dc7387ff1bac45770650bc13ba04a15651"
-  integrity sha512-Wpcv03AGnmkgm6uS6k8iwhIwTrcP0m17TL1n1sy7qD0qelDu4XNeW0dN0mHfa+Gei211yDaLoEe/VlbXQzM4Bg==
-  dependencies:
-    "@babel/code-frame" "^7.10.4"
-    "@babel/generator" "^7.11.6"
-    "@babel/helper-module-transforms" "^7.11.0"
-    "@babel/helpers" "^7.10.4"
-    "@babel/parser" "^7.11.5"
-    "@babel/template" "^7.10.4"
-    "@babel/traverse" "^7.11.5"
-    "@babel/types" "^7.11.5"
-    convert-source-map "^1.7.0"
-    debug "^4.1.0"
-    gensync "^1.0.0-beta.1"
-    json5 "^2.1.2"
-    lodash "^4.17.19"
-    resolve "^1.3.2"
-    semver "^5.4.1"
-    source-map "^0.5.0"
-
 "@babel/generator@^7.11.5", "@babel/generator@^7.11.6", "@babel/generator@^7.4.4":
-  version "7.11.6"
-  resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.11.6.tgz#b868900f81b163b4d464ea24545c61cbac4dc620"
-  integrity sha512-DWtQ1PV3r+cLbySoHrwn9RWEgKMBLLma4OBQloPRyDYvc5msJM9kvTLo1YnlJd1P/ZuKbdli3ijr5q3FvAF3uA==
-  dependencies:
-    "@babel/types" "^7.11.5"
-    jsesc "^2.5.1"
-    source-map "^0.5.0"
-
-"@babel/generator@^7.11.6":
   version "7.11.6"
   resolved "https://registry.yarnpkg.com/@babel/generator/-/generator-7.11.6.tgz#b868900f81b163b4d464ea24545c61cbac4dc620"
   integrity sha512-DWtQ1PV3r+cLbySoHrwn9RWEgKMBLLma4OBQloPRyDYvc5msJM9kvTLo1YnlJd1P/ZuKbdli3ijr5q3FvAF3uA==
@@ -1480,6 +1449,13 @@
   dependencies:
     "@vue/shared" "3.0.0-rc.10"
 
+"@vue/reactivity@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@vue/reactivity/-/reactivity-3.0.0.tgz#fd15632a608650ce2a969c721787e27e2c80aa6b"
+  integrity sha512-mEGkztGQrAPZRhV7C6PorrpT3+NtuA4dY2QjMzzrW31noKhssWTajRZTwpLF39NBRrF5UU6cp9+1I0FfavMgEQ==
+  dependencies:
+    "@vue/shared" "3.0.0"
+
 "@vue/runtime-core@3.0.0-rc.10":
   version "3.0.0-rc.10"
   resolved "https://registry.yarnpkg.com/@vue/runtime-core/-/runtime-core-3.0.0-rc.10.tgz#9055aef5113cbc328aaec29760c2151e0ed3cf40"
@@ -1496,6 +1472,11 @@
     "@vue/runtime-core" "3.0.0-rc.10"
     "@vue/shared" "3.0.0-rc.10"
     csstype "^2.6.8"
+
+"@vue/shared@3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.0.0.tgz#ec089236629ecc0f10346b92f101ff4339169f1a"
+  integrity sha512-4XWL/avABGxU2E2ZF1eZq3Tj7fvksCMssDZUHOykBIMmh5d+KcAnQMC5XHMhtnA0NAvktYsA2YpdsVwVmhWzvA==
 
 "@vue/shared@3.0.0-rc.10":
   version "3.0.0-rc.10"

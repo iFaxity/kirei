@@ -1,4 +1,4 @@
-import { unRef } from '@kirei/fx';
+import { unref } from '@vue/reactivity';
 import { directive } from '../compiler';
 
 export default directive('if', dir => {
@@ -8,7 +8,7 @@ export default directive('if', dir => {
   let node: Element|Comment = el;
 
   return pending => {
-    const value = unRef(pending);
+    const value = unref(pending);
     const newNode = (invert ? !value : !!value) ? el : placeholder;
 
     if (newNode !== node) {

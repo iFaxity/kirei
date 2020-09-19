@@ -1,4 +1,4 @@
-import { Fx } from '@kirei/fx';
+import { ReactiveEffect, effect, pauseTracking, resetTracking, track, TrackOpTypes } from '@vue/reactivity';
 import { isFunction, isUndefined } from '@kirei/shared';
 import { exception, KireiError } from './logging';
 import { HookTypes } from './api/lifecycle';
@@ -61,7 +61,7 @@ export class KireiInstance implements IKireiInstance {
   private template: () => Template;
   private shimAdoptedStyleSheets: boolean = false;
   private hooks: Map<string, Set<Function>>;
-  readonly fx: Fx;
+  readonly effect: ReactiveEffect;
   readonly parent?: KireiInstance;
   readonly el: IKireiElement;
   shadowRoot: ShadowRoot;
@@ -100,7 +100,7 @@ export class KireiInstance implements IKireiInstance {
     this.provides = parent?.provides ?? Object.create(null);
     this.el = el;
     this.options = opts;
-    this.fx = new Fx(this.update.bind(this), {
+    this.effect = effect(this.update.bind(this), {
       lazy: true,
       scheduler: Queue.push,
     });
@@ -145,7 +145,7 @@ export class KireiInstance implements IKireiInstance {
         // Create a custom Proxy for the props
         propsProxy = new Proxy(props, {
           get(_, key: string) {
-            return Fx.track(props, key), props[key];
+            return track(props, TrackOpTypes.GET, key), props[key];
           },
           set(_, key: string, value: any) {
             const res = props.hasOwnProperty(key);
@@ -177,7 +177,7 @@ export class KireiInstance implements IKireiInstance {
     // Run setup function to gather reactive data
     // Pause tracking while calling setup function
     try {
-      Fx.pauseTracking();
+      pauseTracking();
       this.template = setup.call(null, propsProxy, ctx);
 
       if (!isFunction(this.template)) {
@@ -190,7 +190,7 @@ export class KireiInstance implements IKireiInstance {
 
       exception(ex, 'setup()');
     } finally {
-      Fx.resetTracking();
+      resetTracking();
       this.deactivate();
     }
   }
@@ -267,7 +267,8 @@ export class KireiInstance implements IKireiInstance {
     }
 
     this.runHooks(HookTypes.MOUNT);
-    this.fx.scheduleRun();
+    
+    Queue.push(this.effect);
   }
 
   /**
@@ -288,9 +289,9 @@ export class KireiInstance implements IKireiInstance {
   runHooks(hook: string, ...args: any[]): void {
     const hooks = this.hooks[hook];
     if (hooks === null || hooks === void 0 ? void 0 : hooks.size) {
-      Fx.pauseTracking();
+      pauseTracking();
       hooks.forEach(hook => hook.apply(this, args));
-      Fx.resetTracking();
+      resetTracking();
     }
   }
 

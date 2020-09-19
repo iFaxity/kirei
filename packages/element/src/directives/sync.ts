@@ -1,5 +1,5 @@
 import { isString } from '@kirei/shared';
-import { Ref, isRef } from '@kirei/fx';
+import { Ref, isRef } from '@vue/reactivity';
 import { KireiInstance } from '../instance';
 import { directive, Directive } from '../compiler';
 import { push } from '../queue';

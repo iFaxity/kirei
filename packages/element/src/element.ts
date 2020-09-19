@@ -1,9 +1,7 @@
-import { Fx, TriggerOpTypes, toReactive } from '@kirei/fx';
+import { TriggerOpTypes, reactive, trigger } from '@vue/reactivity';
 import { mapObject, camelToKebab, isObject, isString } from '@kirei/shared';
 import { KireiInstance } from './instance';
 import { exception } from './logging';
-import { HookTypes } from './api/lifecycle';
-import * as Queue from './queue';
 import { validateProp, normalizeProps } from './props';
 import type { CSSResult } from './css';
 import type { IKireiElement, ElementOptions, NormalizedElementOptions } from './interfaces';
@@ -96,8 +94,8 @@ export class KireiElement extends HTMLElement implements IKireiElement {
             try {
               // Trigger an update on the element
               instance.activate();
-              props[key] = toReactive(validateProp(options.props[key], key, newValue));
-              Fx.trigger(props, TriggerOpTypes.SET, key, newValue);
+              props[key] = reactive(validateProp(options.props[key], key, newValue));
+              trigger(props, TriggerOpTypes.SET, key, newValue);
             } catch (ex) {
               exception(ex);
             } finally {

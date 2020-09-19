@@ -1,5 +1,5 @@
 import { TemplatePatcher, TemplateCompiler, customize, defaultCompiler } from '@kirei/html';
-import { unRef } from '@kirei/fx';
+import { unref } from '@vue/reactivity';
 import { KireiInstance } from './instance';
 import { isFunction, isString } from '@kirei/shared';
 
@@ -89,15 +89,15 @@ const compiler: TemplateCompiler = {
 
     // Use default patcher
     const patch = defaultCompiler.attr(node, attr);
-    return (newValue) => patch(unRef(newValue));
+    return (newValue) => patch(unref(newValue));
   },
   node(ref) {
     const patch = defaultCompiler.node(ref)
-    return (newValue) => patch(unRef(newValue));
+    return (newValue) => patch(unref(newValue));
   },
   text(node) {
     const patch = defaultCompiler.text(node);
-    return (newValue) => patch(unRef(newValue));
+    return (newValue) => patch(unref(newValue));
   },
 };
 

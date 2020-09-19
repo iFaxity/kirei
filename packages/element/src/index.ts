@@ -1,4 +1,4 @@
-export * from '@kirei/fx';
+export * from '@vue/reactivity';
 export { KireiInstance } from './instance';
 export { KireiElement } from './element';
 export { nextTick } from './queue';

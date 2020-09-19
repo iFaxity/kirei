@@ -1,4 +1,4 @@
-import { isRef } from '@kirei/fx';
+import { isRef } from '@vue/reactivity';
 import { directive } from '../compiler';
 
 // This is a special directive
