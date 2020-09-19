@@ -1,4 +1,13 @@
 import { isUndefined } from '@kirei/shared';
+import { LRUWeakMap } from '@kirei/html';
+
+/**
+ * Cache to store precompiled templates indexed by the template strings
+ * as a LRUCache it only stores the most recently used elements.
+ * Effectively trading memory for performance and performance for memory.
+ * @const
+ */
+const styleSheetCache = new LRUWeakMap<TemplateStringsArray, CSSStyleSheet>(500);
 
 /**
  * Class to easily construct and cache style sheets
@@ -26,6 +35,12 @@ export class CSSResult {
    * @var {string}
    */
   readonly cssText: string;
+
+  /**
+   * Used to get stylesheets from cache
+   * @var {TemplateStringsArray}
+   */
+  private strings: TemplateStringsArray;
 
   /**
    * Applies adopted stylesheets if available or tries to shim,
@@ -62,9 +77,12 @@ export class CSSResult {
    * @param {any[]} values Interpolated values
    */
   constructor(strings: TemplateStringsArray, values: readonly any[]) {
+    // TODO: values doesn't work with caching, look at css variable solution to be more versatile
     this.cssText = values.reduce<string>((acc, value, idx) => {
       return acc + String(value) + strings[idx + 1];
     }, strings[0]);
+
+    this.strings = strings;
   }
 
   /**
@@ -74,8 +92,15 @@ export class CSSResult {
   get styleSheet(): CSSStyleSheet {
     if (isUndefined(this.styles)) {
       if (CSSResult.supportsAdoptingStyleSheets) {
-        this.styles = new CSSStyleSheet();
-        this.styles.replaceSync(this.cssText);
+        // Get stylsheet from cache
+        let styles = styleSheetCache.get(this.strings);
+        if (!styles) {
+          styles = new CSSStyleSheet();
+          styles.replaceSync(this.cssText);
+          styleSheetCache.set(this.strings, this.styles);
+        }
+
+        this.styles = styles;
       } else {
         this.styles = null;
       }
@@ -99,4 +124,6 @@ export class CSSResult {
   * @param {any[]} values
   * @returns {CSSResult}
   */
-export const css = (strings: TemplateStringsArray, ...values: any[]) => new CSSResult(strings, values);
+export function css(strings: TemplateStringsArray, ...values: any[]): CSSResult {
+  return new CSSResult(strings, values);
+}

@@ -1,14 +1,13 @@
 import { ReactiveEffect, effect, pauseTracking, resetTracking, track, TrackOpTypes } from '@vue/reactivity';
-import { isFunction, isUndefined } from '@kirei/shared';
+import { isFunction, isPromise, isUndefined } from '@kirei/shared';
 import { exception, KireiError } from './logging';
 import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult } from './css';
 import { render, DirectiveFactory } from './compiler';
 import { propDefaults } from './props';
-import type { Template } from '@kirei/html';
 import type { InjectionKey } from './api/inject';
-import type { IKireiElement, IKireiInstance, NormalizedElementOptions, SyncOptions, NormalizedProps, PropsData } from './interfaces';
+import type { IKireiElement, IKireiInstance, NormalizedElementOptions, SyncOptions, NormalizedProps, PropsData, SetupResult } from './interfaces';
 
 const activeInstanceStack: KireiInstance[] = [];
 const instances = new WeakMap<IKireiElement, KireiInstance>();
@@ -58,17 +57,17 @@ class KireiContext {
  * @private
  */
 export class KireiInstance implements IKireiInstance {
-  private template: () => Template;
-  private shimAdoptedStyleSheets: boolean = false;
+  private shimAdoptedStyleSheets = false;
   private hooks: Map<string, Set<Function>>;
   readonly effect: ReactiveEffect;
   readonly parent?: KireiInstance;
   readonly el: IKireiElement;
+  template: Promise<SetupResult>|SetupResult;
   shadowRoot: ShadowRoot;
   options: NormalizedElementOptions;
   props: PropsData;
-  directives?: Record<string, DirectiveFactory>;
   provides: Record<string | number | symbol, any>;
+  directives?: Record<string, DirectiveFactory>;
 
   /**
    * Gets an instance from its element
@@ -95,6 +94,7 @@ export class KireiInstance implements IKireiInstance {
   constructor(el: IKireiElement, opts: NormalizedElementOptions) {
     this.shimAdoptedStyleSheets = false;
     const parent = KireiInstance.active;
+
     // Inherit provides from parent
     this.parent = parent;
     this.provides = parent?.provides ?? Object.create(null);
@@ -105,6 +105,7 @@ export class KireiInstance implements IKireiInstance {
       scheduler: Queue.push,
     });
     this.props = opts.props ? propDefaults(opts.props) : {};
+
     this.setup();
     instances.set(el, this);
   }
@@ -180,9 +181,18 @@ export class KireiInstance implements IKireiInstance {
       pauseTracking();
       this.template = setup.call(null, propsProxy, ctx);
 
-      if (!isFunction(this.template)) {
+      // Result might be async, expose promise to the outside?
+      const res = setup.call(null, propsProxy, ctx);
+
+      if (isPromise(res)) {
+        this.template = res;
+        res.then(() => { this.template = res; });
+      } else if (isFunction(res)) {
+        this.template = res;
+      } else if (res != null) {
         throw new TypeError('Setup function must return a TemplateFactory');
       }
+
     } catch (ex) {
       if (ex instanceof KireiError) {
         throw ex;
@@ -288,7 +298,7 @@ export class KireiInstance implements IKireiInstance {
    */
   runHooks(hook: string, ...args: any[]): void {
     const hooks = this.hooks[hook];
-    if (hooks === null || hooks === void 0 ? void 0 : hooks.size) {
+    if (hooks?.size) {
       pauseTracking();
       hooks.forEach(hook => hook.apply(this, args));
       resetTracking();
@@ -313,7 +323,11 @@ export class KireiInstance implements IKireiInstance {
    */
   update(): void {
     const { shadowRoot, options, template, mounted } = this;
-    if (mounted) {
+    if (!template || isPromise(template)) {
+      // Only update template if it is set or not a promise
+      // If a promise then it will be resolved at another time
+      return;
+    } else if (mounted) {
       this.runHooks(HookTypes.BEFORE_UPDATE);
     }
 

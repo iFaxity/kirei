@@ -69,7 +69,7 @@ export function directive(name: string, directive: DirectiveFactory): DirectiveF
  * Custom compiler for directives and to unpack reactives
  * @const {TemplateCompiler}
  */
-const compiler: TemplateCompiler = {
+export const compiler: TemplateCompiler = {
   attr(node, attr) {
     const isAlias = ALIAS_NAMES.includes(attr[0]);
     const match = attr.match(isAlias ? ALIAS_REGEX : DIRECTIVE_REGEX);

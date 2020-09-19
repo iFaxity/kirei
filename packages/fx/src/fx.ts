@@ -9,9 +9,9 @@ import { isUndefined } from '@kirei/shared';
 
 /**
  * Weak cache to track dependencies
- * @const {WeakMap<object, Map<any, Set<Fx>>>}
+ * @const {WeakMap<any, Map<string|symbol|number Set<Fx>>>}
  */
-const targetMap = new WeakMap<object, Map<any, Set<Fx>>>();
+const targetMap = new WeakMap<any, Map<string|symbol|number, Set<Fx>>>();
 
 /**
  * @enum
@@ -207,7 +207,7 @@ export class Fx<T = unknown> {
 
       if (key == 'length' && isArray) {
         // Add for each key in array
-        depsMap.forEach((dep, key) => (key == 'length' || key >= newValue) && add(dep));
+        depsMap.forEach((dep, key) => (key == 'length' || (key as number) >= newValue) && add(dep));
       } else {
         // schedule runs for SET | ADD | DELETE
         if (!isUndefined(key)) {
@@ -228,16 +228,6 @@ export class Fx<T = unknown> {
         } else if (type === TriggerOpTypes.ADD || (!isArray && type === TriggerOpTypes.DELETE)) {
           add(depsMap.get(isArray ? 'length' : ITER_KEY));
         }
-        /* also run for iteration key on ADD | DELETE | Map.SET
-        const isAddOrDelete =
-          type === TriggerOpTypes.ADD ||
-          (type === TriggerOpTypes.DELETE && !Array.isArray(target));
-        if (isAddOrDelete || (type === TriggerOpTypes.SET && target instanceof Map)) {
-          add(depsMap.get(Array.isArray(target) ? 'length' : ITER_KEY));
-        }
-        if (isAddOrDelete && target instanceof Map) {
-          add(depsMap.get(MAP_KEY_ITER_KEY));
-        }*/
       }
     }
 

@@ -148,3 +148,87 @@ export function createTemplate(svg: boolean, markup: string): HTMLTemplateElemen
   return template;
 }
 
+
+/**
+ * Least Recently Used (LRU) Weak Cache based on the builtin weakmap object
+ * Records can be GC'd it will leave the keys.
+ * This is fine however as they will be removed when space is required.
+ * @class
+ */
+export class LRUWeakMap<K extends object, V> extends WeakMap implements WeakMap<K, V> {
+  /** @var {K[]} list Keys where the first entry is least used */
+  private list: K[] = [];
+
+  /** @var {number} max Maximum amount of entries to allow */
+  readonly max: number;
+
+  /**
+   * Constructs a new Least Recently Used (LRU) Weak Cache
+   * @param {number} size
+   */
+  constructor(size: number) {
+    super();
+    if (size <= 0) {
+      throw new TypeError(`LRU Cache max size has to be positive integer larger than 0, got '${size}'.`);
+    }
+
+    this.max = size;
+  }
+
+  /**
+   * @param {K} key
+   * @returns {boolean}
+   */
+  delete(key: K): boolean {
+    // Remove key from keys list
+    const idx = this.list.indexOf(key);
+    if (idx != -1) {
+      this.list.splice(idx, 1);
+    }
+
+    return super.delete(key);
+  }
+
+  /**
+   * Gets a value from the cache
+   * @param {K} key
+   * @returns {V}
+   */
+  get(key: K): V {
+    // pop the key to the top of the list
+    const idx = this.list.lastIndexOf(key);
+    if (idx < this.list.length - 1) {
+      if (idx != -1) {
+        this.list.splice(idx, 1);
+      }
+
+      this.list.push(key);
+    }
+
+    return super.get(key);
+  }
+
+  /**
+   * Sets a value in the cache, also pushes the key to the top of the LRU
+   * @param {K} key
+   * @param {V} value
+   * @returns {this}
+   */
+  set(key: K, value: V): this {
+    // Pop the key to the top of the list
+    const idx = this.list.indexOf(key);
+
+    if (idx == -1) {
+      if (this.max <= this.list.length) {
+        // Cache is full, make space
+        const [ tail ] = this.list.splice(0, 1);
+        super.delete(tail);
+      }
+    } else if (idx < this.list.length - 1) {
+      this.list.splice(idx, 1);
+    }
+
+    this.list.push(key);
+    return super.set(key, value);
+  }
+}

@@ -41,3 +41,13 @@ export function defineElement<T extends Readonly<Props>>(options: ElementOptions
   window.customElements.define(CustomElement.is, CustomElement);
   return CustomElement;
 }
+
+/**
+ * Defines a asynchronously loaded element
+ * @param {ElementOptions} options - Raw element options
+ * @returns {KireiElement}
+ */
+export async function defineAsyncElement<T extends Readonly<Props>>(options: () => Promise<ElementOptions<T>>): Promise<typeof KireiElement> {
+  const opts = await Promise.resolve(options());
+  return defineElement(opts);
+}

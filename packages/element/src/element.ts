@@ -69,6 +69,10 @@ export class KireiElement extends HTMLElement implements IKireiElement {
    */
   static options: NormalizedElementOptions;
 
+  static isConstructor(target: any): target is typeof KireiElement {
+    return Object.prototype.isPrototypeOf.call(KireiElement, target);
+  }
+
   /**
    * Constructs a new KireiElement
    */

@@ -12,6 +12,8 @@ interface Portal {
   fx: ReactiveEffect;
 }
 
+// TODO: maybe clean up this code, and change it up a bit
+
 /**
  * Portals content to a element, useful for dialogs
  * @param {string} target Target element as querySelector string
