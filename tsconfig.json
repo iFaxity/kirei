@@ -21,7 +21,6 @@
   "exclude": [ "**/node_modules" ],
   "references": [
     { "path": "packages/shared" },
-    { "path": "packages/fx" },
     { "path": "packages/element" },
     { "path": "packages/router" },
     { "path": "packages/babel-plugin" },
