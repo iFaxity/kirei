@@ -1,11 +1,9 @@
-import { Fx } from '@kirei/fx';
 import { render, Template, createCache } from '@kirei/html';
 import { KireiInstance } from '../instance';
 import { KireiElement } from '../element';
 import { KireiError } from '../logging';
 import { defineElement, html } from '../index';
 import { compiler } from '../compiler';
-import { promises } from 'fs';
 
 // TODO: maybe clean up this code, and change it up a bit
 type SuspenseFallback = (typeof KireiElement|Template);

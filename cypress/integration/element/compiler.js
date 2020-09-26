@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 import { directive, directives, aliases, html, render } from '@kirei/element/dist/compiler';
-import { ref } from '@kirei/fx';
+import { ref } from '@kirei/element';
 
 function renderTemplate(template) {
   // Clear content & append new node
@@ -57,7 +57,7 @@ describe('compiler', () => {
   });
 
   describe('#compiler.attr()', () => {
-    /*it('implicit unref', () => {
+    it('implicit unref', () => {
       const r = ref('active text')
       const node = renderTemplate(html`
         <p class=${r}></p>
@@ -65,7 +65,7 @@ describe('compiler', () => {
 
       cy.get(node).children().first()
         .should('have.attr', 'class', 'active text');
-    });*/
+    });
     it('explicit unref', () => {
       const r = ref(true);
       const node = renderTemplate(html`
@@ -77,16 +77,16 @@ describe('compiler', () => {
     });
 
     it('with directive', () => {
-      directive('test', dir => {
-        assert.equal(dir.name, 'test');
+      directive('text', dir => {
+        assert.equal(dir.name, 'text');
         return (pending) => {
           dir.el.textContent = pending;
         };
       });
 
-      const r = ref('Im some content');
+      const text = 'Im some content';
       const node = renderTemplate(html`
-        <div x-test=${r}></div>
+        <div x-text=${text}></div>
       `);
 
       cy.get(node).children().first()
@@ -94,17 +94,17 @@ describe('compiler', () => {
     });
 
     it('with directive alias', () => {
-      directive([ 'name', '%' ], dir => {
-        assert.equal(dir.name, 'name');
+      directive([ 'attr', '%' ], dir => {
+        assert.equal(dir.name, 'attr');
 
         return (pending) => {
           dir.el.setAttribute('data-test', pending);
         };
       });
 
-      const r = ref('Im an attribute');
+      const text = 'Im an attribute';
       const node = renderTemplate(html`
-        <p %=${r}></p>
+        <p %=${text}></p>
       `);
 
       cy.get(node).children().first()
@@ -113,7 +113,7 @@ describe('compiler', () => {
   });
 
   describe('#compiler.node()', () => {
-    /*it('implicit unref', () => {
+    it('implicit unref', () => {
       const r1 = ref(99);
       const r2 = ref('Red Balloons');
       const node = renderTemplate(html`
@@ -122,7 +122,7 @@ describe('compiler', () => {
 
       cy.get(node).children().first()
         .should('have.text', '99 Red Balloons');
-    });*/
+    });
     it('explicit unref', () => {
       const r = ref(true);
       const node = renderTemplate(html`
