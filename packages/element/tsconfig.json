@@ -10,9 +10,12 @@
     "src/directives/*",
     "src/api/*"
   ],
+  "exclude": [
+    "src/api/suspense.ts",
+    "src/api/emits.ts"
+  ],
   "references": [
     { "path": "../shared" },
-    { "path": "../fx" },
     { "path": "../html" }
   ]
 }

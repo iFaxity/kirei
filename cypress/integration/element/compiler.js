@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
-import { directive, directives, html, render } from '@kirei/element/dist/compiler';
-import { ref } from '@kirei/fx';
+import { directive, directives, aliases, html, render } from '@kirei/element/dist/compiler';
+import { ref } from '@kirei/element';
 
 function renderTemplate(template) {
   // Clear content & append new node
@@ -15,14 +15,17 @@ function renderTemplate(template) {
   return node;
 }
 
-const denyDirectives = [...directives.keys()];
+const defaultDirectives = [...directives.keys()];
 
 describe('compiler', () => {
   // Ensure only standard directives are loaded
   afterEach(() => {
-    const directiveKeys = [...directives.keys()];
-    for (const key of directiveKeys.filter(x => !denyDirectives.includes(x))) {
-      directives.delete(key);
+    [...directives.keys()]
+      .filter(x => !defaultDirectives.includes(x))
+      .forEach(key => directives.delete(key));
+
+    for (const key of aliases) {
+      aliases.delete(key);
     }
   });
 
@@ -74,16 +77,16 @@ describe('compiler', () => {
     });
 
     it('with directive', () => {
-      directive('x-test', dir => {
-        assert.equal(dir.name, 'x-test');
+      directive('text', dir => {
+        assert.equal(dir.name, 'text');
         return (pending) => {
           dir.el.textContent = pending;
         };
       });
 
-      const r = ref('Im some content');
+      const text = 'Im some content';
       const node = renderTemplate(html`
-        <div x-test=${r}></div>
+        <div x-text=${text}></div>
       `);
 
       cy.get(node).children().first()
@@ -91,16 +94,17 @@ describe('compiler', () => {
     });
 
     it('with directive alias', () => {
-      directive('%', dir => {
-        assert.equal(dir.name, '%');
+      directive([ 'attr', '%' ], dir => {
+        assert.equal(dir.name, 'attr');
+
         return (pending) => {
           dir.el.setAttribute('data-test', pending);
         };
       });
 
-      const r = ref('Im an attribute');
+      const text = 'Im an attribute';
       const node = renderTemplate(html`
-        <p %=${r}></p>
+        <p %=${text}></p>
       `);
 
       cy.get(node).children().first()

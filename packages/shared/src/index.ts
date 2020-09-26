@@ -5,7 +5,7 @@ export type Primitive = null|undefined|boolean|number|string|symbol|bigint;
  * True if the current environment is in developer mode
  * @const {boolean}
  */
-export const DEV = typeof process == 'object' && process.env?.NODE_ENV != 'production';
+export const DEV = process.env.NODE_ENV != 'production';
 
 /**
  * True if the current environment is in the browser
@@ -81,16 +81,4 @@ export function mapObject<T, V, R = Record<string, V>>(callback: (key: string, v
 
     return acc;
   }, {}) as R;
-}
-
-/**
- * Converts a CamelCased string to kebab-cased
- * @param {string} str string to convert
- * @returns {string}
- */
-export function camelToKebab(str: string): string {
-  return str
-    .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
-    .replace(/([A-Z])([A-Z])(?=[a-z])/g, '$1-$2')
-    .toLowerCase();
 }

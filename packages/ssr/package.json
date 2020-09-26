@@ -8,9 +8,9 @@
   "module": "dist/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffect": false,
   "files": [
-    "dist/*",
-    "src/*"
+    "dist/*"
   ],
   "scripts": {
     "prepublishOnly": "npm run build",
@@ -37,6 +37,6 @@
   "dependencies": {
     "@kirei/element": "^1.0.0",
     "@kirei/shared": "^1.0.0",
-    "@vue/reactivity": "^3.0.0"
+    "@vue/reactivity": "3.0.0"
   }
 }

@@ -1,4 +1,5 @@
 import { isString } from '@kirei/shared';
+import type { IKireiInstance } from './interfaces';
 import { KireiInstance } from './instance';
 
 // Constants for stack trace
@@ -58,7 +59,7 @@ export class KireiError extends Error {
    * @returns {Generator}
    * @private
    */
-  private *walkInstanceTree(instance: KireiInstance): Generator<KireiInstance> {
+  private *walkInstanceTree(instance: IKireiInstance): Generator<IKireiInstance> {
     while (instance) {
       yield instance;
       instance = instance.parent;

@@ -10,7 +10,6 @@
   ],
   "references": [
     { "path": "../element" },
-    { "path": "../fx" },
     { "path": "../html" },
     { "path": "../shared" }
   ]

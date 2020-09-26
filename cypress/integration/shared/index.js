@@ -7,7 +7,6 @@ import {
   isUndefined,
   isPromise,
   mapObject,
-  camelToKebab,
 } from '@kirei/shared';
 
 describe('#isPrimitive()', () => {
@@ -100,14 +99,4 @@ describe('#mapObject()', () => {
       foo: 'foo', bar: 'bar'
     })
   });
-});
-
-describe('#camelToKebab()', () => {
-  it('with PascalCase', () => assert.equal(camelToKebab('HelloWorld'), 'hello-world'));
-  it('with kebab-case', () => assert.equal(camelToKebab('kebab-yum-jum'), 'kebab-yum-jum'));
-  it('with camelCase', () => assert.equal(camelToKebab('heyLittleFriend'), 'hey-little-friend'));
-  it('with Kebab-Case', () => assert.equal(camelToKebab('Foo-Bar'), 'foo-bar'));
-
-  it('with number', () => assert.throws(() => camelToKebab(100)));
-  it('with null', () => assert.throws(() => camelToKebab(null)));
 });

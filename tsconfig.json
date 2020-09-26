@@ -1,9 +1,10 @@
 {
+  "$schema":"https://json.schemastore.org/tsconfig",
   "compilerOptions": {
     "target": "es2018",
-    "module": "es2015",
+    "module": "esnext",
     "moduleResolution": "node",
-    "lib": [ "dom", "es2015" ],
+    "lib": [ "dom", "esnext" ],
     "types": [ "node" ],
     "sourceMap": true,
     "declaration": true,
@@ -20,7 +21,6 @@
   "exclude": [ "**/node_modules" ],
   "references": [
     { "path": "packages/shared" },
-    { "path": "packages/fx" },
     { "path": "packages/element" },
     { "path": "packages/router" },
     { "path": "packages/babel-plugin" },

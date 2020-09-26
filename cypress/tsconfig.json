@@ -13,7 +13,6 @@
   },
   "references": [
     { "path": "../packages/shared" },
-    { "path": "../packages/fx" },
     { "path": "../packages/element" },
     { "path": "../packages/router" },
     { "path": "../packages/vite-plugin" }

@@ -60,7 +60,7 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           browser: ${{ matrix.browser }}
-          build: yarn build
+          build: yarn build:ci
           start: yarn dev
           wait-on: ${{ env.CY_URL }}
           config-file: ${{ env.CY_CFG_FILE }}

@@ -28,8 +28,7 @@ function writeJSON(filepath, data) {
 
 // Executes a shell command
 function shell(cmd) {
-  const cwd = ROOT_DIR;
-  execSync(cmd, { cwd, encoding: 'utf8' });
+  execSync(cmd, { cwd: ROOT_DIR, encoding: 'utf8' });
 }
 
 // Bumps the version from the root package
@@ -65,10 +64,9 @@ function bumpPackage(dir, pkg, version) {
 
   for (const key of keys) {
     const deps = pkg[key];
-    if (!deps) continue;
 
-    for (const dep of Object.keys(deps)) {
-      if (packages.has(dep)) {
+    if (deps) {
+      for (const dep of Object.keys(deps).filter(d => packages.has(d))) {
         deps[dep] = `^${version}`;
       }
     }
@@ -117,7 +115,7 @@ shell(`git commit -am 'Release v${version}'`);
 // Finally publish to NPM
 for (const [ name, package ] of packages) {
   console.log(`Publishing package ${name} (v${version})`);
-  //shell(`yarn publish '${package.path}' --new-version ${version} --access public --no-git-tag-version`);
+  shell(`yarn publish '${package.path}' --new-version ${version} --access public --no-git-tag-version`);
 }
 shell('git push');
 

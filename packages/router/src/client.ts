@@ -1,4 +1,4 @@
-import { KireiInstance, KireiElement, directive, watchEffect, HookTypes } from '@kirei/element';
+import { KireiInstance, directive, watchEffect, HookTypes } from '@kirei/element';
 import { Link, RouterOptions, IRouter, Router, ROUTER_KEY, ROUTE_KEY } from './router';
 import { Route } from './route';
 const SUPPORTS_HISTORY = !!(window.history?.pushState);
@@ -7,28 +7,31 @@ export class ClientRouter extends Router implements IRouter {
   private views: Node[] = [];
   readonly history: boolean;
 
-  /*get path(): string {
+  private get currentPath(): string {
     return this.history ? location.pathname : location.hash.slice(1);
-  }*/
+  }
 
   constructor(opts: RouterOptions) {
     super(opts);
     // Force hash mode if HistoryAPI not supported
     this.history = SUPPORTS_HISTORY && (opts.history !== false);
-    this.path = this.history ? location.pathname : location.hash.slice(1);
+    this.path = this.currentPath;
+
+    // Mount root as view and provide route and router as state
+    // TODO: Inject global hook instead?
+    const loadRouter = () => {
+      const root = KireiInstance.get(this.root);
+      root.provide(ROUTER_KEY, this);
+      root.provide(ROUTE_KEY, this.route);
+      this.mountView(root);
+      this.registerView(root);
+      navigate();
+    };
 
     // Watch for changes to location state
     const navigate = () => this.navigate();
     window.addEventListener(this.history ? 'popstate' : 'hashchange', navigate, false);
-    window.addEventListener('DOMContentLoaded', navigate, false);
-
-    // Mount root as view and provide route and router as state
-    // TODO: Inject global hook instead?
-    const root = KireiInstance.get(this.root);
-    root.provide(ROUTER_KEY, this);
-    root.provide(ROUTE_KEY, this.route);
-    this.mountView(root);
-    this.registerView(root);
+    window.addEventListener('DOMContentLoaded', loadRouter, false);
 
     // Add link directive
     directive('link', dir => {
@@ -142,7 +145,7 @@ export class ClientRouter extends Router implements IRouter {
   }
 
   protected async navigate(): Promise<void> {
-    this.path = this.history ? location.pathname : location.hash.slice(1);
+    this.path = this.currentPath;
 
     const matched = this.matchRoutes();
     if (matched) {

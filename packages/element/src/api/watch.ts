@@ -1,12 +1,11 @@
 /*!
- * Based on https://github.com/vuejs/vue-next/blob/master/packages/reactivity
+ * Based on https://github.com/vuejs/vue-next/blob/master/packages/runtime-core/src/apiWatch.ts
  * Copyright(c) 2019-2020 Vuejs Maintainers, http://vuejs.org
  * Copyright(c) 2020 Christian Norrman
  * MIT Licensed
  */
 import { isFunction } from '@kirei/shared';
-import { Fx } from './fx';
-import { Ref, isRef } from './ref';
+import { stop, effect, Ref, isRef } from '@vue/reactivity';
 
 /**
  * Function to stop a reactive watcher
@@ -53,8 +52,8 @@ export function watchEffect(target: () => void): StopWatcher {
     throw new TypeError(`watchEffect expected function as argument, got ${typeof target}.`);
   }
 
-  const fx = new Fx(target, { lazy: false });
-  return fx.stop.bind(fx);
+  const fx = effect(target, { lazy: false });
+  return stop.bind(null, fx);
 }
 
 
@@ -102,7 +101,7 @@ export function watch<T>(
   }
 
   const { immediate } = options ?? {};
-  const fx = new Fx(fn, {
+  const fx = effect(fn, {
     lazy: true,
     scheduler(run) {
       const newValue = run();
@@ -114,9 +113,9 @@ export function watch<T>(
 
   // If immediate, run scheduler, otherwise cache value(s) for next run.
   if (immediate) {
-    fx.scheduleRun();
+    fx.options.scheduler(fx);
   } else {
-    value = fx.run();
+    value = fx();
   }
-  return fx.stop.bind(fx);
+  return stop.bind(null, fx);
 }

@@ -54,10 +54,10 @@ export class Router {
 
   readonly route: Ref<Route>;
   readonly root: KireiElement;
-  base: string = '';
-  exactClass: string = 'link-exact';
-  activeClass: string = 'link-active';
-  path: string = '';
+  base = '';
+  exactClass = 'link-exact';
+  activeClass = 'link-active';
+  path = '';
 
   constructor(opts: RouterOptions) {
     this.base = opts.base ?? this.base;

@@ -1,5 +1,5 @@
 import sanitize from 'uparser';
-import { persistent, createWalker, createTemplate } from './shared';
+import { persistent, createWalker, createTemplate, LRUWeakMap } from './shared';
 import { defaultCompiler, TemplateCompiler, TemplatePatcher, PatchType } from './compiler';
 export { TemplateCompiler };
 
@@ -17,9 +17,11 @@ const PREFIX = 'isµ';
 
 /**
  * Cache to store precompiled templates indexed by the template strings
+ * as a LRUCache it only stores the most recently 'X' used elements.
+ * Effectively trading memory for performance and performance for memory.
  * @const
  */
-const contentCache = new WeakMap<TemplateStringsArray, TemplateContent>();
+const contentCache = new LRUWeakMap<TemplateStringsArray, TemplateContent>(500);
 
 /**
  * Template cache, used with template to remember past renders
@@ -233,6 +235,17 @@ export class Template {
     this.values = values;
   }
 
+
+  /**
+   * Creates a one off version of this template
+   * @param {TemplateCompiler} compiler Compiler to use for patching dynamic content
+   * @param {string} scopeName Custom Element tag name, only required for Shady Shims
+   * @returns {Node}
+   */
+  updateOnce(compiler?: TemplateCompiler, scopeName?: string): Node {
+    return this.update(createCache(), compiler, scopeName);
+  }
+
   /**
    * Creates or updates the rendered template, if already rendered to cache root
    * @param {TemplateCache} cache Template cache
@@ -240,9 +253,13 @@ export class Template {
    * @param {string} scopeName Custom Element tag name, only required for Shady Shims
    * @returns {Node}
    */
-  update(cache: TemplateCache, compiler: TemplateCompiler, scopeName?: string): Node {
+  update(cache: TemplateCache, compiler?: TemplateCompiler, scopeName?: string): Node {
     const { strings, type, values } = this;
     let { instance } = cache;
+    if (!compiler) {
+      compiler = defaultCompiler;
+    }
+
     if (!instance || instance.strings !== strings || instance.type !== type) {
       // Create instance if cache is empty, update instance if template changed
       instance = (cache.instance = this.compile(compiler, scopeName));
