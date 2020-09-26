@@ -116,7 +116,7 @@ export function validateProp<T extends NormalizedProp, V = T extends NormalizedP
         const str = String(value);
         if (value == null || str === 'false') {
           // @ts-ignore
-          return false;
+          return false as V;
         } else if (str === '' || str === 'true') {
           // @ts-ignore
           return true;

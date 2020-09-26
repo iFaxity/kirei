@@ -1,5 +1,8 @@
-import { isFunction, camelToKebab } from '@kirei/shared';
-import { directive } from '../compiler';
+import { TemplatePatcher } from '@kirei/html';
+import { isFunction, isString } from '@kirei/shared';
+import { hyphenate } from '@vue/shared';
+import { directive, Directive } from '../compiler';
+import { KireiInstance } from '../instance';
 
 type EventListener = (e: Event, detail?: any) => any;
 
@@ -20,8 +23,7 @@ const KEYBOARD_ALIASES = {
 };
 
 const MOUSE_EVENTS = [ 'click', 'dblclick', 'mouseup', 'mousedown' ];
-// Mouse button values are (1 + idx) * 2
-const MOUSE_KEYS = [ 'left', 'right', 'middle' ];
+const MOUSE_KEYS = [ 'left', 'middle', 'right' ];
 
 // Checks if required meta keys was pressed
 function hasMeta(e: KeyboardEvent|MouseEvent, meta: string[]): boolean {
@@ -31,11 +33,7 @@ function hasMeta(e: KeyboardEvent|MouseEvent, meta: string[]): boolean {
 // Checks if mod exists and removes it if it does.
 function hasMod(mods: string[], mod: string): boolean {
   const idx = mods.indexOf(mod);
-
-  if (idx != -1) {
-    return mods.splice(idx, 1), true;
-  }
-  return false;
+  return idx != -1 ? (mods.splice(idx, 1), true) : false;
 }
 
 function keyboardListener(listener: EventListener, mods: string[]): EventListener {
@@ -44,7 +42,7 @@ function keyboardListener(listener: EventListener, mods: string[]): EventListene
   return (e: KeyboardEvent) => {
     if (meta.length && !hasMeta(e, meta)) return;
 
-    const key = KEYBOARD_ALIASES[e.key] ?? camelToKebab(e.key);
+    const key = KEYBOARD_ALIASES[e.key] ?? hyphenate(e.key);
     if (mods.length && !mods.includes(key)) return;
     return listener(e);
   };
@@ -52,61 +50,77 @@ function keyboardListener(listener: EventListener, mods: string[]): EventListene
 
 function mouseListener(listener: EventListener, mods: string[]): EventListener {
   const meta = KEYBOARD_MODS.filter(mod => hasMod(mods, mod));
-  const idx = MOUSE_KEYS.findIndex(mod => hasMod(mods, mod))
-  const button = 2 * (1 + idx);
+  const btn = MOUSE_KEYS.findIndex(mod => hasMod(mods, mod));
 
   return (e: MouseEvent) => {
     if (meta.length && !hasMeta(e, meta)) return;
-    if (button && e.button != button) return;
+    if (btn != -1 && e.button != btn) return;
     return listener(e);
   };
 }
 
-export default directive('@', dir => {
+function nativePatcher(dir: Directive): TemplatePatcher {
   const { el, arg: eventName, mods } = dir;
   const prevent = hasMod(mods, 'prevent');
   const stop = hasMod(mods, 'stop');
   const self = hasMod(mods, 'self');
   const forceBind = prevent || stop;
-  const options: AddEventListenerOptions  = {
+  const options: AddEventListenerOptions = {
     capture: hasMod(mods, 'capture'),
     once: hasMod(mods, 'once'),
     passive: hasMod(mods, 'passive'),
   };
 
   let value: EventListener = NOOP;
-  const boundListener: EventListener = (e: CustomEvent) => {
+  let listener = (e: Event) => {
     if (self && e.target !== el) return;
     prevent && e.preventDefault();
     stop && e.stopPropagation();
 
-    // Unpack the detail as a second argument (might not be set)
-    return value.call(null, e, e.detail);
-  };
+    return value.call(null, e);
+  }
 
-  let listener: EventListener = boundListener;
   if (mods.length) {
     if (KEYBOARD_EVENTS.includes(eventName)) {
-      listener = keyboardListener(boundListener, mods);
+      listener = keyboardListener(listener, mods);
     } else if (MOUSE_EVENTS.includes(eventName)) {
-      listener = mouseListener(boundListener, mods);
+      listener = mouseListener(listener, mods);
     }
   }
 
-  return (pending: EventListener) => {
-    const fn = pending ?? NOOP;
-    if (!isFunction(fn)) {
+  return (pending: EventListener = NOOP) => {
+    if (!isFunction(pending)) {
       throw new TypeError('Kirei: Events can only be bound to functions');
     }
 
     if (value !== pending) {
-      if (value != NOOP && fn == NOOP && !forceBind) {
+      if (value != NOOP && pending == NOOP && !forceBind) {
         el.removeEventListener(eventName, listener, options);
-      } else if (value == NOOP && fn != NOOP || forceBind) {
+      } else if (value == NOOP && pending != NOOP || forceBind) {
         el.addEventListener(eventName, listener, options);
       }
     }
 
-    value = fn;
+    value = pending;
   };
+}
+
+export default directive([ 'on', '@' ], dir => {
+  const instance = KireiInstance.get(dir.el);
+
+  // Instance swallows event if defined. Otherwise bind to native handler.
+  if (instance) {
+    const { mods, arg: event } = dir;
+
+    if (!isString(event)) {
+      throw new TypeError('');
+    } else if (instance.options.emits[event]) {
+      const handler = mods.includes('once') ? instance.once : instance.on;
+
+      return (pending: Function) => handler.call(null, event, pending);
+    }
+  }
+
+  // Native event patcher
+  return nativePatcher(dir);
 });

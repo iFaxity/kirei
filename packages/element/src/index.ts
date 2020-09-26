@@ -6,7 +6,8 @@ export { css, CSSResult } from './css';
 export { directive, html, svg } from './compiler';
 export * from './api/lifecycle';
 export { portal } from './api/portal';
-export { provide, inject } from './api/inject';
+export * from './api/inject';
+export { watch, watchEffect } from './api/watch';
 
 import { KireiElement, normalizeOptions } from './element';
 import { warn } from './logging';
@@ -14,11 +15,10 @@ import type { ElementOptions, Props } from './interfaces';
 
 // load directives
 import './directives/attrs';
-import './directives/if';
+import './directives/conditional';
 import './directives/on';
-import './directives/ref';
 import './directives/show';
-import './directives/sync';
+import './directives/model';
 
 /**
  * Defines a new custom Kirei element

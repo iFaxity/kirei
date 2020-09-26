@@ -1,5 +1,6 @@
-import { TriggerOpTypes, reactive, trigger } from '@vue/reactivity';
-import { mapObject, camelToKebab, isObject, isString } from '@kirei/shared';
+import { TriggerOpTypes, trigger, reactive } from '@vue/reactivity';
+import { mapObject, isObject } from '@kirei/shared';
+import { hyphenate } from '@vue/shared';
 import { KireiInstance } from './instance';
 import { exception } from './logging';
 import { validateProp, normalizeProps } from './props';
@@ -29,18 +30,11 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
  * @private
  */
 export function normalizeOptions(options: ElementOptions): NormalizedElementOptions {
-  let { sync, styles } = options;
+  let { styles, emits } = options;
   const props = options.props ? normalizeProps(options.props) : {};
 
   if (styles != null) {
     styles = Array.isArray(styles) ? [...collectStyles(styles)] : [styles];
-  }
-
-  if (isString(sync)) {
-    sync = { prop: sync, event: null };
-  } else if (isObject(sync)) {
-    sync.prop = isString(sync.prop) ? sync.prop : 'value';
-    sync.event = isString(sync.event) ? sync.event : null;
   }
 
   // Reuse same object to avoid unnecessary GC
@@ -48,12 +42,18 @@ export function normalizeOptions(options: ElementOptions): NormalizedElementOpti
   normalized.props = props;
   normalized.styles = styles as CSSResult[];
   normalized.closed = !!options.closed;
-  normalized.sync = sync;
   normalized.setup = options.setup ?? null;
   normalized.directives = options.directives ?? null;
-  normalized.tag = camelToKebab(options.name);
-  normalized.attrs = mapObject((key) => [camelToKebab(key), key], props);
+  normalized.tag = hyphenate(options.name);
+  normalized.attrs = mapObject((key) => [hyphenate(key), key], props);
   normalized.attributes = Object.keys(normalized.attrs);
+
+  if (Array.isArray(emits)) {
+    normalized.emits = mapObject((key) => [ key, null ], emits);
+  } else {
+    normalized.emits = isObject(emits) ? emits : {};
+  }
+
   return normalized;
 }
 
@@ -69,8 +69,22 @@ export class KireiElement extends HTMLElement implements IKireiElement {
    */
   static options: NormalizedElementOptions;
 
-  static isConstructor(target: any): target is typeof KireiElement {
-    return Object.prototype.isPrototypeOf.call(KireiElement, target);
+  /**
+   * Returns the tagName of the element
+   * @type {string}
+   * @static
+   */
+  static get is(): string {
+    return this.options.tag;
+  }
+
+  /**
+   * The attributes to observe changes for
+   * @type {string[]}
+   * @static
+   */
+  static get observedAttributes(): string[] {
+    return this.options.attributes;
   }
 
   /**
@@ -98,7 +112,9 @@ export class KireiElement extends HTMLElement implements IKireiElement {
             try {
               // Trigger an update on the element
               instance.activate();
-              props[key] = reactive(validateProp(options.props[key], key, newValue));
+
+              const value = validateProp(options.props[key], key, newValue);
+              props[key] = isObject(value) ? reactive(value) : value;
               trigger(props, TriggerOpTypes.SET, key, newValue);
             } catch (ex) {
               exception(ex);
@@ -109,24 +125,6 @@ export class KireiElement extends HTMLElement implements IKireiElement {
         },
       });
     }
-  }
-
-  /**
-   * Returns the tagName of the element
-   * @type {string}
-   * @static
-   */
-  static get is(): string {
-    return this.options.tag;
-  }
-
-  /**
-   * The attributes to observe changes for
-   * @type {string[]}
-   * @static
-   */
-  static get observedAttributes(): string[] {
-    return this.options.attributes;
   }
 
   /**
