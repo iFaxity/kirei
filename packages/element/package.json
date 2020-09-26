@@ -6,9 +6,10 @@
   "module": "dist/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "unpkg": "dist/kirei.global.js",
+  "sideEffect": false,
   "files": [
-    "dist/*",
-    "src/*"
+    "dist/*"
   ],
   "scripts": {
     "prepublishOnly": "npm run build",

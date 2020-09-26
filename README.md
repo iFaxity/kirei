@@ -24,6 +24,8 @@ The goal of this library is to provide a modern approach to Front-End with moder
 
 Transpiling is not required as most modern browsers supports all the required, and some features could be polyfilled. But could be added to automatically instrument the application with Hot Module Reload.
 
+Now also uses the same reactivity as Vue 3 (**@vue/reactivity**) instead of the custom fork (**@kirei/fx**).
+
 Example button element.
 
 ```js
