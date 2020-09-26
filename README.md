@@ -110,9 +110,19 @@ TODO:
 Composition API
 ---------------
 
+All reactivity is the same as of version 1.2 as Kirei uses the @vue/reactivity package. However there are some Composition API's hthat are not in the reactivity package.
+
+### watch
+
+TODO:
+
+### watchEffect
+
+TODO:
+
 ### Provide & Inject
 
-Provide/inject are just like from Vue 2-3. It is used for an element to share functionality to child elements.
+Provide/inject are just like from Vue 3. It is used for an element to share functionality to child elements.
 As provided values only flows downward it is not possible for members to leak to parents
 As it only flows to children it is not possible to leak members to parent elements.
 
@@ -147,6 +157,8 @@ defineElement({
 Lifecycle hooks
 ---------------
 
+TODO:
+
 ### onMount/onMounted
 ### onUpdate/onUpdated
 ### onUnmount/onUnmounted
@@ -155,6 +167,13 @@ There is no onDestroy/onDestroyed hooks due to how custom elements does not have
 
 Portal
 ------
+
+TODO:
+
+Directives
+----------
+
+TODO:
 
 ### Custom Directive
 
@@ -181,137 +200,5 @@ defineElement({
       };
     }
   }
-});
-```
-
-Reactive API
-------------
-Always define a reactive element
-
-### Ref
-
-Ref is the recommended way to bind native values as a reactive element.
-
-```js
-const count = ref(0);
-
-// Initial value is optional
-const text = ref();
-
-// nested refs copies the value
-const nested = ref(ref(true));
-nested.value // returns true
-```
-
-Unlike Vue, ref is a prototype of an object with toString and valueOf implemented, therefore it is possible to implicitly unwrap the value.
-
-For example:
-```js
-const count = ref(10);
-
-console.log(`Count is ${num}`); // implicit num.toString()
-console.log(`Count + 3 is ${num + 3}`); // implicit num.valueOf
-```
-
-### Computed
-
-Computed is a synthetic ref that only updates its value when a dependency triggers an update. And caches the value from the last update.
-
-```js
-// No reactive dependency, will cache the value
-//  and won't run again
-const greeting = computed(() => {
-  return Math.random();
-});
-
-// if name is updated, the computed will update its cache
-const name = ref('World');
-const greeting = computed(() => {
-  return `Hello ${name}!`;
-});
-
-name.value = 'Kirei';
-```
-
-There is also a way to utilize a setter to do some kind of update, perhaps one of the dependencies of the getter to trigger an update of the cache. As the getter only updates the cache if a dependency triggers an update.
-
-```js
-const progress = ref(0);
-const PROGRESS_MAX = 150;
-
-// getter and setter
-const counterPercent = computed({
-  get() {
-    return (counter.value / PROGRESS_MAX) * 100;
-  },
-  set(value) {
-    // update progress to trigger getter update
-    progress.value = value;
-  }
-});
-```
-
-### Reactive
-
-Reactive binds an object, array or collection (Map/Set/WeakMap/WeakSet) as a reactive element.
-
-The Reactive uses a Proxy so creating/deleting elements like normal works just like expected. Even the functions like .indexOf(), .lastIndexOf(), .includes(), .keys(), .values(), .entries() and lastly the iterator protocol. These all track dependencies like expected and should not cause any side effects.
-
-```js
-const object = reactive({});
-const array = reactive([]);
-const map = reactive(new Map());
-const zet = reactive(new Set());
-
-
-```
-
-However with a proxy it is not possible to deconstruct properties as they will decouple the tracking by the Proxy and return the value directly. Unless it is an object itself which returns a reactive.
-
-
-### Readonly
-
-Readonly is just like reactive however like the name implies, it is immutable. No members may be changed or deleted.
-
-```js
-const obj = readonly({});
-const list = readonly([]);
-const hashMap = readonly(new Map());
-const hashSet = readonly(new Set());
-
-// ok
-const oval = obj.foo;
-const lval = list[0]
-const mapval = hashMap.get('foo');
-const setval = hashSet.has('hi');
-
-// will throw error
-obj.foo = 'bar';
-list.push('test');
-hashMap.set('foo', 'bar');
-hashSet.add('hi');
-```
-
-Subscribe to reactive changes
------------------------------
-
-### watchEffect
-
-Watch effect works as a function that runs whenever a dependency triggers an update.
-
-```js
-watchEffect(() => {
-
-});
-```
-
-### watch
-
-The watch function is no yet fully finished but will work in a similar way to the Composition API spec.
-The purpose of watch is to watch for changes in specific dependencies, and show both the old and new value.
-
-```js
-watch(() => {}, (value, oldValue) => {
-
 });
 ```
