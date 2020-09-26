@@ -33,7 +33,7 @@
     "@rollup/plugin-node-resolve": "9.0.0",
     "@rollup/plugin-replace": "2.3.3",
     "@strictsoftware/typedoc-plugin-monorepo": "0.3.1",
-    "@types/node": "14.6.4",
+    "@types/node": "14.11.2",
     "babel-loader": "8.1.0",
     "babel-plugin-istanbul": "6.0.0",
     "cypress": "5.1.0",
