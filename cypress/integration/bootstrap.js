@@ -6,10 +6,10 @@ describe('@kirei/element', () => {
   const mods = require.context('./element', true);
   mods.keys().forEach(mods);
 });
-describe('@kirei/fx', () => {
+/*describe('@kirei/fx', () => {
   const mods = require.context('./fx', true);
   mods.keys().forEach(mods);
-});
+});*/
 describe('@kirei/html', () => {
   const mods = require.context('./html', true);
   mods.keys().forEach(mods);
