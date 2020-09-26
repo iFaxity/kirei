@@ -16,6 +16,7 @@
   "scripts": {
     "build": "tsc -b --force",
     "postbuild": "rollup -c rollup.config.js",
+    "build:ci": "tsc -b --force",
     "clean": "rm -rf packages/*/dist",
     "docs": "typedoc packages/*/src",
     "dev": "vite serve cypress/app -c ./cypress/app/vite.config.js",
