@@ -1,6 +1,5 @@
 import { KireiInstance, KireiElement, HookTypes, CSSResult, defineElement } from '@kirei/element';
-import { normalizeOptions, ElementOptions, NormalizedElementOptions } from '@kirei/element/dist/element';
-import { isObject } from '@kirei/shared';
+import { normalizeOptions, ElementOptions } from '@kirei/element/dist/element';
 
 /**
  * List of properties to ignore when updating the element options
@@ -65,28 +64,6 @@ function stylesChanged(oldStyles: CSSResult[], newStyles: CSSResult[]): boolean 
   }
 
   return !oldStyles.every((style, idx) => style.cssText === newStyles[idx].cssText);
-}
-
-/**
- * Checks if the sync option changed, to force update on the parent
- * @param {NormalizedElementOptions} oldOptions
- * @param {NormalizedElementOptions} newOptions
- * @returns {boolean}
- */
-function syncChanged(oldOptions: NormalizedElementOptions, newOptions: NormalizedElementOptions): boolean {
-  const oldSync = oldOptions.sync;
-  const newSync = newOptions.sync;
-  if (oldSync !== newSync) {
-    if (isObject(oldSync) && isObject(newSync)) {
-      if (oldSync.event !== newSync.event || oldSync.prop !== newSync.prop) {
-        return true;
-      }
-    } else {
-      return true;
-    }
-  }
-
-  return false;
 }
 
 /**
@@ -155,12 +132,9 @@ export function update(filename: string, opts: ElementOptions): typeof KireiElem
 
   // update options (persist vital options)
   let reflowStyles = false;
-  let updateParent = false;
   for (const key of Object.keys(options).filter(key => !DENY_OPTIONS.includes(key))) {
     if (key == 'styles') {
       reflowStyles = stylesChanged(ctor.options[key], options[key]);
-    } else if (key == 'sync') {
-      updateParent = syncChanged(ctor.options, options);
     }
 
     ctor.options[key] = options[key];
@@ -175,13 +149,9 @@ export function update(filename: string, opts: ElementOptions): typeof KireiElem
   // TODO: maybe call unmount and mount hooks?
   for (const instance of instances) {
     instance.options = ctor.options;
-    instance.setup();
-    instance.fx.scheduleRun();
 
-    // Update parent if sync changed
-    if (updateParent && instance.parent) {
-      instance.parent.fx.scheduleRun();
-    }
+    instance.setup();
+    instance.effect.options.scheduler(instance.effect);
 
     // Update styles
     if (reflowStyles) {
