@@ -2,34 +2,18 @@
 //
 // Script to synchronize publishing for all packages
 //
-const { readdirSync, readFileSync, writeFileSync, statSync } = require('fs');
-const { execSync } = require('child_process');
 const path = require('path');
+const { writeJSON, shell, resolvePackages } = require('./shared');
 
 const ROOT_DIR = path.join(__dirname, '../');
 const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
 const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
+const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
 
 const tag = process.argv[2] || 'patch';
 const version = bumpVersion(tag);
 const packages = resolvePackages(PACKAGES_DIR);
-
-// json file operations
-function readJSON(filepath) {
-  const data = readFileSync(filepath, 'utf8');
-  return JSON.parse(data);
-}
-
-function writeJSON(filepath, data) {
-  const json = JSON.stringify(data, null, 2);
-  writeFileSync(filepath, json, 'utf8');
-}
-
-// Executes a shell command
-function shell(cmd) {
-  execSync(cmd, { cwd: ROOT_DIR, encoding: 'utf8' });
-}
 
 // Bumps the version from the root package
 function bumpVersion(tag) {
@@ -60,41 +44,19 @@ function bumpVersion(tag) {
 
 // Assures that all linked dependencies gets bumped too
 function bumpPackage(dir, pkg, version) {
-  const keys = [ 'dependencies', 'peerDependencies', 'devDependencies'];
+  const depsList = [ 'dependencies', 'peerDependencies', 'devDependencies']
+    .map(key => pkg[key])
+    .filter(Boolean);
 
-  for (const key of keys) {
-    const deps = pkg[key];
-
-    if (deps) {
-      for (const dep of Object.keys(deps).filter(d => packages.has(d))) {
-        deps[dep] = `^${version}`;
-      }
+  depsList.forEach(deps => {
+    for (const dep of Object.keys(deps).filter(d => packages.has(d))) {
+      deps[dep] = `^${version}`;
     }
-  }
+  });
 
   // Upgrade package version
   pkg.version = version;
   writeJSON(path.join(dir, 'package.json'), pkg);
-}
-
-function resolvePackages(rootDir) {
-  const packages = readdirSync(rootDir);
-
-  return packages.reduce((acc, name) => {
-    const dir = path.join(PACKAGES_DIR, name);
-    const stats = statSync(rootDir);
-
-    // Only publish directories with package.json set to public
-    if (stats.isDirectory()) {
-      const package = readJSON(path.join(dir, 'package.json'));
-
-      if (package.private !== true) {
-        acc.set(package.name, { package, path: dir });
-      }
-    }
-
-    return acc;
-  }, new Map());
 }
 
 // Program entrypoint

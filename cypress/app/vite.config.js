@@ -8,4 +8,3 @@ module.exports = {
   plugins: [ kirei({ include, cwd: __dirname }), istanbul({ exclude: [ 'cypress' ] }), ],
 };
 
-

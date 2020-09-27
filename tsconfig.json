@@ -1,24 +1,34 @@
 {
   "$schema":"https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "es2018",
+    "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
     "lib": [ "dom", "esnext" ],
     "types": [ "node" ],
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
+    "sourceMap": false,
+    "declaration": false,
+    "declarationMap": false,
     "baseUrl": "./",
+    "rootDir": "./",
     "paths": {
       "@kirei/*": [ "packages/*" ],
       "babel-plugin-kirei": [ "packages/babel-plugin" ]
-    }
+    },
+    "allowJs": false,
+    "strict": true,
+    "noUnusedLocals": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
-  "include": [ "packages/*" ],
-  "exclude": [ "**/node_modules" ],
+  "include": [
+    "packages/*/src",
+    "packages/globals.d.ts"
+  ],
+  "exclude": [
+    "**/node_modules"
+  ],
   "references": [
     { "path": "packages/shared" },
     { "path": "packages/element" },

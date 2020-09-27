@@ -1,6 +1,7 @@
 import { terser } from 'rollup-plugin-terser';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
+import typescript from '@rollup/plugin-typescript';
 
 export default {
   input: './packages/element/dist/index.js',
