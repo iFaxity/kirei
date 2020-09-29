@@ -39,6 +39,6 @@
   },
   "dependencies": {
     "@kirei/shared": "^1.0.0",
-    "path-to-regexp": "6.1.0"
+    "path-to-regexp": "6.2.0"
   }
 }
