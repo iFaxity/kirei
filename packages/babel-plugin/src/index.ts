@@ -175,4 +175,4 @@ function kireiPlugin(api: ConfigAPI): PluginObj<PluginOptions> {
   };
 }
 
-export = declare(kireiPlugin);
+export default declare(kireiPlugin);

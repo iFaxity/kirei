@@ -34,10 +34,8 @@
     "custom elements",
     "shadow dom"
   ],
-  "peerDependencies": {
-    "@kirei/element": "^1.0.0"
-  },
   "dependencies": {
+    "@kirei/element": "^1.0.0",
     "@kirei/shared": "^1.0.0",
     "path-to-regexp": "6.1.0"
   }

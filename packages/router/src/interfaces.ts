@@ -1,4 +1,4 @@
-import type { KireiInstance, Ref, KireiElement } from '@kirei/element';
+import type { KireiInstance, KireiElement } from '@kirei/element';
 import type { Route, RouteOptions } from './route';
 
 export interface RouterEngine {

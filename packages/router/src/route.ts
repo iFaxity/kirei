@@ -1,4 +1,4 @@
-import type { KireiElement, KireiInstance } from '@kirei/element';
+import type { KireiElement } from '@kirei/element';
 import { isFunction, isPromise } from '@kirei/shared';
 import { pathToRegexp, Key } from 'path-to-regexp';
 const ROUTE_KEYS = [ 'path', 'slot', 'keepAlive', 'meta', 'name', 'redirect', 'caseSensitive' ];

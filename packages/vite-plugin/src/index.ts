@@ -1,7 +1,7 @@
 import type { Transform, Plugin } from 'vite';
 import { transformSync, PluginItem } from '@babel/core';
 import BabelPluginKirei from 'babel-plugin-kirei';
-import compileExclude from 'babel-plugin-kirei/dist/exclude';
+import compileExclude from 'babel-plugin-kirei/src/exclude';
 
 /**
  * @interface
@@ -60,4 +60,4 @@ function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
   return { transforms: [ transform ] };
 }
 
-export = kireiPlugin;
+export default kireiPlugin;

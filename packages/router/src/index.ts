@@ -1,5 +1,5 @@
 import { defineHook } from '@kirei/element';
-import { RouterOptions, Router, RouterHook, IRouter } from './router';
+import { RouterOptions, Router, RouterHook } from './router';
 import { ClientRouter } from './client';
 //import { Route } from './route';
 //import { ServerRouter } from './server';

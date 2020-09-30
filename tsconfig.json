@@ -11,6 +11,7 @@
     "declarationMap": false,
     "baseUrl": "./",
     "rootDir": "./",
+    "outDir": "./dist",
     "paths": {
       "@kirei/*": [ "packages/*" ],
       "babel-plugin-kirei": [ "packages/babel-plugin" ]

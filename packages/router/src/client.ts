@@ -44,7 +44,7 @@ export class ClientRouter extends Router implements IRouter {
 
       // hook into router and watch for route changes
       watchEffect(() => {
-        const route = this.route.value;
+        //const route = this.route.value;
         const isActive = this.path.startsWith(linkpath);
         const isExact = isActive && exact && linkpath === this.path;
 

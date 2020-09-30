@@ -20,7 +20,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const chalk = require('chalk');
 const { gzipSync } = require('zlib');
-const { compress } = require('brotli');
+const { compress: brotliSync } = require('brotli');
 const { targets: allTargets, fuzzyMatchTarget } = require('./shared');
 
 const args = require('minimist')(process.argv.slice(2));
@@ -32,42 +32,6 @@ const sourceMap = args.sourcemap || args.s;
 const isRelease = args.release;
 const buildTypes = args.t || args.types || isRelease;
 const buildAllMatching = args.all || args.a;
-
-
-const { terser } = require('rollup-plugin-terser');
-const resolve = require('@rollup/plugin-node-resolve');
-const replace = require('@rollup/plugin-replace');
-const typescript = require('@rollup/plugin-typescript');
-
-// for browser builds dont externalize anything
-
-const ROLLUP_CONFIG = {
-  /*input: './packages/element/dist/index.js',
-  output: {
-    file: './packages/element/dist/kirei.global.js',
-    format: 'umd',
-    name: 'Kirei',
-  },*/
-  plugins: [
-    replace({
-      'process.env.NODE_ENV': `'development'`,
-    }),
-    resolve(),
-    terser({ warnings: true }),
-  ],
-  onwarn: (msg, warn) => {
-    if (!/Circular/.test(msg)) {
-      warn(msg)
-    }
-  },
-  treeshake: {
-    moduleSideEffects: false,
-  },
-};
-
-function packages() {
-
-}
 
 
 run();
@@ -174,34 +138,36 @@ async function build(target) {
 }
 
 function checkAllSizes(targets) {
-  if (devOnly) {
-    return;
+  if (!devOnly) {
+    console.log();
+    for (const target of targets) {
+      checkSize(target);
+    }
+    console.log();
   }
-  console.log();
-  for (const target of targets) {
-    checkSize(target);
-  }
-  console.log();
 }
 
 function checkSize(target) {
   const pkgDir = path.resolve(`packages/${target}`);
-  checkFileSize(`${pkgDir}/dist/${target}.global.prod.js`);
-}
-
-function checkFileSize(filePath) {
+  const filePath = path.join(pkgDir, `dist/${target}.global.prod.js`)
   if (!fs.existsSync(filePath)) {
     return;
   }
+
   const file = fs.readFileSync(filePath);
-  const minSize = (file.length / 1024).toFixed(2) + 'kb';
   const gzipped = gzipSync(file);
-  const gzippedSize = (gzipped.length / 1024).toFixed(2) + 'kb';
-  const compressed = compress(file);
-  const compressedSize = (compressed.length / 1024).toFixed(2) + 'kb';
-  console.log(
-    `${chalk.gray(
-      chalk.bold(path.basename(filePath))
-    )} min:${minSize} / gzip:${gzippedSize} / brotli:${compressedSize}`
-  );
+  const brotlied = brotliSync(file);
+  console.log(size`${path.basename(filePath)} min:${file.length} / gzip:${gzipped.length} / brotli:${brotlied.length}`);
+}
+
+// Interpolate numbers as kb of number
+function size(strings, ...values) {
+  return strings.reduce((acc, str, idx) => {
+    const value = values[idx - 1];
+
+    if (typeof value == 'number') {
+      value = `${(value / 1024).toFixed(2)}kb`;
+    }
+    return `${acc}${value}${str}`;
+  });
 }

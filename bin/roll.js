@@ -35,9 +35,9 @@ const CONFIGS = {
   },
 };
 
-exports.createInput = function createInput(dir, input = 'src/index.ts') {
+exports.createInput = function createInput(dir, entrypoint = 'src/index.ts') {
   return {
-    input: path.join(dir, input),
+    input: path.join(dir, entrypoint),
     treeshake: {
       moduleSideEffects: false,
     },

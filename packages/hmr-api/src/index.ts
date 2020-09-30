@@ -1,5 +1,5 @@
 import { KireiInstance, KireiElement, HookTypes, CSSResult, defineElement } from '@kirei/element';
-import { normalizeOptions, ElementOptions } from '@kirei/element/dist/element';
+import { normalizeOptions, ElementOptions } from '@kirei/element/src/element';
 
 /**
  * List of properties to ignore when updating the element options
