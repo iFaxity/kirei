@@ -1,153 +1,161 @@
-const outputConfigs = {
-  esm: {
-    file: resolve(`dist/${name}.esm-bundler.js`),
-    format: 'es',
-  },
-  'esm-browser': {
-    file: resolve(`dist/${name}.esm-browser.js`),
-    format: 'es',
-  },
+const path = require('path');
+const { terser } = require('rollup-plugin-terser');
+const { nodeResolve } = require('@rollup/plugin-node-resolve');
+const replace = require('@rollup/plugin-replace');
+const typescript = require('@rollup/plugin-typescript');
+const commonjs = require('@rollup/plugin-commonjs');
+const { rollup } = require('rollup');
+
+// shorthand configs
+/*const DEFAULT_CONF = {
+  prod: true, // add production ENV and .prod.js, also minify and map
+  bundler: false, // if external modules should be bundled
+  format: null, // iife, cjs, esm
+};*/
+const CONFIGS = {
   cjs: {
-    file: resolve(`dist/${name}.cjs.js`),
+    prod: true,
+    bundler: false,
     format: 'cjs',
   },
-  browser: {
-    file: resolve(`dist/${name}.global.js`),
+  esm: {
+    prod: false,
+    bundler: false,
+    format: 'esm',
+  },
+  global: {
+    prod: true,
+    bundler: true,
     format: 'iife',
-  }
+  },
+  'esm-browser': {
+    prod: true,
+    bundler: true,
+    format: 'esm',
+  },
 };
 
-const DEFAULT_CONF = {
-  prod: false, // add production ENV and .prod.js
-  minify: true, // use terser to mangle content
-  bundle: false, // if external modules should be bundled
-  format: null, // iife, cjs, esm,
-};
+exports.createInput = function createInput(dir, input = 'src/index.ts') {
+  return {
+    input: path.join(dir, input),
+    treeshake: {
+      moduleSideEffects: false,
+    },
+    onwarn: (msg, warn) => !/Circular/.test(msg) && warn(msg),
+  };
+}
 
-exports.createConfigs = function createConfigs(configs) {
-  return Object.keys(configs).reduce((acc, key) => {
-    const config = { ...DEFAULT_CONF, ...configs[key] };
+// map multiple configs in a package into one rollup config
+// maybe only send package, load configs from key
+exports.createOutputsFromPackage = function createConfigFromPackage(dir, pkg) {
+  const build = pkg.build || {};
+  /*{
+    "build": [
+      name: "VueReactive",
+      configs: [ 'cjs', 'browser', 'esm', 'esm-browser' ],
+    ]
+  }*/
 
-    acc[key] = createConfig(config);
+  return build.configs.reduce((acc, key) => {
+    acc[key] = createConfig(pkg, build.configs[key]);
     return acc;
   }, {});
 };
 
-exports.createProductionConfig = function createProductionConfig(format) {
-  return createConfig(format, {
-    file: resolve(`dist/${name}.${format}.prod.js`),
-    format: outputConfigs[format].format
-  });
-};
-
-exports.createMinifiedConfig = function createMinifiedConfig(format) {
-  const { terser } = require('rollup-plugin-terser');
-  return createConfig(
-    format, {
-      file: outputConfigs[format].file.replace(/\.js$/, '.prod.js'),
-      format: outputConfigs[format].format,
-    }, [
-      terser({
-        module: /^esm/.test(format),
-        compress: {
-          ecma: 2015,
-          pure_getters: true,
-        },
-      }),
-    ],
-  );
-};
-
-// ensure TS checks only once for each build
-let shouldEmitDeclarations = false;
-const packageOptions = pkg.buildOptions || {};
-
 // make CWD agnostic, please
 // run configs 
-exports.createConfig = function createConfig(format, output) {
+function createConfig(pkg, pkgName, config) {
+  // generate output name.
+  /* generate all other options based on config input.
   if (!output) {
     console.error(`invalid format: "${format}"`);
     process.exit(1);
-  }
-
-  output.sourcemap = !!process.env.SOURCE_MAP;
-  output.externalLiveBindings = false;
-
-  const isProductionBuild = process.env.__DEV__ === 'false' || /\.prod\.js$/.test(output.file);
-  const isBundlerESMBuild = /esm-bundler/.test(format);
-  const isBrowserESMBuild = /esm-browser/.test(format);
+  }*/
+  const { prod, bundler, format } = config;
+  const isProdBuild = !!prod;
   const isNodeBuild = format === 'cjs';
-  const isGlobalBuild = /global/.test(format);
+  const isGlobalBuild = format === 'iife';
+  const isESM = format === 'esm';
+  const filename = pkg.name.includes('@') ? pkg.name.split('@', 2)[1] : pkg.name;
+
+  // only emit declarations on default build
+  const shouldEmit = (isESM && !prod && !bundle);
+  let extname = '.js';
+  const output = {
+    //filename: `${name}`, set later
+    //external, set later
+    sourcemap: isProductionBuild,
+    externalLiveBindings: false,
+    plugins: [
+      typescript({
+        tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+        sourceMap: output.sourcemap,
+        declaration: shouldEmit,
+        declarationMap: shouldEmit,
+      }),
+      replace({
+        __DEV__: isBundler ? '(process.env.NODE_ENV !== \'production\')' : String(!isProdBuild),
+        __BROWSER__: String(!isNodeBuild),
+        __NODE_JS__: String(isNodeBuild),
+        __VERSION__: pkg.version,
+      }),
+    ],
+    output,
+  };
+
+  if (isProdBuild) {
+    const minifyer = terser({
+      module: isESM,
+      compress: {
+        ecma: 2015,
+        pure_getters: true,
+      },
+    });
+
+    output.plugins.push(minifyer);
+    extname = `.prod${extname}`;
+  }
 
   if (isGlobalBuild) {
-    output.name = packageOptions.name;
+    extname = `.global${extname}`;
+    output.name = pkgName;
   }
 
-  const tsPlugin = ts({
-    tsconfig: path.resolve(__dirname, 'tsconfig.json'),
-    sourceMap: output.sourcemap,
-    declaration: shouldEmitDeclarations,
-    declarationMap: shouldEmitDeclarations,
-  });
+  if (isNodeBuild || bundler) {
+    // Node / esm-bundler builds. Externalize dependencies.
+    output.external.push(...Object.keys(pkg.dependencies || {}));
+    output.external.push(...Object.keys(pkg.peerDependencies || {}));
+  }
 
-  // we only need to check TS and generate declarations once for each build.
-  // it also seems to run into weird issues when checking multiple times
-  // during a single build.
-  shouldEmitDeclarations = false;
+  // Resolve external modules if not node build
+  if (!isNodeBuild) {
+    output.plugins.push(nodeResolve());
+    output.plugins.push(commonjs({ sourceMap: false }));
+  }
 
-  const external =
-    isGlobalBuild || isBrowserESMBuild
-      ? packageOptions.enableNonBrowserBranches
-        ? // externalize postcss for @vue/compiler-sfc
-          // because @rollup/plugin-commonjs cannot bundle it properly
-          ['postcss']
-        : // normal browser builds - non-browser only imports are tree-shaken,
-          // they are only listed here to suppress warnings.
-          ['source-map', '@babel/parser', 'estree-walker']
-      : // Node / esm-bundler builds. Externalize everything.
-        [
-          ...Object.keys(pkg.dependencies || {}),
-          ...Object.keys(pkg.peerDependencies || {}),
-        ];
+  // Return output only
+  output.filename = `dist/${filename}${extname}`;
+  return output;
 
-  const nodePlugins =
-    packageOptions.enableNonBrowserBranches && format !== 'cjs'
-      ? [
-          require('@rollup/plugin-node-resolve').nodeResolve(),
-          require('@rollup/plugin-commonjs')({
-            sourceMap: false
-          })
-        ]
-      : [];
-
-  return {
-    input: resolve(entryFile),
+  /*return {
     // Global and Browser ESM builds inlines everything so that they can be
     // used alone.
     external,
     plugins: [
-      tsPlugin,
-      createReplacePlugin(
-        isProductionBuild,
-        isBundlerESMBuild,
-        isBrowserESMBuild,
-        // isBrowserBuild?
-        (isGlobalBuild || isBrowserESMBuild || isBundlerESMBuild) &&
-          !packageOptions.enableNonBrowserBranches,
-        isGlobalBuild,
-        isNodeBuild
-      ),
-      ...nodePlugins,
+      typescript({
+        tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+        sourceMap: output.sourcemap,
+        declaration: shouldEmit,
+        declarationMap: shouldEmit,
+      }),
+      replace({
+        __DEV__: isBundler ? '(process.env.NODE_ENV !== \'production\')' : String(!isProdBuild),
+        __BROWSER__: String(!isNodeBuild),
+        __NODE_JS__: String(isNodeBuild),
+        __VERSION__: pkg.version,
+      }),
       ...plugins
     ],
     output,
-    onwarn: (msg, warn) => {
-      if (!/Circular/.test(msg)) {
-        warn(msg);
-      }
-    },
-    treeshake: {
-      moduleSideEffects: false,
-    },
-  };
+  };*/
 };
