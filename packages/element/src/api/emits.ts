@@ -1,4 +1,4 @@
-import { DEV, isFunction } from '@kirei/shared';
+import { isFunction } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
 import { warn } from '../logging';
 import type { IKireiInstance, EmitsOptions } from '../interfaces';
@@ -36,7 +36,7 @@ export function emit<T = any>(instance: IKireiInstance, event: string, payload?:
   const name = hyphenate(event);
   const validator = emits?.[name];
 
-  if (DEV) {
+  if (__DEV__) {
     if (isFunction(validator)) {
       if (!validator(payload)) {
         warn(`Component emitted event "${name}" but it is not declared in the emits option.`);
@@ -50,4 +50,4 @@ export function emit<T = any>(instance: IKireiInstance, event: string, payload?:
   instance.emit();
 
   instance.el.dispatchEvent(new CustomEvent(name, { detail: payload }));
-}
+}*/

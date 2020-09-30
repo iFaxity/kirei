@@ -3,8 +3,9 @@ import { isFunction, isString } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
 import { directive, Directive } from '../compiler';
 import { KireiInstance } from '../instance';
+import { warn } from '../logging';
 
-type EventListener = (e: Event, detail?: any) => any;
+type EventListener = (e: Event) => any;
 
 const NOOP = () => {};
 const KEYBOARD_EVENTS = [ 'keydown', 'keyup', 'keypress' ];
@@ -108,16 +109,34 @@ function nativePatcher(dir: Directive): TemplatePatcher {
 export default directive([ 'on', '@' ], dir => {
   const instance = KireiInstance.get(dir.el);
 
-  // Instance swallows event if defined. Otherwise bind to native handler.
+  // TODO: Maybe support multiple events in the future?
+  // Instance swallows event if defined in 'emits'. Otherwise bind to native handler.
   if (instance) {
     const { mods, arg: event } = dir;
 
+    // Expected an argument as string
     if (!isString(event)) {
       throw new TypeError('');
     } else if (instance.options.emits[event]) {
-      const handler = mods.includes('once') ? instance.once : instance.on;
+      const once = mods.includes('once');
+      let value: Function;
 
-      return (pending: Function) => handler.call(null, event, pending);
+      return (pending: Function) => {
+        if (value === pending) return;
+
+        if (!isFunction(pending) || pending != null) {
+          warn(`x-on directive expected a function or a nullable value, got ${typeof pending}`);
+        }
+
+        if (value) {
+          const handler = once ? instance.once : instance.on;
+          handler.call(instance, event, pending);
+        } else {
+          instance.off(event);
+        }
+
+        value = pending;
+      };
     }
   }
 

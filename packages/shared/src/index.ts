@@ -2,18 +2,6 @@
 export type Primitive = null|undefined|boolean|number|string|symbol|bigint;
 
 /**
- * True if the current environment is in developer mode
- * @const {boolean}
- */
-export const DEV = process.env.NODE_ENV != 'production';
-
-/**
- * True if the current environment is in the browser
- * @const {boolean}
- */
-export const IS_BROWSER = typeof window != 'undefined' && typeof window.document != 'undefined';
-
-/**
  * Checks if a variable is a primitive value (not object or function)
  * @param {*} target
  * @returns {boolean}

@@ -59,8 +59,7 @@ export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> 
   return mapObject<T, string, PropsData<T>>((key, prop) => {
     const { type, default: def } = prop;
     if (isObject(def)) {
-      warn(`Prop defaults requires Objects to be returned by a factory function
- to avoid cross referencing across elements.`);
+      warn(`Prop defaults requires Objects to be returned by a factory function to avoid cross referencing across elements.`);
     }
 
     // Validate props default value (if defined)

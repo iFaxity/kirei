@@ -118,7 +118,7 @@ function nativeModel(dir: Directive): TemplatePatcher {
 
   function listener(e: Event) {
     e.stopPropagation();
-    const value =  handler ? handler(el, ref) : el[prop];
+    const value = handler ? handler(el, ref) : el[prop];
 
     ref.value = castValue(value, trimValue, castNumber);
   }
@@ -126,7 +126,6 @@ function nativeModel(dir: Directive): TemplatePatcher {
   // Bind listener to event name
   el.addEventListener(event, listener, false);
 
-  let initial = true;
   return (pending) => {
     if (!isRef(pending)) {
       throw new TypeError(`Model directive requires a ref as its value`);
@@ -135,19 +134,11 @@ function nativeModel(dir: Directive): TemplatePatcher {
     // Synced select elements has to be committed on the nextTick.
     // As dynamic content could have not loaded yet.
     // TODO. applies to all elements, as syncing happening in queue now instead
-
-    // Maybe only on initial loading?
     ref = pending;
 
-    if (initial) {
-      // required to trigger dep
-      const value = ref.value;
-
-      initial = false;
-      push(() => commit(el, value));
-    } else {
-      commit(el, ref.value);
-    }
+    // required to trigger dep, has to be sync
+    const value = ref.value;
+    push(() => commit(el, value));
   };
 }
 

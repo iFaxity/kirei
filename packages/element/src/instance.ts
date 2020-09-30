@@ -1,6 +1,6 @@
 import { ReactiveEffect, effect, pauseTracking, resetTracking, shallowReadonly, shallowReactive } from '@vue/reactivity';
 import { hyphenate } from '@vue/shared';
-import { isFunction, isPromise, isUndefined, DEV } from '@kirei/shared';
+import { isFunction, isPromise } from '@kirei/shared';
 import { exception, warn, KireiError } from './logging';
 import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
@@ -11,7 +11,6 @@ import type { InjectionKey } from './api/inject';
 import type {
   IKireiElement,
   IKireiInstance,
-  NormalizedEmitsOptions,
   NormalizedElementOptions,
   NormalizedProps,
   PropsData,
@@ -58,7 +57,7 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Gets an instance from its element
-   * @param {IKireiElement} el
+   * @param {Element} el
    * @returns {KireiInstance}
    */
   static get(el: Element): KireiInstance {
@@ -84,9 +83,9 @@ export class KireiInstance implements IKireiInstance {
 
     this.options = opts;
     this.el = el;
+    this.parent = parent;
 
     // Inherit provides from parent
-    this.parent = parent;
     this.provides = parent?.provides ?? Object.create(null);
     this.events = opts.emits ? Object.create(null) : null;
     this.props = shallowReactive(opts.props ? propDefaults(opts.props) : {});
@@ -124,6 +123,12 @@ export class KireiInstance implements IKireiInstance {
     this.on(event, listener);
   }
 
+  off(event: string): void {
+    if (this.events[event]) {
+      this.events[event] = null;
+    }
+  }
+
   /**
    * Dispatches an event to parent instance
    * @param {string} eventName Event to emit
@@ -136,7 +141,7 @@ export class KireiInstance implements IKireiInstance {
       return;
     }
 
-    if (DEV && !event.startsWith('update:')) {
+    if (__DEV__ && !event.startsWith('update:')) {
       const name = hyphenate(event);
       const validator = this.options.emits[name];
 
@@ -207,7 +212,7 @@ export class KireiInstance implements IKireiInstance {
 
         // Create a custom Proxy for the props
         // TODO: if production use shallowReactive instead
-        props = DEV ? shallowReadonly(this.props) : this.props;
+        props = __DEV__ ? shallowReadonly(this.props) : this.props;
       }
 
       // Run setup function to gather reactive data

@@ -1,5 +1,4 @@
 import { defineHook } from '@kirei/element';
-//import { IS_BROWSER } from '@kirei/shared';
 import { RouterOptions, Router, RouterHook, IRouter } from './router';
 import { ClientRouter } from './client';
 //import { Route } from './route';
@@ -8,7 +7,7 @@ import { ClientRouter } from './client';
 export { useRoute, useRouter } from './router';
 
 export function createRouter(opts: RouterOptions): Router {
-  //return IS_BROWSER ? new ClientRouter(opts) : new ServerRouter(opts);
+  //return __BROWSER__ ? new ClientRouter(opts) : new ServerRouter(opts);
   return new ClientRouter(opts);
 }
 
