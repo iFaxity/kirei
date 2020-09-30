@@ -16,7 +16,6 @@
       "babel-plugin-kirei": [ "packages/babel-plugin" ]
     },
     "allowJs": false,
-    "strict": true,
     "noUnusedLocals": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
@@ -27,14 +26,8 @@
     "packages/globals.d.ts"
   ],
   "exclude": [
-    "**/node_modules"
-  ],
-  "references": [
-    { "path": "packages/shared" },
-    { "path": "packages/element" },
-    { "path": "packages/router" },
-    { "path": "packages/babel-plugin" },
-    { "path": "packages/hmr-api" },
-    { "path": "packages/vite-plugin" }
+    "**/node_modules",
+    "packages/element/src/api/suspense.ts",
+    "packages/element/src/api/emits.ts"
   ]
 }
