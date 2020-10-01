@@ -14,8 +14,9 @@
     ]
   },
   "scripts": {
-    "build": "tsc -b --force",
-    "postbuild": "rollup -c rollup.config.js",
+    "build": "node ./bin/build",
+    "build:tsc": "tsc -b --force",
+    "postbuild:tsc": "rollup -c rollup.config.js",
     "build:ci": "tsc -b --force",
     "clean": "rm -rf packages/*/dist",
     "docs": "typedoc packages/*/src",
