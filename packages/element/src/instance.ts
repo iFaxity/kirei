@@ -116,15 +116,17 @@ export class KireiInstance implements IKireiInstance {
 
   once(event: string, listener: Function): void {
     const emitted = this.emitted ?? (this.emitted = {});
-    if (emitted[event] == null) {
+    if (emitted[event] != null) {
       emitted[event] = false;
     }
 
     this.on(event, listener);
   }
 
-  off(event: string): void {
-    if (this.events[event]) {
+  off(event: string, listener?: Function): void {
+    const res = this.events[event];
+
+    if (res && (listener == null || res === listener)) {
       this.events[event] = null;
     }
   }

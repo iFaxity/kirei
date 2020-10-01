@@ -47,8 +47,8 @@ exports.createInput = function createInput(dir, entrypoint = 'src/index.ts') {
 
 // map multiple configs in a package into one rollup config
 // maybe only send package, load configs from key
-exports.createOutputsFromPackage = function createConfigFromPackage(dir, pkg) {
-  const build = pkg.build || {};
+exports.createOutputsFromPackage = function createOutputsFromPackage(dir, pkg) {
+  const build = pkg.build;
   /*{
     "build": [
       name: "VueReactive",
@@ -57,7 +57,9 @@ exports.createOutputsFromPackage = function createConfigFromPackage(dir, pkg) {
   }*/
 
   return build.configs.reduce((acc, key) => {
-    acc[key] = createConfig(pkg, build.configs[key]);
+    const config = CONFIG[key];
+
+    acc[key] = createConfig(pkg, build.name, config);
     return acc;
   }, {});
 };

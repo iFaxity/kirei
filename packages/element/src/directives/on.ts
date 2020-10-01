@@ -128,11 +128,12 @@ export default directive([ 'on', '@' ], dir => {
           warn(`x-on directive expected a function or a nullable value, got ${typeof pending}`);
         }
 
-        if (value) {
-          const handler = once ? instance.once : instance.on;
-          handler.call(instance, event, pending);
+        if (!pending) {
+          instance.off(event, value);
+        } else if (once) {
+          instance.once(event, pending);
         } else {
-          instance.off(event);
+          instance.on(event, pending)
         }
 
         value = pending;
