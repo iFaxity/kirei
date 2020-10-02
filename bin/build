@@ -19,9 +19,10 @@ yarn build core --formats cjs
 const path = require('path');
 const zlib = require('zlib');
 const { promisify } = require('util');
-const { readFile, writeFile, access, unlink, readdir } = require('fs/promises');
+const { readFile, writeFile, access, rmdir, readdir } = require('fs/promises');
 const gzip = promisify(zlib.gzip);
 const brotli = promisify(zlib.brotliCompress);
+const { rollup } = require('rollup');
 
 const args = require('minimist')(process.argv.slice(2));
 const targets = args._;
@@ -33,13 +34,23 @@ const isRelease = args.release;
 const buildTypes = args.t || args.types || isRelease;
 const buildAllMatching = args.all || args.a;
 
+async function exists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 run();
 
 async function run() {
   if (isRelease) {
-    // remove build cache for release builds to avoid outdated enum values
-    await remove(path.resolve(__dirname, '../node_modules/.rts2_cache'));
+    // Remove build cache for release builds to avoid outdated enum values
+    await rmdir(path.resolve(__dirname, '../node_modules/.rts2_cache'), { recursive: true });
   }
+
   if (!targets.length) {
     await buildAll(allTargets);
     checkAllSizes(allTargets);
@@ -56,7 +67,7 @@ async function buildAll(targets) {
 }
 
 async function build(target) {
-  const pkgDir = path.resolve(`packages/${target}`);
+  const pkgDir = path.resolve(__dirname, `../packages/${target}`);
   const pkg = require(`${pkgDir}/package.json`);
 
   // only build published packages for release
@@ -66,10 +77,12 @@ async function build(target) {
 
   // if building a specific format, do not remove dist.
   if (!formats) {
-    await remove(`${pkgDir}/dist`);
+    await rmdir(`${pkgDir}/dist`, { recursive: true });
   }
 
-  const env = (pkg.buildOptions && pkg.buildOptions.env) || (devOnly ? 'development' : 'production');
+  
+
+  /*const env = (pkg.buildOptions && pkg.buildOptions.env) || (devOnly ? 'development' : 'production');
   await execa(
     'rollup',
     [
@@ -87,58 +100,43 @@ async function build(target) {
         .join(',')
     ],
     { stdio: 'inherit' }
-  );
+  );*/
 
   if (buildTypes && pkg.types) {
-    console.log();
-    console.log(
-      chalk.bold(chalk.yellow(`Rolling up type definitions for ${target}...`))
-    );
+    console.log(`\nRolling up type definitions for ${target}...`);
 
     // build types
     const { Extractor, ExtractorConfig } = require('@microsoft/api-extractor');
 
     const extractorConfigPath = path.resolve(pkgDir, `api-extractor.json`);
-    const extractorConfig = ExtractorConfig.loadFileAndPrepare(
-      extractorConfigPath
-    );
+    const extractorConfig = ExtractorConfig.loadFileAndPrepare(extractorConfigPath);
     const extractorResult = Extractor.invoke(extractorConfig, {
       localBuild: true,
       showVerboseMessages: true
     });
 
-    function exists() {
-      return exists
-    }
-
-    function exists(path) {
-      try {
-        accessSync(path, constants.W_OK);
-        return true;
-      } catch {
-        return false;
-      }
-    }
-
     if (extractorResult.succeeded) {
-      // concat additional d.ts to rolled-up dts
+      /* concat additional d.ts to rolled-up dts
       const typesDir = path.resolve(pkgDir, 'types');
-      accessSync(typesDir);
+
       if (await exists(typesDir)) {
         const dtsPath = path.resolve(pkgDir, pkg.types);
-        const existing = await readFile(dtsPath, 'utf-8');
+        //const existing = await readFile(dtsPath, 'utf-8');
         const typeFiles = await readdir(typesDir);
         const promises = typeFiles.map(file => readFile(path.resolve(typesDir, file), 'utf-8'))
         const toAdd = await Promise.all(promises);
-        await writeFile(dtsPath, existing + '\n' + toAdd.join('\n'));
-      }
+
+        await writeFile(dtsPath, '\n' + toAdd.join('\n'), { flag: 'a' })
+        //await writeFile(dtsPath, existing + '\n' + toAdd.join('\n'));
+      }*/
+
       console.log(`API Extractor completed successfully.`);
     } else {
       console.error(`API Extractor completed with ${extractorResult.errorCount} errors and ${extractorResult.warningCount} warnings`);
       process.exitCode = 1;
     }
 
-    await remove(`${pkgDir}/dist/packages`);
+    await rmdir(`${pkgDir}/dist/packages`, { recursive: true });
   }
 }
 
@@ -153,19 +151,15 @@ function checkAllSizes(targets) {
 }
 
 async function checkSize(target) {
-  const pkgDir = path.resolve(`packages/${target}`);
-  const filePath = path.join(pkgDir, `dist/${target}.global.prod.js`);
+  const pkgDir = path.resolve(__dirname, `../packages/${target}`);
+  const filePath = path.resolve(pkgDir, `dist/${target}.global.prod.js`);
 
-  const lel = await access(filePath);
-
-  if () {
-    return;
+  if (await exists(filePath)) {
+    const file = (await readFile(filePath)).length;
+    const gzipped = (await gzip(file)).length;
+    const brotlied = (await brotli(file)).length;
+    console.log(size`${path.basename(filePath)} min:${file} / gzip:${gzipped} / brotli:${brotlied}`);
   }
-
-  const file = await readFile(filePath);
-  const gzipped = gzip(file);
-  const brotlied = brotli(file);
-  console.log(size`${path.basename(filePath)} min:${file.length} / gzip:${gzipped.length} / brotli:${brotlied.length}`);
 }
 
 // Interpolate numbers as kb of number
