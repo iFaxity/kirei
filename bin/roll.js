@@ -4,11 +4,10 @@ const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const replace = require('@rollup/plugin-replace');
 const typescript = require('@rollup/plugin-typescript');
 const commonjs = require('@rollup/plugin-commonjs');
-const { rollup } = require('rollup');
 
 // shorthand configs
 /*const DEFAULT_CONF = {
-  prod: true, // add production ENV and .prod.js, also minify and map
+  prod: true, // builds prod too, .prod.js, also minify
   bundler: false, // if external modules should be bundled
   format: null, // iife, cjs, esm
 };*/
@@ -47,7 +46,7 @@ exports.createInput = function createInput(dir, entrypoint = 'src/index.ts') {
 
 // map multiple configs in a package into one rollup config
 // maybe only send package, load configs from key
-exports.createOutputsFromPackage = function createOutputsFromPackage(dir, pkg) {
+exports.createOutputs = function createOutputsFromPackage(pkg, skipProd) {
   const build = pkg.build;
   /*{
     "build": [
@@ -57,11 +56,19 @@ exports.createOutputsFromPackage = function createOutputsFromPackage(dir, pkg) {
   }*/
 
   return build.configs.reduce((acc, key) => {
-    const config = CONFIG[key];
+    const config = { ...CONFIGS[key] };
 
-    acc[key] = createConfig(pkg, build.name, config);
+    if (config.prod) {
+      if (skipProd) {
+        config.prod = false;
+      } else {
+        acc.push(createConfig(pkg, build.name, { ...config, prod: false }));
+      }
+    }
+
+    acc.push(createConfig(pkg, build.name, config));
     return acc;
-  }, {});
+  }, []);
 };
 
 // make CWD agnostic, please
@@ -85,8 +92,8 @@ function createConfig(pkg, pkgName, config) {
   let extname = '.js';
   const output = {
     //filename: `${name}`, set later
-    //external, set later
-    sourcemap: isProductionBuild,
+    // external, set later
+    sourcemap: isProdBuild,
     externalLiveBindings: false,
     plugins: [
       typescript({
@@ -125,8 +132,10 @@ function createConfig(pkg, pkgName, config) {
 
   if (isNodeBuild || bundler) {
     // Node / esm-bundler builds. Externalize dependencies.
-    output.external.push(...Object.keys(pkg.dependencies || {}));
-    output.external.push(...Object.keys(pkg.peerDependencies || {}));
+    output.extenal = [
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+    ];
   }
 
   // Resolve external modules if not node build
@@ -136,7 +145,7 @@ function createConfig(pkg, pkgName, config) {
   }
 
   // Return output only
-  output.filename = `dist/${filename}${extname}`;
+  output.filename = `${filename}${extname}`;
   return output;
 
   /*return {

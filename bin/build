@@ -19,10 +19,13 @@ yarn build core --formats cjs
 const path = require('path');
 const zlib = require('zlib');
 const { promisify } = require('util');
-const { readFile, writeFile, access, rmdir, readdir } = require('fs/promises');
+const { readFile, access, rmdir } = require('fs/promises');
 const gzip = promisify(zlib.gzip);
 const brotli = promisify(zlib.brotliCompress);
 const { rollup } = require('rollup');
+const { createInput, createOutputs } = require('./roll');
+const { resolvePackages } = require('./shared');
+const PACKAGES_ROOT = path.resolve(__dirname, '../packages');
 
 const args = require('minimist')(process.argv.slice(2));
 const targets = args._;
@@ -43,116 +46,13 @@ async function exists(path) {
   }
 }
 
-run();
-
-async function run() {
-  if (isRelease) {
-    // Remove build cache for release builds to avoid outdated enum values
-    await rmdir(path.resolve(__dirname, '../node_modules/.rts2_cache'), { recursive: true });
-  }
-
-  if (!targets.length) {
-    await buildAll(allTargets);
-    checkAllSizes(allTargets);
-  } else {
-    await buildAll(fuzzyMatchTarget(targets, buildAllMatching));
-    checkAllSizes(fuzzyMatchTarget(targets, buildAllMatching));
-  }
-}
-
-async function buildAll(targets) {
-  for (const target of targets) {
-    await build(target);
-  }
-}
-
-async function build(target) {
-  const pkgDir = path.resolve(__dirname, `../packages/${target}`);
-  const pkg = require(`${pkgDir}/package.json`);
-
-  // only build published packages for release
-  if (isRelease && pkg.private) {
-    return;
-  }
-
-  // if building a specific format, do not remove dist.
-  if (!formats) {
-    await rmdir(`${pkgDir}/dist`, { recursive: true });
-  }
-
-  
-
-  /*const env = (pkg.buildOptions && pkg.buildOptions.env) || (devOnly ? 'development' : 'production');
-  await execa(
-    'rollup',
-    [
-      '-c',
-      '--environment',
-      [
-        `NODE_ENV:${env}`,
-        `TARGET:${target}`,
-        formats ? `FORMATS:${formats}` : ``,
-        buildTypes ? `TYPES:true` : ``,
-        prodOnly ? `PROD_ONLY:true` : ``,
-        sourceMap ? `SOURCE_MAP:true` : ``
-      ]
-        .filter(Boolean)
-        .join(',')
-    ],
-    { stdio: 'inherit' }
-  );*/
-
-  if (buildTypes && pkg.types) {
-    console.log(`\nRolling up type definitions for ${target}...`);
-
-    // build types
-    const { Extractor, ExtractorConfig } = require('@microsoft/api-extractor');
-
-    const extractorConfigPath = path.resolve(pkgDir, `api-extractor.json`);
-    const extractorConfig = ExtractorConfig.loadFileAndPrepare(extractorConfigPath);
-    const extractorResult = Extractor.invoke(extractorConfig, {
-      localBuild: true,
-      showVerboseMessages: true
-    });
-
-    if (extractorResult.succeeded) {
-      /* concat additional d.ts to rolled-up dts
-      const typesDir = path.resolve(pkgDir, 'types');
-
-      if (await exists(typesDir)) {
-        const dtsPath = path.resolve(pkgDir, pkg.types);
-        //const existing = await readFile(dtsPath, 'utf-8');
-        const typeFiles = await readdir(typesDir);
-        const promises = typeFiles.map(file => readFile(path.resolve(typesDir, file), 'utf-8'))
-        const toAdd = await Promise.all(promises);
-
-        await writeFile(dtsPath, '\n' + toAdd.join('\n'), { flag: 'a' })
-        //await writeFile(dtsPath, existing + '\n' + toAdd.join('\n'));
-      }*/
-
-      console.log(`API Extractor completed successfully.`);
-    } else {
-      console.error(`API Extractor completed with ${extractorResult.errorCount} errors and ${extractorResult.warningCount} warnings`);
-      process.exitCode = 1;
-    }
-
-    await rmdir(`${pkgDir}/dist/packages`, { recursive: true });
-  }
-}
-
-function checkAllSizes(targets) {
-  if (!devOnly) {
-    console.log();
-    for (const target of targets) {
-      checkSize(target);
-    }
-    console.log();
-  }
+function rmrf(path) {
+  return rmdir(path, { recursive: true });
 }
 
 async function checkSize(target) {
-  const pkgDir = path.resolve(__dirname, `../packages/${target}`);
-  const filePath = path.resolve(pkgDir, `dist/${target}.global.prod.js`);
+  const { dir } = target;
+  const filePath = path.resolve(dir, `dist/${target}.global.prod.js`);
 
   if (await exists(filePath)) {
     const file = (await readFile(filePath)).length;
@@ -173,3 +73,110 @@ function size(strings, ...values) {
     return `${acc}${value}${str}`;
   });
 }
+
+async function build(target) {
+  const { dir, package } = target;
+
+  // only build published packages for release
+  if (isRelease && package.private) {
+    return;
+  }
+
+  // if building a specific format, do not remove dist.
+  if (!formats) {
+    await rmrf(`${dir}/dist`);
+  }
+
+  const input = createInput(dir);
+  const bundle = await rollup(input);
+  const outputs = createOutputs(package);
+
+  for (const output of outputs) {
+    output.dir = path.resolve(dir, 'dist/');
+    await bundle.write(output);
+  }
+
+  /*const env = (package.buildOptions && package.buildOptions.env) || (devOnly ? 'development' : 'production');
+  await execa(
+    'rollup',
+    [
+      '-c',
+      '--environment',
+      [
+        `NODE_ENV:${env}`,
+        `TARGET:${target}`,
+        formats ? `FORMATS:${formats}` : ``,
+        buildTypes ? `TYPES:true` : ``,
+        prodOnly ? `PROD_ONLY:true` : ``,
+        sourceMap ? `SOURCE_MAP:true` : ``
+      ]
+        .filter(Boolean)
+        .join(',')
+    ],
+    { stdio: 'inherit' }
+  );*/
+
+  if (buildTypes && package.types) {
+    console.log(`\nRolling up type definitions for ${target}...`);
+
+    // build types
+    const { Extractor, ExtractorConfig } = require('@microsoft/api-extractor');
+
+    const extractorConfigPath = path.resolve(dir, `api-extractor.json`);
+    const extractorConfig = ExtractorConfig.loadFileAndPrepare(extractorConfigPath);
+    const extractorResult = Extractor.invoke(extractorConfig, {
+      localBuild: true,
+      showVerboseMessages: true
+    });
+
+    if (extractorResult.succeeded) {
+      /* concat additional d.ts to rolled-up dts
+      const typesDir = path.resolve(dir, 'types');
+
+      if (await exists(typesDir)) {
+        const dtsPath = path.resolve(dir, package.types);
+        //const existing = await readFile(dtsPath, 'utf-8');
+        const typeFiles = await readdir(typesDir);
+        const promises = typeFiles.map(file => readFile(path.resolve(typesDir, file), 'utf-8'))
+        const toAdd = await Promise.all(promises);
+
+        await writeFile(dtsPath, '\n' + toAdd.join('\n'), { flag: 'a' })
+        //await writeFile(dtsPath, existing + '\n' + toAdd.join('\n'));
+      }*/
+
+      console.log(`API Extractor completed successfully.`);
+    } else {
+      console.error(`API Extractor completed with ${extractorResult.errorCount} errors and ${extractorResult.warningCount} warnings`);
+      process.exitCode = 1;
+    }
+
+    await rmrf(`${dir}/dist/packages`);
+  }
+}
+
+async function run() {
+  if (isRelease) {
+    // Remove build cache for release builds to avoid outdated enum values
+    await rmrf(path.resolve(__dirname, '../node_modules/.rts2_cache'));
+  }
+
+  const packages = resolvePackages(PACKAGES_ROOT);
+  //let names = targets.length ? fuzzyMatchTarget(targets, buildAllMatching) : packages;
+  let names = packages;
+  for (const target of names.values()) {
+    await build(target);
+  }
+
+  if (!devOnly) {
+    console.log('');
+    for (const target of names.values()) {
+      await checkSize(target);
+    }
+
+    console.log('');
+  }
+
+  console.log('Done!');
+}
+
+run().catch(err => console.error(err));
