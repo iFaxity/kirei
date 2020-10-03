@@ -4,6 +4,9 @@ const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const replace = require('@rollup/plugin-replace');
 const typescript = require('@rollup/plugin-typescript');
 const commonjs = require('@rollup/plugin-commonjs');
+const { rollup } = require('rollup');
+
+const ENTRYPOINT = 'src/index.ts';
 
 // shorthand configs
 /*const DEFAULT_CONF = {
@@ -34,19 +37,97 @@ const CONFIGS = {
   },
 };
 
-exports.createInput = function createInput(dir, entrypoint = 'src/index.ts') {
+function createRollConfig(target) {
+  // generate output name.
+  /* generate all other options based on config input.
+  if (!output) {
+    console.error(`invalid format: "${format}"`);
+    process.exit(1);
+  }*/
+  const { prod, bundler, format } = config;
+  const isProdBuild = !!prod;
+  const isNodeBuild = format === 'cjs';
+  const isGlobalBuild = format === 'iife';
+  const isESM = format === 'esm';
+  const filename = pkg.name.includes('@') ? pkg.name.split('@', 2)[1] : pkg.name;
+  // only emit once, on default builds
+  const shouldEmit = (isESM && !prod && !bundle);
+
+  let extname = '.js';
+  let plugins = [];
+  let external;
+  let name;
+
+  if (isProdBuild) {
+    const minifyer = terser({
+      module: isESM,
+      compress: {
+        ecma: 2015,
+        pure_getters: true,
+      },
+    });
+
+    plugins.push(minifyer);
+    extname = `.prod${extname}`;
+  }
+
+  // Resolve external modules if not node build
+  if (!isNodeBuild) {
+    plugins.push(nodeResolve(), commonjs({ sourceMap: false }));
+  }
+
+  if (isGlobalBuild) {
+    extname = `.global${extname}`;
+    name = pkgName;
+  }
+
+  if (isNodeBuild || bundler) {
+    // Node / esm-bundler builds. Externalize all dependencies.
+    external = [
+      ...Object.keys(pkg.dependencies || {}),
+      ...Object.keys(pkg.peerDependencies || {}),
+    ];
+  }
+
+  // Return rollup config
   return {
-    input: path.join(dir, entrypoint),
-    treeshake: {
-      moduleSideEffects: false,
+    input: {
+      external,
+      input: path.resolve(dir, 'dist/', ENTRYPOINT),
+      plugins: [
+        typescript({
+          tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+          sourceMap: output.sourcemap,
+          declaration: shouldEmit,
+          declarationMap: shouldEmit,
+          declarationDir: './lib',
+        }),
+        replace({
+          __DEV__: isBundler ? '(process.env.NODE_ENV !== \'production\')' : String(!isProdBuild),
+          __BROWSER__: String(!isNodeBuild),
+          __NODE_JS__: String(isNodeBuild),
+          __VERSION__: pkg.version,
+        }),
+        ...plugins,
+      ],
+      treeshake: {
+        moduleSideEffects: false,
+      },
+      onwarn: (msg, warn) => !/Circular/.test(msg) && warn(msg),
     },
-    onwarn: (msg, warn) => !/Circular/.test(msg) && warn(msg),
-  };
+    output: {
+      name, dir,
+      filename: `${filename}${extname}`,
+      // external, set later
+      sourcemap: isProdBuild,
+      externalLiveBindings: false,
+    },
+  }
 }
 
 // map multiple configs in a package into one rollup config
 // maybe only send package, load configs from key
-exports.createOutputs = function createOutputsFromPackage(pkg, skipProd) {
+function createOutputsFromPackage(pkg, skipProd) {
   const build = pkg.build;
   /*{
     "build": [
@@ -69,7 +150,7 @@ exports.createOutputs = function createOutputsFromPackage(pkg, skipProd) {
     acc.push(createConfig(pkg, build.name, config));
     return acc;
   }, []);
-};
+}
 
 // make CWD agnostic, please
 // run configs 
@@ -169,4 +250,48 @@ function createConfig(pkg, pkgName, config) {
     ],
     output,
   };*/
+}
+
+function createConfig() {
+
+}
+
+exports.rollPackage = function rollPackage(target) {
+  const { dir, package } = target;
+  const { name, configs } = package.build;
+  /*{
+    "build": [
+      name: "VueReactive",
+      configs: [ 'cjs', 'browser', 'esm', 'esm-browser' ],
+    ]
+  }*/
+
+  const buildConfigs = build.configs.reduce((acc, key) => {
+    const config = { ...CONFIGS[key] };
+
+    if (config.prod) {
+      if (skipProd) {
+        config.prod = false;
+      } else {
+        acc.push(createConfig(pkg, build.name, { ...config, prod: false }));
+      }
+    }
+
+    acc.push(createConfig(pkg, build.name, config));
+    return acc;
+  }, []);
+
+  for (const config of buildConfigs) {
+
+  }
+
+
+  const input = createInput(dir);
+  const bundle = await rollup(input);
+  const outputs = createOutputs(package);
+
+  for (const output of outputs) {
+    output.dir = path.resolve(dir, 'dist/');
+    await bundle.write(output);
+  }
 };
