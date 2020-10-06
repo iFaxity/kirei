@@ -1,4 +1,4 @@
-import TestExclude from 'test-exclude';
+import * as TestExclude from 'test-exclude';
 
 interface ExcludeOptions {
   cwd?: string;

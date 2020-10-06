@@ -4,10 +4,11 @@
   "version": "0.3.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
-  "type": "module",
-  "module": "dist/index.js",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "module": "dist/router.esm.js",
+  "types": "dist/router.d.ts",
+  "unpkg": "dist/router.global.js",
+  "jsdelivr": "dist/router.global.js",
   "sideEffect": false,
   "files": [
     "dist/*"
@@ -16,6 +17,10 @@
     "prepublishOnly": "npm run build",
     "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
     "build": "tsc -b"
+  },
+  "build": {
+    "name": "KireiRouter",
+    "configs": [ "cjs", "esm", "browser", "esm-browser" ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/router",
   "repository": {

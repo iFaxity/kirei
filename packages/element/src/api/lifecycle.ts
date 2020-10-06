@@ -21,7 +21,7 @@ export enum HookTypes {
  * @param {string} hook Hook name
  * @return {Function}
  */
-export function defineHook<T = () => void>(name: string): (hook: T) => void {
+export function defineHook<T extends () => void>(name: string): (hook: T) => void {
   if (HOOKS.has(name)) {
     exception('A lifecycle hook with that identifier already exists', `defineHook(${name})`);
   }

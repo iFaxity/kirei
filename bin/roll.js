@@ -2,8 +2,9 @@ const path = require('path');
 const { terser } = require('rollup-plugin-terser');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const replace = require('@rollup/plugin-replace');
-const typescript = require('@rollup/plugin-typescript');
+const typescript = require('rollup-plugin-typescript2');
 const commonjs = require('@rollup/plugin-commonjs');
+const json = require('@rollup/plugin-json');
 const { rollup } = require('rollup');
 
 const ENTRYPOINT = 'src/index.ts';
@@ -37,130 +38,15 @@ const CONFIGS = {
   },
 };
 
-function createRollConfig(target) {
-  // generate output name.
-  /* generate all other options based on config input.
-  if (!output) {
-    console.error(`invalid format: "${format}"`);
-    process.exit(1);
-  }*/
-  const { prod, bundler, format } = config;
-  const isProdBuild = !!prod;
-  const isNodeBuild = format === 'cjs';
-  const isGlobalBuild = format === 'iife';
-  const isESM = format === 'esm';
-  const filename = pkg.name.includes('@') ? pkg.name.split('@', 2)[1] : pkg.name;
-  // only emit once, on default builds
-  const shouldEmit = (isESM && !prod && !bundle);
-
-  let extname = '.js';
-  let plugins = [];
-  let external;
-  let name;
-
-  if (isProdBuild) {
-    const minifyer = terser({
-      module: isESM,
-      compress: {
-        ecma: 2015,
-        pure_getters: true,
-      },
-    });
-
-    plugins.push(minifyer);
-    extname = `.prod${extname}`;
-  }
-
-  // Resolve external modules if not node build
-  if (!isNodeBuild) {
-    plugins.push(nodeResolve(), commonjs({ sourceMap: false }));
-  }
-
-  if (isGlobalBuild) {
-    extname = `.global${extname}`;
-    name = pkgName;
-  }
-
-  if (isNodeBuild || bundler) {
-    // Node / esm-bundler builds. Externalize all dependencies.
-    external = [
-      ...Object.keys(pkg.dependencies || {}),
-      ...Object.keys(pkg.peerDependencies || {}),
-    ];
-  }
-
-  // Return rollup config
-  return {
-    input: {
-      external,
-      input: path.resolve(dir, 'dist/', ENTRYPOINT),
-      plugins: [
-        typescript({
-          tsconfig: path.resolve(__dirname, '../tsconfig.json'),
-          sourceMap: output.sourcemap,
-          declaration: shouldEmit,
-          declarationMap: shouldEmit,
-          declarationDir: './lib',
-        }),
-        replace({
-          __DEV__: isBundler ? '(process.env.NODE_ENV !== \'production\')' : String(!isProdBuild),
-          __BROWSER__: String(!isNodeBuild),
-          __NODE_JS__: String(isNodeBuild),
-          __VERSION__: pkg.version,
-        }),
-        ...plugins,
-      ],
-      treeshake: {
-        moduleSideEffects: false,
-      },
-      onwarn: (msg, warn) => !/Circular/.test(msg) && warn(msg),
-    },
-    output: {
-      name, dir,
-      filename: `${filename}${extname}`,
-      // external, set later
-      sourcemap: isProdBuild,
-      externalLiveBindings: false,
-    },
-  }
-}
-
-// map multiple configs in a package into one rollup config
-// maybe only send package, load configs from key
-function createOutputsFromPackage(pkg, skipProd) {
-  const build = pkg.build;
-  /*{
-    "build": [
-      name: "VueReactive",
-      configs: [ 'cjs', 'browser', 'esm', 'esm-browser' ],
-    ]
-  }*/
-
-  return build.configs.reduce((acc, key) => {
-    const config = { ...CONFIGS[key] };
-
-    if (config.prod) {
-      if (skipProd) {
-        config.prod = false;
-      } else {
-        acc.push(createConfig(pkg, build.name, { ...config, prod: false }));
-      }
-    }
-
-    acc.push(createConfig(pkg, build.name, config));
-    return acc;
-  }, []);
-}
-
 // make CWD agnostic, please
-// run configs 
+/* run configs 
 function createConfig(pkg, pkgName, config) {
   // generate output name.
   /* generate all other options based on config input.
   if (!output) {
     console.error(`invalid format: "${format}"`);
     process.exit(1);
-  }*/
+  }*
   const { prod, bundler, format } = config;
   const isProdBuild = !!prod;
   const isNodeBuild = format === 'cjs';
@@ -249,14 +135,115 @@ function createConfig(pkg, pkgName, config) {
       ...plugins
     ],
     output,
-  };*/
+  };*
+}*/
+
+function createConfig({ name: bundleName, dir, package, config }, tsCheck) {
+  // generate output name.
+  /* generate all other options based on config input.
+  if (!output) {
+    console.error(`invalid format: "${format}"`);
+    process.exit(1);
+  }*/
+  const pkgName = package.name;
+  const { prod, bundler: isBundled, format } = config;
+
+  const isProdBuild = !!prod;
+  const isNodeBuild = format === 'cjs';
+  const isGlobalBuild = isBundled;
+  const isESM = format === 'esm';
+  const filename = pkgName.includes('@') ? pkgName.split('/', 2)[1] : pkgName;
+
+  let extname = '.js';
+  let prePlugins = [];
+  let postPlugins = [];
+  let external = [];
+  let name;
+
+  // Resolve external modules if not node build
+  if (!isNodeBuild) {
+    prePlugins.push(nodeResolve({ preferBuiltins: true }), commonjs({ sourceMap: false }));
+  } else {
+    extname = `.cjs${extname}`;
+    external = [
+      ...Object.keys(package.dependencies || {}),
+      ...Object.keys(package.peerDependencies || {}),
+    ];
+  }
+
+  if (isProdBuild) {
+    const minifyer = terser({
+      module: isESM,
+      compress: {
+        ecma: 2015,
+        pure_getters: true,
+      },
+    });
+
+    postPlugins.push(minifyer);
+    extname = `.prod${extname}`;
+  }
+
+  if (isGlobalBuild) {
+    extname = `.global${extname}`;
+    name = bundleName;
+  } else if (isESM) {
+    extname = `.esm${extname}`;
+  }
+
+  /*if (!isGlobalBuild) {
+    external = [
+      ...Object.keys(package.dependencies || {}),
+      ...Object.keys(package.peerDependencies || {}),
+    ];
+  }*/
+
+  // Return rollup config
+  return {
+    input: {
+      external,
+      input: path.resolve(dir, ENTRYPOINT),
+      plugins: [
+        ...prePlugins,
+        json(),
+        typescript({
+          check: isProdBuild && tsCheck,
+          tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+          cacheRoot: path.resolve(__dirname, '../node_modules/.rts2_cache'),
+          tsconfigOverride: {
+            compilerOptions: {
+              sourceMap: isProdBuild,
+              declaration: tsCheck,
+              declarationMap: tsCheck,
+            }
+          }
+        }),
+        replace({
+          __DEV__: isBundled ? '(process.env.NODE_ENV !== \'production\')' : String(!isProdBuild),
+          __BROWSER__: String(!isNodeBuild),
+          __NODE_JS__: String(isNodeBuild),
+          __VERSION__: package.version,
+        }),
+        ...postPlugins,
+      ],
+      treeshake: {
+        moduleSideEffects: false,
+      },
+      onwarn: (msg, warn) => !/Circular/.test(msg) && warn(msg),
+    },
+    output: {
+      name,
+      format,
+      //dir: path.resolve(dir, 'dist/'),
+      file: path.resolve(dir, `dist/${filename}${extname}`),
+      // external, set later
+      sourcemap: isProdBuild,
+      externalLiveBindings: false,
+    },
+  }
 }
 
-function createConfig() {
-
-}
-
-exports.rollPackage = function rollPackage(target) {
+exports.rollPackage = function rollPackage(target, skipProd = false) {
   const { dir, package } = target;
   const { name, configs } = package.build;
   /*{
@@ -266,32 +253,25 @@ exports.rollPackage = function rollPackage(target) {
     ]
   }*/
 
-  const buildConfigs = build.configs.reduce((acc, key) => {
+  const buildConfigs = configs.reduce((acc, key) => {
     const config = { ...CONFIGS[key] };
 
     if (config.prod) {
       if (skipProd) {
         config.prod = false;
       } else {
-        acc.push(createConfig(pkg, build.name, { ...config, prod: false }));
+        const devConfig = { ...config, prod: false };
+        acc.push(createConfig({ name, dir, package, config: devConfig }, !acc.length));
       }
     }
 
-    acc.push(createConfig(pkg, build.name, config));
+    acc.push(createConfig({ name, dir, package, config }, !acc.length));
     return acc;
   }, []);
 
-  for (const config of buildConfigs) {
+  const promises = buildConfigs.map(config => {
+    return rollup(config.input).then(bundle => bundle.write(config.output));
+  });
 
-  }
-
-
-  const input = createInput(dir);
-  const bundle = await rollup(input);
-  const outputs = createOutputs(package);
-
-  for (const output of outputs) {
-    output.dir = path.resolve(dir, 'dist/');
-    await bundle.write(output);
-  }
+  return Promise.all(promises);
 };

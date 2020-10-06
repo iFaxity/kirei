@@ -8,20 +8,20 @@
     "types": [ "node" ],
     "sourceMap": false,
     //"declarationDir": "./lib",
-    "declaration": false,
-    "declarationMap": false,
+    //"declaration": false,
+    //"declarationMap": false,
     "baseUrl": "./",
     "rootDir": "./",
-    "outDir": "./dist",
     "paths": {
       "@kirei/*": [ "packages/*" ],
       "babel-plugin-kirei": [ "packages/babel-plugin" ]
     },
-    "allowJs": false,
-    "noUnusedLocals": true,
-    "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "esModuleInterop": true
+    //"allowJs": false,
+    //"noUnusedLocals": true,
+    //"experimentalDecorators": true,
+    //"resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
   "include": [
     "packages/*/src",

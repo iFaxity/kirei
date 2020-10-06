@@ -17,6 +17,10 @@
     "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
     "build": "tsc -b"
   },
+  "build": {
+    "name": "",
+    "configs": [ "cjs", "esm" ]
+  },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/ssr",
   "repository": {
     "type": "git",

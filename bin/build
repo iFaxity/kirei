@@ -22,8 +22,7 @@ const { promisify } = require('util');
 const { readFile, access, rmdir } = require('fs/promises');
 const gzip = promisify(zlib.gzip);
 const brotli = promisify(zlib.brotliCompress);
-const { rollup } = require('rollup');
-const { createInput, createOutputs } = require('./roll');
+const { rollPackage } = require('./roll');
 const { resolvePackages } = require('./shared');
 const PACKAGES_ROOT = path.resolve(__dirname, '../packages');
 
@@ -87,14 +86,17 @@ async function build(target) {
     await rmrf(`${dir}/dist`);
   }
 
-  const input = createInput(dir);
+  console.log(`${'\n'.repeat(5)}${package.name}`);
+  await rollPackage(target);
+
+  /*const input = createInput(dir);
   const bundle = await rollup(input);
   const outputs = createOutputs(package);
 
   for (const output of outputs) {
     output.dir = path.resolve(dir, 'dist/');
     await bundle.write(output);
-  }
+  }*/
 
   /*const env = (package.buildOptions && package.buildOptions.env) || (devOnly ? 'development' : 'production');
   await execa(
@@ -164,7 +166,11 @@ async function run() {
   //let names = targets.length ? fuzzyMatchTarget(targets, buildAllMatching) : packages;
   let names = packages;
   for (const target of names.values()) {
-    await build(target);
+    try {
+      await build(target);
+    } catch (ex) {
+      console.error(ex);
+    }
   }
 
   if (!devOnly) {
@@ -175,8 +181,6 @@ async function run() {
 
     console.log('');
   }
-
-  console.log('Done!');
 }
 
 run().catch(err => console.error(err));

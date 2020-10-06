@@ -3,10 +3,11 @@
   "version": "1.1.3",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
-  "module": "dist/index.js",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "unpkg": "dist/kirei.global.js",
+  "main": "index.js",
+  "module": "dist/element.esm.js",
+  "types": "dist/element.d.ts",
+  "unpkg": "dist/element.global.js",
+  "jsdelivr": "dist/element.global.js",
   "sideEffect": false,
   "files": [
     "dist/*"
@@ -15,6 +16,10 @@
     "prepublishOnly": "npm run build",
     "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
     "build": "tsc -b"
+  },
+  "build": {
+    "name": "KireiElement",
+    "configs": [ "cjs", "esm", "browser", "esm-browser" ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/element",
   "repository": {
