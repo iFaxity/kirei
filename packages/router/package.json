@@ -9,7 +9,7 @@
   "types": "dist/router.d.ts",
   "unpkg": "dist/router.global.js",
   "jsdelivr": "dist/router.global.js",
-  "sideEffect": false,
+  "sideEffects": false,
   "files": [
     "dist/*"
   ],

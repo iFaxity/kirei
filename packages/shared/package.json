@@ -6,7 +6,7 @@
   "main": "index.js",
   "module": "dist/shared.esm.js",
   "types": "dist/shared.d.ts",
-  "sideEffect": false,
+  "sideEffects": false,
   "files": [
     "dist/*"
   ],
