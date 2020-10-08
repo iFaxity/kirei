@@ -33,7 +33,7 @@ function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
 
   const transform: Transform = {
     test(ctx) {
-      if (ctx.isBuild || process.env.NODE_ENV == 'production') {
+      if (ctx.isBuild || !__DEV__) {
         // do not transform for production builds
         return false;
       } else if (ctx.path.startsWith('/@modules/') || ctx.path.includes('node_modules')) {

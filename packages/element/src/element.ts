@@ -7,8 +7,6 @@ import { validateProp, normalizeProps } from './props';
 import type { CSSResult } from './css';
 import type { IKireiElement, ElementOptions, NormalizedElementOptions } from './interfaces';
 
-export { ElementOptions, NormalizedElementOptions };
-
 /**
  * Collects an array of CSSResults into a Set of CSSResults to ensure they are unique
  * @param {CSSResult[]} styles Stylesheets to collect

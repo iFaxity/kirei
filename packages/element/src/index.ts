@@ -1,6 +1,6 @@
 export * from '@vue/reactivity';
 export { KireiInstance } from './instance';
-export { KireiElement } from './element';
+export { KireiElement, normalizeOptions } from './element';
 export { nextTick } from './queue';
 export { css, CSSResult } from './css';
 export { directive, html, svg } from './compiler';
@@ -8,6 +8,7 @@ export * from './api/lifecycle';
 export { portal } from './api/portal';
 export * from './api/inject';
 export { watch, watchEffect } from './api/watch';
+export { ElementOptions } from './interfaces';
 
 import { KireiElement, normalizeOptions } from './element';
 import { warn } from './logging';

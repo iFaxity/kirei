@@ -18,7 +18,7 @@
   },
   "build": {
     "name": "KireiHtml",
-    "configs": [ "cjs", "esm", "browser", "esm-browser" ]
+    "configs": [ "cjs", "esm", "global", "esm-browser" ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/html",
   "repository": {

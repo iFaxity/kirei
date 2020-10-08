@@ -6,15 +6,14 @@
     "moduleResolution": "node",
     "lib": [ "dom", "esnext" ],
     "types": [ "node" ],
-    "sourceMap": false,
     //"declarationDir": "./lib",
     //"declaration": false,
     //"declarationMap": false,
     "baseUrl": "./",
     "rootDir": "./",
     "paths": {
-      "@kirei/*": [ "packages/*" ],
-      "babel-plugin-kirei": [ "packages/babel-plugin" ]
+      "@kirei/*": [ "packages/*src" ],
+      "babel-plugin-kirei": [ "packages/babel-plugin/src" ]
     },
     //"allowJs": false,
     //"noUnusedLocals": true,
@@ -29,6 +28,9 @@
   ],
   "exclude": [
     "**/node_modules",
+    "packages/router/src/engines",
+    "packages/ssr",
+    "packages/store",
     "packages/element/src/api/suspense.ts",
     "packages/element/src/api/emits.ts"
   ]

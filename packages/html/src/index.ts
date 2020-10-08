@@ -2,7 +2,9 @@ import { Template, TemplateCompiler, TemplateCache, createCache } from './templa
 import { isObject } from '@kirei/shared';
 import { clearNode, LRUWeakMap } from './shared';
 export { defaultCompiler, TemplatePatcher } from './compiler';
-export { Template, TemplateCompiler, LRUWeakMap, createCache };
+
+export { LRUWeakMap } from './shared';
+export { Template, TemplateCompiler, createCache } from './template';
 
 /** @type */
 type Key = string|number|null|undefined;
