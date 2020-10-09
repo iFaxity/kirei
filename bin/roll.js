@@ -67,9 +67,10 @@ function createConfig({ name, dir, package, config }, tsCheck) {
   }
 
   // Resolve external modules if not node build
-  if (!isNodeBuild) {
-    prePlugins.push(nodeResolve({ preferBuiltins: true }), commonjs({ sourceMap: false }));
-  }
+  //TODO: re enable this also for esm, not working well with dependencies somehow
+  //if (!isNodeBuild) {
+  //  prePlugins.push(nodeResolve({ preferBuiltins: true }), commonjs({ sourceMap: false }));
+  //}
 
   if (!isGlobalBuild) {
     external.push(...Object.keys(package.dependencies || {}));
@@ -82,7 +83,9 @@ function createConfig({ name, dir, package, config }, tsCheck) {
       external,
       input: path.resolve(dir, ENTRYPOINT),
       plugins: [
-        ...prePlugins,
+        // ...prePlugins,
+        nodeResolve({ preferBuiltins: true }),
+        commonjs({ sourceMap: false }),
         json(),
         typescript({
           check: isProdBuild && tsCheck,

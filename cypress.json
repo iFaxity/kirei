@@ -1,11 +1,12 @@
 {
+  "$schema":"https://raw.githubusercontent.com/cypress-io/cypress/develop/cli/schema/cypress.schema.json",
   "testFiles": "*/*.js",
   "env": {
     "coverage": false
   },
   "screenshotOnRunFailure": false,
   "video": false,
-  "experimentalShadowDomSupport": true,
+  "includeShadowDom": true,
   "experimentalFetchPolyfill": true,
   "baseUrl": "http://localhost:3000",
   "defaultCommandTimeout": 4000,

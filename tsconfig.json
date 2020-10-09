@@ -1,10 +1,10 @@
 {
   "$schema":"https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es2019",
     "module": "esnext",
     "moduleResolution": "node",
-    "lib": [ "dom", "esnext" ],
+    "lib": [ "dom", "es2019" ],
     "types": [ "node" ],
     //"declarationDir": "./lib",
     //"declaration": false,

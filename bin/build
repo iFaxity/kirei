@@ -104,14 +104,15 @@ async function build(target) {
   const start = Date.now();
   let completed = false;
   try {
-    console.log(`Building: ${package.name}`);
+    console.log(`\u001B[36;1mBuilding: ${package.name}\u001B[0m`);
     await rollPackage(target);
 
     completed = true;
   } finally {
     const diff = (Date.now() - start) / 1000;
     const status = completed ? 'completed' : 'errored';
-    console.log(`Build ${status} after ${diff.toFixed(2)}s\n`);
+    const color = completed ? '\u001B[32;1m' : '\u001B[31;1m';
+    console.log(`${color}Build ${status} after ${diff.toFixed(2)}s\u001B[0m\n`);
   }
 
   /*const input = createInput(dir);

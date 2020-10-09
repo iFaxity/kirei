@@ -3,9 +3,9 @@
   "version": "1.1.3",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
-  "module": "dist/index.js",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/hmr-api.cjs.js",
+  "module": "dist/hmr-api.esm.js",
+  "types": "dist/hmr-api.d.ts",
   "sideEffects": false,
   "files": [
     "dist/*"

@@ -4,10 +4,11 @@
   "private": true,
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
-  "type": "module",
-  "module": "dist/index.js",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "module": "dist/ssr.esm.js",
+  "types": "dist/ssr.d.ts",
+  "unpkg": "dist/ssr.global.js",
+  "jsdelivr": "dist/ssr.global.js",
   "sideEffects": false,
   "files": [
     "dist/*"
