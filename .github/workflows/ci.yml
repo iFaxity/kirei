@@ -24,6 +24,10 @@ jobs:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+          check-latest: true
       - name: Cache dependencies
         id: cache
         uses: actions/cache@v2
@@ -50,7 +54,7 @@ jobs:
     steps:
       # Restore packages from cache
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v1
         with:
           node-version: '12'
           check-latest: true
