@@ -29,11 +29,10 @@ function shell(cmd, path) {
   return execSync(cmd, { cwd, encoding: 'utf8' });
 }
 
-function resolvePackages(rootDir, fuzzy) {
+function resolvePackages(rootDir, private = false) {
   const packages = readdirSync(rootDir);
 
-  // filter packages by name
-
+  // filter packages by name?
   return packages.reduce((acc, name) => {
     const dir = path.resolve(rootDir, name);
     const stats = statSync(dir);
@@ -42,7 +41,7 @@ function resolvePackages(rootDir, fuzzy) {
     if (stats.isDirectory()) {
       const package = readJSON(path.resolve(dir, 'package.json'));
 
-      if (package.private !== true) {
+      if (private || package.private !== true) {
         acc.set(package.name, { package, dir });
       }
     }

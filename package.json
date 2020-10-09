@@ -15,9 +15,7 @@
   },
   "scripts": {
     "build": "node ./bin/build",
-    "build:tsc": "tsc -b --force",
-    "postbuild:tsc": "rollup -c rollup.config.js",
-    "build:ci": "tsc -b --force",
+    "ci": "node ./bin/build",
     "clean": "rm -rf packages/*/dist",
     "docs": "typedoc packages/*/src",
     "dev": "vite serve cypress/app -c ./cypress/app/vite.config.js",

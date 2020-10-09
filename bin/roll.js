@@ -10,13 +10,6 @@ const { builtinModules } = require('module');
 
 const ENTRYPOINT = 'src/index.ts';
 const BUILTIN_MODULES = builtinModules.filter(x => !x.startsWith('_'));
-
-// shorthand configs
-/*const DEFAULT_CONF = {
-  prod: true, // builds prod too, .prod.js, also minify
-  bundler: false, // if external modules should be bundled
-  format: null, // iife, cjs, esm
-};*/
 const CONFIGS = {
   cjs: {
     prod: true,
@@ -111,7 +104,6 @@ function createConfig({ name, dir, package, config }, tsCheck) {
           __BROWSER__: String(!isNodeBuild),
           __NODE_JS__: String(isNodeBuild),
           __VERSION__: package.version,
-          'process.env.NODE_ENV': isBundled ? (isProdBuild ? `'production'` : `'development'`) : 'process.env.NODE_ENV',
         }),
       ],
       /*treeshake: {
@@ -124,9 +116,8 @@ function createConfig({ name, dir, package, config }, tsCheck) {
       plugins: postPlugins,
       exports: 'auto',
       file: path.resolve(dir, `dist/${filename}${extname}`),
-      sourcemap: true,
+      sourcemap: true, // isProdBuild,
       externalLiveBindings: false,
-      //sourcemap: isProdBuild,
     },
   }
 }

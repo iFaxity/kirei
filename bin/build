@@ -27,7 +27,6 @@ const { resolvePackages } = require('./shared');
 const PACKAGES_ROOT = path.resolve(__dirname, '../packages');
 
 // maybe not use all of these?
-// 
 const args = require('minimist')(process.argv.slice(2));
 const targets = args._;
 const formats = args.formats || args.f;
@@ -38,6 +37,19 @@ const isRelease = args.release;
 const buildTypes = args.t || args.types || isRelease;
 const buildAllMatching = args.all || args.a;
 const { generateDtsBundle } = require('dts-bundle-generator');
+
+// Manually for now.
+const PACKAGE_ORDER = [
+  '@kirei/shared',
+  '@kirei/html',
+  '@kirei/element',
+  '@kirei/hmr-api',
+  '@kirei/router',
+  '@kirei/store',
+  '@kirei/ssr',
+  'babel-plugin-kirei',
+  '@kirei/vite-plugin',
+];
 
 async function exists(path) {
   try {
@@ -52,9 +64,8 @@ function rmrf(path) {
   return rmdir(path, { recursive: true });
 }
 
-async function checkSize(target) {
-  const { dir } = target;
-  const filePath = path.resolve(dir, `dist/${target}.global.prod.js`);
+async function checkSize(dir, name) {
+  const filePath = path.resolve(dir, `dist/${name}.global.prod.js`);
 
   if (await exists(filePath)) {
     const file = (await readFile(filePath)).length;
@@ -89,8 +100,19 @@ async function build(target) {
     await rmrf(`${dir}/dist`);
   }
 
-  console.log(`${'\n'.repeat(2)}${package.name}`);
-  await rollPackage(target);
+  // Build package, with package execution time
+  const start = Date.now();
+  let completed = false;
+  try {
+    console.log(`Building: ${package.name}`);
+    await rollPackage(target);
+
+    completed = true;
+  } finally {
+    const diff = (Date.now() - start) / 1000;
+    const status = completed ? 'completed' : 'errored';
+    console.log(`Build ${status} after ${diff.toFixed(2)}s\n`);
+  }
 
   /*const input = createInput(dir);
   const bundle = await rollup(input);
@@ -125,7 +147,7 @@ async function build(target) {
     console.log(`\nRolling up type definitions for ${target}...`);
 
     // list all .ts files
-    generateDtsBundle([]);
+    generateDtsBundle();
 
     // build types
     const { Extractor, ExtractorConfig } = require('@microsoft/api-extractor');
@@ -163,23 +185,29 @@ async function build(target) {
 }
 
 async function run() {
-  if (isRelease) {
+  /*if (isRelease) {
     // Remove build cache for release builds to avoid outdated enum values
     await rmrf(path.resolve(__dirname, '../node_modules/.rts2_cache'));
-  }
+  }*/
 
-  const packages = resolvePackages(PACKAGES_ROOT);
+  const matched = resolvePackages(PACKAGES_ROOT, false); // true when prod
+  const pkgs = PACKAGE_ORDER.reduce((acc, key) => {
+    const item = matched.get(key);
+    if (item) {
+      acc.push([ key, item ])
+    }
 
+    return acc;
+  }, []);
 
   // build types into ./lib folder
   // then roll all types with api-extractor in each build
   // after remove lib dir
 
   //let names = targets.length ? fuzzyMatchTarget(targets, buildAllMatching) : packages;
-  let names = packages;
-  for (const target of names.values()) {
+  for (const [ _, pkg ] of pkgs) {
     try {
-      await build(target);
+      await build(pkg);
     } catch (ex) {
       console.error(ex);
     }
@@ -187,8 +215,8 @@ async function run() {
 
   if (!devOnly) {
     console.log('');
-    for (const target of names.values()) {
-      await checkSize(target);
+    for (const [ name, pkg ] of pkgs) {
+      await checkSize(pkg.dir, name);
     }
 
     console.log('');
