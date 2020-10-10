@@ -1,9 +1,9 @@
 const BABEL_OPTIONS = {
   presets: [
-    "@babel/preset-typescript",
-    /*['@babel/preset-env', {
+    ['@babel/preset-env', {
       exclude: [ '@babel/plugin-transform-regenerator' ]
-    }],*/
+    }],
+    "@babel/preset-typescript",
   ],
   plugins: [
     '@babel/plugin-proposal-class-properties',
@@ -22,12 +22,8 @@ module.exports = {
       {
         test: /\.[tj]s$/,
         exclude: /(node_modules)/,
-        use: [
-          {
-            loader: 'babel-loader',
-            options: BABEL_OPTIONS,
-          },
-        ],
+        loader: 'babel-loader',
+        options: BABEL_OPTIONS,
       },
     ],
   }

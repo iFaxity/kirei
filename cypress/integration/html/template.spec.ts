@@ -1,5 +1,6 @@
+// @ts-nocheck
 /// <reference types="cypress" />
-import { Template, createCache } from '@kirei/html/dist/template';
+import { Template, createCache } from '@kirei/html/src/template';
 
 function template(type) {
   return (strings, ...values) => new Template(type, strings, values);

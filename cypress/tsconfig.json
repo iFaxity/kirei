@@ -11,7 +11,7 @@
       "@kirei/*": [ "packages/*/src" ],
       "babel-plugin-kirei": [ "packages/babel-plugin/src" ],
     },
-    "types": [ "cypress" ]
+    "types": [ "cypress", "webpack-env" ]
   },
-  "include": [ "../packages/*" ]
+  "include": [ "../packages/*", "../packages/globals.d.ts" ]
 }

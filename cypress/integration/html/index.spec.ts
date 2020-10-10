@@ -1,5 +1,6 @@
+// @ts-nocheck
 /// <reference types="cypress" />
-import { Template, customize, html, svg, render } from '@kirei/html';
+import { Template, customize, html, svg, render } from '@kirei/html/src';
 
 describe('#customize()', () => {
   it('without options', () => {
@@ -19,7 +20,6 @@ describe('#customize()', () => {
     assert.isFunction(svg.fn);
     assert.equal(html.fn, fn);
     assert.equal(svg.fn, fn);
-    assert.equal();
   });
   it('prevent overriding defined literals', () => {
     const key = () => {};
@@ -34,7 +34,7 @@ describe('#customize()', () => {
       render(tpl, root);
 
       assert.equal(root.childNodes.length, 1);
-      assert.equal(root.firstChild.tagName, 'P');
+      assert.equal((root.firstChild as Element).tagName, 'P');
     });
     it('with node', () => {
       const root = document.createElement('div');
@@ -46,7 +46,7 @@ describe('#customize()', () => {
     });
     it('with invalid template', () => {
       const root = document.createElement('div');
-      assert.throws(() => render('hello', root));
+      assert.throws(() => render('hello' as any, root));
     });
     it('cleanup root', () => {
       const root = document.createElement('div');
@@ -72,7 +72,7 @@ describe('#customize()', () => {
       assert.equal(tpl.values.length, 2);
       assert.deepEqual(tpl.values, [ name, website ]);
       assert.equal(tpl.strings.length, 3);
-      assert.deepEqual(tpl.strings, ['<p>Hello ', '! Welcome to ', '.</p>']);
+      assert.deepEqual(tpl.strings, ['<p>Hello ', '! Welcome to ', '.</p>'] as any);
     });
 
     describe('#key()', () => {
@@ -103,7 +103,7 @@ describe('#customize()', () => {
       assert.equal(tpl.values.length, 2);
       assert.deepEqual(tpl.values, [ stroke, radius ]);
       assert.equal(tpl.strings.length, 3);
-      assert.deepEqual(tpl.strings, ['<circle stroke=', ' r=', ' />']);
+      assert.deepEqual(tpl.strings, ['<circle stroke=', ' r=', ' />'] as any);
     });
 
     describe('#key()', () => {

@@ -1,5 +1,6 @@
+// @ts-nocheck
 /// <reference types="cypress" />
-import { defaultCompiler } from '@kirei/html';
+import { defaultCompiler } from '@kirei/html/src';
 
 function assertText(value, expected) {
   const node = document.createComment('');

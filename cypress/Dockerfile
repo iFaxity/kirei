@@ -14,5 +14,5 @@ RUN printf '%s\n' \
 RUN chmod +x cypress.sh
 
 # npm run test
-CMD [ "bootstrap.js" ]
+CMD [ "bootstrap.ts" ]
 ENTRYPOINT [ "./cypress.sh" ]

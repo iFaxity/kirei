@@ -1,3 +1,4 @@
+// @ts-nocheck
 /// <reference types="cypress" />
 import {
   isPrimitive,
@@ -7,7 +8,7 @@ import {
   isUndefined,
   isPromise,
   mapObject,
-} from '@kirei/shared';
+} from '@kirei/shared/src';
 
 describe('#isPrimitive()', () => {
   it('with string', () => assert(isPrimitive('test')));

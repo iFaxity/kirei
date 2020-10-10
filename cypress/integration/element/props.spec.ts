@@ -1,5 +1,6 @@
+// @ts-nocheck
 /// <reference types="cypress" />
-import { normalizeProps, propDefaults, validateProp } from '@kirei/element/dist/props';
+import { normalizeProps, propDefaults, validateProp } from '@kirei/element/src/props';
 
 const UNDEFINED = void 0; // undefined
 
@@ -104,7 +105,7 @@ describe('props', () => {
   describe('#propDefaults()', () => {
 
     it('invalid argument', () => {
-      assert.throws(() => propDefaults());
+      assert.throws(() => propDefaults(UNDEFINED));
       assert.throws(() => propDefaults(null));
     });
     it('no default props', () => {
@@ -231,7 +232,7 @@ describe('props', () => {
     describe('required', () => {
       it('undefined value', () => {
         const prop = createProp({ type: Number, required: true });
-        assert.throws(() => validateProp(prop, 'count'));
+        assert.throws(() => validateProp(prop, 'count', UNDEFINED));
       });
       it('defined invalid value', () => {
         const prop = createProp({ type: Number, required: true });

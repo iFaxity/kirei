@@ -1,6 +1,7 @@
+// @ts-nocheck
 /// <reference types="cypress" />
-import { directive, directives, aliases, html, render } from '@kirei/element/dist/compiler';
-import { ref } from '@kirei/element';
+import { directive, directives, aliases, html, render } from '@kirei/element/src/compiler';
+import { ref } from '@kirei/element/src';
 
 function renderTemplate(template) {
   // Clear content & append new node
@@ -24,7 +25,7 @@ describe('compiler', () => {
       .filter(x => !defaultDirectives.includes(x))
       .forEach(key => directives.delete(key));
 
-    for (const key of aliases) {
+    for (const key of aliases.keys()) {
       aliases.delete(key);
     }
   });
@@ -40,19 +41,19 @@ describe('compiler', () => {
     });
     it('invalid name', () => {
       const fn = () => {};
-      assert.throws(() => directive(100, fn));
+      assert.throws(() => directive(100 as any, fn));
       assert.throws(() => directive(null, fn));
-      assert.throws(() => directive([], fn));
+      assert.throws(() => directive([] as any, fn));
     });
     it('prevent overwriting', () => {
       directive('x-item', () => {});
       assert.throws(() => directive('x-item', () => {}));
     });
     it('invalid directive', () => {
-      assert.throws(() => directive('hello', {}));
-      assert.throws(() => directive('world', null));
-      assert.throws(() => directive('foo', true));
-      assert.throws(() => directive(100, () => {}));
+      assert.throws(() => directive('hello', {} as any));
+      assert.throws(() => directive('world', null as any));
+      assert.throws(() => directive('foo', true as any));
+      assert.throws(() => directive(100 as any, () => {}));
     });
   });
 

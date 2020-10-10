@@ -1,5 +1,8 @@
+// @ts-nocheck
 /// <reference types="cypress" />
-import * as queue from '@kirei/element/dist/queue';
+import * as queue from '@kirei/element/src/queue';
+
+const UNDEFINED = void 0; // undefined
 
 describe('queue', () => {
   beforeEach(() => queue.clear());
@@ -16,19 +19,19 @@ describe('queue', () => {
       assert.equal(count, 1);
     });
     it('with string', () => {
-      assert.throws(() => queue.nextTick('hello world'));
+      assert.throws(() => queue.nextTick('hello world' as any));
     });
     it('with Promise', () => {
       const p = Promise.resolve();
-      assert.throws(() => queue.nextTick(p));
+      assert.throws(() => queue.nextTick(p as any));
     });
   });
 
   describe('#push()', () => {
     it('without argument', () => {
-      assert(!queue.has());
-      assert.throws(() => queue.push());
-      assert(!queue.has());
+      assert(!queue.has(UNDEFINED));
+      assert.throws(() => queue.push(UNDEFINED));
+      assert(!queue.has(UNDEFINED));
     });
     it('with function', () => {
       const fn = () => {};
@@ -44,9 +47,9 @@ describe('queue', () => {
     });
     it('with Promise', () => {
       let p = Promise.resolve();
-      assert(!queue.has(p));
-      assert.throws(() => queue.push(p));
-      assert(!queue.has(p));
+      assert(!queue.has(p as any));
+      assert.throws(() => queue.push(p as any));
+      assert(!queue.has(p as any));
     });
     it('check flush + call order', async () => {
       const fn = () => assert.equal(++tick, 1);
