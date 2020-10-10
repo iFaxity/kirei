@@ -1,3 +1,5 @@
+/// <reference types="cypress" />
+
 /*describe('End-to-end', () => {
   const mods = require.context('./e2e', true, /\.spec.ts$/);
   mods.keys().forEach(mods);
