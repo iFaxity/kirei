@@ -64,33 +64,33 @@ describe('css', () => {
 
     describe('#constructor()', () => {
       it('with empty strings & values', () => {
-        const res = new CSSResult([] as any, []);
+        const res = new CSSResult([], []);
         assert.isUndefined(res.cssText);
       });
       it('with one string', () => {
-        const res = new CSSResult(['123 Test 456'] as any, []);
+        const res = new CSSResult(['123 Test 456'], []);
         assert.equal(res.cssText, '123 Test 456');
       });
       it('with valid inputs', () => {
-        const res = new CSSResult([':', ' has ', ' ', '!'] as any, ['Foo', 20, false]);
+        const res = new CSSResult([':', ' has ', ' ', '!'], ['Foo', 20, false]);
         assert.equal(res.cssText, ':Foo has 20 false!');
       });
       it('with more values', () => {
-        const res = new CSSResult(['', ' Test '] as any, [123, true, '!']);
+        const res = new CSSResult(['', ' Test '], [123, true, '!']);
         assert.equal(res.cssText, '123 Test trueundefined!undefined');
       });
       it('with more strings', () => {
-        const res = new CSSResult(['Hey ', ', this is your ', ' report', '!'] as any, ['user']);
+        const res = new CSSResult(['Hey ', ', this is your ', ' report', '!'], ['user']);
         assert.equal(res.cssText, 'Hey user, this is your ');
       });
       it('with invalid strings', () => {
-        const res = new CSSResult([{}, ['__'], 50, true] as any, ['Hi', 456, false]);
+        const res = new CSSResult([{}, ['__'], 50, true], ['Hi', 456, false]);
         assert.equal(res.cssText, '[object Object]Hi__45650falsetrue');
       });
     });
 
     it('#toString()', () => {
-      const res = new CSSResult(['Hello ', '! Todays lucky number: ', '. ', ''] as any, [ 'World', 7, {} ]);
+      const res = new CSSResult(['Hello ', '! Todays lucky number: ', '. ', ''], [ 'World', 7, {} ]);
       assert.equal(res.toString(), 'Hello World! Todays lucky number: 7. [object Object]');
     });
 
@@ -98,7 +98,7 @@ describe('css', () => {
       afterEach(resetAdoptingStyleSheets);
 
       it('with adopting shim', () => {
-        const res = new CSSResult(['.red { color: ', '; }'] as any, ['red']);
+        const res = new CSSResult(['.red { color: ', '; }'], ['red']);
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.instanceOf(res.styleSheet, CSSStyleSheet);
@@ -112,11 +112,11 @@ describe('css', () => {
       });
       it('without adopting shim', () => {
         disableAdoptingStyleSheets();
-        const res = new CSSResult([''] as any, []);
+        const res = new CSSResult([''], []);
         assert.isNull(res.styleSheet);
       });
       it('with invalid content', () => {
-        const res = new CSSResult([100, {}] as any, ['foo']);
+        const res = new CSSResult([100, {}], ['foo']);
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.instanceOf(res.styleSheet, CSSStyleSheet);
@@ -126,7 +126,7 @@ describe('css', () => {
         }
       });
       it('lazy caching', () => {
-        const res = new CSSResult([''] as any, []);
+        const res = new CSSResult([''], []);
         const styles = res.styleSheet;
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {

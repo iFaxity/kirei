@@ -41,19 +41,19 @@ describe('compiler', () => {
     });
     it('invalid name', () => {
       const fn = () => {};
-      assert.throws(() => directive(100 as any, fn));
+      assert.throws(() => directive(100, fn));
       assert.throws(() => directive(null, fn));
-      assert.throws(() => directive([] as any, fn));
+      assert.throws(() => directive([], fn));
     });
     it('prevent overwriting', () => {
       directive('x-item', () => {});
       assert.throws(() => directive('x-item', () => {}));
     });
     it('invalid directive', () => {
-      assert.throws(() => directive('hello', {} as any));
-      assert.throws(() => directive('world', null as any));
-      assert.throws(() => directive('foo', true as any));
-      assert.throws(() => directive(100 as any, () => {}));
+      assert.throws(() => directive('hello', {}));
+      assert.throws(() => directive('world', null));
+      assert.throws(() => directive('foo', true));
+      assert.throws(() => directive(100, () => {}));
     });
   });
 

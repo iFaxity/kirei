@@ -7,7 +7,7 @@ env:
   DEBUG: code-coverage
   CY_URL: http://localhost:3000
   CY_CFG_FILE: ./cypress/cypress.json
-  CY_BOOTSTRAP: ./cypress/integration/bootstrap.js
+  CY_BOOTSTRAP: ./cypress/integration/bootstrap.ts
   CY_COVERAGE_OUTPUT: ./cypress/coverage/lcov.info
   CYPRESS_CACHE_FOLDER: ~/.cache/Cypress
   CACHE_PATHS: |

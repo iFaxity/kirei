@@ -46,7 +46,7 @@ describe('#customize()', () => {
     });
     it('with invalid template', () => {
       const root = document.createElement('div');
-      assert.throws(() => render('hello' as any, root));
+      assert.throws(() => render('hello', root));
     });
     it('cleanup root', () => {
       const root = document.createElement('div');
@@ -72,7 +72,7 @@ describe('#customize()', () => {
       assert.equal(tpl.values.length, 2);
       assert.deepEqual(tpl.values, [ name, website ]);
       assert.equal(tpl.strings.length, 3);
-      assert.deepEqual(tpl.strings, ['<p>Hello ', '! Welcome to ', '.</p>'] as any);
+      assert.deepEqual(tpl.strings, ['<p>Hello ', '! Welcome to ', '.</p>']);
     });
 
     describe('#key()', () => {
@@ -103,7 +103,7 @@ describe('#customize()', () => {
       assert.equal(tpl.values.length, 2);
       assert.deepEqual(tpl.values, [ stroke, radius ]);
       assert.equal(tpl.strings.length, 3);
-      assert.deepEqual(tpl.strings, ['<circle stroke=', ' r=', ' />'] as any);
+      assert.deepEqual(tpl.strings, ['<circle stroke=', ' r=', ' />']);
     });
 
     describe('#key()', () => {

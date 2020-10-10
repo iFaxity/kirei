@@ -19,11 +19,11 @@ describe('queue', () => {
       assert.equal(count, 1);
     });
     it('with string', () => {
-      assert.throws(() => queue.nextTick('hello world' as any));
+      assert.throws(() => queue.nextTick('hello world'));
     });
     it('with Promise', () => {
       const p = Promise.resolve();
-      assert.throws(() => queue.nextTick(p as any));
+      assert.throws(() => queue.nextTick(p));
     });
   });
 
@@ -47,9 +47,9 @@ describe('queue', () => {
     });
     it('with Promise', () => {
       let p = Promise.resolve();
-      assert(!queue.has(p as any));
-      assert.throws(() => queue.push(p as any));
-      assert(!queue.has(p as any));
+      assert(!queue.has(p));
+      assert.throws(() => queue.push(p));
+      assert(!queue.has(p));
     });
     it('check flush + call order', async () => {
       const fn = () => assert.equal(++tick, 1);
