@@ -3,19 +3,15 @@
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "lib": [ "es2016", "dom" ],
+    "lib": [ "dom", "esnext" ],
     "allowJs": true,
+    "outDir": "./dist",
     "baseUrl": "../",
     "paths": {
-      "@kirei/*": [ "packages/*" ]
+      "@kirei/*": [ "packages/*/src" ],
+      "babel-plugin-kirei": [ "packages/babel-plugin/src" ],
     },
     "types": [ "cypress" ]
   },
-  "references": [
-    { "path": "../packages/shared" },
-    { "path": "../packages/element" },
-    { "path": "../packages/router" },
-    { "path": "../packages/vite-plugin" }
-  ],
   "include": [ "../packages/*" ]
 }

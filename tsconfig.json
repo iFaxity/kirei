@@ -6,19 +6,15 @@
     "moduleResolution": "node",
     "lib": [ "dom", "es2019" ],
     "types": [ "node" ],
-    //"declarationDir": "./lib",
-    //"declaration": false,
-    //"declarationMap": false,
     "baseUrl": "./",
     "rootDir": "./",
     "paths": {
-      "@kirei/*": [ "packages/*src" ],
+      "@kirei/*": [ "packages/*/src" ],
       "babel-plugin-kirei": [ "packages/babel-plugin/src" ]
     },
-    //"allowJs": false,
     //"noUnusedLocals": true,
     //"experimentalDecorators": true,
-    //"resolveJsonModule": true,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
