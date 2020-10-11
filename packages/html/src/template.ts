@@ -1,7 +1,7 @@
 import sanitize from 'uparser';
 import { persistent, createWalker, createTemplate, LRUWeakMap } from './shared';
-import { defaultCompiler } from './compiler';
-import type { TemplateCompiler, TemplatePatcher, PatchType } from './compiler';
+import { defaultCompiler, PatchType } from './compiler';
+import type { TemplateCompiler, TemplatePatcher } from './compiler';
 export type { TemplateCompiler };
 
 /**
