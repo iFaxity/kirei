@@ -39,10 +39,10 @@
     "babel-plugin-istanbul": "6.0.0",
     "cypress": "5.3.0",
     "dts-bundle-generator": "5.4.0",
-    "esbuild": "^0.7.14",
+    "esbuild": "0.7.14",
     "mochawesome": "6.1.1",
     "rollup": "2.29.0",
-    "rollup-plugin-esbuild": "^2.5.2",
+    "rollup-plugin-esbuild": "2.5.2",
     "tslib": "2.0.3",
     "typedoc": "0.19.2",
     "typedoc-plugin-exclude-references": "1.0.0",
@@ -51,6 +51,6 @@
     "vite": "1.0.0-rc.4",
     "vite-plugin-istanbul": "1.1.0",
     "webpack": "5.0.0",
-    "yargs": "^16.0.3"
+    "yargs": "16.0.3"
   }
 }
