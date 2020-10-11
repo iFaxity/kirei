@@ -1,4 +1,5 @@
-import { render, Template, createCache } from '@kirei/html';
+import { render, createCache } from '@kirei/html';
+import type { Template } from '@kirei/html';
 import { KireiInstance } from '../instance';
 import { KireiElement } from '../element';
 import { KireiError } from '../logging';

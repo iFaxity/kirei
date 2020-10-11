@@ -1,4 +1,5 @@
-import { ReactiveEffect, effect, stop } from '@vue/reactivity';
+import { effect, stop } from '@vue/reactivity';
+import type { ReactiveEffect } from '@vue/reactivity';
 import { Template } from '@kirei/html';
 import { render } from '../compiler';
 import { onUnmount } from './lifecycle';

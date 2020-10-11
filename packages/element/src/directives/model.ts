@@ -1,9 +1,11 @@
 import { isString } from '@kirei/shared';
-import { Ref, isRef } from '@vue/reactivity';
-import { directive, Directive } from '../compiler';
+import { isRef } from '@vue/reactivity';
+import type { Ref } from '@vue/reactivity';
+import { directive } from '../compiler';
+import type { Directive } from '../compiler';
 import { push } from '../queue';
 import { KireiInstance } from '../instance';
-import { TemplatePatcher } from '@kirei/html';
+import type { TemplatePatcher } from '@kirei/html';
 
 const DEFAULT_PROP = 'modelValue';
 

@@ -1,7 +1,8 @@
-import { TemplatePatcher } from '@kirei/html';
+import type { TemplatePatcher } from '@kirei/html';
 import { isFunction, isString } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
-import { directive, Directive } from '../compiler';
+import { directive } from '../compiler';
+import type { Directive } from '../compiler';
 import { KireiInstance } from '../instance';
 import { warn } from '../logging';
 

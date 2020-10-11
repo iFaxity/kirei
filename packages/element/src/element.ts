@@ -1,4 +1,5 @@
-import { TriggerOpTypes, trigger, reactive } from '@vue/reactivity';
+import { trigger, reactive } from '@vue/reactivity';
+import type { TriggerOpTypes } from '@vue/reactivity';
 import { mapObject, isObject } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
 import { KireiInstance } from './instance';

@@ -1,10 +1,12 @@
-import { Template, TemplateCompiler, TemplateCache, createCache } from './template';
+import { Template, createCache } from './template';
+import type { TemplateCompiler, TemplateCache } from './template';
 import { isObject } from '@kirei/shared';
 import { clearNode, LRUWeakMap } from './shared';
-export { defaultCompiler, TemplatePatcher } from './compiler';
+export { defaultCompiler } from './compiler';
 
-export { LRUWeakMap } from './shared';
-export { Template, TemplateCompiler, createCache } from './template';
+export { LRUWeakMap, createCache };
+export type { TemplatePatcher } from './compiler';
+export type { Template, TemplateCompiler } from './template';
 
 /** @type */
 type Key = string|number|null|undefined;

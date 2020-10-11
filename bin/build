@@ -19,24 +19,60 @@ yarn build core --formats cjs
 const path = require('path');
 const zlib = require('zlib');
 const { promisify } = require('util');
-const { readFile, access, rmdir } = require('fs/promises');
+const { readFile, writeFile, access, rmdir } = require('fs/promises');
 const gzip = promisify(zlib.gzip);
 const brotli = promisify(zlib.brotliCompress);
 const { rollPackage } = require('./roll');
 const { resolvePackages } = require('./shared');
 const PACKAGES_ROOT = path.resolve(__dirname, '../packages');
 
-// maybe not use all of these?
-const args = require('minimist')(process.argv.slice(2));
-const targets = args._;
-const formats = args.formats || args.f;
-const devOnly = args.devOnly || args.d;
-const prodOnly = !devOnly && (args.prodOnly || args.p);
-const sourceMap = args.sourcemap || args.s;
-const isRelease = args.release;
-const buildTypes = args.t || args.types || isRelease;
-const buildAllMatching = args.all || args.a;
-const { generateDtsBundle } = require('dts-bundle-generator');
+const args = require('yargs')
+  .option('devOnly', {
+    type: 'boolean',
+    alias: 'd',
+    default: false,
+    description: 'Only builds for development',
+  })
+  .option('prodOnly', {
+    type: 'boolean',
+    alias: 'p',
+    default: false,
+    description: 'Only builds for production, ignored if devOnly is set',
+  })
+  .option('sourceMap', {
+    type: 'boolean',
+    alias: 's',
+    default: true,
+    description: 'Include sourcemaps in the build',
+  })
+  .option('types', {
+    type: 'boolean',
+    alias: 't',
+    default: true,
+    description: '',
+  })
+  .option('release', {
+    type: 'boolean',
+    default: false,
+    description: 'Builds for release, ignores any private packages',
+  })
+  .option('formats', {
+    type: 'array',
+    alias: 'f',
+    choices: [ 'cjs', 'esm', 'global', 'module' ],
+    default: [],
+    description: 'Formats to solely build targeted types',
+  })
+  // Special config
+  .help('help').alias('h', 'help').argv;
+
+/*
+const prodOnly = !args.devOnly && args.prodOnly;
+const buildTypes = args.types || args.release;*/
+const { devOnly, sourceMap, release: isRelease, types: buildTypes } = args;
+const formats = args.formats.length ? args.formats : null;
+const targets = args._.length ? args._ : null;
+const prodOnly = !devOnly && args.devOnly;
 
 // Manually for now.
 const PACKAGE_ORDER = [
@@ -65,29 +101,19 @@ function rmrf(path) {
 }
 
 async function checkSize(dir, name) {
-  const filePath = path.resolve(dir, `dist/${name}.global.prod.js`);
+  const filename = name.includes('/') ? name.split('/', 2)[1] : name;
+  const filePath = path.resolve(dir, `dist/${filename}.global.prod.js`);
 
   if (await exists(filePath)) {
-    const file = (await readFile(filePath)).length;
-    const gzipped = (await gzip(file)).length;
-    const brotlied = (await brotli(file)).length;
-    console.log(size`${path.basename(filePath)} min:${file} / gzip:${gzipped} / brotli:${brotlied}`);
+    const file = await readFile(filePath);
+    const gzipped = await gzip(file);
+    const brotlied = await brotli(file);
+
+    return [ file.length, gzipped.length, brotlied.length ];
   }
 }
 
-// Interpolate numbers as kb of number
-function size(strings, ...values) {
-  return strings.reduce((acc, str, idx) => {
-    const value = values[idx - 1];
-
-    if (typeof value == 'number') {
-      value = `${(value / 1024).toFixed(2)}kb`;
-    }
-    return `${acc}${value}${str}`;
-  });
-}
-
-async function build(target) {
+async function build(target, opts) {
   const { dir, package } = target;
 
   // only build published packages for release
@@ -105,7 +131,7 @@ async function build(target) {
   let completed = false;
   try {
     console.log(`\u001B[36;1mBuilding: ${package.name}\u001B[0m`);
-    await rollPackage(target);
+    await rollPackage(target, opts);
 
     completed = true;
   } finally {
@@ -115,112 +141,62 @@ async function build(target) {
     console.log(`${color}Build ${status} after ${diff.toFixed(2)}s\u001B[0m\n`);
   }
 
-  /*const input = createInput(dir);
-  const bundle = await rollup(input);
-  const outputs = createOutputs(package);
-
-  for (const output of outputs) {
-    output.dir = path.resolve(dir, 'dist/');
-    await bundle.write(output);
-  }*/
-
-  /*const env = (package.buildOptions && package.buildOptions.env) || (devOnly ? 'development' : 'production');
-  await execa(
-    'rollup',
-    [
-      '-c',
-      '--environment',
-      [
-        `NODE_ENV:${env}`,
-        `TARGET:${target}`,
-        formats ? `FORMATS:${formats}` : ``,
-        buildTypes ? `TYPES:true` : ``,
-        prodOnly ? `PROD_ONLY:true` : ``,
-        sourceMap ? `SOURCE_MAP:true` : ``
-      ]
-        .filter(Boolean)
-        .join(',')
-    ],
-    { stdio: 'inherit' }
-  );*/
-
+  /* Not currently working with import/export type
   if (buildTypes && package.types) {
-    console.log(`\nRolling up type definitions for ${target}...`);
+    const { generateDtsBundle } = require('dts-bundle-generator');
+    console.log(`\nRolling up type definitions for ${package.name}...`);
 
     // list all .ts files
-    generateDtsBundle();
+    const [ typings ] = generateDtsBundle([
+      { filePath: path.resolve(dir, 'src/index.ts'), },
+    ]);
 
-    // build types
-    const { Extractor, ExtractorConfig } = require('@microsoft/api-extractor');
-
-    const extractorConfigPath = path.resolve(dir, `api-extractor.json`);
-    const extractorConfig = ExtractorConfig.loadFileAndPrepare(extractorConfigPath);
-    const extractorResult = Extractor.invoke(extractorConfig, {
-      localBuild: true,
-      showVerboseMessages: true
-    });
-
-    if (extractorResult.succeeded) {
-      /* concat additional d.ts to rolled-up dts
-      const typesDir = path.resolve(dir, 'types');
-
-      if (await exists(typesDir)) {
-        const dtsPath = path.resolve(dir, package.types);
-        //const existing = await readFile(dtsPath, 'utf-8');
-        const typeFiles = await readdir(typesDir);
-        const promises = typeFiles.map(file => readFile(path.resolve(typesDir, file), 'utf-8'))
-        const toAdd = await Promise.all(promises);
-
-        await writeFile(dtsPath, '\n' + toAdd.join('\n'), { flag: 'a' })
-        //await writeFile(dtsPath, existing + '\n' + toAdd.join('\n'));
-      }*/
-
-      console.log(`API Extractor completed successfully.`);
-    } else {
-      console.error(`API Extractor completed with ${extractorResult.errorCount} errors and ${extractorResult.warningCount} warnings`);
-      process.exitCode = 1;
-    }
-
-    await rmrf(`${dir}/dist/packages`);
-  }
+    await writeFile(path.resolve(dir, package.types), typings, 'utf8');
+  }*/
 }
 
 async function run() {
-  /*if (isRelease) {
-    // Remove build cache for release builds to avoid outdated enum values
-    await rmrf(path.resolve(__dirname, '../node_modules/.rts2_cache'));
-  }*/
-
+  const opts = { formats, devOnly, prodOnly, sourceMap };
   const matched = resolvePackages(PACKAGES_ROOT, false); // true when prod
   const pkgs = PACKAGE_ORDER.reduce((acc, key) => {
     const item = matched.get(key);
+
     if (item) {
-      acc.push([ key, item ])
+      const dirname = path.basename(item.dir);
+      if (!targets || targets.includes(key) || targets.includes(dirname)) {
+        // if targets is defined, check if includes dir or package name
+        acc.push([ key, item ]);
+      }
     }
 
     return acc;
   }, []);
 
-  // build types into ./lib folder
-  // then roll all types with api-extractor in each build
-  // after remove lib dir
-
-  //let names = targets.length ? fuzzyMatchTarget(targets, buildAllMatching) : packages;
-  for (const [ _, pkg ] of pkgs) {
+  for (const [ _, target ] of pkgs) {
     try {
-      await build(pkg);
+      await build(target, opts);
     } catch (ex) {
       console.error(ex);
     }
   }
 
   if (!devOnly) {
-    console.log('');
-    for (const [ name, pkg ] of pkgs) {
-      await checkSize(pkg.dir, name);
+    // Interpolate numbers as kb of number
+    const results = [];
+    const size = (value) => `${(value / 1024).toFixed(1)}kb`;
+
+    for (const [ _, target ] of pkgs) {
+      const pkgName = target.package.name;
+      const res = await checkSize(target.dir, pkgName);
+
+      if (res) {
+        results.push(`${pkgName} production build: min: ${size(res[0])} / gzip: ${size(res[1])} / brotli: ${size(res[2])}`);
+      }
     }
 
-    console.log('');
+    if (results.length) {
+      console.log(results.join('\n'));
+    }
   }
 }
 

@@ -1,78 +1,57 @@
 const path = require('path');
-const { terser } = require('rollup-plugin-terser');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
-const replace = require('@rollup/plugin-replace');
-const typescript = require('rollup-plugin-typescript2');
 const commonjs = require('@rollup/plugin-commonjs');
-const json = require('@rollup/plugin-json');
+const esbuild = require('rollup-plugin-esbuild');
 const { rollup } = require('rollup');
-const { builtinModules } = require('module');
+const { builtinModules: BUILTIN_MODULES } = require('module');
 
 const ENTRYPOINT = 'src/index.ts';
-const BUILTIN_MODULES = builtinModules.filter(x => !x.startsWith('_'));
 const CONFIGS = {
+  // CJS for Node (.cjs.js)
   cjs: {
     prod: true,
     bundler: false,
     format: 'cjs',
-    ext: 'cjs',
   },
+  // ESM for bundlers (.esm.js)
   esm: {
     prod: false,
     bundler: false,
     format: 'esm',
-    ext: 'esm',
   },
+  // browser build IIFE (.global.js)
   global: {
     prod: true,
     bundler: true,
     format: 'iife',
-    ext: 'global',
   },
-  'esm-browser': {
+  // bundled esm module (.mjs)
+  module: {
     prod: true,
     bundler: true,
     format: 'esm',
-    ext: 'bundled',
   },
 };
 
-function createConfig({ name, dir, package, config }, tsCheck) {
+function createConfig(key, opts) { //, tsCheck) {
+  // Unpack options
+  const { name, dir, package, config } = opts;
+  const { prod, bundler: isBundled, format, sourceMap } = config;
   const pkgName = package.name;
-  const { prod, ext, bundler: isBundled, format } = config;
-
   const isProdBuild = !!prod;
   const isNodeBuild = format === 'cjs';
-  const isGlobalBuild = isBundled;
-  const isESM = format === 'esm';
-  const filename = pkgName.includes('@') ? pkgName.split('/', 2)[1] : pkgName;
-
-  let prePlugins = [];
-  let postPlugins = [];
-  let external = [ ...BUILTIN_MODULES ];
+  const FILENAME = pkgName.includes('@') ? pkgName.split('/', 2)[1] : pkgName;
+  const external = [ ...BUILTIN_MODULES ];
+  //const plugins = [];
 
   // better way to do this?
-  const extname = `.${ext}${isProdBuild ? '.prod' : ''}.js`;
+  // Module should end with .mjs
+  const extname = key === 'module'
+    ? `${isProdBuild ? '.prod' : ''}.mjs`
+    : `.${key}${isProdBuild ? '.prod' : ''}.js`;
 
-  if (isProdBuild) {
-    const minifyer = terser({
-      module: isESM,
-      compress: {
-        ecma: 2015,
-        pure_getters: true,
-      },
-    });
-
-    postPlugins.push(minifyer);
-  }
-
-  // Resolve external modules if not node build
-  //TODO: re enable this also for esm, not working well with dependencies somehow
-  //if (!isNodeBuild) {
-  //  prePlugins.push(nodeResolve({ preferBuiltins: true }), commonjs({ sourceMap: false }));
-  //}
-
-  if (!isGlobalBuild) {
+  // External modules should not be built
+  if (!isBundled) {
     external.push(...Object.keys(package.dependencies || {}));
     external.push(...Object.keys(package.peerDependencies || {}));
   }
@@ -83,64 +62,88 @@ function createConfig({ name, dir, package, config }, tsCheck) {
       external,
       input: path.resolve(dir, ENTRYPOINT),
       plugins: [
-        // ...prePlugins,
         nodeResolve({ preferBuiltins: true }),
         commonjs({ sourceMap: false }),
-        json(),
-        typescript({
-          check: isProdBuild && tsCheck,
+        esbuild({
           tsconfig: path.resolve(__dirname, '../tsconfig.json'),
-          clean: true,
-          //cacheRoot: path.resolve(__dirname, '../node_modules/.rts2_cache'),
-          /*useTsconfigDeclarationDir: true,
-          tsconfigOverride: {
-            compilerOptions: {
-              sourceMap: isProdBuild,
-              declaration: tsCheck,
-              declarationMap: tsCheck,
-              declarationDir: path.resolve(dir, 'dist/lib'),
-            },
-          },*/
-        }),
-        replace({
-          __DEV__: isBundled ? String(!isProdBuild) : '(process.env.NODE_ENV !== \'production\')',
-          __BROWSER__: String(!isNodeBuild),
-          __NODE_JS__: String(isNodeBuild),
-          __VERSION__: package.version,
+          sourceMap: false,
+          minify: isProdBuild,
+          define: {
+            __DEV__: JSON.stringify(isBundled ? isProdBuild : '(process.env.NODE_ENV !== \'production\')'),
+            __BROWSER__: JSON.stringify(!isNodeBuild),
+            __NODE_JS__: JSON.stringify(isNodeBuild),
+            __VERSION__: JSON.stringify(package.version),
+          },
+          // Extra loaders
+          loaders: {
+            // Add .json files support
+            '.json': 'json',
+          },
         }),
       ],
       /*treeshake: {
-        moduleSideEffects: true,
+        moduleSideEffects: false,
       },*/
       onwarn: (msg, warn) => !/Circular/.test(msg) && warn(msg),
     },
     output: {
-      name, format,
-      plugins: postPlugins,
+      name, format, //plugins,
       exports: 'auto',
-      file: path.resolve(dir, `dist/${filename}${extname}`),
-      sourcemap: true, // isProdBuild,
+      file: path.resolve(dir, `dist/${FILENAME}${extname}`),
+      sourcemap: sourceMap, //: true, // isProdBuild,
       externalLiveBindings: false,
     },
-  }
+  };
 }
 
-exports.rollPackage = async function rollPackage(target, skipProd = false) {
+const skipProd = false;
+exports.rollPackage = async function rollPackage(target, opts) {
+  const { prodOnly, devOnly, formats, sourceMap } = opts;
   const { dir, package } = target;
-  const { name, configs } = package.build;
-  const buildConfigs = configs.reduce((acc, key) => {
-    const config = { ...CONFIGS[key] };
+  let { name, configs } = package.build;
 
+  if (formats) {
+    configs = configs.filter(key => formats.includes(key));
+  }
+
+  //const skipProd = false;
+  const buildConfigs = configs.reduce((acc, key) => {
+    const config = { ...CONFIGS[key], sourceMap };
+
+    // if dev only and has prod, only dev
+    // if prod only and has prod, build prod, else dont build
+    // else
+    // build dev and prod
+    /*if (config.prod) {
+      if (!devOnly) {
+        // add dev
+      }
+
+
+    } else {
+      if (!prodOnly) {
+        // dont dev
+
+        // add dev
+      }
+      // add prod
+    }
+
+    if (devOnly) {
+      
+    }*/
+
+    // filter on prod or dev only
     if (config.prod) {
       if (skipProd) {
         config.prod = false;
       } else {
         const devConfig = { ...config, prod: false };
-        acc.push(createConfig({ name, dir, package, config: devConfig }, !acc.length));
+        acc.push(createConfig(key, { name, dir, package, config: devConfig }, !acc.length));
       }
     }
 
-    acc.push(createConfig({ name, dir, package, config }, !acc.length));
+    acc.push(createConfig(key, { name, dir, package, config }, !acc.length));
     return acc;
   }, []);
 

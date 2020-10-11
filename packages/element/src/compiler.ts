@@ -1,4 +1,5 @@
-import { TemplatePatcher, TemplateCompiler, customize, defaultCompiler } from '@kirei/html';
+import { customize, defaultCompiler } from '@kirei/html';
+import type { TemplatePatcher, TemplateCompiler } from '@kirei/html';
 import { unref, isRef } from '@vue/reactivity';
 import { KireiInstance } from './instance';
 import { isFunction, isString } from '@kirei/shared';

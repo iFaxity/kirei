@@ -31,8 +31,7 @@ interface PluginOptions {
  * @param {ConfigAPI} api
  * @returns {PluginObj<PluginOptions>}
  */
-function kireiPlugin(api: ConfigAPI): PluginObj<PluginOptions> {
-  api.assertVersion(7);
+export default declare((api: ConfigAPI) => {api.assertVersion(7);
   let definitions: { oid: string, eid: string, expr: t.Expression } [] = [];
   let exportNodes: t.ExportDeclaration[] = [];
   let filepath: string;
@@ -172,7 +171,5 @@ function kireiPlugin(api: ConfigAPI): PluginObj<PluginOptions> {
         path.remove();
       },
     },
-  };
-}
-
-export default declare(kireiPlugin);
+  } as PluginObj<PluginOptions>;
+})

@@ -1,11 +1,13 @@
-import { ReactiveEffect, effect, pauseTracking, resetTracking, shallowReadonly, shallowReactive } from '@vue/reactivity';
+import { effect, pauseTracking, resetTracking, shallowReadonly, shallowReactive } from '@vue/reactivity';
+import type { ReactiveEffect } from '@vue/reactivity';
 import { hyphenate } from '@vue/shared';
 import { isFunction, isPromise } from '@kirei/shared';
 import { exception, warn, KireiError } from './logging';
-import { HookTypes } from './api/lifecycle';
+import type { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult } from './css';
-import { render, DirectiveFactory } from './compiler';
+import { render } from './compiler';
+import type { DirectiveFactory } from './compiler';
 import { propDefaults } from './props';
 import type { InjectionKey } from './api/inject';
 import type {

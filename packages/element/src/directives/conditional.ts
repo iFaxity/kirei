@@ -1,6 +1,7 @@
 import { unref } from '@vue/reactivity';
-import { TemplatePatcher } from '@kirei/html';
-import { directive, Directive } from '../compiler';
+import type { TemplatePatcher } from '@kirei/html';
+import { directive } from '../compiler';
+import type { Directive } from '../compiler';
 
 function conditionalPatcher(invert: boolean, dir: Directive): TemplatePatcher {
   const placeholder = document.createComment('');

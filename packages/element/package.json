@@ -4,8 +4,8 @@
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
-  "module": "dist/element.esm.js",
   "types": "dist/element.d.ts",
+  "module": "dist/element.esm.js",
   "unpkg": "dist/element.global.js",
   "jsdelivr": "dist/element.global.js",
   "sideEffects": [

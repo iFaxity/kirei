@@ -16,15 +16,16 @@ interface ShadyDOM {
   flush: () => void;
 }
 
-interface ShadowRoot {
-  adoptedStyleSheets: CSSStyleSheet[];
-}
-declare var ShadowRoot: { prototype: ShadowRoot; new (): ShadowRoot; };
-
 interface CSSStyleSheet {
   replaceSync(cssText: string): void;
   replace(cssText: string): Promise<unknown>;
 }
+
+interface ShadowRoot {
+  adoptedStyleSheets: CSSStyleSheet[];
+}
+
+declare var ShadowRoot: { prototype: ShadowRoot; new (): ShadowRoot; };
 
 interface Window {
   ShadyCSS?: ShadyCSS;

@@ -5,7 +5,8 @@
  * MIT Licensed
  */
 import { isFunction } from '@kirei/shared';
-import { stop, effect, Ref, isRef } from '@vue/reactivity';
+import { stop, effect, isRef } from '@vue/reactivity';
+import type { Ref } from '@vue/reactivity';
 
 /**
  * Function to stop a reactive watcher

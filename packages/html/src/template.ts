@@ -1,7 +1,8 @@
 import sanitize from 'uparser';
 import { persistent, createWalker, createTemplate, LRUWeakMap } from './shared';
-import { defaultCompiler, TemplateCompiler, TemplatePatcher, PatchType } from './compiler';
-export { TemplateCompiler };
+import { defaultCompiler } from './compiler';
+import type { TemplateCompiler, TemplatePatcher, PatchType } from './compiler';
+export type { TemplateCompiler };
 
 /**
  * Tags to force text only from node content
