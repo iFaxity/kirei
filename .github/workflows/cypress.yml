@@ -1,4 +1,4 @@
-name: E2E and Unit Tests
+name: Cypress
 on:
   - push
 
@@ -44,7 +44,7 @@ jobs:
       - name: Build packages
         run: yarn ci
 
-  # Run unit and e2e tests
+  # Testing through cypress
   test:
     needs: setup
     runs-on: ${{ matrix.os }}
@@ -53,9 +53,11 @@ jobs:
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
         browser: [ chrome, firefox ]
+
         include:
           - os: windows-latest
             browser: edge
+
     steps:
       # Restore packages from cache
       - uses: actions/checkout@v2
@@ -69,7 +71,7 @@ jobs:
           path: ${{ env.CACHE_PATHS }}
           key: ${{ runner.os }}#${{ hashFiles('yarn.lock') }}
 
-      - name: Run cypress (e2e and unit tests)
+      - name: Run cypress (Cypress)
         uses: cypress-io/github-action@v2
         with:
           browser: ${{ matrix.browser }}
