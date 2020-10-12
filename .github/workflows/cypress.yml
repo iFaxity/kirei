@@ -48,15 +48,20 @@ jobs:
   test:
     needs: setup
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
         browser: [ chrome, firefox ]
+        experimental: [ false ]
 
         include:
           - os: windows-latest
             browser: edge
+          # Cypress + Windows = fails, sometimes
+          - os: windows-latest
+            experimental: true
 
     steps:
       # Restore packages from cache
