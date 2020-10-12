@@ -138,21 +138,27 @@ async function build(target, opts) {
     const diff = (Date.now() - start) / 1000;
     const status = completed ? 'completed' : 'errored';
     const color = completed ? '\u001B[32;1m' : '\u001B[31;1m';
-    console.log(`${color}Build ${status} after ${diff.toFixed(2)}s\u001B[0m\n`);
+    console.log(`${color}Build ${status} after ${diff.toFixed(2)}s\u001B[0m`);
   }
 
   /* Not currently working with import/export type
   if (buildTypes && package.types) {
     const { generateDtsBundle } = require('dts-bundle-generator');
-    console.log(`\nRolling up type definitions for ${package.name}...`);
+    console.log(`\u001B[36;1mRolling type definitions\u001B[0m`);
 
     // list all .ts files
-    const [ typings ] = generateDtsBundle([
-      { filePath: path.resolve(dir, 'src/index.ts'), },
-    ]);
+    try {
+      const typings = generateDtsBundle([
+        { filePath: path.resolve(dir, 'src/index.ts'), },
+      ], { preferredConfigPath: path.resolve(__dirname, '../tsconfig.json') });
 
-    await writeFile(path.resolve(dir, package.types), typings, 'utf8');
+      await writeFile(path.resolve(dir, package.types), typings.join('\n'), 'utf8');
+    } catch (ex) {
+      console.error(ex);
+    }
   }*/
+
+  console.log('');
 }
 
 async function run() {

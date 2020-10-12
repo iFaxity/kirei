@@ -1,3 +1,7 @@
+import { KireiElement, normalizeOptions } from './element';
+import { warn } from './logging';
+import type { ElementOptions, Props } from './interfaces';
+
 export * from '@vue/reactivity';
 export { KireiInstance } from './instance';
 export { KireiElement, normalizeOptions } from './element';
@@ -9,10 +13,6 @@ export { portal } from './api/portal';
 export * from './api/inject';
 export { watch, watchEffect } from './api/watch';
 export type { ElementOptions } from './interfaces';
-
-import { KireiElement, normalizeOptions } from './element';
-import { warn } from './logging';
-import type { ElementOptions, Props } from './interfaces';
 
 // load directives
 import './directives/attrs';
