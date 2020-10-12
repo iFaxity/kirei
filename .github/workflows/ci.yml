@@ -13,6 +13,7 @@ env:
   CACHE_PATHS: |
     **/node_modules
     ~/.cache/Cypress
+    packages/*/dist
 
 jobs:
   # Install yarn packages and setup project
@@ -33,11 +34,15 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.CACHE_PATHS }}
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+          key: ${{ runner.os }}__${{ hashFiles('yarn.lock') }}
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile --non-interactive
+
+      # Always build packages in setup
+      - name: Build packages
+        run: yarn ci
 
   # Run unit and e2e tests
   test:
@@ -68,7 +73,6 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           browser: ${{ matrix.browser }}
-          build: yarn ci
           start: yarn dev
           wait-on: ${{ env.CY_URL }}
           config-file: ${{ env.CY_CFG_FILE }}
@@ -78,8 +82,8 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
-          file: ${{ env.CY_COVERAGE_OUTPUT }}
           flags: unittests
+          file: ${{ env.CY_COVERAGE_OUTPUT }}
           name: ${{ runner.os }} - ${{ matrix.browser }}
           # Should be true, but Windows is being difficult
           fail_ci_if_error: false
