@@ -30,15 +30,16 @@ jobs:
       if: ${{ github.event_name == 'pull_request' }}
 
     - name: Run codacy-analysis-cli
-      uses: codacy/codacy-analysis-cli-action@master
+      uses: codacy/codacy-analysis-cli-action@1.1.0
       with:
-        output: ./results.sarif
+        output: result.sarif
         format: sarif
-    - name: Upload results
+        directory: packages
+        gh-code-scanning-compat: true
+        max-allowed-issues: 1000
+
+    - name: Upload result
       uses: github/codeql-action/upload-sarif@v1
       with:
         # Path to SARIF file relative to the root of the repository
-        gh-code-scanning-compat: true
-        format: sarif
-        sarif_file: results.sarif
-        directory: packages
+        sarif_file: result.sarif
