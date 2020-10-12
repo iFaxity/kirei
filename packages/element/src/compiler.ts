@@ -14,7 +14,7 @@ const ALIAS_NAMES = '@#&$%*!?;=^¶§€';
  * Regex to validate a directive alias
  * @const {RegExp}
  */
-const ALIAS_REGEX = new RegExp(`^([${ALIAS_NAMES}])([a-z0-9-]*)((?:\.[a-z0-9-]+)*)$`, 'i');
+const ALIAS_REGEX = new RegExp(`^([${ALIAS_NAMES}])([a-z0-9-]*)((?:\\.[a-z0-9-]+)*)$`, 'i');
 
 /**
  * Regex to validate directive names
