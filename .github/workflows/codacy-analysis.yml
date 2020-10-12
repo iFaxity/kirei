@@ -34,7 +34,7 @@ jobs:
       with:
         output: result.sarif
         format: sarif
-        directory: packages
+        #directory: packages
         gh-code-scanning-compat: true
         max-allowed-issues: 1000
 
