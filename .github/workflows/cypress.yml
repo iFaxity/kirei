@@ -18,6 +18,7 @@ env:
 jobs:
   # Install yarn packages and setup project
   setup:
+    name: Setup (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -40,13 +41,13 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile --non-interactive
 
-      # Always build packages in setup
+      # Always build packages in setup, requires node 14
       - name: Build packages
         run: yarn ci
 
   # Testing through cypress
-  test:
-    name: ${{ matrix.os }} - ${{ matrix.browser }}
+  cypress:
+    name: Cypress (${{ matrix.os }}, ${{ matrix.browser }})
     needs: setup
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
@@ -55,7 +56,6 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest ]
         browser: [ chrome, firefox ]
-        node: [ 14 ]
         experimental: [ false ]
         include:
           # Cypress + Windows = fails, sometimes
@@ -72,9 +72,6 @@ jobs:
     steps:
       # Restore packages from cache
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node }}
       - name: Restore cache
         uses: actions/cache@v2
         with:
