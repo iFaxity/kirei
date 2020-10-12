@@ -1,22 +1,20 @@
-name: CodeQL
+name: Codacy
 
 on:
   push:
-    branches: [master]
+    branches: [ master ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master]
+    branches: [ master ]
   schedule:
     - cron: '0 14 * * 0'
 
 jobs:
   analyze:
-    name: CodeQL Analyze
+    name: Codacy Analyze
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        language: ['javascript']
 
     steps:
     - name: Checkout repository
@@ -31,10 +29,16 @@ jobs:
     - run: git checkout HEAD^2
       if: ${{ github.event_name == 'pull_request' }}
 
-    # Initializes the CodeQL tools for scanning.
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v1
+    - name: Run codacy-analysis-cli
+      uses: codacy/codacy-analysis-cli-action@master
       with:
-        languages: ${{ matrix.language }}
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v1
+        output: ./results.sarif
+        format: sarif
+    - name: Upload results
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        # Path to SARIF file relative to the root of the repository
+        gh-code-scanning-compat: true
+        format: sarif
+        sarif_file: results.sarif
+        directory: packages
