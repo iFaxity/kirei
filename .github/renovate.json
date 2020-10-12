@@ -2,12 +2,8 @@
   "extends": ["config:base"],
   "packageRules": [
     {
-      "depTypeList": ["dependencies"],
+      "depTypeList": ["dependencies", "devDependencies"],
       "updateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
-    },
-    {
-      "depTypeList": ["devDependencies"],
       "automerge": true
     }
   ]
