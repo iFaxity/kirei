@@ -3,7 +3,7 @@ import type { ReactiveEffect } from '@vue/reactivity';
 import { hyphenate } from '@vue/shared';
 import { isFunction, isPromise } from '@kirei/shared';
 import { exception, warn, KireiError } from './logging';
-import type { HookTypes } from './api/lifecycle';
+import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult } from './css';
 import { render } from './compiler';

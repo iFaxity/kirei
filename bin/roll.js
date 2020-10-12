@@ -1,6 +1,7 @@
 const path = require('path');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
+const replace = require('@rollup/plugin-replace');
 const esbuild = require('rollup-plugin-esbuild');
 const { rollup } = require('rollup');
 const { builtinModules: BUILTIN_MODULES } = require('module');
@@ -64,6 +65,10 @@ function createConfig(key, opts) { //, tsCheck) {
       plugins: [
         nodeResolve({ preferBuiltins: true }),
         commonjs({ sourceMap: false }),
+        // replace env vars for @vue/reactivity
+        replace({
+          "process.env.NODE_ENV": JSON.stringify(isProdBuild ? 'production' : 'development'),
+        }),
         esbuild({
           tsconfig: path.resolve(__dirname, '../tsconfig.json'),
           sourceMap: false,
