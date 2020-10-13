@@ -39,6 +39,7 @@ function bumpVersion(tag) {
     default:
       throw new Error(`Version '${tag}' tag not recognised`);
   }
+
   return version.join('.');
 }
 

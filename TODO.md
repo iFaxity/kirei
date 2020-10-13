@@ -5,7 +5,7 @@ tests
 -----------
 * [o] Create tests using Cypress
 * [o] Unit & integration tests, maybe e2e for whole cases (e.g making an app)
-* [ ] Test browsers with shimming (es6 compatible only)
+* [o] Test browsers with shimming (es6 compatible only)
 
 element
 -----------
@@ -14,10 +14,7 @@ element
 * [ ] Optimize partial updates of element instances.
 * [ ] Add CSS variables to host element from setup (maybe?)
 * [ ] Async elements, with fallback content, Suspense like feature.
-
-fx
------------
-* [ ] Investigate optimizations (should be ok now, matching Vue3's performance)
+* [ ] Demos, to show both features and possibilities
 
 html
 -----------
@@ -26,7 +23,7 @@ html
 
 router
 -----------
-* [ ] Client router
+* [o] Client router
 * [ ] Server router
 
 ssr

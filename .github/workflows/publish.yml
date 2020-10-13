@@ -1,37 +1,46 @@
 on:
   push:
     # Sequence of patterns matched against refs/tags
-    tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    # Push events to matching v*, i.e. v1.0, v20.15.10
+    tags: [ v* ]
 
 name: Publish
 jobs:
   build:
     name: Create Release
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ 14 ]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
       # Required for pushes to work
       - name: Prepare repo
         run: git checkout "${GITHUB_REF:10}"
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node }}
+          registry-url: https://registry.npmjs.org
+          always-auth: true
 
       # Not using cache, we want fresh builds
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive
 
-      - name: Set Publishing Token
-        run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}' > ~/.npmrc
-
       - name: Set Git config
         run: |
-          git config --global user.name 'Christian Norrman' && \
-          git config --global user.email christian@faxity.se && \
-          git config credential.helper store && \
-          echo 'https://ifaxity:${{ secrets.GITHUB_TOKEN }}@github.com' > ~/.git-credentials
+          git config --global user.name 'Christian Norrman'
+          git config --global user.email 'christian@faxity.se'
 
-      - name: Publish packages to npm
+      - name: Build packages
+        run: yarn build
+
+      - name: Publish packages
         run: ./bin/publish ${{ github.ref }}
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Create Release
         id: create_release
