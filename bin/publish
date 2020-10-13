@@ -2,11 +2,11 @@
 //
 // Script to synchronize publishing for all packages
 //
-const path = require('path');
+const { resolve } = require('path');
 const { writeJSON, shell, resolvePackages } = require('./shared');
 
-const ROOT_DIR = path.join(__dirname, '../');
-const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
+const ROOT_DIR = resolve(__dirname, '../');
+const PACKAGES_DIR = resolve(ROOT_DIR, 'packages');
 const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
 
@@ -56,7 +56,8 @@ function bumpPackage(dir, pkg, version) {
 
   // Upgrade package version
   pkg.version = version;
-  writeJSON(path.join(dir, 'package.json'), pkg);
+  console.log(dir);
+  writeJSON(resolve(dir, 'package.json'), pkg);
 }
 
 // Program entrypoint
@@ -64,11 +65,11 @@ console.log(`v${rootPkg.version} --> v${version}`);
 
 // Update version in root package
 rootPkg.version = version;
-writeJSON(path.join(ROOT_DIR, 'package.json'), rootPkg);
+writeJSON(resolve(ROOT_DIR, 'package.json'), rootPkg);
 
 // Upgrade peer packages
-for (const { package, path } of packages.values()) {
-  bumpPackage(path, package, version);
+for (const { package, dir } of packages.values()) {
+  bumpPackage(dir, package, version);
 }
 
 // Create a commit with a release tag
@@ -79,6 +80,4 @@ for (const [ name, package ] of packages) {
   console.log(`Publishing package ${name} (v${version})`);
   shell(`yarn publish '${package.path}' --new-version ${version} --access public --no-git-tag-version`);
 }
-shell('git push');
-
-console.log('Done');
+shell('git push origin master');
