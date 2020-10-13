@@ -76,8 +76,8 @@ for (const { package, dir } of packages.values()) {
 shell(`git commit -am 'Release v${version}'`);
 
 // Finally publish to NPM
-for (const [ name, package ] of packages) {
-  console.log(`Publishing package ${name} (v${version})`);
-  shell(`yarn publish '${package.path}' --new-version ${version} --access public --no-git-tag-version`);
+for (const { package, dir } of packages.values()) {
+  console.log(`Publishing package ${package.name} (v${version})`);
+  shell(`yarn publish '${dir}' --new-version ${version} --access public --no-git-tag-version`);
 }
 shell('git push origin master');
