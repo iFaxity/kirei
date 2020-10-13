@@ -9,7 +9,6 @@ const ROOT_DIR = path.join(__dirname, '../');
 const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
 const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
-const PACKAGES_DIR = path.join(ROOT_DIR, 'packages');
 
 const tag = process.argv[2] || 'patch';
 const version = bumpVersion(tag);
