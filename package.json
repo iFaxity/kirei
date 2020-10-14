@@ -29,7 +29,7 @@
     "@babel/preset-env": "7.11.5",
     "@babel/preset-typescript": "7.10.4",
     "@cypress/code-coverage": "3.8.1",
-    "@cypress/webpack-preprocessor": "5.4.6",
+    "@cypress/webpack-preprocessor": "5.4.7",
     "@rollup/plugin-commonjs": "15.1.0",
     "@rollup/plugin-node-resolve": "9.0.0",
     "@rollup/plugin-replace": "2.3.3",
