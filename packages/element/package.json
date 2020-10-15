@@ -19,10 +19,6 @@
   "files": [
     "dist/*"
   ],
-  "scripts": {
-    "prepublishOnly": "npm run build",
-    "build": "node ../../bin/build element"
-  },
   "build": {
     "name": "KireiElement",
     "configs": [

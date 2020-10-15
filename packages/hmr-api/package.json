@@ -10,13 +10,7 @@
   "files": [
     "dist/*"
   ],
-  "scripts": {
-    "prepublishOnly": "npm run build",
-    "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
-    "build": "tsc -b"
-  },
   "build": {
-    "name": "",
     "configs": [
       "cjs",
       "esm"
