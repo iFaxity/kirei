@@ -114,7 +114,7 @@ export class KireiElement extends HTMLElement implements IKireiElement {
 
               const value = validateProp(options.props[key], key, newValue);
               props[key] = isObject(value) ? reactive(value) : value;
-              trigger(props, TriggerOpTypes.SET, key, newValue);
+              trigger(props, 'set' as TriggerOpTypes, key, newValue);
             } catch (ex) {
               exception(ex);
             } finally {

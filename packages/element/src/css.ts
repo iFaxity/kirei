@@ -60,9 +60,14 @@ export class CSSResult {
       const { ShadyCSS } = window;
 
       if (ShadyCSS?.nativeShadow === false) {
-        ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(s => s.toString()), tag);
+        ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(String), tag);
       } else if (this.supportsAdoptingStyleSheets) {
-        shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
+        // Stylesheets are loaded async
+        const promises = styles.map(s => s.styleSheet());
+        Promise.all(promises).then(res => {
+          shadowRoot.adoptedStyleSheets = res;
+        });
+        //shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
       } else {
         return false; // notifies to shim manually using style elements
       }
@@ -89,14 +94,14 @@ export class CSSResult {
    * Gets the constructible stylesheet
    * @returns {CSSStyleSheet}
    */
-  get styleSheet(): CSSStyleSheet {
+  async styleSheet(): Promise<CSSStyleSheet> {
     if (isUndefined(this.styles)) {
       if (CSSResult.supportsAdoptingStyleSheets) {
         // Get stylsheet from cache
         let styles = styleSheetCache.get(this.strings);
         if (!styles) {
           styles = new CSSStyleSheet();
-          styles.replaceSync(this.cssText);
+          await styles.replace(this.cssText);
           styleSheetCache.set(this.strings, this.styles);
         }
 
