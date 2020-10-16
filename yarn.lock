@@ -7094,10 +7094,10 @@ typedoc-plugin-exclude-references@1.0.0:
   resolved "https://registry.yarnpkg.com/typedoc-plugin-exclude-references/-/typedoc-plugin-exclude-references-1.0.0.tgz#d4367e5f432d88077d0da51717e213b86e6539f0"
   integrity sha512-1BqEOHxnLfBqImhVTqp74nWJ+cbI9uCBm43qFNkqypZ4ae6BSZv1I7N6dToinbl1u6YGUQHeHI/1lBkU0AGSIw==
 
-typedoc-plugin-markdown@3.0.9:
-  version "3.0.9"
-  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-3.0.9.tgz#0a00ebee5c4a40f675e2991c7d62050ec7d26ab9"
-  integrity sha512-/BGlHz53QThamqw5BkpS9iLySc1jlZk5JaEeQP9srLmcdvDRxAsSrvF0AZPReJCrBuy8TXtgkEOLppTxbcwUEw==
+typedoc-plugin-markdown@3.0.10:
+  version "3.0.10"
+  resolved "https://registry.yarnpkg.com/typedoc-plugin-markdown/-/typedoc-plugin-markdown-3.0.10.tgz#4bd68464686af2e633afdcc950211bde2b5e107e"
+  integrity sha512-pM393xoX1Wbj05cI1TIbubAIaZ7B/EQ5QAwc49KuMEOk/SZbutY/j0bkiX2YnY4+3t8aZi3tS0ZX1djqTcvjmg==
   dependencies:
     handlebars "^4.7.6"
 
