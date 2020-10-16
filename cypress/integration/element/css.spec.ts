@@ -4,11 +4,11 @@ import { CSSResult, css } from '@kirei/element/src/css';
 
 const SUPPORTS_ADOPTING_STYLE_SHEETS = CSSResult.supportsAdoptingStyleSheets;
 
-function resetAdoptingStyleSheets() {
+function resetAdoptingStyleSheets(): void {
   CSSResult.supportsAdoptingStyleSheets = SUPPORTS_ADOPTING_STYLE_SHEETS;
 }
 
-function disableAdoptingStyleSheets() {
+function disableAdoptingStyleSheets(): void {
   CSSResult.supportsAdoptingStyleSheets = false;
 }
 
@@ -30,23 +30,24 @@ describe('css', () => {
         css`span.icon { font-size: 1.2em; }`,
       ];
 
-      it('with shadow', () => {
+      it('with shadow', async () => {
         const $div = document.createElement('div');
         const $shadow = $div.attachShadow({ mode: 'open' });
         const res = CSSResult.adoptStyleSheets($shadow, 'div', styleSheets);
+        const styles = await Promise.all(styleSheets.map(s => s.styleSheet()));
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.isTrue(res);
-          assert.deepEqual($shadow.adoptedStyleSheets, styleSheets.map(s => s.styleSheet));
+          assert.deepEqual($shadow.adoptedStyleSheets, styles);
         } else {
           assert.isFalse(res);
           assert.notProperty($shadow, 'adoptedStyleSheets');
-          assert.deepEqual([ null, null, null ], styleSheets.map(s => s.styleSheet));
+          assert.deepEqual([ null, null, null ], styles);
         }
-
       });
-      it('without adopt support', () => {
+      it('without adopt support', async () => {
         disableAdoptingStyleSheets();
+        await Promise.all(styleSheets.map(s => s.styleSheet()));
 
         const $span = document.createElement('span');
         const $shadow = $span.attachShadow({ mode: 'open' });
@@ -97,37 +98,40 @@ describe('css', () => {
     describe('#styleSheet()', () => {
       afterEach(resetAdoptingStyleSheets);
 
-      it('with adopting shim', () => {
+      it('with adopting shim', async () => {
         const res = new CSSResult(['.red { color: ', '; }'], ['red']);
+        const style = await res.styleSheet();
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
-          assert.instanceOf(res.styleSheet, CSSStyleSheet);
+          assert.instanceOf(style, CSSStyleSheet);
 
-          const { rules } = res.styleSheet;
+          const { rules } = style;
           assert.equal(rules.length, 1);
           assert.equal(rules[0].cssText, '.red { color: red; }');
         } else {
-          assert.isNull(res.styleSheet);
+          assert.isNull(style);
         }
       });
-      it('without adopting shim', () => {
+      it('without adopting shim', async () => {
         disableAdoptingStyleSheets();
-        const res = new CSSResult([''], []);
-        assert.isNull(res.styleSheet);
+        const res = new CSSResult(['.red { color: ', '; }'], ['red']);
+        assert.isNull(await res.styleSheet());
       });
-      it('with invalid content', () => {
+      it('with invalid content', async () => {
         const res = new CSSResult([100, {}], ['foo']);
+        const styles = await res.styleSheet();
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
-          assert.instanceOf(res.styleSheet, CSSStyleSheet);
-          assert.isEmpty(res.styleSheet.rules);
+          assert.instanceOf(styles, CSSStyleSheet);
+          assert.isEmpty(styles.rules);
         } else {
-          assert.isNull(res.styleSheet);
+          assert.isNull(styles);
         }
       });
-      it('lazy caching', () => {
-        const res = new CSSResult([''], []);
-        const styles = res.styleSheet;
+
+      it('lazy caching', async () => {
+        const res = new CSSResult(['.align-', ' { text-align: ', '; }'], ['left', 'left']);
+        const styles = await res.styleSheet();
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.instanceOf(styles, CSSStyleSheet);
@@ -135,7 +139,8 @@ describe('css', () => {
           assert.isNull(styles);
         }
 
-        assert.equal(styles, res.styleSheet);
+        // Stylesheets should be singletons, aka equal on second get
+        assert.equal(styles, await res.styleSheet());
       });
     });
   });

@@ -5,9 +5,12 @@ import { LRUWeakMap } from '@kirei/html';
  * Cache to store precompiled templates indexed by the template strings
  * as a LRUCache it only stores the most recently used elements.
  * Effectively trading memory for performance and performance for memory.
+ * 
+ * NOTE: Wont work with values, as they are interpolated into the caceh, sad.
  * @const
- */
+ *
 const styleSheetCache = new LRUWeakMap<TemplateStringsArray, CSSStyleSheet>(500);
+*/
 
 /**
  * Class to easily construct and cache style sheets
@@ -39,8 +42,9 @@ export class CSSResult {
   /**
    * Used to get stylesheets from cache
    * @var {TemplateStringsArray}
-   */
+   *
   private strings: TemplateStringsArray;
+  */
 
   /**
    * Applies adopted stylesheets if available or tries to shim,
@@ -87,7 +91,7 @@ export class CSSResult {
       return acc + String(value) + strings[idx + 1];
     }, strings[0]);
 
-    this.strings = strings;
+    //this.strings = strings;
   }
 
   /**
@@ -98,12 +102,15 @@ export class CSSResult {
     if (isUndefined(this.styles)) {
       if (CSSResult.supportsAdoptingStyleSheets) {
         // Get stylsheet from cache
-        let styles = styleSheetCache.get(this.strings);
+        /*let styles = styleSheetCache.get(this.strings);
         if (!styles) {
           styles = new CSSStyleSheet();
           await styles.replace(this.cssText);
           styleSheetCache.set(this.strings, this.styles);
-        }
+        }*/
+
+        const styles = new CSSStyleSheet();
+        await styles.replace(this.cssText);
 
         this.styles = styles;
       } else {
