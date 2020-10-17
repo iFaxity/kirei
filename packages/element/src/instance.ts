@@ -293,19 +293,22 @@ export class KireiInstance implements IKireiInstance {
    * @param {boolean} mount
    * @returns {void}
    */
-  reflowStyles(mount?: boolean): void {
+  async reflowStyles(mount?: boolean): Promise<void> {
     const { ShadyCSS, ShadowRoot } = window;
     const { tag, styles } = this.options;
 
-    // stylesubtree on updates, as per ShadyCSS documentation
-    if (mount) {
-      ShadyCSS?.styleElement(this.el);
-    } else {
-      ShadyCSS?.styleSubtree(this.el);
-    }
+    if (styles.length) {
+      // stylesubtree on updates, as per ShadyCSS documentation
+      if (mount) {
+        ShadyCSS?.styleElement(this.el);
+      } else {
+        ShadyCSS?.styleSubtree(this.el);
+      }
 
-    if (ShadowRoot && this.shadowRoot instanceof ShadowRoot) {
-      this.shimAdoptedStyleSheets = !CSSResult.adoptStyleSheets(this.shadowRoot, tag, styles);
+      if (ShadowRoot && this.shadowRoot instanceof ShadowRoot) {
+        const res = await CSSResult.adoptStyleSheets(this.shadowRoot, tag, styles);
+        this.shimAdoptedStyleSheets = !res;
+      }
     }
   }
 
@@ -317,7 +320,7 @@ export class KireiInstance implements IKireiInstance {
     const { closed } = this.options;
     this.runHooks(HookTypes.BEFORE_MOUNT);
 
-    // Only run shims on first mount
+    // Only run shady shims on first mount
     if (!this.shadowRoot) {
       this.shadowRoot = this.el.attachShadow({ mode: closed ? 'closed' : 'open' });
       this.reflowStyles(true);

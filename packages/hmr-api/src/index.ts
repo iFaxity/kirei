@@ -130,14 +130,18 @@ export function update(filename: string, opts: ElementOptions): typeof KireiElem
   const options = normalizeOptions(opts);
 
   // update options (persist vital options)
-  let reflowStyles = false;
-  for (const key of Object.keys(options).filter(key => !DENY_OPTIONS.includes(key))) {
+  const reflowStyles = ctor.options.styles && stylesChanged(ctor.options.styles, options.styles);
+
+  // Update properties
+  Object.assign(ctor.options, options);
+
+  /*for (const key of Object.keys(options).filter(key => !DENY_OPTIONS.includes(key))) {
     if (key == 'styles') {
       reflowStyles = stylesChanged(ctor.options[key], options[key]);
     }
 
     ctor.options[key] = options[key];
-  }
+  }*/
 
   /* TODO: only reflow styles if template or styles changed.
    * 1. update options

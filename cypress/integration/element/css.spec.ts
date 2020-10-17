@@ -24,34 +24,37 @@ describe('css', () => {
     describe('#static adoptStyleSheets()', () => {
       afterEach(resetAdoptingStyleSheets);
 
-      const styleSheets = [
-        css`.blue { color: blue; }`,
-        css`div { padding: 1em 0.5em; }`,
-        css`span.icon { font-size: 1.2em; }`,
-      ];
-
       it('with shadow', async () => {
+        const styleSheets = [
+          css`.blue { color: blue; }`,
+          css`div { padding: 1em 0.5em; }`,
+          css`span.icon { font-size: 1.2em; }`,
+        ];
+
         const $div = document.createElement('div');
         const $shadow = $div.attachShadow({ mode: 'open' });
-        const res = CSSResult.adoptStyleSheets($shadow, 'div', styleSheets);
-        const styles = await Promise.all(styleSheets.map(s => s.styleSheet()));
+        const res = await CSSResult.adoptStyleSheets($shadow, 'span', styleSheets);
+        const styles = await Promise.all(styleSheets.map(s => s.generate()));
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.isTrue(res);
           assert.deepEqual($shadow.adoptedStyleSheets, styles);
         } else {
           assert.isFalse(res);
-          assert.notProperty($shadow, 'adoptedStyleSheets');
           assert.deepEqual([ null, null, null ], styles);
         }
       });
       it('without adopt support', async () => {
         disableAdoptingStyleSheets();
-        await Promise.all(styleSheets.map(s => s.styleSheet()));
+        const styleSheets = [
+          css`.blue { color: blue; }`,
+          css`div { padding: 1em 0.5em; }`,
+          css`span.icon { font-size: 1.2em; }`,
+        ];
 
         const $span = document.createElement('span');
         const $shadow = $span.attachShadow({ mode: 'open' });
-        const res = CSSResult.adoptStyleSheets($shadow, 'span', styleSheets);
+        const res = await CSSResult.adoptStyleSheets($shadow, 'span', styleSheets);
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.isEmpty($shadow.adoptedStyleSheets);
@@ -100,7 +103,7 @@ describe('css', () => {
 
       it('with adopting shim', async () => {
         const res = new CSSResult(['.red { color: ', '; }'], ['red']);
-        const style = await res.styleSheet();
+        const style = await res.generate();
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.instanceOf(style, CSSStyleSheet);
@@ -115,11 +118,11 @@ describe('css', () => {
       it('without adopting shim', async () => {
         disableAdoptingStyleSheets();
         const res = new CSSResult(['.red { color: ', '; }'], ['red']);
-        assert.isNull(await res.styleSheet());
+        assert.isNull(await res.generate());
       });
       it('with invalid content', async () => {
         const res = new CSSResult([100, {}], ['foo']);
-        const styles = await res.styleSheet();
+        const styles = await res.generate();
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.instanceOf(styles, CSSStyleSheet);
@@ -131,7 +134,7 @@ describe('css', () => {
 
       it('lazy caching', async () => {
         const res = new CSSResult(['.align-', ' { text-align: ', '; }'], ['left', 'left']);
-        const styles = await res.styleSheet();
+        const styles = await res.generate();
 
         if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
           assert.instanceOf(styles, CSSStyleSheet);
@@ -140,7 +143,7 @@ describe('css', () => {
         }
 
         // Stylesheets should be singletons, aka equal on second get
-        assert.equal(styles, await res.styleSheet());
+        assert.equal(styles, await res.generate());
       });
     });
   });

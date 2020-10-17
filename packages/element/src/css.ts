@@ -9,11 +9,11 @@ import { LRUWeakMap } from '@kirei/html';
  * NOTE: Wont work with values, as they are interpolated into the caceh, sad.
  * @const
  *
-const styleSheetCache = new LRUWeakMap<TemplateStringsArray, CSSStyleSheet>(500);
+const styleSheetCache = new LRUMap<TemplateStringsArray, CSSStyleSheet>(500);
 */
 
 /**
- * Class to easily construct and cache style sheets
+ * Class to easily construct and cache style sheets, through template literals
  * @class
  */
 export class CSSResult {
@@ -28,10 +28,10 @@ export class CSSResult {
     'replace' in CSSStyleSheet.prototype;
 
   /**
-   * Cached stylesheet, created by the styleSheet getter
+   * Cached stylesheet, created by the generate() method
    * @var {CSSStyleSheet}
    */
-  private styles: CSSStyleSheet;
+  private styleSheet: Promise<CSSStyleSheet>;
 
   /**
    * Raw CSS styles, as passed in to the template literal
@@ -46,20 +46,25 @@ export class CSSResult {
   private strings: TemplateStringsArray;
   */
 
+  /* list of css variables, with reactive value (if any)
+  private variables: ([string, any])[];
+  */
+
   /**
    * Applies adopted stylesheets if available or tries to shim,
-   *   returns false if shim has to be done manually through a style tag
+   *   returns false if shim has to be done manually through a style tag.
+   * if adopted stylesheets is supported in the browser, they will be loaded async
    * @param {ShadowRoot} shadowRoot Shadow root to apply styles to
    * @param {string} tag Tag of the parent of the shadow root
    * @param {CSSResult[]} styles Styles to apply
    * @returns {boolean}
    * @private
    */
-  static adoptStyleSheets(
+  static async adoptStyleSheets(
     shadowRoot: ShadowRoot,
     tag: string,
     styles: CSSResult[]
-  ): boolean {
+  ): Promise<boolean> {
     if (styles != null && styles.length) {
       const { ShadyCSS } = window;
 
@@ -67,11 +72,13 @@ export class CSSResult {
         ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(String), tag);
       } else if (this.supportsAdoptingStyleSheets) {
         // Stylesheets are loaded async
-        const promises = styles.map(s => s.styleSheet());
-        Promise.all(promises).then(res => {
+        const styleSheets = await Promise.all(styles.map(s => s.generate()));
+        shadowRoot.adoptedStyleSheets = styleSheets;
+
+        /*const promises = styles.map(s => s.generate());
+        await Promise.all(promises).then(res => {
           shadowRoot.adoptedStyleSheets = res;
-        });
-        //shadowRoot.adoptedStyleSheets = styles.map(s => s.styleSheet);
+        });*/
       } else {
         return false; // notifies to shim manually using style elements
       }
@@ -95,30 +102,21 @@ export class CSSResult {
   }
 
   /**
-   * Gets the constructible stylesheet
-   * @returns {CSSStyleSheet}
+   * Generates the constructible stylesheet, singleton cached
+   * @returns {Promise<CSSStyleSheet>}
    */
-  async styleSheet(): Promise<CSSStyleSheet> {
-    if (isUndefined(this.styles)) {
+  generate(): Promise<CSSStyleSheet> {
+    if (isUndefined(this.styleSheet)) {
       if (CSSResult.supportsAdoptingStyleSheets) {
-        // Get stylsheet from cache
-        /*let styles = styleSheetCache.get(this.strings);
-        if (!styles) {
-          styles = new CSSStyleSheet();
-          await styles.replace(this.cssText);
-          styleSheetCache.set(this.strings, this.styles);
-        }*/
+        const styleSheet = new CSSStyleSheet();
 
-        const styles = new CSSStyleSheet();
-        await styles.replace(this.cssText);
-
-        this.styles = styles;
+        this.styleSheet = styleSheet.replace(this.cssText).then(() => styleSheet);
       } else {
-        this.styles = null;
+        this.styleSheet = Promise.resolve(null);
       }
     }
 
-    return this.styles;
+    return this.styleSheet;
   }
 
   /**
