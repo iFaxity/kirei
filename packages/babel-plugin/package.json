@@ -39,7 +39,7 @@
     "@kirei/hmr-api": "^1.1.4"
   },
   "dependencies": {
-    "@babel/core": "7.12.0",
+    "@babel/core": "7.12.3",
     "@babel/helper-plugin-utils": "7.10.4",
     "test-exclude": "6.0.0"
   },
