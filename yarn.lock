@@ -3772,10 +3772,10 @@ es6-error@^4.0.1:
   resolved "https://registry.yarnpkg.com/es6-error/-/es6-error-4.1.1.tgz#9e3af407459deed47e9a91f9b885a84eb05c561d"
   integrity sha512-Um/+FxMr9CISWh0bi5Zv0iOD+4cFh5qLeks1qhAopKVAJw3drgKbKySikp7wGhDL0HPeaja0P5ULZrxLkniUVg==
 
-esbuild@0.7.16:
-  version "0.7.16"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.7.16.tgz#688fe048b98eca5121bc1a8686cba99ea1f9b5ab"
-  integrity sha512-qPQ3OE2BCCioUSep3Bnm1BA9EEkamGJwIowyjKmntCKSHIFuNoyfP+cV4HA5zJnQJAjhdM/JOuAnKq8PxlW1Dg==
+esbuild@0.7.17:
+  version "0.7.17"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.7.17.tgz#38b180f7c160e8a1b7f396a8d7a299e8f5df7325"
+  integrity sha512-5lO1NBOekZYU8h55SJJUc2dMe8duAwIqOQrIIvawRwbBRoWCmLSsMJmEvdFDITt24pkhu8AN4IKfyflLgaKxbg==
 
 esbuild@^0.6.10:
   version "0.6.30"
