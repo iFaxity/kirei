@@ -9,7 +9,6 @@ import HomeNews from './views/Home/News';
 import User from './views/User';
 import Users from './views/Users';
 import Clock from './views/Clock';
-import Benchmark from './views/Benchmark';
 
 createRouter({
   base: '',
@@ -27,6 +26,5 @@ createRouter({
     { path: '/user', element: Users },
     { path: '/user/:user', element: User },
     { path: '/clock', element: Clock },
-    { path: '/bench', element: Benchmark },
   ]
 });

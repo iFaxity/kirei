@@ -24,14 +24,14 @@ export const Button = defineElement({
       default: '',
     },
   },
-  setup(props) {
+  setup(props, ctx) {
     const Store = inject('store');
     onUpdate(() => console.log('Updating AppButton'));
 
     function onClick() {
       console.log('CLICK');
-      props.text += props.text ? ', a' : 'a';
       Store.increment();
+      ctx.emit('update:text', props.text += props.text ? ', a' : 'a');
     }
 
     return () => html`

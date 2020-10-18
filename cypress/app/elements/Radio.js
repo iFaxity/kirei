@@ -1,10 +1,9 @@
-import { defineElement, html, css, toRef } from '@kirei/element';
+import { defineElement, html, css, computed } from '@kirei/element';
 
 export default defineElement({
   name: 'AppRadio',
-  sync: 'checked',
   props: {
-    checked: [Boolean, String],
+    modelValue: [Boolean, String],
     value: String,
     label: String,
   },
@@ -60,14 +59,17 @@ export default defineElement({
       display: none;
     }
   `,
-  setup(props) {
+  setup(props, ctx) {
     const uuid = Math.random().toString(16).slice(2);
-    const sync = toRef(props, 'checked');
+    const model = computed({
+      get: () => props.modelValue,
+      set: (value) => ctx.emit('update:modelValue', value),
+    });
 
     return () => html`
     <label for=${uuid}>
       ${props.label || ''}
-      <input type="radio" id=${uuid} value=${props.value} &=${sync}>
+      <input type="radio" id=${uuid} value=${props.value} &=${model}>
       <span class="check"></span>
     </label>
     `;

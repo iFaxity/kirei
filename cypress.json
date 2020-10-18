@@ -1,6 +1,6 @@
 {
   "$schema":"https://raw.githubusercontent.com/cypress-io/cypress/develop/cli/schema/cypress.schema.json",
-  "testFiles": "*/*.js",
+  "testFiles": "*/*.spec.ts",
   "env": {
     "coverage": false
   },

@@ -1,14 +1,10 @@
-import { defineElement, html, css, toRef, computed } from '@kirei/element';
+import { defineElement, html, css, computed } from '@kirei/element';
 
 export default defineElement({
   name: 'AppTextarea',
-  sync: {
-    prop: 'value',
-    event: 'input',
-  },
   props: {
     id: String,
-    value: String,
+    modelValue: String,
     required: Boolean,
     cols: Number,
     rows: Number,
@@ -109,9 +105,13 @@ export default defineElement({
       background-color: #b70000;
     }
   `,
-  setup(props) {
+  setup(props, ctx) {
     const uuid = Math.random().toString(16).slice(2);
-    const sync = toRef(props, 'value');
+    const model = computed({
+      get: () => props.modelValue,
+      set: (value) => ctx.emit('update:modelValue', value),
+    });
+
     const charCount = computed(() => {
       if (props.max) {
         return html`<span class="count">${props.value.length || 0} / ${props.max}</span>`;
@@ -119,7 +119,7 @@ export default defineElement({
     });
 
     return () => html`
-    <textarea id=${uuid} &.lazy=${sync}
+    <textarea id=${uuid} &.lazy=${model}
       class=${props.valid ? '': 'invalid'} maxlength=${props.max}
       cols=${props.cols} rows=${props.rows} required=${props.required}>
     </textarea>

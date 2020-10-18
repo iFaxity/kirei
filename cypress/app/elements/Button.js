@@ -2,9 +2,8 @@ import { defineElement, html, css } from '@kirei/element';
 
 export default defineElement({
   name: 'AppButton',
-  sync: 'count',
   props: {
-    count: {
+    modelValue: {
       type: Number,
       default: 0,
     },
@@ -13,15 +12,16 @@ export default defineElement({
       default: '',
     },
   },
-  setup(props) {
+  setup(props, ctx) {
     function onClick() {
       console.log('CLICK');
-      props.text += props.text ? ', a' : 'a';
-      props.count++;
+
+      ctx.emit('update:modelValue', props.count + 1);
+      ctx.emit('update:text', props.text + props.text ? ', a' : 'a')
     }
 
     return () => html`
-      <button @click=${onClick}>Clicked ${props.count} times</button>
+      <button @click=${onClick}>Clicked ${props.modelValue} times</button>
       <p>${props.text}</p>
     `;
   },

@@ -1,15 +1,14 @@
-import { defineElement, html, css, toRef } from '@kirei/element';
+import { defineElement, html, css, computed } from '@kirei/element';
 
 export default defineElement({
   name: 'AppTextfield',
-  sync: 'value',
   props: {
     label: {
       type: String,
       required: true,
     },
     type: String,
-    value: String,
+    modelValue: String,
     required: Boolean,
     max: Number,
   },
@@ -59,12 +58,15 @@ export default defineElement({
       opacity: 1;
     }
   `,
-  setup(props) {
+  setup(props, ctx) {
     const uuid = Math.random().toString(16).slice(2);
-    const sync = toRef(props, 'value');
+    const model = computed({
+      get: () => props.modelValue,
+      set: (value) => ctx.emit('update:modelValue', value)
+    })
 
     return () => html`
-    <input &=${sync} id=${uuid} type=${props.type} maxlength=${props.max || ''} required=${props.required} placeholder=" ">
+    <input &=${model} id=${uuid} type=${props.type} maxlength=${props.max || ''} required=${props.required} placeholder=" ">
     <label for=${uuid}>${props.label}</label>
     `;
   },

@@ -1,11 +1,10 @@
-import { defineElement, html, css, toRef } from '@kirei/element';
+import { defineElement, html, css, computed } from '@kirei/element';
 
 export default defineElement({
   name: 'AppSelect',
-  sync: 'selected',
   props: {
     id: String,
-    selected: String,
+    modelValue: String,
     required: Boolean,
     label: {
       type: String,
@@ -15,10 +14,6 @@ export default defineElement({
       type: Array,
       required: true,
     },
-  },
-  model: {
-    prop: 'selected',
-    event: 'change',
   },
   styles: css`
     :host {
@@ -85,12 +80,15 @@ export default defineElement({
       pointer-events: none;
     }
   `,
-  setup(props) {
+  setup(props, ctx) {
     const uuid = Math.random().toString(16).slice(2);
-    const sync = toRef(props, 'selected');
+    const model = computed({
+      get: () => props.modelValue,
+      set: (value) => ctx.emit('update:modelValue', value)
+    })
 
     return () => html`
-    <select &=${sync} id=${uuid} required=${props.required}>
+    <select &=${model} id=${uuid} required=${props.required}>
       <option></option>
       ${props.items.map(item => html`<option>${item}</option>`)}
     </select>
