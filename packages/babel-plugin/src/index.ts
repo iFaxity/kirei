@@ -119,7 +119,7 @@ export default declare((api: ConfigAPI) => {api.assertVersion(7);
         const { specifiers } = path.node;
         for (let idx = 0; idx < specifiers.length; idx++) {
           const s = specifiers[idx];
-          if (t.isImportSpecifier(s) && s.imported.name === DEFINE_ELEMENT_FN) {
+          if (t.isImportSpecifier(s) && t.isIdentifier(s.imported) && s.imported.name === DEFINE_ELEMENT_FN) {
             specifiers.splice(idx, 1);
           }
         }

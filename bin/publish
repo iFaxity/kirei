@@ -4,12 +4,11 @@
 //
 const { resolve } = require('path');
 const { writeJSON, shell, resolvePackages } = require('./shared');
+const rootPkg = require('../package.json');
 
 const ROOT_DIR = resolve(__dirname, '../');
 const PACKAGES_DIR = resolve(ROOT_DIR, 'packages');
-const rootPkg = require('../package.json');
 const semver = [ 'major', 'minor', 'patch' ];
-
 const tag = process.argv[2] || 'patch';
 const version = bumpVersion(tag);
 const packages = resolvePackages(PACKAGES_DIR);

@@ -37,7 +37,7 @@ const CONFIGS = {
 function createConfig(key, opts) { //, tsCheck) {
   // Unpack options
   const { name, dir, package, config } = opts;
-  const { prod, bundler: isBundled, format, sourceMap } = config;
+  const { prod, bundler: isBundled, format } = config;
   const pkgName = package.name;
   const isProdBuild = !!prod;
   const isNodeBuild = format === 'cjs';
@@ -95,7 +95,7 @@ function createConfig(key, opts) { //, tsCheck) {
       name, format, //plugins,
       exports: 'auto',
       file: path.resolve(dir, `dist/${FILENAME}${extname}`),
-      sourcemap: sourceMap, //: true, // isProdBuild,
+      sourcemap: true,
       externalLiveBindings: false,
     },
   };
@@ -103,7 +103,7 @@ function createConfig(key, opts) { //, tsCheck) {
 
 const skipProd = false;
 exports.rollPackage = async function rollPackage(target, opts) {
-  const { prodOnly, devOnly, formats, sourceMap } = opts;
+  const { prodOnly, devOnly, formats } = opts;
   const { dir, package } = target;
   let { name, configs } = package.build;
 
@@ -113,7 +113,7 @@ exports.rollPackage = async function rollPackage(target, opts) {
 
   //const skipProd = false;
   const buildConfigs = configs.reduce((acc, key) => {
-    const config = { ...CONFIGS[key], sourceMap };
+    const config = { ...CONFIGS[key] };
 
     // if dev only and has prod, only dev
     // if prod only and has prod, build prod, else dont build

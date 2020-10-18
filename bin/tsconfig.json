@@ -1,0 +1,21 @@
+{
+  "$schema":"https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "es2019",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "lib": [ "dom", "es2019", "es2020" ],
+    "types": [ "node" ],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
+  },
+  "include": [
+    "../packages/*/src",
+    // Include global declaration files
+    "../packages/*.d.ts"
+  ],
+  "exclude": [
+    "../**/node_modules"
+  ]
+}

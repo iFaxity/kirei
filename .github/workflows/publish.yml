@@ -9,9 +9,6 @@ jobs:
   build:
     name: Create Release
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node: [ 14 ]
 
     steps:
       - name: Checkout code
@@ -21,7 +18,7 @@ jobs:
         run: git checkout "${GITHUB_REF:10}"
       - uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 14
           registry-url: https://registry.npmjs.org
           always-auth: true
 
@@ -35,7 +32,7 @@ jobs:
           git config --global user.email 'christian@faxity.se'
 
       - name: Build packages
-        run: yarn build
+        run: yarn build --release
 
       - name: Publish packages
         run: ./bin/publish ${{ github.ref }}

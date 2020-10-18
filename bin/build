@@ -16,7 +16,7 @@ yarn build dom
 # specify the format to output
 yarn build core --formats cjs
 */
-const path = require('path');
+const { resolve, basename } = require('path');
 const zlib = require('zlib');
 const { promisify } = require('util');
 const { readFile, writeFile, access, rmdir } = require('fs/promises');
@@ -24,7 +24,7 @@ const gzip = promisify(zlib.gzip);
 const brotli = promisify(zlib.brotliCompress);
 const { rollPackage } = require('./roll');
 const { resolvePackages } = require('./shared');
-const PACKAGES_ROOT = path.resolve(__dirname, '../packages');
+const PACKAGES_ROOT = resolve(__dirname, '../packages');
 
 const args = require('yargs')
   .option('devOnly', {
@@ -39,16 +39,10 @@ const args = require('yargs')
     default: false,
     description: 'Only builds for production, ignored if devOnly is set',
   })
-  .option('sourceMap', {
-    type: 'boolean',
-    alias: 's',
-    default: true,
-    description: 'Include sourcemaps in the build',
-  })
   .option('types', {
     type: 'boolean',
     alias: 't',
-    default: true,
+    default: false,
     description: '',
   })
   .option('release', {
@@ -69,7 +63,8 @@ const args = require('yargs')
 /*
 const prodOnly = !args.devOnly && args.prodOnly;
 const buildTypes = args.types || args.release;*/
-const { devOnly, sourceMap, release: isRelease, types: buildTypes } = args;
+const { devOnly, release: isRelease, types: buildTypes } = args;
+const buildTypes = isRelease || args.types;
 const formats = args.formats.length ? args.formats : null;
 const targets = args._.length ? args._ : null;
 const prodOnly = !devOnly && args.devOnly;
@@ -102,7 +97,7 @@ function rmrf(path) {
 
 async function checkSize(dir, name) {
   const filename = name.includes('/') ? name.split('/', 2)[1] : name;
-  const filePath = path.resolve(dir, `dist/${filename}.global.prod.js`);
+  const filePath = resolve(dir, `dist/${filename}.global.prod.js`);
 
   if (await exists(filePath)) {
     const file = await readFile(filePath);
@@ -141,34 +136,55 @@ async function build(target, opts) {
     console.log(`${color}Build ${status} after ${diff.toFixed(2)}s\u001B[0m`);
   }
 
-  /* Not currently working with import/export type
-  if (buildTypes && package.types) {
+  // Not currently working with import/export type
+  if ( buildTypes && package.types) {
     const { generateDtsBundle } = require('dts-bundle-generator');
-    console.log(`\u001B[36;1mRolling type definitions\u001B[0m`);
+    console.log(`\u001B[36;1mGenerating type declaration\u001B[0m`);
+
+    const start = Date.now();
+    let completed = false;
 
     // list all .ts files
     try {
-      const typings = generateDtsBundle([
-        { filePath: path.resolve(dir, 'src/index.ts'), },
-      ], { preferredConfigPath: path.resolve(__dirname, '../tsconfig.json') });
+      const entries = [
+        { filePath: resolve(PACKAGES_ROOT, 'globals.d.ts') },
+        {
+          filePath: resolve(dir, 'src/index.ts'),
+          output: {
+            inlineDeclareExternals: true,
+            noBanner: true,
+          },
+        },
+      ];
 
-      await writeFile(path.resolve(dir, package.types), typings.join('\n'), 'utf8');
+      const output = generateDtsBundle(entries, {
+        preferredConfigPath: resolve(__dirname, 'tsconfig.json'),
+        followSymlinks: false,
+      });
+
+      await writeFile(resolve(dir, package.types), output.pop(), 'utf8');
+      completed = true;
     } catch (ex) {
       console.error(ex);
     }
-  }*/
+
+    const diff = (Date.now() - start) / 1000;
+    const status = completed ? 'completed' : 'errored';
+    const color = completed ? '\u001B[32;1m' : '\u001B[31;1m';
+    console.log(`${color}Generation ${status} after ${diff.toFixed(2)}s\u001B[0m`);
+  }
 
   console.log('');
 }
 
 async function run() {
-  const opts = { formats, devOnly, prodOnly, sourceMap };
+  const opts = { formats, devOnly, prodOnly };
   const matched = resolvePackages(PACKAGES_ROOT, false); // true when prod
   const pkgs = PACKAGE_ORDER.reduce((acc, key) => {
     const item = matched.get(key);
 
     if (item) {
-      const dirname = path.basename(item.dir);
+      const dirname = basename(item.dir);
       if (!targets || targets.includes(key) || targets.includes(dirname)) {
         // if targets is defined, check if includes dir or package name
         acc.push([ key, item ]);

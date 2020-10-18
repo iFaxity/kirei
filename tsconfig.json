@@ -4,7 +4,7 @@
     "target": "es2019",
     "module": "esnext",
     "moduleResolution": "node",
-    "lib": [ "dom", "es2019" ],
+    "lib": [ "dom", "es2019", "ES2020.Symbol.WellKnown" ],
     "types": [ "node" ],
     "baseUrl": "./",
     "rootDir": "./",
@@ -20,7 +20,8 @@
   },
   "include": [
     "packages/*/src",
-    "packages/globals.d.ts"
+    // Include global declaration files
+    "packages/*.d.ts", "map.ts"
   ],
   "exclude": [
     "**/node_modules",

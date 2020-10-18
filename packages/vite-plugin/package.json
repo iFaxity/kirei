@@ -35,11 +35,7 @@
   ],
   "dependencies": {
     "babel-plugin-kirei": "^1.1.4",
-    "micromatch": "^4.0.2",
     "@babel/core": "7.12.3"
-  },
-  "devDependencies": {
-    "@types/micromatch": "4.0.1"
   },
   "peerDependencies": {
     "vite": "^1.0.0-rc.4"
