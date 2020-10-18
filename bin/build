@@ -60,14 +60,11 @@ const args = require('yargs')
   // Special config
   .help('help').alias('h', 'help').argv;
 
-/*
-const prodOnly = !args.devOnly && args.prodOnly;
-const buildTypes = args.types || args.release;*/
-const { devOnly, release: isRelease, types: buildTypes } = args;
+const { devOnly, release: isRelease } = args;
 const buildTypes = isRelease || args.types;
 const formats = args.formats.length ? args.formats : null;
 const targets = args._.length ? args._ : null;
-const prodOnly = !devOnly && args.devOnly;
+const prodOnly = !devOnly && args.prodOnly;
 
 // Manually for now.
 const PACKAGE_ORDER = [
