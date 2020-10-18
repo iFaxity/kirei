@@ -297,7 +297,7 @@ export class KireiInstance implements IKireiInstance {
     const { ShadyCSS, ShadowRoot } = window;
     const { tag, styles } = this.options;
 
-    if (styles.length) {
+    if (styles?.length) {
       // stylesubtree on updates, as per ShadyCSS documentation
       if (mount) {
         ShadyCSS?.styleElement(this.el);

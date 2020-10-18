@@ -3,7 +3,7 @@ import { types as t, BabelFile, ConfigAPI, PluginObj } from '@babel/core';
 import { declare } from '@babel/helper-plugin-utils';
 
 import { assignVarExpr, callExpr, declareVar, generateUids, importNamespace, variableExpr } from './node';
-import compileExclude from './exclude';
+import { compileExclude } from './exclude';
 
 /**
  * 

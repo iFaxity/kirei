@@ -1,7 +1,7 @@
 import type { Transform, Plugin } from 'vite';
 import { transformSync, PluginItem } from '@babel/core';
 import BabelPluginKirei from 'babel-plugin-kirei';
-import compileExclude from './exclude';
+import { compileExclude } from './exclude';
 
 /**
  * @interface
@@ -19,7 +19,7 @@ interface KireiPluginOptions {
  * @param {KireiPluginOptions} opts
  * @returns {Plugin}
  */
-function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
+export default function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
   let exclude: (filename: string) => boolean;
   const cwd = process.cwd();
   const plugins: PluginItem[] = [
@@ -59,5 +59,3 @@ function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
 
   return { transforms: [ transform ] };
 }
-
-export default kireiPlugin;

@@ -1,4 +1,4 @@
-import * as TestExclude from 'test-exclude';
+import TestExclude from 'test-exclude';
 
 interface ExcludeOptions {
   cwd?: string;
@@ -13,7 +13,7 @@ interface ExcludeOptions {
  * @param {ExcludeOptions} opts Options to pass
  * @returns {boolean}
  */
-export default function compileExclude(opts: ExcludeOptions): (filename: string) => boolean {
+export function compileExclude(opts: ExcludeOptions): (filename: string) => boolean {
   const exclude = new TestExclude({
     cwd: opts.cwd,
     include: opts.include,
