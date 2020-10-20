@@ -39,6 +39,6 @@
   "dependencies": {
     "@kirei/element": "^1.0.0",
     "@kirei/shared": "^1.0.0",
-    "@vue/reactivity": "3.0.1"
+    "@vue/reactivity": "3.0.2"
   }
 }
