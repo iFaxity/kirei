@@ -99,7 +99,7 @@ jobs:
 
       # Doesn't yet support macOS or Windows
       - name: Upload coverage to Codacy
-        uses: codacy/codacy-coverage-reporter-action@v0.2.0
+        uses: codacy/codacy-coverage-reporter-action@v0.2.1
         if: runner.os == 'Linux'
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
