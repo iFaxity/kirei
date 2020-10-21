@@ -1,10 +1,17 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
+  "schedule": [ "after 10pm and before 5am every weekend" ],
+  "automerge": true,
   "packageRules": [
     {
       "depTypeList": ["dependencies", "devDependencies"],
-      "updateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+      "updateTypes": ["minor", "patch", "pin", "digest"]
+    },
+    {
+      "depTypeList": ["dependencies", "devDependencies"],
+      "updateTypes": ["major"],
+      "automerge": false
     }
   ]
 }
