@@ -40,7 +40,7 @@
     "babel-plugin-istanbul": "6.0.0",
     "cypress": "5.4.0",
     "dts-bundle-generator": "5.4.0",
-    "esbuild": "0.7.17",
+    "esbuild": "0.7.19",
     "mochawesome": "6.1.1",
     "rollup": "2.32.0",
     "rollup-plugin-esbuild": "2.5.2",
