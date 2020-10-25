@@ -27,18 +27,6 @@ const { resolvePackages } = require('./shared');
 const PACKAGES_ROOT = resolve(__dirname, '../packages');
 
 const args = require('yargs')
-  .option('devOnly', {
-    type: 'boolean',
-    alias: 'd',
-    default: false,
-    description: 'Only builds for development',
-  })
-  .option('prodOnly', {
-    type: 'boolean',
-    alias: 'p',
-    default: false,
-    description: 'Only builds for production, ignored if devOnly is set',
-  })
   .option('types', {
     type: 'boolean',
     alias: 't',
@@ -60,11 +48,10 @@ const args = require('yargs')
   // Special config
   .help('help').alias('h', 'help').argv;
 
-const { devOnly, release: isRelease } = args;
+const isRelease = args.release;
 const buildTypes = isRelease || args.types;
 const formats = args.formats.length ? args.formats : null;
 const targets = args._.length ? args._ : null;
-const prodOnly = !devOnly && args.prodOnly;
 
 // Manually for now.
 const PACKAGE_ORDER = [
@@ -175,7 +162,7 @@ async function build(target, opts) {
 }
 
 async function run() {
-  const opts = { formats, devOnly, prodOnly };
+  const opts = { formats };
   const matched = resolvePackages(PACKAGES_ROOT, false); // true when prod
   const pkgs = PACKAGE_ORDER.reduce((acc, key) => {
     const item = matched.get(key);
@@ -199,23 +186,22 @@ async function run() {
     }
   }
 
-  if (!devOnly) {
-    // Interpolate numbers as kb of number
-    const results = [];
-    const size = (value) => `${(value / 1024).toFixed(1)}kb`;
+  // Interpolate numbers as kb of number
+  // calculate sizes of the bundles
+  const results = [];
+  const size = (value) => `${(value / 1024).toFixed(1)}kb`;
 
-    for (const [ _, target ] of pkgs) {
-      const pkgName = target.package.name;
-      const res = await checkSize(target.dir, pkgName);
+  for (const [ _, target ] of pkgs) {
+    const pkgName = target.package.name;
+    const res = await checkSize(target.dir, pkgName);
 
-      if (res) {
-        results.push(`${pkgName} production build: min: ${size(res[0])} / gzip: ${size(res[1])} / brotli: ${size(res[2])}`);
-      }
+    if (res) {
+      results.push(`${pkgName} production build: min: ${size(res[0])} / gzip: ${size(res[1])} / brotli: ${size(res[2])}`);
     }
+  }
 
-    if (results.length) {
-      console.log(results.join('\n'));
-    }
+  if (results.length) {
+    console.log(results.join('\n'));
   }
 }
 

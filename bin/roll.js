@@ -34,7 +34,7 @@ const CONFIGS = {
   },
 };
 
-function createConfig(key, opts) { //, tsCheck) {
+function createConfig(key, opts) {
   // Unpack options
   const { name, dir, package, config } = opts;
   const { prod, bundler: isBundled, format } = config;
@@ -103,7 +103,7 @@ function createConfig(key, opts) { //, tsCheck) {
 
 const skipProd = false;
 exports.rollPackage = async function rollPackage(target, opts) {
-  const { prodOnly, devOnly, formats } = opts;
+  const { formats } = opts;
   const { dir, package } = target;
   let { name, configs } = package.build;
 
@@ -115,30 +115,6 @@ exports.rollPackage = async function rollPackage(target, opts) {
   const buildConfigs = configs.reduce((acc, key) => {
     const config = { ...CONFIGS[key] };
 
-    // if dev only and has prod, only dev
-    // if prod only and has prod, build prod, else dont build
-    // else
-    // build dev and prod
-    /*if (config.prod) {
-      if (!devOnly) {
-        // add dev
-      }
-
-
-    } else {
-      if (!prodOnly) {
-        // dont dev
-
-        // add dev
-      }
-      // add prod
-    }
-
-    if (devOnly) {
-      
-    }*/
-
-    // filter on prod or dev only
     if (config.prod) {
       if (skipProd) {
         config.prod = false;
