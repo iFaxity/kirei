@@ -3,14 +3,31 @@
   "extends": ["config:base"],
   "schedule": [ "after 10pm and before 5am every weekend" ],
   "automerge": true,
+  "prCreation": "status-success",
+  "groupName": "all",
   "packageRules": [
     {
-      "depTypeList": ["dependencies", "devDependencies"],
-      "updateTypes": ["minor", "patch", "pin", "digest"]
+      "depTypeList": ["devDependencies"],
+      "updateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "devDependencies",
+      "groupSlug": "dev-dependencies"
     },
     {
-      "depTypeList": ["dependencies", "devDependencies"],
+      "depTypeList": ["devDependencies"],
       "updateTypes": ["major"],
+      "groupName": "devDependencies (major)",
+      "groupSlug": "dev-dependencies-major",
+      "automerge": false
+    },
+    {
+      "depTypeList": ["dependencies"],
+      "updateTypes": ["minor", "patch", "pin", "digest"],
+      "groupName": "dependencies"
+    },
+    {
+      "depTypeList": ["dependencies"],
+      "updateTypes": ["major"],
+      "groupName": "dependencies (major)",
       "automerge": false
     }
   ]
