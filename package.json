@@ -38,7 +38,7 @@
     "@types/webpack-env": "1.15.3",
     "babel-loader": "8.1.0",
     "babel-plugin-istanbul": "6.0.0",
-    "cypress": "5.4.0",
+    "cypress": "5.5.0",
     "dts-bundle-generator": "5.4.0",
     "esbuild": "0.7.21",
     "mochawesome": "6.1.1",
