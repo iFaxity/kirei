@@ -31,7 +31,7 @@
     "@cypress/code-coverage": "3.8.3",
     "@cypress/webpack-preprocessor": "5.4.10",
     "@rollup/plugin-commonjs": "16.0.0",
-    "@rollup/plugin-node-resolve": "9.0.0",
+    "@rollup/plugin-node-resolve": "10.0.0",
     "@rollup/plugin-replace": "2.3.4",
     "@strictsoftware/typedoc-plugin-monorepo": "0.3.1",
     "@types/node": "14.14.6",
