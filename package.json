@@ -41,7 +41,7 @@
     "cypress": "5.5.0",
     "dts-bundle-generator": "5.4.0",
     "esbuild": "0.7.21",
-    "mochawesome": "6.2.0",
+    "mochawesome": "6.2.1",
     "rollup": "2.33.0",
     "rollup-plugin-esbuild": "2.5.2",
     "tslib": "2.0.3",
