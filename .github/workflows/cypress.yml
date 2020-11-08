@@ -24,12 +24,11 @@ jobs:
       fail-fast: true
       matrix:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
-        node: [ 14 ]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 14
       - name: Cache dependencies
         id: cache
         uses: actions/cache@v2
@@ -40,10 +39,6 @@ jobs:
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
         run: yarn --frozen-lockfile --non-interactive
-
-      # Always build packages in setup, requires node 14
-      - name: Build packages
-        run: yarn ci
 
   # Testing through cypress
   cypress:
@@ -72,6 +67,9 @@ jobs:
     steps:
       # Restore packages from cache
       - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
       - name: Restore cache
         uses: actions/cache@v2
         with:
@@ -83,6 +81,7 @@ jobs:
         with:
           browser: ${{ matrix.browser }}
           start: yarn dev
+          build: yarn ci
           wait-on: ${{ env.CY_URL }}
           config-file: ${{ env.CY_CFG_FILE }}
           spec: ${{ env.CY_BOOTSTRAP }}
