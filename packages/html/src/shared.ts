@@ -2,19 +2,16 @@ import domdiff from 'udomdiff';
 
 /**
  * This "hack" tells the library if the browser is IE11 or old Edge
- * @const {boolean}
  */
 const IE = document.importNode.length != 1;
 
 /**
  * Node filter for createWalker
- * @const {number}
  */
 const filter = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT;
 
 /**
  * Node type of a persistent document fragment
- * @const {number}
  */
 const PERSIST_NODE_TYPE = 123;
 
@@ -22,7 +19,6 @@ const PERSIST_NODE_TYPE = 123;
  * IE11 and old Edge have a different createTreeWalker signature that
  * has been deprecated in other browsers. This export is needed only
  * to guarantee the TreeWalker doesn't show warnings and, ultimately, works
- * @const {() => TreeWalker}
  * @private
  */
 export const createWalker = IE
@@ -30,7 +26,9 @@ export const createWalker = IE
   : node => document.createTreeWalker(node, filter);
 
 /**
- * @param {Node} node
+ * Removes every direct descendent node except the first one
+ * @param node - Node to remove descendents from
+ * @returns The first direct descendent of the node
  * @private
  */
 function remove(node: Node): Node {
@@ -44,7 +42,7 @@ function remove(node: Node): Node {
 
 /**
  * Clears all the content of the node
- * @param {Node} node
+ * @param node - Clears every direct descendent node
  * @private
  */
 export function clearNode(node: Node): void {
@@ -55,16 +53,17 @@ export function clearNode(node: Node): void {
 
 /**
  * Differ function for domdiff to handle persistent fragments
- * @param {Node} node Node to diff
- * @param {number} operation Diffing operation, see udomdiff for more info
+ * @param node - Node to diff
+ * @param operation Diffing operation, see udomdiff for more info
+ * @returns The input node
  * @private
  */
-function diffable(node: Node, operation: number) {
+function diffable(node: Node, operation: number): Node {
   if (node.nodeType === PERSIST_NODE_TYPE) {
     if (1 / operation < 0) {
       return operation ? remove(node) : node.lastChild;
     }
-    return operation ? node.valueOf() : node.firstChild;
+    return operation ? node.valueOf() as Node : node.firstChild;
   }
 
   return node;
@@ -72,8 +71,8 @@ function diffable(node: Node, operation: number) {
 
 /**
  * creates a persistent document fragment
- * @param {DocumentFragment} frag
- * @returns {Node}
+ * @param frag - Document fragment to persist
+ * @returns A synthetic Node that persist every descendent node
  * @private
  */
 export function persistent(frag: DocumentFragment): Node {
@@ -96,10 +95,10 @@ export function persistent(frag: DocumentFragment): Node {
 
 /**
  * Diffs content after a specific reference node, from old content to new content
- * @param {Node} ref Reference node, where to set content after
- * @param {Node[]} oldNodes Current content of the node
- * @param {Node[]} newNodes New nodes to replace the current content with
- * @returns {Node[]}
+ * @param ref - Reference node, where to set content after
+ * @param oldNodes - Current content of the node
+ * @param newNodes - New nodes to replace the current content with
+ * @returns The new nodes
  * @private
  */
 export function diff(ref: Node, oldNodes: Node[], newNodes: Node[]): Node[] {
@@ -123,9 +122,9 @@ export function diff(ref: Node, oldNodes: Node[], newNodes: Node[]): Node[] {
 
 /**
  * Creates a template element from HTML or SVG markup
- * @param {boolean} svg Set to true to parse within the SVG namespace
- * @param {string} markup Markup, either HTML or SVG
- * @returns {HTMLTemplateElement}
+ * @param svg - Set to true to parse within the SVG namespace
+ * @param markup - Markup, either HTML or SVG
+ * @returns THe created template element
  * @private
  */
 export function createTemplate(svg: boolean, markup: string): HTMLTemplateElement {
@@ -153,18 +152,21 @@ export function createTemplate(svg: boolean, markup: string): HTMLTemplateElemen
  * Least Recently Used (LRU) Weak Cache based on the builtin weakmap object
  * Records can be GC'd it will leave the keys.
  * This is fine however as they will be removed when space is required.
- * @class
  */
 export class LRUWeakMap<K extends object, V> extends WeakMap implements WeakMap<K, V> {
-  /** @var {K[]} list Keys where the first entry is least used */
+  /**
+   * Keys where the first entry is least used.
+   */
   private list: K[] = [];
 
-  /** @var {number} max Maximum amount of entries to allow */
+  /** 
+   * Maximum amount of entries to allow.
+   */
   readonly max: number;
 
   /**
    * Constructs a new Least Recently Used (LRU) Weak Cache
-   * @param {number} size
+   * @param size - Max size of this LRU map
    */
   constructor(size: number) {
     super();
@@ -176,8 +178,9 @@ export class LRUWeakMap<K extends object, V> extends WeakMap implements WeakMap<
   }
 
   /**
-   * @param {K} key
-   * @returns {boolean}
+   * Remove item from the map
+   * @param key - Key to remove
+   * @returns If deletion was successful
    */
   delete(key: K): boolean {
     // Remove key from keys list
@@ -191,10 +194,10 @@ export class LRUWeakMap<K extends object, V> extends WeakMap implements WeakMap<
 
   /**
    * Gets a value from the cache
-   * @param {K} key
-   * @returns {V}
+   * @param key - Key to get value from
+   * @returns The returned value or null if not found
    */
-  get(key: K): V {
+  get(key: K): V|null {
     // pop the key to the top of the list
     const idx = this.list.lastIndexOf(key);
     if (idx < this.list.length - 1) {
@@ -210,9 +213,9 @@ export class LRUWeakMap<K extends object, V> extends WeakMap implements WeakMap<
 
   /**
    * Sets a value in the cache, also pushes the key to the top of the LRU
-   * @param {K} key
-   * @param {V} value
-   * @returns {this}
+   * @param key - Key to set value to
+   * @param value - Value to set
+   * @returns This class to chain operations
    */
   set(key: K, value: V): this {
     // Pop the key to the top of the list

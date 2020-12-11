@@ -4,15 +4,15 @@ import { defaultCompiler, PatchType } from './compiler';
 import type { TemplateCompiler, TemplatePatcher } from './compiler';
 export type { TemplateCompiler };
 
+type TemplateType = 'html' | 'svg';
+
 /**
  * Tags to force text only from node content
- * @const
  */
 const TEXT_TAGS = ['style', 'textarea'];
 
 /**
  * Prefix to glue template strings by the interpolated value slot
- * @const
  */
 const PREFIX = 'isµ';
 
@@ -20,13 +20,11 @@ const PREFIX = 'isµ';
  * Cache to store precompiled templates indexed by the template strings
  * as a LRUCache it only stores the most recently 'X' used elements.
  * Effectively trading memory for performance and performance for memory.
- * @const
  */
 const contentCache = new LRUWeakMap<TemplateStringsArray, TemplateContent>(500);
 
 /**
  * Template cache, used with template to remember past renders
- * @interface
  */
 export interface TemplateCache {
   stack: TemplateCache[];
@@ -36,7 +34,6 @@ export interface TemplateCache {
 
 /**
  * Compiled template from strings and patcher function
- * @interface
  */
 interface TemplateContent {
   node: HTMLTemplateElement;
@@ -45,7 +42,6 @@ interface TemplateContent {
 
 /**
  * Patch information for TemplatePatcher node traversal
- * @interface
  */
 interface TemplatePatch {
   type: PatchType;
@@ -54,8 +50,7 @@ interface TemplatePatch {
 }
 
 /**
- * 
- * @interface
+ * Represents a rendered template instance
  */
 interface TemplateInstance {
   strings: TemplateStringsArray;
@@ -66,7 +61,7 @@ interface TemplateInstance {
 
 /**
  * Creates an empty template cache instance
- * @returns {TemplateCache}
+ * @returns An empty cache instance
  * @private
  */
 export function createCache(): TemplateCache {
@@ -75,10 +70,10 @@ export function createCache(): TemplateCache {
 
 /**
  * Creates a patch walker for a node
- * @param {Node} node Node to create patch for
- * @param {PatchType} type patch type
- * @param {string} attr Attribute name (only if type is PatchType.Attr)
- * @param {TemplatePatch}
+ * @param node - Node to create patch for
+ * @param type - patch type
+ * @param attr - Attribute name (only if type is PatchType.Attr)
+ * @returns An object of the created template patch
  */
 function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch {
   // Index the node relative to the root, essentialy "paving" a path
@@ -95,10 +90,10 @@ function createPatch(node: Node, type: PatchType, attr?: string): TemplatePatch 
 
 /**
  * Compiles a DOM Tree from template strings, compiles dynamic patches
- * @param {string} type Template type, svg or html.
- * @param {TemplateStringsArray} strings Template strings
- * @param {string} scopeName Custom Element tag name, only required for Shady Shims
- * @returns {TemplateContent}
+ * @param type - Template type, svg or html.
+ * @param strings - Template strings
+ * @param scopeName - Custom Element tag name, only required for Shady Shims
+ * @returns A created template content instance
  */
 function compileContent(type: string, strings: TemplateStringsArray, scopeName?: string): TemplateContent {
   // Compile the template element
@@ -172,32 +167,28 @@ function compileContent(type: string, strings: TemplateStringsArray, scopeName?:
 
 /**
  * Class for composing template content and patching
- * @class
  */
 export class Template {
   /**
    * Template type, html or svg
-   * @var {string}
    */
-  readonly type: string;
+  readonly type: TemplateType;
 
   /**
    * Template strings
-   * @var {TemplateStringsArray}
    */
   readonly strings: TemplateStringsArray;
 
   /**
    * Interpolated template values
-   * @var {any[]}
    */
   readonly values: any[];
 
   /**
    * Updates values and does recursive template caching for templates
-   * @param {TemplateCache} cache Template cache
-   * @param {any[]} values Template values, dynamic content
-   * @param {TemplateCompiler} compiler Template compiler for interpolated values
+   * @param cache - Template cache
+   * @param values - Template values, dynamic content
+   * @param compiler - Template compiler for interpolated values
    * @private
    */
   private static updateValues(cache: TemplateCache, values: any[], compiler: TemplateCompiler): void {
@@ -226,11 +217,11 @@ export class Template {
 
   /**
    * Constructs a new template
-   * @param {string} type Template type (html or svg)
-   * @param {TemplateStringsArray} strings Template strings
-   * @param {any[]} values Interpolated template values
+   * @param type - Template type (html or svg)
+   * @param strings - Template strings
+   * @param values - Interpolated template values
    */
-  constructor(type: string, strings: TemplateStringsArray, values: any[]) {
+  constructor(type: TemplateType, strings: TemplateStringsArray, values: any[]) {
     this.type = type;
     this.strings = strings;
     this.values = values;
@@ -239,9 +230,9 @@ export class Template {
 
   /**
    * Creates a one off version of this template
-   * @param {TemplateCompiler} compiler Compiler to use for patching dynamic content
-   * @param {string} scopeName Custom Element tag name, only required for Shady Shims
-   * @returns {Node}
+   * @param compiler - Compiler to use for patching dynamic content
+   * @param scopeName - Custom Element tag name, only required for Shady Shims
+   * @returns The created one off dom node
    */
   updateOnce(compiler?: TemplateCompiler, scopeName?: string): Node {
     return this.update(createCache(), compiler, scopeName);
@@ -249,10 +240,10 @@ export class Template {
 
   /**
    * Creates or updates the rendered template, if already rendered to cache root
-   * @param {TemplateCache} cache Template cache
-   * @param {TemplateCompiler} compiler Compiler to use for patching dynamic content
-   * @param {string} scopeName Custom Element tag name, only required for Shady Shims
-   * @returns {Node}
+   * @param cache - Template cache
+   * @param compiler - Compiler to use for patching dynamic content
+   * @param scopeName - Custom Element tag name, only required for Shady Shims
+   * @returns The created/updated dom node
    */
   update(cache: TemplateCache, compiler?: TemplateCompiler, scopeName?: string): Node {
     const { strings, type, values } = this;
@@ -278,9 +269,9 @@ export class Template {
 
   /**
    * Compiles the template and patchers
-   * @param {TemplateCompiler} compiler Compiler to use when parsing interpolated values
-   * @param {string} scopeName Custom Element tag name, only required for Shady Shims
-   * @returns {TemplateInstance}
+   * @param compiler - Compiler to use when parsing interpolated values
+   * @param scopeName - Custom Element tag name, only required for Shady Shims
+   * @returns The created template instance
    * @private
    */
   private compile(compiler: TemplateCompiler, scopeName?: string): TemplateInstance {

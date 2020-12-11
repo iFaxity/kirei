@@ -3,13 +3,11 @@ import { isObject } from '@kirei/shared';
 
 /**
  * Template patcher function to update a dynamic value in the DOM
- * @type
  */
 export type TemplatePatcher = (pending: unknown) => void;
 
 /**
  * Type of patcher to use for compiling a TemplatePatcher
- * @enum
  */
 export enum PatchType {
   NODE = 'node',
@@ -21,37 +19,36 @@ export enum PatchType {
  * Used to configure how the template values are translated into the DOM,
  * each method should return a function which takes one parameter as the interpolated value.
  * Otherwise it fallbacks to the default compiler.
- * @interface
  */
 export interface TemplateCompiler<T = TemplatePatcher|void> {
   /**
    * Compiles a TemplatePatcher for an attribute value, does not have the attribute mounted
-   * @param {Element} node Element which the attribute was applied to
-   * @param {string} attr Attribute name
-   * @returns {TemplatePatcher|void}
+   * @param node - Element which the attribute was applied to
+   * @param attr - Attribute name
+   * @returns A patcher function to update the value
    */
   attr?(node: Element, attr: string): T;
 
   /**
    * Compiles a TemplatePatcher for a node value
-   * @param {Comment} ref Reference where to apply update after
-   * @returns {TemplatePatcher|void}
+   * @param ref - Reference Comment node where to apply update after
+   * @returns A patcher function to update the value
    */
   node?(ref: Comment): T;
 
   /**
    * Compiles a TemplatePatcher for a text node
-   * @param {Text} node Text node to set text value to
-   * @returns {TemplatePatcher|void}
+   * @param node - Text node to set text value to
+   * @returns A patcher function to update the value
    */
   text?(node: Text): T;
 }
 
 /**
  * Maps a style or class attribute from an array or an object to a string
- * @param {string} attr
- * @param {object} value
- * @returns {string}
+ * @param attr - Attribute name
+ * @param value - Value to map to a primitive value
+ * @returns THe mapped value as a primitive value
  */
 function mapAttribute<T extends object>(attr: string, value: T): string|T {
   if (!isObject(value)) {
@@ -72,10 +69,10 @@ function mapAttribute<T extends object>(attr: string, value: T): string|T {
 }
 
 /**
- * Special patchers for prop and event
- * @param {Element} node
- * @param {string} name
- * @returns {TemplatePatcher}
+ * Special patcher for updating an element property
+ * @param node - Element node to set prop value to
+ * @param name - Property name to set
+ * @returns A patcher function to update the value
  * @private
  */
 function propPatcher(node: Element, name: string): TemplatePatcher {
@@ -83,9 +80,10 @@ function propPatcher(node: Element, name: string): TemplatePatcher {
 }
 
 /**
- * @param {Element} node
- * @param {string} name
- * @returns {TemplatePatcher}
+ * Special patcher for event bindings
+ * @param node - Element node to set prop value to
+ * @param name - Property name to set
+ * @returns A patcher function to update the value
  * @private
  */
 function eventPatcher(node: Element, name: string): TemplatePatcher {
@@ -109,7 +107,6 @@ function eventPatcher(node: Element, name: string): TemplatePatcher {
 
 /**
  * Default template compiler
- * @const {TemplateCompiler}
  */
 export const defaultCompiler: TemplateCompiler<TemplatePatcher> = {
   attr(node, attr) {
