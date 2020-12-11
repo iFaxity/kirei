@@ -1,7 +1,13 @@
-// create router
+// create router and store
+import { createApp } from '@kirei/element';
 import { createRouter } from '@kirei/router';
+import { createStore } from '@kirei/store';
+import { storagePlugin } from './store/Todo';
 
-import './views/App';
+// IMPORTANT: Before any elements are imported
+const app = createApp('app');
+
+import AppRoot from './views/App';
 import View from './views/View';
 import Home from './views/Home/Layout';
 import HomeView from './views/Home/View';
@@ -9,10 +15,11 @@ import HomeNews from './views/Home/News';
 import User from './views/User';
 import Users from './views/Users';
 import Clock from './views/Clock';
+import Todo from './views/Todo';
 
-createRouter({
+const routes = {
   base: '',
-  root: '#root',
+  root: '#app',
   routes: [
     { path: '/', element: View },
     {
@@ -26,5 +33,12 @@ createRouter({
     { path: '/user', element: Users },
     { path: '/user/:user', element: User },
     { path: '/clock', element: Clock },
+    { path: '/todo', element: Todo },
   ]
-});
+};
+
+const router = createRouter(routes);
+const store = createStore({ plugins: [ storagePlugin ] });
+
+app.use(store);
+//app.install(router);

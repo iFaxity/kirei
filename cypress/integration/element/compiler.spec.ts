@@ -9,6 +9,9 @@ function renderTemplate(template) {
   node.id = 'app';
 
   cy.document().then(doc => {
+    // TODO HMR, override options, then reflow all mounted elements
+    // However element state cannot be saved this way.
+    // if already defined then just override options
     doc.body.textContent = '';
     doc.body.appendChild(node);
     render(template, node);
@@ -30,30 +33,28 @@ describe('compiler', () => {
     }
   });
 
+  // directives tested in app, only test inputs here
   describe('#directive()', () => {
     it('define directive', () => {
-      const fn = () => {};
-      assert.doesNotThrow(() => directive('text', fn));
+      assert.doesNotThrow(() => directive('text', {}));
     });
     it('alias named', () => {
-      const fn = () => {};
-      assert.doesNotThrow(() => directive('?', fn));
+      assert.doesNotThrow(() => directive('?', {}));
     });
     it('invalid name', () => {
-      const fn = () => {};
-      assert.throws(() => directive(100, fn));
-      assert.throws(() => directive(null, fn));
-      assert.throws(() => directive([], fn));
+      assert.throws(() => directive(100, {}));
+      assert.throws(() => directive(null, {}));
+      assert.throws(() => directive([], {}));
     });
     it('prevent overwriting', () => {
-      directive('x-item', () => {});
-      assert.throws(() => directive('x-item', () => {}));
+      directive('item', {});
+      assert.throws(() => directive('item', {}));
     });
     it('invalid directive', () => {
-      assert.throws(() => directive('hello', {}));
+      assert.throws(() => directive('hello', () => {}));
       assert.throws(() => directive('world', null));
       assert.throws(() => directive('foo', true));
-      assert.throws(() => directive(100, () => {}));
+      assert.throws(() => directive(100, {}));
     });
   });
 
@@ -66,63 +67,6 @@ describe('compiler', () => {
 
       cy.get(node).children().first()
         .should('have.attr', 'class', 'active text');
-    });
-    it('explicit unref', () => {
-      const r = ref(true);
-      const node = renderTemplate(html`
-        <div>Ref is ${r.value}</div>
-      `);
-
-      cy.get(node).children().first()
-        .should('have.text', 'Ref is true');
-    });
-
-    it('with directive', () => {
-      directive('text', dir => {
-        assert.equal(dir.name, 'text');
-        return (pending) => {
-          dir.el.textContent = pending;
-        };
-      });
-
-      const text = 'Im some content';
-      const node = renderTemplate(html`
-        <div x-text=${text}></div>
-      `);
-
-      cy.get(node).children().first()
-        .should('have.text', 'Im some content');
-    });
-
-    it('with directive alias', () => {
-      directive([ 'attr', '%' ], dir => {
-        assert.equal(dir.name, 'attr');
-
-        return (pending) => {
-          dir.el.setAttribute('data-test', pending);
-        };
-      });
-
-      const text = 'Im an attribute';
-      const node = renderTemplate(html`
-        <p %=${text}></p>
-      `);
-
-      cy.get(node).children().first()
-        .should('have.attr', 'data-test', 'Im an attribute');
-    });
-  });
-
-  describe('#compiler.node()', () => {
-    it('implicit unref', () => {
-      const r1 = ref(99);
-      const r2 = ref('Red Balloons');
-      const node = renderTemplate(html`
-        <p>${r1} ${r2}</p>
-      `);
-
-      cy.get(node).children().first()
-        .should('have.text', '99 Red Balloons');
     });
     it('explicit unref', () => {
       const r = ref(true);

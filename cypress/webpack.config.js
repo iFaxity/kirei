@@ -1,9 +1,9 @@
 const BABEL_OPTIONS = {
   presets: [
     ['@babel/preset-env', {
-      exclude: [ '@babel/plugin-transform-regenerator' ]
+      exclude: [ '@babel/plugin-transform-regenerator' ],
     }],
-    "@babel/preset-typescript",
+    '@babel/preset-typescript',
   ],
   plugins: [
     '@babel/plugin-proposal-class-properties',

@@ -14,7 +14,7 @@ export default defineElement({
   },
   setup(props, ctx) {
     function onClick() {
-      console.log('CLICK');
+      console.debug('CLICK');
 
       ctx.emit('update:modelValue', props.count + 1);
       ctx.emit('update:text', props.text + props.text ? ', a' : 'a')

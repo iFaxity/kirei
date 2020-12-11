@@ -13,7 +13,6 @@ import '../elements/Textfield.js';
 
 export const Button = defineElement({
   name: 'AppButton',
-  sync: 'count',
   props: {
     /*count: {
       type: Number,
@@ -26,12 +25,12 @@ export const Button = defineElement({
   },
   setup(props, ctx) {
     const Store = inject('store');
-    onUpdate(() => console.log('Updating AppButton'));
+    onUpdate(() => console.debug('Updating AppButton'));
 
     function onClick() {
-      console.log('CLICK');
+      console.debug('CLICK');
       Store.increment();
-      ctx.emit('update:text', props.text += props.text ? ', a' : 'a');
+      ctx.emit('update:text', props.text + (props.text ? ', a' : 'a'));
     }
 
     return () => html`
@@ -83,6 +82,17 @@ export default defineElement({
     }
   `,
 
+  directives: {
+    focus: {
+      beforeMount(el, binding) { console.debug('BEFORE_MOUNT'); console.debug(binding); },
+      mounted(el, binding) { console.debug('MOUNTED'); console.debug(binding); },
+      beforeUpdate(el, binding) { console.debug('BEFORE_UPDATE'); console.debug(binding); },
+      updated(el, binding) { console.debug('UPDATED'); console.debug(binding); },
+      beforeUnmount(el, binding) { console.debug('BEFORE_UNMOUNT'); console.debug(binding); },
+      unmounted(el, binding) { console.debug('UNMOUNTED'); console.debug(binding); },
+    }
+  },
+
   setup(props) {
     const name = 'AppRoot';
     //const count = ref(props.count);
@@ -106,10 +116,10 @@ export default defineElement({
     watch([ value, fruit ], (value, oldValue) => {
       if (Array.isArray(value)) {
         for (let i = 0; i < value.length; i++) {
-          console.log(`${i}: ${oldValue[i]} updated to ${value[i]}`);
+          console.debug(`${i}: ${oldValue[i]} updated to ${value[i]}`);
         }
       } else {
-        console.log(`${oldValue} updated to ${value}`);
+        console.debug(`${oldValue} updated to ${value}`);
       }
     }, { immediate: true });
 
@@ -119,27 +129,28 @@ export default defineElement({
       { link: '/home/news', text: 'News' },
       { link: '/user', text: 'Users view' },
       { link: '/user/test', text: 'Test user view' },
-      { link: '/clock', text: 'Clock' }
+      { link: '/clock', text: 'Clock' },
+      { link: '/todo', text: 'Todo' },
     ];
 
-    console.log(`created ${name}`);
-    onMount(() => console.log(`mounted ${name}`));
-    onBeforeUpdate(() => console.log(`updating ${name}`));
-    onUpdate(() => console.log(`updated ${name}`));
-    onUnmount(() => console.log(`destroyed ${name}`));
+    console.debug(`created ${name}`);
+    onMount(() => console.debug(`mounted ${name}`));
+    onBeforeUpdate(() => console.debug(`updating ${name}`));
+    onUpdate(() => console.debug(`updated ${name}`));
+    onUnmount(() => console.debug(`destroyed ${name}`));
 
     return () => html`
       <ul>
       ${links.map(item => html.key(item, html`
         <li>
-          <a link=${item.link}>${item.text}
+          <a href=${item.link}>${item.text}</a>
         </li>
       `))}
       </ul>
       <p>Count: ${Store.count}</p>
       <p>Hello, ${name}!</p>
       <p>Text: ${text}</p>
-      <app-button &text=${text}></app-button>
+      <app-button v-focus=${true} &text=${text}></app-button>
       <hr>
 
       <p>Text: ${value}</p>
