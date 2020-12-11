@@ -1,0 +1,49 @@
+{
+  "name": "@kirei/store",
+  "version": "1.1.3",
+  "author": "iFaxity (christian@faxity.se)",
+  "license": "MIT",
+  "main": "index.js",
+  "module": "dist/store.esm.js",
+  "types": "dist/store.d.ts",
+  "unpkg": "dist/store.global.js",
+  "jsdelivr": "dist/store.global.js",
+  "sideEffect": false,
+  "files": [
+    "dist/*"
+  ],
+  "scripts": {
+    "prepublishOnly": "npm run build",
+    "prebuild": "rm -rf dist && rm -f *.tsbuildinfo",
+    "build": "tsc -b"
+  },
+  "build": {
+    "name": "KireiStore",
+    "configs": [
+      "cjs",
+      "esm",
+      "global",
+      "esm-browser"
+    ]
+  },
+  "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/store",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ifaxity/kirei.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ifaxity/kirei/issues"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "composition",
+    "frontend",
+    "web components",
+    "custom elements",
+    "shadow dom"
+  ],
+  "peerDependencies": {
+    "@kirei/element": "^1.1.3"
+  }
+}

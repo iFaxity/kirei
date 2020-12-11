@@ -1,30 +1,28 @@
 Kirei
 =============
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ifaxity/kirei/Cypress?style=for-the-badge&logo=github)](https://github.com/iFaxity/kirei/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ifaxity/kirei/Test%20and%20Deploy?style=for-the-badge&logo=github)](https://github.com/iFaxity/kirei/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge&logo=codecov)](https://codecov.io/gh/iFaxity/kirei)
 [![Codacy grade](https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy)](https://app.codacy.com/manual/iFaxity/kirei/dashboard)
 [![Codacy coverage](https://img.shields.io/codacy/coverage/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy)](https://app.codacy.com/manual/iFaxity/kirei/dashboard)
 
-Browser support
+Browser support ([with WebComponents.js polyfills](https://github.com/webcomponents/polyfills/tree/master/packages/webcomponentsjs))
 ------------------
 
 | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Edge | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Firefox | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Chrome | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari-ios/safari-ios_48x48.png" alt="iOS Safari" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>iOS Safari | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/samsung-internet/samsung-internet_48x48.png" alt="Samsung" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Samsung | [<img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" />](http://godban.github.io/browsers-support-badges/)</br>Opera |
 | -------- | --- | --- | --- | --- | -- | --- |
-| Edge 12+ | 18+ | 49+ | 10+ | 10+ | 5+ | 36+ |
+| Edge 15+ | 22+ | 35+ | 10+ | 10+ | 5+ | 36+ |
 
 The beautiful front-end framework
 ---------------------------------
 
-To check an invididual package check in the packages folder.
-
-The performance of the framework is surprisingly fast, checkout the [benchmark suite](https://github.com/ifaxity/js-framework-benchmark) to see how both the HTML parser and the element library compares to Vue, React, lit-element, etc.
+Now also uses the same reactivity as Vue 3 (**@vue/reactivity**) instead of the custom fork (**@kirei/fx**).
 
 The goal of this library is to provide a modern approach to Front-End with modern web standards such as Custom Elements, Constructable Stylesheets, HTML Templates, Template Literals, etc. But with the familiar syntax of Vue.
 
 Transpiling is not required as most modern browsers supports all the required, and some features could be polyfilled. But could be added to automatically instrument the application with Hot Module Reload.
 
-Now also uses the same reactivity as Vue 3 (**@vue/reactivity**) instead of the custom fork (**@kirei/fx**).
+The performance of the framework is surprisingly fast, checkout the [benchmark suite](https://github.com/ifaxity/js-framework-benchmark) to see how both the HTML parser and the element library compares to Vue, React, lit-element, etc.
 
 Example button element.
 
@@ -50,9 +48,7 @@ defineElement({
 
     // Refs gets unwrapped unlike Vue
     return () => html`
-      <button>
-        Clicked ${count} times.
-      </button>
+      <button>Clicked ${count} times.</button>
     `;
   }
 });
@@ -110,11 +106,11 @@ TODO:
 Composition API
 ---------------
 
-All reactivity is the same as of version 1.2 as Kirei uses the @vue/reactivity package. However there are some Composition API's hthat are not in the reactivity package.
+All reactivity is the same as of Version 1.2.0 as Kirei uses the @vue/reactivity package. However there are some Composition API's that are not in the reactivity package, and therefore implemented
 
 ### watch
 
-TODO:
+Note: Does not yet support the `deep` option, may come in a release further. But is not yet prioritised.
 
 ### watchEffect
 
@@ -122,8 +118,9 @@ TODO:
 
 ### Provide & Inject
 
-Provide/inject are just like from Vue 3. It is used for an element to share functionality to child elements.
-As provided values only flows downward it is not possible for members to leak to parents
+Provide/inject is identical to Vue. It is used for an element to share functionality to child elements.
+
+As provided members only flows downward it is not possible for them to flow upward to any parents.
 As it only flows to children it is not possible to leak members to parent elements.
 
 ```js
@@ -173,11 +170,11 @@ TODO:
 Directives
 ----------
 
-TODO:
+Directives acts totally differently from Vue, as the only supported way as of now is to run on update. As there is no way to identify if the directive is bound or unbound. Therefore the sole way to use the directive is through getting updates when the element is re-rendered.
 
 ### Custom Directive
 
-Of course you can create your own directives, they can either be defined globally or just within the scope of a single element.
+Of course you can create your own directives, they can either be defined globally or just within the scope of a single element. However the Directive argument is the same. `{ el: HTMLElement, args: string[], name: string }`
 
 ```js
 import { directive } from '@kirei/element';
@@ -195,8 +192,13 @@ defineElement({
 
   directives: {
     focus(dir) {
+      let initial = true;
+
       return (newValue) => {
-        
+        if (initial) {
+          dir.el.focus();
+          initial = false;
+        }
       };
     }
   }

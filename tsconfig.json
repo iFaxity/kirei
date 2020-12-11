@@ -21,13 +21,11 @@
   "include": [
     "packages/*/src",
     // Include global declaration files
-    "packages/*.d.ts", "map.ts"
+    "packages/*.d.ts"
   ],
   "exclude": [
     "**/node_modules",
     "packages/router/src/engines",
-    "packages/ssr",
-    "packages/store",
     "packages/element/src/api/suspense.ts",
     "packages/element/src/api/emits.ts"
   ]
