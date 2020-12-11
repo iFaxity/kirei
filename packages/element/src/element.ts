@@ -2,17 +2,18 @@ import { trigger, reactive } from '@vue/reactivity';
 import type { TriggerOpTypes } from '@vue/reactivity';
 import { mapObject, isObject } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
-import { KireiInstance } from './instance';
+import { KireiInstance, setCurrentInstance } from './instance';
 import { exception } from './logging';
 import { validateProp, normalizeProps } from './props';
 import type { CSSResult } from './css';
 import type { IKireiElement, ElementOptions, NormalizedElementOptions } from './interfaces';
+import { nextTick } from './queue';
 
 /**
  * Collects an array of CSSResults into a Set of CSSResults to ensure they are unique
- * @param {CSSResult[]} styles Stylesheets to collect
- * @param {Set} set Set to hold all stylesheets
- * @returns {Set}
+ * @param styles - Stylesheets to collect
+ * @param set - Set to hold all stylesheets
+ * @returns A set of unique CSS Stylesheets
  * @private
  */
 function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult> {
@@ -24,31 +25,33 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
 
 /**
  * Normalizes the raw options object to a more predictable format
- * @param {ElementOptions} options Raw element options
- * @returns {NormalizedElementOptions}
+ * @param options - Raw element options
+ * @returns The normalized options
  * @private
  */
 export function normalizeOptions(options: ElementOptions): NormalizedElementOptions {
-  let { styles, emits } = options;
+  const { styles, emits, directives } = options;
   const props = options.props ? normalizeProps(options.props) : {};
-
-  if (styles != null) {
-    styles = Array.isArray(styles) ? [...collectStyles(styles)] : [styles];
-  }
 
   // Reuse same object to avoid unnecessary GC
   const normalized = options as NormalizedElementOptions;
   normalized.props = props;
-  normalized.styles = styles as CSSResult[];
   normalized.closed = !!options.closed;
   normalized.setup = options.setup ?? null;
-  normalized.directives = options.directives ?? null;
   normalized.tag = hyphenate(options.name);
   normalized.attrs = mapObject((key) => [hyphenate(key), key], props);
   normalized.attributes = Object.keys(normalized.attrs);
 
+  if (styles != null) {
+    normalized.styles = Array.isArray(styles) ? [...collectStyles(styles)] : [styles];
+  }
+
+  if (directives != null) {
+    normalized.directives = mapObject((key, value) => [hyphenate(key), value], directives);
+  }
+
   if (Array.isArray(emits)) {
-    normalized.emits = mapObject((key) => [ key, null ], emits);
+    normalized.emits = mapObject((key) => [key, null], emits);
   } else {
     normalized.emits = isObject(emits) ? emits : {};
   }
@@ -56,21 +59,17 @@ export function normalizeOptions(options: ElementOptions): NormalizedElementOpti
   return normalized;
 }
 
-// HTMLElement needs ES6 classes to instansiate properly
 /**
  * Element to use custom elements functionality, as it required a class
- * @class
  */
 export class KireiElement extends HTMLElement implements IKireiElement {
   /**
    * Options for this element, used for creating Kirei instances
-   * @var {NormalizedElementOptions}
    */
   static options: NormalizedElementOptions;
 
   /**
    * Returns the tagName of the element
-   * @type {string}
    * @static
    */
   static get is(): string {
@@ -79,7 +78,6 @@ export class KireiElement extends HTMLElement implements IKireiElement {
 
   /**
    * The attributes to observe changes for
-   * @type {string[]}
    * @static
    */
   static get observedAttributes(): string[] {
@@ -110,7 +108,7 @@ export class KireiElement extends HTMLElement implements IKireiElement {
           if (newValue !== props[key]) {
             try {
               // Trigger an update on the element
-              instance.activate();
+              setCurrentInstance(instance);
 
               const value = validateProp(options.props[key], key, newValue);
               props[key] = isObject(value) ? reactive(value) : value;
@@ -118,7 +116,7 @@ export class KireiElement extends HTMLElement implements IKireiElement {
             } catch (ex) {
               exception(ex);
             } finally {
-              instance.deactivate();
+              setCurrentInstance(null);
             }
           }
         },
@@ -128,16 +126,15 @@ export class KireiElement extends HTMLElement implements IKireiElement {
 
   /**
    * Runs when mounted from DOM
-   * @returns {void}
    */
   connectedCallback(): void {
     const instance = KireiInstance.get(this);
-    instance.mount();
+    // to leave teh app to get a chance to mount, push the connect to next paint cycle
+    nextTick(() => instance.mount());
   }
 
   /**
    * Runs when unmounted from DOM
-   * @returns {void}
    */
   disconnectedCallback(): void {
     const instance = KireiInstance.get(this);
@@ -146,7 +143,6 @@ export class KireiElement extends HTMLElement implements IKireiElement {
 
   /**
    * Observes attribute changes, triggers updates on props
-   * @returns {void}
    */
   attributeChangedCallback(attr: string, oldValue: string, newValue: string): void {
     // newValue & oldValue null if not set, string if set, default to empty string

@@ -1,13 +1,11 @@
 import { isObject } from '@kirei/shared';
-import { directive } from '../compiler';
+import type { TemplatePatcher } from '@kirei/html';
 import { warn } from '../logging';
 
-export default directive('bind', dir => {
-  const { el } = dir;
-
+export function bind(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
   let attributes: string[] = [];
 
-  return pending => {
+  return (pending) => {
     if (!isObject(pending)) {
       return warn('Directive requires the expression value to be an object', 'attrs (directive)');
     }
@@ -23,4 +21,4 @@ export default directive('bind', dir => {
 
     attributes = keys;
   };
-});
+}

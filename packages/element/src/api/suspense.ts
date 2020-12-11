@@ -1,4 +1,3 @@
-import { render, createCache } from '@kirei/html';
 import type { Template } from '@kirei/html';
 import { KireiInstance } from '../instance';
 import { KireiElement } from '../element';
@@ -10,28 +9,17 @@ import { compiler } from '../compiler';
 type SuspenseFallback = (typeof KireiElement|Template);
 type SuspenseTarget = typeof KireiElement|Promise<Template>;
 
-function createNode(target: SuspenseFallback) {
-  
-}
-
-defineElement({
-  name: 'XSuspense',
-  setup() {
-    return null;
-  }
-});
-
-
 // TODO multiple fallbacks?
 
 /**
  * Shows fallback content until all elements has loaded
- * @param {Function} target Target element as querySelector string
- * @param {Function} fallback Template to render
- * @returns {void}
+ * @param target - Target element as querySelector string
+ * @param fallback - Template to render
+ * @returns The resulting proxy node
+ * @private
  */
-export function suspense(template: Template): Node {
-  /*const instance = KireiInstance.active;
+export function suspense(fallback: Template | typeof KireiElement): Node {
+  /*const instance = getCurrentInstance();
 
   if (!instance) {
     throw new KireiError(``, 'error', 'suspense');

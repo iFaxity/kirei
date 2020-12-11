@@ -1,5 +1,5 @@
 import { isFunction } from '@kirei/shared';
-import { KireiInstance } from '../instance';
+import { getCurrentInstance, KireiInstance } from '../instance';
 import { exception } from '../logging';
 const HOOKS = new Set<string>();
 
@@ -9,19 +9,19 @@ const HOOKS = new Set<string>();
  */
 export enum HookTypes {
   BEFORE_MOUNT = 'beforeMount',
-  MOUNT = 'mount',
+  MOUNTED = 'mounted',
   BEFORE_UPDATE = 'beforeUpdate',
-  UPDATE = 'update',
+  UPDATED = 'updated',
   BEFORE_UNMOUNT = 'beforeUnmount',
-  UNMOUNT = 'unmount',
+  UNMOUNTED = 'unmounted',
 }
 
 /**
  * Creates a new hook to set on the active instance
- * @param {string} hook Hook name
- * @return {Function}
+ * @param hook - Hook name
+ * @return The defined hook factory
  */
-export function defineHook<T extends () => void>(name: string): (hook: T) => void {
+export function defineHook<T extends Function>(name: string): (hook: T) => void {
   if (HOOKS.has(name)) {
     exception('A lifecycle hook with that identifier already exists', `defineHook(${name})`);
   }
@@ -33,7 +33,7 @@ export function defineHook<T extends () => void>(name: string): (hook: T) => voi
       exception('Lifecycle hooks requires the parameter to be a function.', `${hook}()`);
     }
 
-    const instance = KireiInstance.active;
+    const instance = getCurrentInstance()
     if (!instance) {
       exception(`Lifecycle hooks needs have a setup function in its call stack.`, `${hook}()`);
     }
@@ -45,12 +45,12 @@ export function defineHook<T extends () => void>(name: string): (hook: T) => voi
 /** Registers a new hook it runs before instance is mounted */
 export const onBeforeMount = defineHook(HookTypes.BEFORE_MOUNT);
 /** Registers a new hook it runs after instance is mounted */
-export const onMount = defineHook(HookTypes.MOUNT);
+export const onMount = defineHook(HookTypes.MOUNTED);
 /** Registers a new hook it runs before instance is updated */
 export const onBeforeUpdate = defineHook(HookTypes.BEFORE_UPDATE);
 /** Registers a new hook it runs after instance is updated */
-export const onUpdate = defineHook(HookTypes.UPDATE);
+export const onUpdate = defineHook(HookTypes.UPDATED);
 /** Registers a new hook it runs before instance is unmounted */
 export const onBeforeUnmount = defineHook(HookTypes.BEFORE_UNMOUNT);
 /** Registers a new hook it runs after instance is unmounted */
-export const onUnmount = defineHook(HookTypes.UNMOUNT);
+export const onUnmount = defineHook(HookTypes.UNMOUNTED);

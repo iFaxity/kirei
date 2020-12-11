@@ -1,15 +1,13 @@
 import { unref } from '@vue/reactivity';
 import type { TemplatePatcher } from '@kirei/html';
-import { directive } from '../compiler';
-import type { Directive } from '../compiler';
 
-function conditionalPatcher(invert: boolean, dir: Directive): TemplatePatcher {
+export function conditionalUnless(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
   const placeholder = document.createComment('');
-  let node: Element|Comment = dir.el;
+  let node: Element|Comment = el;
 
   return (pending) => {
     const value = unref(pending);
-    const newNode = (invert ? !value : value) ? dir.el : placeholder;
+    const newNode = value ? placeholder : el;
 
     if (newNode !== node) {
       node.parentNode?.replaceChild(newNode, node);
@@ -18,6 +16,18 @@ function conditionalPatcher(invert: boolean, dir: Directive): TemplatePatcher {
   };
 }
 
-directive('if', conditionalPatcher.bind(null, false));
-directive('unless', conditionalPatcher.bind(null, false));
+export function conditionalIf(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
+  const placeholder = document.createComment('');
+  let node: Element|Comment = el;
+
+  return (pending) => {
+    const value = unref(pending);
+    const newNode = value ? el : placeholder;
+
+    if (newNode !== node) {
+      node.parentNode?.replaceChild(newNode, node);
+      node = newNode;
+    }
+  };
+}
 

@@ -5,7 +5,6 @@ const tickPromise = Promise.resolve();
 
 /**
  * Clears queue stack, only intended for testing
- * @returns {void}
  * @private
  */
 export function clear(): void {
@@ -14,8 +13,8 @@ export function clear(): void {
 
 /**
  * Checks if queue has function in its stack, only intended for testing
- * @param {Function} fn Function to check for
- * @returns {boolean}
+ * @param fn - Function to check for
+ * @returns If the queue contains the specified item
  * @private
  */
 export function has(fn: Function): boolean {
@@ -24,7 +23,7 @@ export function has(fn: Function): boolean {
 
 /**
  * Checks if queue has function in its stack, only intended for testing
- * @returns {number}
+ * @returns The amount of items in the queue
  * @private
  */
 export function size(): number {
@@ -33,7 +32,6 @@ export function size(): number {
 
 /**
  * Flushes the queue, calling all the functions in the queue
- * @returns {void}
  * @private
  */
 export function flush(): void {
@@ -45,8 +43,7 @@ export function flush(): void {
 
 /**
  * Wait for next flush of the queue, as a Promise or as a callback function
- * @param {Function} fn Optional callback function
- * @returns {Promise}
+ * @param fn - Optional callback function
  */
 export function nextTick(fn?: () => void): Promise<void> {
   if (fn != null && !isFunction(fn)) {
@@ -58,8 +55,7 @@ export function nextTick(fn?: () => void): Promise<void> {
 
 /**
  * Pushes a function to the queue, if it doesn't already exist
- * @param {Function} fn Function to enqueue
- * @returns {void}
+ * @param fn - Function to enqueue
  * @private
  */
 export function push(fn: () => void): void {

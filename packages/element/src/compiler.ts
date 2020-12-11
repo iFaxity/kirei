@@ -1,85 +1,86 @@
 import { customize, defaultCompiler } from '@kirei/html';
-import type { TemplatePatcher, TemplateCompiler } from '@kirei/html';
+import type { TemplateCompiler } from '@kirei/html';
 import { unref, isRef } from '@vue/reactivity';
-import { KireiInstance } from './instance';
-import { isFunction, isString } from '@kirei/shared';
+import { KireiInstance, getCurrentInstance } from './instance';
+import { HookTypes } from './api/lifecycle';
+
+// load directives
+import { bind } from './directives/bind';
+import { conditionalUnless, conditionalIf } from './directives/conditional';
+import { on } from './directives/on';
+import { show } from './directives/show';
+import { model } from './directives/model';
 
 /**
  * String of allowed characters to use as a directive alias
- * @const {string}
  */
 const ALIAS_NAMES = '@#&$%*!?;=^¶§€';
 
 /**
  * Regex to validate a directive alias
- * @const {RegExp}
  */
 const ALIAS_REGEX = new RegExp(`^([${ALIAS_NAMES}])([a-z0-9-]*)((?:\\.[a-z0-9-]+)*)$`, 'i');
 
 /**
  * Regex to validate directive names
- * @const {RegExp}
  */
-const DIRECTIVE_REGEX = /^x-([a-z0-9-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
+const DIRECTIVE_REGEX = /^v-([a-z0-9-]+)(?:\:([a-z0-9-]*))?((?:\.[a-z0-9-]+)*)$/i;
 
 /**
- * @interface
+ * Directive has a set of lifecycle hooks:
  */
-export interface Directive {
-  el: Element;
-  name: string;
+export interface Directive<T = any> {
+  /**
+   * Called before bound element's parent component is mounted
+   * @param el - Target element of the directive
+   * @param binding - Directive binding
+   */
+  beforeMount?(el: HTMLElement, binding: DirectiveBinding<T>): void;
+  /**
+   * Called when bound element's parent component is mounted
+   * @param el - Target element of the directive
+   * @param binding - Directive binding
+   */
+  mounted?(el: HTMLElement, binding: DirectiveBinding<T>): void;
+  /**
+   * Called before the containing component's VNode is updated
+   * @param el - Target element of the directive
+   * @param binding - Directive binding
+   */
+  beforeUpdate?(el: HTMLElement, binding: DirectiveBinding<T>): void;
+  /**
+   * Called after the containing component's VNode and the VNodes of its children // have updated
+   * @param el - Target element of the directive
+   * @param binding - Directive binding
+   */
+  updated?(el: HTMLElement, binding: DirectiveBinding<T>): void;
+  /**
+   * Called before the bound element's parent component is unmounted
+   * @param el - Target element of the directive
+   * @param binding - Directive binding
+   */
+  beforeUnmount?(el: HTMLElement, binding: DirectiveBinding<T>): void;
+  /**
+   * Called when the bound element's parent component is unmounted
+   * @param el - Target element of the directive
+   * @param binding - Directive binding
+   */
+  unmounted?(el: HTMLElement, binding: DirectiveBinding<T>): void;
+}
+
+export interface DirectiveBinding<T = any> {
+  instance: KireiInstance;
+  value: T;
+  oldValue: T;
   arg: string;
-  mods: string[];
+  modifiers: string[];
+  dir: Directive<T>;
 }
 
 /**
- * Function that is used to describe a directive, for custom interpolation
- * @type
+ * Patcher to set refs value to the targeted element
+ * @param el - Element to apply the patcher on
  */
-export type DirectiveFactory = (directive: Directive) => TemplatePatcher;
-
-/**
- * Map of global directives, only exported for testing purposes
- * @const {Map<string, DirectiveFactory>}
- * @private
- */
-export const directives = new Map<string, DirectiveFactory>();
-export const aliases = new Map<string, string>();
-
-/**
- * Assigns a new global directive, active for all elements
- * @param {string} name if name is only one char, it is considered an alias
- * @param {DirectiveFactory} directive Directive factory, a function that returns a function with one parameter
- * @returns {DirectiveFactory}
- */
-export function directive(name: string|[string, string], directive: DirectiveFactory): DirectiveFactory {
-  let alias: string;
-  if (Array.isArray(name)) {
-    [ name, alias ] = name;
-  }
-
-  if (!isString(name)) {
-    throw new TypeError('Invalid directive name');
-  } else if (!isFunction(directive)) {
-    throw new TypeError('Directive has to be a function.');
-  } else if (directives.has(name)) {
-    throw new TypeError('Directive already exists');
-  }
-
-  if (alias) {
-    if (alias.length != 1 || !ALIAS_NAMES.includes(alias)) {
-      throw new TypeError('Alias invalid, use a special character instead');
-    } else if (aliases.has(alias)) {
-      throw new TypeError('Directive alias already exists');
-    }
-
-    aliases.set(alias, name);
-  }
-
-  return directives.set(name, directive), directive;
-}
-
-// This is a special patcher
 function refPatcher(el: Element) {
   return (ref) => {
     if (!isRef<Element>(ref)) {
@@ -92,7 +93,6 @@ function refPatcher(el: Element) {
 
 /**
  * Custom compiler for directives and to unpack reactives
- * @const {TemplateCompiler}
  */
 export const compiler: TemplateCompiler = {
   attr(node, attr) {
@@ -100,29 +100,68 @@ export const compiler: TemplateCompiler = {
       return refPatcher(node);
     }
 
-    // Directives starts with x- or aliased name
+    // Directives starts with v-
     const isAlias = ALIAS_NAMES.includes(attr[0]);
-    if (isAlias || attr.startsWith('x-')) {
-      const match = attr.match(isAlias ? ALIAS_REGEX : DIRECTIVE_REGEX);
-      if (!match) {
-        throw new TypeError(`Invalid directive format '${attr}'.`);
-      }
+    if (!isAlias && !attr.startsWith('v-')) {
+      // Use default patcher
+      const patch = defaultCompiler.attr(node, attr);
+      return (pending) => patch(unref(pending));
+    }
 
-      // Proxy the alias to the real directive name
-      const name = isAlias ? aliases.get(match[1]) : match[1];
-      const factory = KireiInstance.active?.directives?.[name] ?? directives.get(name);
-      if (factory) {
-        return factory({
-          el: node, name,
-          arg: match[2] ?? '',
-          mods: match[3] ? match[3].slice(1).split('.') : [],
-        });
+    const match = attr.match(isAlias ? ALIAS_REGEX : DIRECTIVE_REGEX);
+    if (!match) {
+      throw new TypeError(`Invalid directive format '${attr}'.`);
+    }
+
+    // Internal patchers takes precedence
+    const name = match[1];
+    const el = node as HTMLElement;
+    const arg = match[2] ?? '';
+    const modifiers = match[3] ? match[3].slice(1).split('.') : [];
+    switch (name) {
+      case 'bind':
+        return bind(el, arg, modifiers);
+      case 'if':
+        return conditionalIf(el, arg, modifiers);
+      case 'unless':
+        return conditionalUnless(el, arg, modifiers);
+      case 'show':
+        return show(el, arg, modifiers);
+      case '@':
+      case 'on':
+        return on(el, arg, modifiers);
+      case '&':
+      case 'model':
+        return model(el, arg, modifiers);
+    }
+
+    // Look in element-scoped and global directives for a match
+    const instance = getCurrentInstance();
+    const dir = instance.directives?.[name];
+
+    if (!dir) {
+      throw new TypeError(`Directive ${name} not defined.`);
+    }
+
+    const binding: DirectiveBinding = {
+      instance, modifiers, dir, arg,
+      value: undefined,
+      oldValue: undefined,
+    };
+
+    // maybe oldValue is not properly set in beforeUpdate?
+    // mount called before directive is created?
+    for (const key of Object.values(HookTypes)) {
+      if (key in dir) {
+        instance.injectHook(key, dir[key].bind(null, el, binding));
       }
     }
 
-    // Use default patcher
-    const patch = defaultCompiler.attr(node, attr);
-    return (pending) => patch(unref(pending));
+    // Memo the old value, update current value
+    return (pending) => {
+      binding.oldValue = binding.value;
+      binding.value = pending;
+    };
   },
   node(ref) {
     const patch = defaultCompiler.node(ref)

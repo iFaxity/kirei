@@ -1,5 +1,4 @@
 import { effect, pauseTracking, resetTracking, shallowReadonly, shallowReactive } from '@vue/reactivity';
-import type { ReactiveEffect } from '@vue/reactivity';
 import { hyphenate } from '@vue/shared';
 import { isFunction, isPromise } from '@kirei/shared';
 import { exception, warn, KireiError } from './logging';
@@ -7,8 +6,10 @@ import { HookTypes } from './api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult } from './css';
 import { render } from './compiler';
-import type { DirectiveFactory } from './compiler';
 import { propDefaults } from './props';
+
+import type { ReactiveEffect } from '@vue/reactivity';
+import type { Directive } from './compiler';
 import type { InjectionKey } from './api/inject';
 import type {
   IKireiElement,
@@ -18,9 +19,7 @@ import type {
   PropsData,
   SetupResult
 } from './interfaces';
-
-const activeInstanceStack: KireiInstance[] = [];
-const instances = new WeakMap<Element, KireiInstance>();
+import { applications } from './app';
 
 interface IKireiContext {
   readonly el: IKireiElement;
@@ -29,93 +28,114 @@ interface IKireiContext {
 
   /**
    * Dispatches an event from the host element
-   * @param {string} eventName Event to emit
-   * @param {*} detail Custom event value
-   * @param {EventInit} options Custom event value
-   * @returns {void}
+   * @param eventName - Event to emit
+   * @param detail - Custom event value
+   * @param options - Custom event value
    */
   emit(eventName: string, detail?: any|EventInit, options?: EventInit): void;
 }
 
+const instanceStack: KireiInstance[] = [];
+const instances = new WeakMap<Element, KireiInstance>();
+
+export function getCurrentInstance(): KireiInstance|null {
+  return instanceStack.length ? instanceStack[instanceStack.length - 1] : null;
+}
+
+export function setCurrentInstance(instance: KireiInstance | null): void {
+  if (instance == null) {
+    instanceStack.pop();
+  } else {
+    instanceStack.push(instance);
+  }
+}
+
 /**
  * Instance to sandbox functionality of a KireiElement
- * @class
  * @private
  */
 export class KireiInstance implements IKireiInstance {
   private shimAdoptedStyleSheets = false;
   private hooks: Map<string, Set<Function>>;
   readonly effect: ReactiveEffect;
+  readonly root: IKireiInstance;
   readonly el: IKireiElement;
   readonly parent?: IKireiInstance;
   options: NormalizedElementOptions;
   template: Promise<SetupResult>|SetupResult;
   shadowRoot: ShadowRoot;
   props: PropsData;
-  provides: Record<string | number | symbol, any>;
-  directives?: Record<string, DirectiveFactory>;
+  provides: Record<string | symbol, unknown>;
+  directives?: Record<string, Directive>;
   emitted?: Record<string, boolean>;
   events: Record<string, Function>;
 
   /**
    * Gets an instance from its element
-   * @param {Element} el
-   * @returns {KireiInstance}
+   * @param el - Element to get instance from
+   * @returns The requested instance, or null if not found
    */
-  static get(el: Element): KireiInstance {
+  static get(el: Element): KireiInstance|null {
     return instances.get(el);
   }
 
   /**
-   * Gets the active instance
-   * @returns {KireiInstance}
-   */
-  static get active(): KireiInstance {
-    return activeInstanceStack[activeInstanceStack.length - 1];
-  }
-
-  /**
    * Constructs a new element instance, holds all the functionality to avoid polluting element
-   * @param {IKireiElement} el Element to create instance from
-   * @param {NormalizedElementOptions} opts Normalized element options
+   * @param el - Element to create instance from
+   * @param opts - Normalized element options
    */
   constructor(el: IKireiElement, opts: NormalizedElementOptions) {
-    this.shimAdoptedStyleSheets = false;
-    const parent = KireiInstance.active;
+    const parent = getCurrentInstance();
 
     this.options = opts;
     this.el = el;
-    this.parent = parent;
+    this.shimAdoptedStyleSheets = false;
+    this.hooks = Object.create(null);
 
-    // Inherit provides from parent
-    this.provides = parent?.provides ?? Object.create(null);
-    this.events = opts.emits ? Object.create(null) : null;
+    if (parent) {
+      this.parent = parent;
+      this.root = parent.root;
+      this.provides = parent.provides;
+    } else {
+      this.parent = null;
+      this.root = this;
+      this.provides = Object.create(null);
+    }
+
     this.props = shallowReactive(opts.props ? propDefaults(opts.props) : {});
     this.effect = effect(this.update.bind(this), {
       lazy: true,
       scheduler: Queue.push,
     });
 
-    // Collect props from attributes and props
-    // TODO: find a way to get values from directives before running this
-    this.setup();
+    // setup function is run on mount to fix the issue with the app mounting
     instances.set(el, this);
   }
 
   /**
    * Checks if the element instance is currently mounted
-   * @returns {boolean}
+   * @returns True if element is mounted
    */
   get mounted(): boolean {
     return !!this.el?.parentNode;
   }
 
+  /**
+   * Binds event to element
+   * @param event - Event to bind
+   * @param listener - Function to run when event is fired
+   */
   on(event: string, listener: Function): void {
     const events = this.events ?? (this.events = {});
 
     events[event] = listener;
   }
 
+  /**
+   * Binds event to element which is only called once
+   * @param event - Event to bind
+   * @param listener - Function to run when event is fired
+   */
   once(event: string, listener: Function): void {
     const emitted = this.emitted ?? (this.emitted = {});
     if (emitted[event] != null) {
@@ -125,6 +145,11 @@ export class KireiInstance implements IKireiInstance {
     this.on(event, listener);
   }
 
+  /**
+   * Unbind event(s) from the element
+   * @param event - Event to unbind
+   * @param listener - Specific listener to unbind
+   */
   off(event: string, listener?: Function): void {
     const res = this.events[event];
 
@@ -135,9 +160,8 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Dispatches an event to parent instance
-   * @param {string} eventName Event to emit
-   * @param {*} detail Custom event value
-   * @returns {void}
+   * @param eventName - Event to emit
+   * @param detail - Custom event value
    */
   emit(event: string, ...args: any[]): void {
     const handler = this.events[event];
@@ -176,25 +200,44 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Runs the setup function to collect dependencies and run logic
-   * @returns {void}
    */
   setup(): void {
-    const { options, directives, el } = this;
-    const { setup } = options;
-    this.hooks = Object.create(null);
-    this.directives = directives;
+    const { options, el, parent } = this;
+    const { setup, directives, hooks, emits } = options;
+
+    this.directives = Object.create(null);
+    this.events = emits ? Object.create(null) : null;
+    // Inherit provides from parent or app context
+    this.provides = parent ? parent.provides : Object.create(null);
+
+    // TODO: this really needs a refactor
+    const app = applications.get(this.root.el.id);
+    if (app) {
+      if (this.root == this) {
+        app.container = this;
+        this.provides = Object.create(app.context.provides);
+      }
+
+      this.directives = Object.create(app.context.directives);
+    }
 
     // Inject global hooks to instance
-    if (options.hooks) {
-      for (const key of Object.keys(options.hooks)) {
-        this.hooks[key] = new Set(options.hooks[key]);
-      }
+    if (hooks) {
+      Object.keys(hooks).forEach(key => {
+        this.hooks[key] = new Set(hooks[key]);
+      });
+    }
+
+    if (directives) {
+      Object.keys(directives).forEach(key => {
+        this.directives[key] = directives[key];
+      });
     }
 
     try {
-      this.activate();
+      setCurrentInstance(this);
 
-      let props: Readonly<Record<string, any>>;
+      let props: Readonly<Record<string, unknown>>;
       let ctx: IKireiContext;
 
       // No need for props or ctx if not in the arguments of the setup method
@@ -216,7 +259,7 @@ export class KireiInstance implements IKireiInstance {
 
         // Create a custom Proxy for the props
         // TODO: if production use shallowReactive instead
-        props = __DEV__ ? shallowReadonly(this.props) : this.props;
+        props = __DEV__ ? shallowReadonly(this.props) : shallowReactive(this.props);
       }
 
       // Run setup function to gather reactive data
@@ -230,16 +273,6 @@ export class KireiInstance implements IKireiInstance {
       } else if (res != null) {
         throw new TypeError('Setup function must return a TemplateFactory');
       }
-
-      /*if (isPromise(res)) {
-        this.template = res;
-        res.then(() => { this.template = res; });
-      } else if (isFunction(res)) {
-        this.template = res;
-      } else if (res != null) {
-        throw new TypeError('Setup function must return a TemplateFactory');
-      }*/
-
     } catch (ex) {
       if (ex instanceof KireiError) {
         throw ex;
@@ -248,15 +281,14 @@ export class KireiInstance implements IKireiInstance {
       exception(ex, 'setup()');
     } finally {
       resetTracking();
-      this.deactivate();
+      setCurrentInstance(null);
     }
   }
 
   /**
    * Provides a value for the instance
-   * @param {InjectionKey<T>|string}
-   * @param {T} value
-   * @returns {void}
+   * @param key - Key of provider
+   * @param value - Provider value
    */
   provide<T>(key: InjectionKey<T>|string, value: T): void {
     const { parent } = this;
@@ -268,30 +300,8 @@ export class KireiInstance implements IKireiInstance {
   }
 
   /**
-   * Pushes this instance to the front of the active stack
-   * @returns {void}
-   */
-  activate(): void {
-    if (KireiInstance.active !== this) {
-      activeInstanceStack.push(this);
-    }
-  }
-
-  /**
-   * Removes this instance from the front of the active stack
-   * Will be no-op of the instance is not at the front
-   * @returns {void}
-   */
-  deactivate(): void {
-    if (KireiInstance.active === this) {
-      activeInstanceStack.pop();
-    }
-  }
-
-  /**
-   * Reflows styles
-   * @param {boolean} mount
-   * @returns {void}
+   * Reflows styles with shady shims or adopted stylesheets
+   * @param mount - True If mounting or false if updating
    */
   async reflowStyles(mount?: boolean): Promise<void> {
     const { ShadyCSS, ShadowRoot } = window;
@@ -314,36 +324,34 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Create shadow root and shim styles
-   * @returns {void}
    */
   mount(): void {
-    const { closed } = this.options;
-    this.runHooks(HookTypes.BEFORE_MOUNT);
+    // Collect props from attributes and props
+    // if the setup function returns a promise, wait for it before mounting.
+    this.setup();
 
     // Only run shady shims on first mount
+    const { closed } = this.options;
     if (!this.shadowRoot) {
       this.shadowRoot = this.el.attachShadow({ mode: closed ? 'closed' : 'open' });
       this.reflowStyles(true);
     }
 
-    this.runHooks(HookTypes.MOUNT);
-    this.effect.options.scheduler(this.effect);
+    this.effect();
   }
 
   /**
    * Call unmounting lifecycle hooks
-   * @returns {void}
    */
   unmount(): void {
     this.runHooks(HookTypes.BEFORE_UNMOUNT);
-    Queue.push(() => this.runHooks(HookTypes.UNMOUNT));
+    Queue.push(() => this.runHooks(HookTypes.UNMOUNTED));
   }
 
   /**
    * Runs all the specified hooks on the Fx instance
-   * @param {string} hook Specified hook name
-   * @param {...any[]} args Arguments to pass to every hook
-   * @returns {void}
+   * @param hook - Specified hook name
+   * @param args - Arguments to pass to every hook
    */
   runHooks(hook: string, ...args: any[]): void {
     const hooks: Set<Function> = this.hooks[hook];
@@ -356,9 +364,8 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Adds a lifecycle hook to instance
-   * @param {string} name Specified hook name
-   * @param {Function} hook Hook function to attach to the lifecycle
-   * @returns {void}
+   * @param name - Specified hook name
+   * @param hook - Hook function to attach to the lifecycle
    */
   injectHook(name: string, hook: Function): void {
     const { hooks } = this;
@@ -368,41 +375,36 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Renders shadow root content
-   * @returns {void}
    */
   update(): void {
     const { shadowRoot, options, template, mounted } = this;
-    if (!template || isPromise(template)) {
+    if (template == null || isPromise(template)) {
       // Only update template if it is set or not a promise
       // If a promise then it will be resolved in the future
       return;
-    } else if (mounted) {
-      this.runHooks(HookTypes.BEFORE_UPDATE);
     }
 
+    this.runHooks(mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
+
     try {
-      this.activate();
-      render(template(), shadowRoot, options.tag);
+      setCurrentInstance(this);
+      render(template(), shadowRoot, { scopeName: options.tag });
     } catch (ex) {
       exception(ex);
     } finally {
-      this.deactivate();
+      setCurrentInstance(null);
     }
 
     // Adopted stylesheets not supported, shim with style element
     if (this.shimAdoptedStyleSheets) {
       const style = document.createElement('style');
-      for (const css of options.styles) {
-        style.textContent += `${css}\n`;
-      }
+      style.textContent = options.styles.join('\n');
 
       shadowRoot.insertBefore(style, shadowRoot.firstChild);
       this.shimAdoptedStyleSheets = false;
     }
 
     // Run update hook
-    if (mounted) {
-      this.runHooks(HookTypes.UPDATE);
-    }
+    this.runHooks(mounted ? HookTypes.UPDATED : HookTypes.MOUNTED);
   }
 }

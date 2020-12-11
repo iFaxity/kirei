@@ -4,7 +4,7 @@ import { Template } from '@kirei/html';
 import { render } from '../compiler';
 import { onUnmount } from './lifecycle';
 import * as Queue from '../queue';
-import { KireiInstance } from '../instance';
+import { getCurrentInstance, setCurrentInstance, KireiInstance } from '../instance';
 
 const roots = new Map<string, Element>();
 const portals = new WeakMap<Element, Portal>();
@@ -17,12 +17,11 @@ interface Portal {
 
 /**
  * Portals content to a element, useful for dialogs
- * @param {string} target Target element as querySelector string
- * @param {Function} template Template to render
- * @returns {void}
+ * @param target - Target element as querySelector string
+ * @param template - Template to render
  */
 export function portal(target: string, templateFn: () => Template): void {
-  const instance = KireiInstance.active;
+  const instance = getCurrentInstance();
   let root = roots.get(target);
   if (!root) {
     roots.set(target, (root = document.querySelector(target)));
@@ -31,9 +30,9 @@ export function portal(target: string, templateFn: () => Template): void {
   let portal = portals.get(root);
   if (!portal || portal.instance !== instance) {
     const fx = effect(() => {
-      instance.activate();
+      setCurrentInstance(instance);
       render(templateFn(), root);
-      instance.deactivate();
+      setCurrentInstance(null);
     }, { scheduler: Queue.push });
 
     portal = { instance, fx };

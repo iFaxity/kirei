@@ -5,8 +5,8 @@ import type { Props, PropsData, NormalizedProps, NormalizedProp, PropInstance, P
 
 /**
  * Normalizes a props model, making it more predictable
- * @param {Props} props Props to normalize
- * @returns {NormalizedProps}
+ * @param props Props to normalize
+ * @returns Normalized props, a transformed version of the input
  * @private
  */
 export function normalizeProps<T = Props>(props: T): NormalizedProps<T> {
@@ -51,8 +51,8 @@ export function normalizeProps<T = Props>(props: T): NormalizedProps<T> {
 
 /**
  * Extracts the default values from a props model
- * @param {NormalizedProps} props Props model to extract defaults from
- * @returns {PropsData}
+ * @param props - Props model to extract defaults from
+ * @returns Default prop values as an object
  * @private
  */
 export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> {
@@ -82,10 +82,10 @@ export function propDefaults<T extends NormalizedProps>(props: T): PropsData<T> 
 
 /**
  * Validates a prop against a value, casts value if needed
- * @param {NormalizedProp<V>} props Normalized prop model to validate from
- * @param {string} key Attribute key
- * @param {*} value Value to validate
- * @returns {V}
+ * @param props - Normalized prop model to validate from
+ * @param key - Attribute key
+ * @param value - Value to validate
+ * @returns The value of the validated property, if cast was true might not be the same
  * @private
  */
 export function validateProp<T extends NormalizedProp, V = T extends NormalizedProp<infer I> ? I : any>(prop: T, key: string, value: any): V {

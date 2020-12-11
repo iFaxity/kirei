@@ -3,28 +3,23 @@ import { warn } from './logging';
 import type { ElementOptions, Props } from './interfaces';
 
 export * from '@vue/reactivity';
-export { KireiInstance } from './instance';
+export { KireiInstance, setCurrentInstance, getCurrentInstance } from './instance';
 export { KireiElement, normalizeOptions } from './element';
 export { nextTick } from './queue';
 export { css, CSSResult } from './css';
-export { directive, html, svg } from './compiler';
+export { html, svg } from './compiler';
 export * from './api/lifecycle';
-export { portal } from './api/portal';
 export * from './api/inject';
-export { watch, watchEffect } from './api/watch';
+export * from './api/portal';
+export * from './api/watch';
+export { createApp } from './app';
+export type { App } from './app';
 export type { ElementOptions } from './interfaces';
-
-// load directives
-import './directives/attrs';
-import './directives/conditional';
-import './directives/on';
-import './directives/show';
-import './directives/model';
 
 /**
  * Defines a new custom Kirei element
- * @param {ElementOptions} options - Raw element options
- * @returns {KireiElement}
+ * @param options - Raw element options
+ * @returns The created element class that extends HTMLElement
  */
 export function defineElement<T extends Readonly<Props>>(options: ElementOptions<T>): typeof KireiElement {
   const normalized = normalizeOptions(options);
@@ -45,8 +40,8 @@ export function defineElement<T extends Readonly<Props>>(options: ElementOptions
 
 /**
  * Defines a asynchronously loaded element
- * @param {ElementOptions} options - Raw element options
- * @returns {KireiElement}
+ * @param options - Raw element options
+ * @returns A promise that returns the created element class that extends HTMLElement
  */
 export async function defineAsyncElement<T extends Readonly<Props>>(options: () => Promise<ElementOptions<T>>): Promise<typeof KireiElement> {
   const opts = await Promise.resolve(options());

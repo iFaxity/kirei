@@ -1,8 +1,6 @@
 import type { TemplatePatcher } from '@kirei/html';
 import { isFunction, isString } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
-import { directive } from '../compiler';
-import type { Directive } from '../compiler';
 import { KireiInstance } from '../instance';
 import { warn } from '../logging';
 
@@ -33,26 +31,26 @@ function hasMeta(e: KeyboardEvent|MouseEvent, meta: string[]): boolean {
 }
 
 // Checks if mod exists and removes it if it does.
-function hasMod(mods: string[], mod: string): boolean {
-  const idx = mods.indexOf(mod);
-  return idx != -1 ? (mods.splice(idx, 1), true) : false;
+function hasMod(modifiers: string[], mod: string): boolean {
+  const idx = modifiers.indexOf(mod);
+  return idx != -1 ? (modifiers.splice(idx, 1), true) : false;
 }
 
-function keyboardListener(listener: EventListener, mods: string[]): EventListener {
-  const meta = KEYBOARD_MODS.filter(mod => hasMod(mods, mod));
+function keyboardListener(listener: EventListener, modifiers: string[]): EventListener {
+  const meta = KEYBOARD_MODS.filter(mod => hasMod(modifiers, mod));
 
   return (e: KeyboardEvent) => {
     if (meta.length && !hasMeta(e, meta)) return;
 
     const key = KEYBOARD_ALIASES[e.key] ?? hyphenate(e.key);
-    if (mods.length && !mods.includes(key)) return;
+    if (modifiers.length && !modifiers.includes(key)) return;
     return listener(e);
   };
 }
 
-function mouseListener(listener: EventListener, mods: string[]): EventListener {
-  const meta = KEYBOARD_MODS.filter(mod => hasMod(mods, mod));
-  const btn = MOUSE_KEYS.findIndex(mod => hasMod(mods, mod));
+function mouseListener(listener: EventListener, modifiers: string[]): EventListener {
+  const meta = KEYBOARD_MODS.filter(mod => hasMod(modifiers, mod));
+  const btn = MOUSE_KEYS.findIndex(mod => hasMod(modifiers, mod));
 
   return (e: MouseEvent) => {
     if (meta.length && !hasMeta(e, meta)) return;
@@ -61,16 +59,15 @@ function mouseListener(listener: EventListener, mods: string[]): EventListener {
   };
 }
 
-function nativePatcher(dir: Directive): TemplatePatcher {
-  const { el, arg: eventName, mods } = dir;
-  const prevent = hasMod(mods, 'prevent');
-  const stop = hasMod(mods, 'stop');
-  const self = hasMod(mods, 'self');
+function nativePatcher(el: HTMLElement, eventName: string, modifiers: string[]): TemplatePatcher {
+  const prevent = hasMod(modifiers, 'prevent');
+  const stop = hasMod(modifiers, 'stop');
+  const self = hasMod(modifiers, 'self');
   const forceBind = prevent || stop;
   const options: AddEventListenerOptions = {
-    capture: hasMod(mods, 'capture'),
-    once: hasMod(mods, 'once'),
-    passive: hasMod(mods, 'passive'),
+    capture: hasMod(modifiers, 'capture'),
+    once: hasMod(modifiers, 'once'),
+    passive: hasMod(modifiers, 'passive'),
   };
 
   let value: EventListener = NOOP;
@@ -82,11 +79,11 @@ function nativePatcher(dir: Directive): TemplatePatcher {
     return value.call(null, e);
   }
 
-  if (mods.length) {
+  if (modifiers.length) {
     if (KEYBOARD_EVENTS.includes(eventName)) {
-      listener = keyboardListener(listener, mods);
+      listener = keyboardListener(listener, modifiers);
     } else if (MOUSE_EVENTS.includes(eventName)) {
-      listener = mouseListener(listener, mods);
+      listener = mouseListener(listener, modifiers);
     }
   }
 
@@ -107,34 +104,32 @@ function nativePatcher(dir: Directive): TemplatePatcher {
   };
 }
 
-export default directive([ 'on', '@' ], dir => {
-  const instance = KireiInstance.get(dir.el);
+export function on(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
+  const instance = KireiInstance.get(el);
 
   // TODO: Maybe support multiple events in the future?
   // Instance swallows event if defined in 'emits'. Otherwise bind to native handler.
   if (instance) {
-    const { mods, arg: event } = dir;
-
     // Expected an argument as string
-    if (!isString(event)) {
+    if (!isString(arg)) {
       throw new TypeError('');
-    } else if (instance.options.emits[event]) {
-      const once = mods.includes('once');
+    } else if (instance.options.emits[arg]) {
+      const once = modifiers.includes('once');
       let value: Function;
 
       return (pending: Function) => {
         if (value === pending) return;
 
         if (!isFunction(pending) || pending != null) {
-          warn(`x-on directive expected a function or a nullable value, got ${typeof pending}`);
+          warn(`v-on directive expected a function or a nullable value, got ${typeof pending}`);
         }
 
         if (!pending) {
-          instance.off(event, value);
+          instance.off(arg, value);
         } else if (once) {
-          instance.once(event, pending);
+          instance.once(arg, pending);
         } else {
-          instance.on(event, pending)
+          instance.on(arg, pending)
         }
 
         value = pending;
@@ -143,5 +138,5 @@ export default directive([ 'on', '@' ], dir => {
   }
 
   // Native event patcher
-  return nativePatcher(dir);
-});
+  return nativePatcher(el, arg, modifiers);
+}

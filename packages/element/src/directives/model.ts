@@ -1,11 +1,10 @@
 import { isString } from '@kirei/shared';
 import { isRef } from '@vue/reactivity';
 import type { Ref } from '@vue/reactivity';
-import { directive } from '../compiler';
-import type { Directive } from '../compiler';
+import type { TemplatePatcher } from '@kirei/html';
+import type { DirectiveBinding } from '../compiler';
 import { push } from '../queue';
 import { KireiInstance } from '../instance';
-import type { TemplatePatcher } from '@kirei/html';
 
 const DEFAULT_PROP = 'modelValue';
 
@@ -54,12 +53,19 @@ function checkboxHandler(el: HTMLInputElement, ref: Ref): boolean | string | str
     return list;
   }
 
-  return el.value || el.checked;
+  // TODO: dont return 'value' if not list
+  //return el.value || el.checked;
+  //return el.hasAttribute('value') ? el.value : el.checked;
+  return el.checked;
 }
 function checkboxCommit(el: HTMLInputElement, value: unknown): void {
-  el.checked = Array.isArray(value)
-    ? value.includes(el.value)
-    : value === el.value;
+  /*let state = !!value;
+  if (el.hasAttribute('value')) {
+    state = Array.isArray(value) ? value.includes(el.value) : value === el.value;
+  }
+  el.checked = state;*/
+  // NOTE: see the handler for more info on why no value without list
+  el.checked = Array.isArray(value) ? value.includes(el.value) : !!value;
 }
 
 function castValue(value: unknown, trim: boolean, number: boolean): unknown {
@@ -81,10 +87,9 @@ function castValue(value: unknown, trim: boolean, number: boolean): unknown {
   return value;
 }
 
-function nativeModel(dir: Directive): TemplatePatcher {
-  const { el, arg, mods } = dir;
-  const castNumber = mods.includes('number');
-  const trimValue = mods.includes('trim');
+function nativeModel(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
+  const castNumber = modifiers.includes('number');
+  const trimValue = modifiers.includes('trim');
 
   let ref: Ref;
   let event: string;
@@ -111,7 +116,7 @@ function nativeModel(dir: Directive): TemplatePatcher {
     commit = radioCommit;
   } else if (isInput || tag == 'textarea') {
     // lazy modifier only for text input
-    event = mods.includes('lazy') ? 'change' : 'input';
+    event = modifiers.includes('lazy') ? 'change' : 'input';
     prop = 'value';
     commit = (el, value) => { el[prop] = value; };
   } else {
@@ -145,16 +150,14 @@ function nativeModel(dir: Directive): TemplatePatcher {
 }
 
 // directive format &[value.number.trim.lazy]=${ref}
-// TODO: add x-model like v-model
-export default directive([ 'model', '&' ], dir => {
-  const instance = KireiInstance.get(dir.el);
+export function model(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
+  const instance = KireiInstance.get(el);
 
   // TODO: if instance, pass as prop (update:propName)
   if (instance) {
-    const { mods } = dir;
-    const castNumber = mods.includes('number');
-    const trimValue = mods.includes('trim');
-    const prop = dir.arg || DEFAULT_PROP;
+    const castNumber = modifiers.includes('number');
+    const trimValue = modifiers.includes('trim');
+    const prop = arg || DEFAULT_PROP;
     let ref: Ref;
 
     instance.on(`update:${prop}`, (value) => { ref.value = value; });
@@ -170,9 +173,9 @@ export default directive([ 'model', '&' ], dir => {
       ref = pending;
       instance.props[prop] = castValue(ref.value, trimValue, castNumber);
     };
-  } else if (dir.arg === '') {
-    return nativeModel(dir);
+  } else if (arg === '') {
+    return nativeModel(el, arg, modifiers);
   }
 
-  throw new TypeError(`Custom Model only supported for Kirei elements, got '${dir.el.tagName.toLowerCase()}'.`);
-});
+  throw new TypeError(`Custom Model only supported for Kirei elements, got '${el.tagName.toLowerCase()}'.`);
+}

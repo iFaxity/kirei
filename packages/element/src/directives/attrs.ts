@@ -1,11 +1,9 @@
+import type { TemplatePatcher } from '@kirei/html';
 import { isObject } from '@kirei/shared';
-import { directive } from '../compiler';
 import { warn } from '../logging';
 
-export default directive('attrs', dir => {
-  const { el } = dir;
-
-  return pending => {
+export function attrs(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
+  return (pending) => {
     if (!isObject(pending)) {
       return warn('Directive requires the expression value to be an object', 'attrs (directive)');
     }
@@ -16,4 +14,4 @@ export default directive('attrs', dir => {
       value ? el.setAttribute(key, value) : el.removeAttribute(key);
     }
   };
-});
+}

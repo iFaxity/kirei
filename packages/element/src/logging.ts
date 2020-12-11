@@ -1,6 +1,7 @@
 import { isString } from '@kirei/shared';
 import type { IKireiInstance } from './interfaces';
-import { KireiInstance } from './instance';
+import { getCurrentInstance, KireiInstance } from './instance';
+import { execPath } from 'process';
 
 // Constants for stack trace
 const INDENT_STEP = 2;
@@ -8,31 +9,28 @@ const INDENT = 4;
 
 /**
  * Error class for Kirei errors within the Kirei element
- * @class
  * @private
  */
 export class KireiError extends Error {
   /**
    * Error level, 'info', 'error 'or 'warn'
-   * @var
    */
-  level: string;
+  level: 'info'|'error'|'warn';
 
   /**
    * Function context of error, if any
-   * @var
    */
   context?: string;
 
   /**
    * Creates a new KireiError instance
-   * @param {string} message Error message
-   * @param {string} level Logging level
-   * @param {string} context Function context, if any
+   * @param message - Error message
+   * @param level - Logging level
+   * @param context - Function context, if any
    */
   constructor(message: string, level: 'info'|'error'|'warn', context?: string) {
     super();
-    const instance = KireiInstance.active;
+    const instance = getCurrentInstance();
 
     if (isString(context)) {
       if (message.endsWith('.')) {
@@ -55,8 +53,8 @@ export class KireiError extends Error {
 
   /**
    * Creates an iterator to walk the instance tree
-   * @param {KireiInstance} instance Instance to walk up from
-   * @returns {Generator}
+   * @param instance - Instance to walk up from
+   * @returns A generator to walk the instance tree upwards
    * @private
    */
   private *walkInstanceTree(instance: IKireiInstance): Generator<IKireiInstance> {
@@ -68,10 +66,10 @@ export class KireiError extends Error {
 
   /**
    * Formats element name from an instance
-   * @param {KireiInstance} instance Instance where stack trace should start
-   * @param {number} indent
-   * @param {number} recursiveCount
-   * @returns {string}
+   * @param instance - Instance where stack trace should start
+   * @param indent - Indenting of spaces before the message
+   * @param recursiveCount - Amount of elements that are recursively called
+   * @returns The element name as a formatted string
    * @private
    */
   private formatElementName(instance: KireiInstance, indent: number, recursiveCount?: number): string {
@@ -89,8 +87,8 @@ export class KireiError extends Error {
 
   /**
    * Creates a stack trace for error/warning messages
-   * @param {KireiInstance} instance Instance where stack trace should start
-   * @returns {string}
+   * @param instance - Instance where stack trace should start
+   * @returns Stack trace of the Kirei instance tree
    */
   private createStackTrace(instance: KireiInstance): string {
     if (!instance.parent) {
@@ -124,9 +122,8 @@ export class KireiError extends Error {
 
 /**
  * Throws an exception with a formatted message
- * @param {string|Error} message Exception message
- * @param {string} context Optional context (instance name, function name)
- * @returns {void}
+ * @param message - Exception message
+ * @param context - Optional context (instance name, function name)
  * @private
  */
 export function exception(message: string | Error, context?: string): never {
@@ -135,9 +132,8 @@ export function exception(message: string | Error, context?: string): never {
 
 /**
  * Logs an error message in the console
- * @param {string|Error} message Exception message
- * @param {string} context Optional context (instance name, function name)
- * @returns {void}
+ * @param message - Exception message
+ * @param context - Optional context (instance name, function name)
  * @private
  */
 export function error(message: string | Error, context?: string): void {
@@ -146,9 +142,8 @@ export function error(message: string | Error, context?: string): void {
 
 /**
  * Logs a warning message in the console
- * @param {string|Error} message Warning message
- * @param {string} context Optional context (instance name, function name)
- * @returns {void}
+ * @param message - Warning message
+ * @param context - Optional context (instance name, function name)
  * @private
  */
 export function warn(message: string | Error, context?: string): void {
