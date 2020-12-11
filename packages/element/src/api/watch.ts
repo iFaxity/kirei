@@ -4,24 +4,22 @@
  * Copyright(c) 2020 Christian Norrman
  * MIT Licensed
  */
-import { isFunction } from '@kirei/shared';
-import { stop, effect, isRef } from '@vue/reactivity';
+import { isFunction, isObject } from '@kirei/shared';
+import { stop, effect, isRef, isReactive } from '@vue/reactivity';
 import type { Ref } from '@vue/reactivity';
+import { isMap, isSet } from '@vue/shared';
 
 /**
  * Function to stop a reactive watcher
- * @type
  */
 type StopWatcher = () => void;
 
 /**
- * @type
  */
-type WatchTarget<T = any> = Ref<T> | (() => T);
+type WatchTarget<T = any> = Ref<T> | T | (() => T);
 
 /**
  * Infers value types from an array of WatchTargets
- * @type
  */
 type InferWatchValues<T> = {
   [K in keyof T]: T[K] extends WatchTarget<infer V> ? V : never;
@@ -30,23 +28,24 @@ type InferWatchValues<T> = {
 
 /**
  * Optional configuration to pass to a watcher
- * @interface
  */
 interface WatchOptions {
   /**
    * If watcher should be run immediately, with undefined value(s)
-   * @var {boolean}
    */
   immediate?: boolean;
-  //deep?: boolean;
+  /**
+   * If watch should traverse every child of the watched target(s)
+   */
+  deep?: boolean;
 }
 
 /**
  * Creates a function that runs anytime a reactive dependency updates.
  * Runs immediately to collect dependencies.
  * Returns a function to effectivly stop the watcher.
- * @param {Function} target Function to run when an update is triggered
- * @returns {StopEffect}
+ * @param target - Function to run when an update is triggered
+ * @returns A function to stop the effect from watching
  */
 export function watchEffect(target: () => void): StopWatcher {
   if (!isFunction(target)) {
@@ -57,16 +56,14 @@ export function watchEffect(target: () => void): StopWatcher {
   return stop.bind(null, fx);
 }
 
-
-// TODO: add deep functionality, for reactive objects
 /**
  * Watches one or multiple sources for changes, to easily consume the updates with a before and after value.
  * Has an option to trigger an immediate call (with oldValue set to undefined or empty array).
  * Returns a function to effectivly stop the watcher.
- * @param {WatchTarget<T>|WatchTarget[]} target Target or targets to watch
- * @param {Function} callback Callback to run when a target is updated
- * @param {WatchOptions} options Optional watcher options
- * @returns {StopWatcher}
+ * @param target - Target or targets to watch
+ * @param callback - Callback to run when a target is updated
+ * @param options - Optional watcher options
+ * @returns A function to stop the effect from watching
  */
 export function watch<T extends WatchTarget[]>(
   target: T,
@@ -85,20 +82,39 @@ export function watch<T>(
 ): StopWatcher {
   let fn: () => T|T[];
   let value: T|T[];
+  let deep = !!options.deep;
 
   if (!isFunction(callback)) {
     throw new TypeError(`Unexpected type in "callback", expected function got ${typeof callback}`);
   }
 
   if (Array.isArray(target)) {
-    fn = () => target.map(t => isRef(t) ? t.value : t());
+    fn = () => target.map(t => {
+      if (isRef(t)) {
+        return t.value;
+      } else if (isFunction(t)) {
+        return t();
+      } else if (isReactive(t)) {
+        return traverse(t);
+      }
+
+      throw new TypeError(`Unexpected type, cannot watch ${typeof target}`);
+    });
     value = [];
   } else if (isRef(target)) {
     fn = () => target.value;
   } else if (isFunction(target)) {
     fn = target;
+  } else if (isReactive(target)) {
+    fn = () => target;
+    deep = true;
   } else {
     throw new TypeError(`Unexpected type, cannot watch ${typeof target}`);
+  }
+
+  if (deep && callback) {
+    const getter = fn;
+    fn = () => traverse(getter());
   }
 
   const { immediate } = options ?? {};
@@ -119,4 +135,29 @@ export function watch<T>(
     value = fx();
   }
   return stop.bind(null, fx);
+}
+
+/**
+ * Traverses every property of the value
+ * @param value - Value to traverse
+ * @param seen - List of values that has already been traversed
+ * @returns The same object as the input value
+ */
+function traverse<T = any>(value: T, seen: Set<unknown> = new Set()): T {
+  if (!isObject(value) || seen.has(value)) {
+    return value;
+  }
+  seen.add(value);
+
+  if (isRef(value)) {
+    traverse(value.value, seen);
+  } else if (Array.isArray(value) || isSet(value) || isMap(value)) {
+    value.forEach(v => traverse(v, seen));
+  } else {
+    for (const key in value) {
+      traverse(value[key], seen);
+    }
+  }
+
+  return value;
 }
