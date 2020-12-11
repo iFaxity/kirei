@@ -61,7 +61,6 @@ const PACKAGE_ORDER = [
   '@kirei/hmr-api',
   '@kirei/router',
   '@kirei/store',
-  '@kirei/ssr',
   'babel-plugin-kirei',
   '@kirei/vite-plugin',
 ];
@@ -95,10 +94,11 @@ async function checkSize(dir, name) {
 async function build(target, opts) {
   const { dir, package } = target;
 
-  // only build published packages for release
+  /* only build published packages for release
   if (isRelease && package.private) {
+    console.log(`\u001B[36;1mSkipping: ${package.name}\u001B[0m`);
     return;
-  }
+  }*/
 
   // if building a specific format, do not remove dist.
   if (!formats) {
@@ -121,7 +121,9 @@ async function build(target, opts) {
   }
 
   // Not currently working with import/export type
-  if ( buildTypes && package.types) {
+  if (buildTypes && package.types) {
+    await rmrf(`${dir}/${package.types}`);
+
     const { generateDtsBundle } = require('dts-bundle-generator');
     console.log(`\u001B[36;1mGenerating type declaration\u001B[0m`);
 
@@ -161,9 +163,9 @@ async function build(target, opts) {
   console.log('');
 }
 
-async function run() {
+async function main() {
   const opts = { formats };
-  const matched = resolvePackages(PACKAGES_ROOT, false); // true when prod
+  const matched = resolvePackages(PACKAGES_ROOT, !isRelease); // true when prod
   const pkgs = PACKAGE_ORDER.reduce((acc, key) => {
     const item = matched.get(key);
 
@@ -205,4 +207,4 @@ async function run() {
   }
 }
 
-run().catch(err => console.error(err));
+main().catch(err => console.error(err));

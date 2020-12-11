@@ -1,31 +1,21 @@
 import { KireiInstance, KireiElement, HookTypes, CSSResult, defineElement, normalizeOptions, ElementOptions } from '@kirei/element';
 
 /**
- * List of properties to ignore when updating the element options
- * @const {string[]}
- */
-const DENY_OPTIONS = [ 'name', 'tag', 'hooks', 'closed' ];
-
-/**
  * Cache for an element and its instances
- * @const {Map<string, HMRCache>}
  */
 const hmrCache = new Map<string, HMRCache>();
 
 /**
  * HMR cache item
- * @instance
  */
 interface HMRCache {
   /**
    * Element constructor, to modify static options
-   * @type {typeof KireiElement}
    */
   ctor: typeof KireiElement;
 
   /**
    * Active instances with HMR enabled
-   * @type {Set<KireiInstance>}
    */
   instances: Set<KireiInstance>;
 }
@@ -33,10 +23,9 @@ interface HMRCache {
 /**
  * Injects a global hook on the element,
  * will last throughout every instances lifecycle
- * @param {typeof KireiElement} ctor
- * @param {string} key
- * @param {Function} fn
- * @returns {void}
+ * @param ctor - Constructor of a KireiElement
+ * @param key - Lifecycle hook key
+ * @param fn - Function to push to the hooks stack
  */
 function injectHook(ctor: typeof KireiElement, key: string, fn: Function): void {
   const { options } = ctor;
@@ -53,9 +42,9 @@ function injectHook(ctor: typeof KireiElement, key: string, fn: Function): void 
 
 /**
  * Checks if the styles changed, prevents unnecessary reflow
- * @param {CSSResult[]} oldStyles
- * @param {CSSResult[]} newStyles
- * @returns {boolean}
+ * @param oldStyles - Old stylesheets to replace
+ * @param newStyles - New stylesheets to swap to
+ * @returns True if any stylesheet has changed
  */
 function stylesChanged(oldStyles: CSSResult[], newStyles: CSSResult[]): boolean {
   if (oldStyles.length != newStyles.length) {
@@ -67,9 +56,9 @@ function stylesChanged(oldStyles: CSSResult[], newStyles: CSSResult[]): boolean 
 
 /**
  * Generates an ID for an element
- * @param {string} filename
- * @param {ElementOptions} opts
- * @returns {string}
+ * @param filename - Filename where element was defined
+ * @param opts - Kirei element options
+ * @returns Generated element name
  */
 function generateId(filename: string, opts: ElementOptions): string {
   return `${filename}#${opts.name}`;
@@ -77,9 +66,9 @@ function generateId(filename: string, opts: ElementOptions): string {
 
 /**
  * Checks if HMR already has element with the same id stored
- * @param {string} filename
- * @param {ElementOptions} opts
- * @returns {boolean}
+ * @param filename - Filename where element was defined
+ * @param opts - Kirei element options
+ * @returns True if instance is already in the cache
  */
 export function has(filename: string, opts: ElementOptions): boolean {
   return hmrCache.has(generateId(filename, opts));
@@ -87,9 +76,9 @@ export function has(filename: string, opts: ElementOptions): boolean {
 
 /**
  * Stores an Element to cache or updates it and all of its active instances
- * @param {string} id
- * @param {ElementOptions} opts
- * @returns {typeof KireiElement}
+ * @param id - Id of the element constructor
+ * @param opts - Options to update to
+ * @returns KireiElement constructor
  */
 export function createOrUpdate(id: string, opts: ElementOptions): typeof KireiElement {
   return has(id, opts) ? update(id, opts) : create(id, opts);
@@ -97,9 +86,9 @@ export function createOrUpdate(id: string, opts: ElementOptions): typeof KireiEl
 
 /**
  * Solely creates a new element, if element already exists, it will return its constructor
- * @param {string} filename
- * @param {ElementOptions} opts
- * @returns {typeof KireiElement}
+ * @param filename - Filename where element was defined
+ * @param opts - Options to define element with
+ * @returns KireiElement constructor
  */
 export function create(filename: string, opts: ElementOptions): typeof KireiElement {
   const id = generateId(filename, opts);
@@ -121,9 +110,9 @@ export function create(filename: string, opts: ElementOptions): typeof KireiElem
 
 /**
  * Updates element options and all of its instances
- * @param {string} filename
- * @param {ElementOptions} opts
- * @returns {typeof KireiElement}
+ * @param filename - Filename where element was defined
+ * @param opts - Options to update element with
+ * @returns KireiElement constructor
  */
 export function update(filename: string, opts: ElementOptions): typeof KireiElement {
   const { ctor, instances } = hmrCache.get(generateId(filename, opts));

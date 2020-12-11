@@ -35,11 +35,11 @@
   ],
   "peerDependencies": {
     "@kirei/element": "^1.1.4",
-    "@kirei/shared": "^1.1.4",
-    "@kirei/hmr-api": "^1.1.4"
+    "@kirei/hmr-api": "^1.1.4",
+    "@kirei/shared": "^1.1.4"
   },
   "dependencies": {
-    "@babel/core": "7.12.3",
+    "@babel/core": "7.12.9",
     "@babel/helper-plugin-utils": "7.10.4",
     "test-exclude": "6.0.0"
   },

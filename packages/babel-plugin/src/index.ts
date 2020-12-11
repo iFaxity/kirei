@@ -5,10 +5,6 @@ import { declare } from '@babel/helper-plugin-utils';
 import { assignVarExpr, callExpr, declareVar, generateUids, importNamespace, variableExpr } from './node';
 import { compileExclude } from './exclude';
 
-/**
- * 
- * @const
- */
 const TARGET_MODULE_NAME = '@kirei/element';
 const HMR_MODULE_PATH = '@kirei/hmr-api';
 const DEFINE_ELEMENT_FN = 'defineElement';
@@ -28,10 +24,11 @@ interface PluginOptions {
 
 /**
  * Main babel plugin
- * @param {ConfigAPI} api
- * @returns {PluginObj<PluginOptions>}
+ * @param fn - Function to call when plugin is created
+ * @returns The created Babel plugin
  */
-export default declare((api: ConfigAPI) => {api.assertVersion(7);
+export default declare((api: ConfigAPI) => {
+  api.assertVersion(7);
   let definitions: { oid: string, eid: string, expr: t.Expression } [] = [];
   let exportNodes: t.ExportDeclaration[] = [];
   let filepath: string;

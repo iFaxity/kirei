@@ -10,8 +10,8 @@ interface ExcludeOptions {
 
 /**
  * Compiles an exclusion pattern matcher from test-exclude
- * @param {ExcludeOptions} opts Options to pass
- * @returns {boolean}
+ * @param opts - Options to pass to the exclude matcher
+ * @returns A function that returns true if file should not be compiled
  */
 export function compileExclude(opts: ExcludeOptions): (filename: string) => boolean {
   const exclude = new TestExclude({

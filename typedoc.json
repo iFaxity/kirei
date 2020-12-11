@@ -12,7 +12,7 @@
   "excludeNotExported": true,
   "excludePrivate": true,
   "excludeProtected": true,
-  "ignoreCompilerErrors": false,
+  "ignoreCompilerErrors": true,
   "preserveConstEnums": true,
   "stripInternal": true,
   "plugin": [

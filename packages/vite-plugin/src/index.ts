@@ -3,9 +3,6 @@ import { transformSync, PluginItem } from '@babel/core';
 import BabelPluginKirei from 'babel-plugin-kirei';
 import { compileExclude } from './exclude';
 
-/**
- * @interface
- */
 interface KireiPluginOptions {
   include?: string|string[];
   exclude?: string|string[];
@@ -16,8 +13,8 @@ interface KireiPluginOptions {
 
 /**
  * Creates a new Vite plugin for instrumenting HMR for Kirei elements
- * @param {KireiPluginOptions} opts
- * @returns {Plugin}
+ * @param opts - Plugin options
+ * @returns The created vite plugin
  */
 export default function kireiPlugin(opts: KireiPluginOptions = {}): Plugin {
   let exclude: (filename: string) => boolean;

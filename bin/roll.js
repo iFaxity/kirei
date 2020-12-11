@@ -43,10 +43,6 @@ function createConfig(key, opts) {
   const isNodeBuild = format === 'cjs';
   const FILENAME = pkgName.includes('@') ? pkgName.split('/', 2)[1] : pkgName;
   const external = [ ...BUILTIN_MODULES ];
-  //const plugins = [];
-
-  // better way to do this?
-  // Module should end with .mjs
   const extname = key === 'module'
     ? `${isProdBuild ? '.prod' : ''}.mjs`
     : `.${key}${isProdBuild ? '.prod' : ''}.js`;
@@ -67,7 +63,7 @@ function createConfig(key, opts) {
         commonjs({ sourceMap: false }),
         // replace env vars for @vue/reactivity
         replace({
-          "process.env.NODE_ENV": JSON.stringify(isProdBuild ? 'production' : 'development'),
+          'process.env.NODE_ENV': JSON.stringify(isProdBuild ? 'production' : 'development'),
         }),
         esbuild({
           tsconfig: path.resolve(__dirname, '../tsconfig.json'),
@@ -111,7 +107,6 @@ exports.rollPackage = async function rollPackage(target, opts) {
     configs = configs.filter(key => formats.includes(key));
   }
 
-  //const skipProd = false;
   const buildConfigs = configs.reduce((acc, key) => {
     const config = { ...CONFIGS[key] };
 
