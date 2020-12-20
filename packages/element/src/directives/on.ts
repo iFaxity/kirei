@@ -1,7 +1,7 @@
 import type { TemplatePatcher } from '@kirei/html';
 import { isFunction, isString } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
-import { KireiInstance } from '../instance';
+import { ComponentInstance } from '../instance';
 import { warn } from '../logging';
 
 type EventListener = (e: Event) => any;
@@ -105,7 +105,7 @@ function nativePatcher(el: HTMLElement, eventName: string, modifiers: string[]):
 }
 
 export function on(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
-  const instance = KireiInstance.get(el);
+  const instance = ComponentInstance.get(el);
 
   // TODO: Maybe support multiple events in the future?
   // Instance swallows event if defined in 'emits'. Otherwise bind to native handler.

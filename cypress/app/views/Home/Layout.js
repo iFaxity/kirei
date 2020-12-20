@@ -1,6 +1,6 @@
-import { defineElement, html } from '@kirei/element';
+import { defineComponent, html } from '@kirei/element';
 
-export default defineElement({
+export default defineComponent({
   name: 'AppHome',
   setup() {
     return () => html`

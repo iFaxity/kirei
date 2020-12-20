@@ -9,7 +9,7 @@ babel-plugin-kirei
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/min/babel-plugin-kirei?label=Bundle%20size&style=for-the-badge)](https://npmjs.org/package/babel-plugin-kirei)
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/babel-plugin-kirei?label=Bundle%20size%20%28gzip%29&style=for-the-badge)](https://npmjs.org/package/babel-plugin-kirei)
 
-Babel plugin for Kirei to instrument Kirei elements to add Hot Module Replacement
+Babel plugin for Kirei to instrument Kirei components to add Hot Module Replacement
 
 
 Installation

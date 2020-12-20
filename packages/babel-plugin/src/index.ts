@@ -7,7 +7,7 @@ import { compileExclude } from './exclude';
 
 const TARGET_MODULE_NAME = '@kirei/element';
 const HMR_MODULE_PATH = '@kirei/hmr-api';
-const DEFINE_ELEMENT_FN = 'defineElement';
+const DEFINE_ELEMENT_FN = 'defineComponent';
 
 interface PluginOptions {
   opts?: {
@@ -112,7 +112,7 @@ export default declare((api: ConfigAPI) => {
           return;
         }
 
-        // remove defineElement import from @kirei/element
+        // remove defineComponent import from @kirei/element
         const { specifiers } = path.node;
         for (let idx = 0; idx < specifiers.length; idx++) {
           const s = specifiers[idx];

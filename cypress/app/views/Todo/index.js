@@ -1,5 +1,5 @@
 import {
-  defineElement,
+  defineComponent,
   html,
   css,
   ref,
@@ -16,7 +16,7 @@ function sleep(seconds) {
 }
 
 // app todo view
-export default defineElement({
+export default defineComponent({
   name: 'AppTodo',
   styles: css`
     @import 'https://unpkg.com/todomvc-app-css@2.2.0/index.css';

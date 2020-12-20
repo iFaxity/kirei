@@ -1,7 +1,7 @@
-import { defineElement, html } from '@kirei/element';
+import { defineComponent, html } from '@kirei/element';
 import { useRoute } from '@kirei/router';
 
-export default defineElement({
+export default defineComponent({
   name: 'AppUser',
   setup(props) {
     const route = useRoute();

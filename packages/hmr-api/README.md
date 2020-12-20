@@ -9,7 +9,7 @@
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/min/@kirei/hmr-api?label=Bundle%20size&style=for-the-badge)](https://npmjs.org/package/@kirei/hmr-api)
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/@kirei/hmr-api?label=Bundle%20size%20%28gzip%29&style=for-the-badge)](https://npmjs.org/package/@kirei/hmr-api)
 
-Hot Module Replacement API for Kirei Element. This only includes the API and does not offer any automatic instrumentation. Consider using the babel plugin instead (babel-plugin-kirei).
+Hot Module Replacement API for Kirei Componet. This only includes the API and does not offer any automatic instrumentation. Consider using the babel plugin instead (babel-plugin-kirei).
 
 
 Installation
@@ -32,44 +32,44 @@ import * as hmr from '@kirei/hmr-api';
 
 ${method.description}
 
-**Returns:** KireiElement class
+**Returns:** Component class
 
 #### Parameters
-* `filename {string}` - Unique id for the element,
-* `opts {ElementOptions}`-
+* `filename {string}` - Unique id for the component,
+* `opts {ComponentOptions}`-
 
 
 ### [hmr.update( filename, opts )](#update)
 
 ${method.description}
 
-**Returns:** KireiElement class
+**Returns:** Component class
 
 #### Parameters
 * `filename {string}` -
-* `opts {ElementOptions}`-
+* `opts {ComponentOptions}`-
 
 
 ### [hmr.createOrUpdate( filename, opts )](#createOrUpdate)
 
 ${method.description}
 
-**Returns:** KireiElement class
+**Returns:** Component class
 
 #### Parameters
 * `filename {string}`-
-* `opts {ElementOptions}`-
+* `opts {ComponentOptions}`-
 
 
 ### [hmr.has( filename, opts )](#has)
 
 ${method.description}
 
-**Returns:** A boolean indicating if the ElementInstance is defined within the HMR cache.
+**Returns:** A boolean indicating if the ComponentInstance is defined within the HMR cache.
 
 #### Parameters
 * `filename {string}`-
-* `opts {ElementOptions}`-
+* `opts {ComponentOptions}`-
 
 
 Examples

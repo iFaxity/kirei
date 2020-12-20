@@ -2,11 +2,11 @@ import { trigger, reactive } from '@vue/reactivity';
 import type { TriggerOpTypes } from '@vue/reactivity';
 import { mapObject, isObject } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
-import { KireiInstance, setCurrentInstance } from './instance';
+import { ComponentInstance, setCurrentInstance } from './instance';
 import { exception } from './logging';
 import { validateProp, normalizeProps } from './props';
 import type { CSSResult } from './css';
-import type { IKireiElement, ElementOptions, NormalizedElementOptions } from './interfaces';
+import type { IComponent, ComponentOptions, NormalizedComponentOptions } from './interfaces';
 import { nextTick } from './queue';
 
 /**
@@ -29,12 +29,12 @@ function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult
  * @returns The normalized options
  * @private
  */
-export function normalizeOptions(options: ElementOptions): NormalizedElementOptions {
+export function normalizeOptions(options: ComponentOptions): NormalizedComponentOptions {
   const { styles, emits, directives } = options;
   const props = options.props ? normalizeProps(options.props) : {};
 
   // Reuse same object to avoid unnecessary GC
-  const normalized = options as NormalizedElementOptions;
+  const normalized = options as NormalizedComponentOptions;
   normalized.props = props;
   normalized.closed = !!options.closed;
   normalized.setup = options.setup ?? null;
@@ -62,11 +62,11 @@ export function normalizeOptions(options: ElementOptions): NormalizedElementOpti
 /**
  * Element to use custom elements functionality, as it required a class
  */
-export class KireiElement extends HTMLElement implements IKireiElement {
+export class Component extends HTMLElement implements IComponent {
   /**
    * Options for this element, used for creating Kirei instances
    */
-  static options: NormalizedElementOptions;
+  static options: NormalizedComponentOptions;
 
   /**
    * Returns the tagName of the element
@@ -85,12 +85,12 @@ export class KireiElement extends HTMLElement implements IKireiElement {
   }
 
   /**
-   * Constructs a new KireiElement
+   * Constructs a new Component
    */
   constructor() {
     super();
-    const { options } = this.constructor as typeof KireiElement;
-    const instance = new KireiInstance(this, options);
+    const { options } = this.constructor as typeof Component;
+    const instance = new ComponentInstance(this, options);
     const { props } = instance;
 
     // Set props on the element
@@ -128,7 +128,7 @@ export class KireiElement extends HTMLElement implements IKireiElement {
    * Runs when mounted from DOM
    */
   connectedCallback(): void {
-    const instance = KireiInstance.get(this);
+    const instance = ComponentInstance.get(this);
     // to leave teh app to get a chance to mount, push the connect to next paint cycle
     nextTick(() => instance.mount());
   }
@@ -137,7 +137,7 @@ export class KireiElement extends HTMLElement implements IKireiElement {
    * Runs when unmounted from DOM
    */
   disconnectedCallback(): void {
-    const instance = KireiInstance.get(this);
+    const instance = ComponentInstance.get(this);
     instance.unmount();
   }
 
@@ -147,7 +147,7 @@ export class KireiElement extends HTMLElement implements IKireiElement {
   attributeChangedCallback(attr: string, oldValue: string, newValue: string): void {
     // newValue & oldValue null if not set, string if set, default to empty string
     if (oldValue !== newValue) {
-      const { options } = this.constructor as typeof KireiElement;
+      const { options } = this.constructor as typeof Component;
       const key = options.attrs[attr];
       this[key] = newValue;
     }

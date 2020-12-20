@@ -136,7 +136,6 @@ export const defaultCompiler: TemplateCompiler<TemplatePatcher> = {
     let value;
     let text: Text;
     const nodeParser: TemplatePatcher = (pending) => {
-      // TODO: allow object as text, as refs have toString
       if (pending == null) {
         // null, and undefined are used to cleanup previous content
         if (value) {

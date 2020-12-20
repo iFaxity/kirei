@@ -2,9 +2,8 @@ import { isString } from '@kirei/shared';
 import { isRef } from '@vue/reactivity';
 import type { Ref } from '@vue/reactivity';
 import type { TemplatePatcher } from '@kirei/html';
-import type { DirectiveBinding } from '../compiler';
 import { push } from '../queue';
-import { KireiInstance } from '../instance';
+import { ComponentInstance } from '../instance';
 
 const DEFAULT_PROP = 'modelValue';
 
@@ -151,7 +150,7 @@ function nativeModel(el: HTMLElement, arg: string, modifiers: string[]): Templat
 
 // directive format &[value.number.trim.lazy]=${ref}
 export function model(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
-  const instance = KireiInstance.get(el);
+  const instance = ComponentInstance.get(el);
 
   // TODO: if instance, pass as prop (update:propName)
   if (instance) {

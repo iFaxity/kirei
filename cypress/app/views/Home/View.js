@@ -1,6 +1,6 @@
-import { defineElement, html, inject } from '@kirei/element';
+import { defineComponent, html, inject } from '@kirei/element';
 
-export default defineElement({
+export default defineComponent({
   name: 'AppHomeView',
   setup() {
     const text = inject('text');

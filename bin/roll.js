@@ -1,4 +1,5 @@
-const path = require('path');
+const { readdirSync, statSync } = require('fs');
+const { resolve } = require('path');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
@@ -57,7 +58,7 @@ function createConfig(key, opts) {
   return {
     input: {
       external,
-      input: path.resolve(dir, ENTRYPOINT),
+      input: resolve(dir, ENTRYPOINT),
       plugins: [
         nodeResolve({ preferBuiltins: true }),
         commonjs({ sourceMap: false }),
@@ -66,7 +67,7 @@ function createConfig(key, opts) {
           'process.env.NODE_ENV': JSON.stringify(isProdBuild ? 'production' : 'development'),
         }),
         esbuild({
-          tsconfig: path.resolve(__dirname, '../tsconfig.json'),
+          tsconfig: resolve(__dirname, '../tsconfig.json'),
           sourceMap: false,
           minify: isProdBuild,
           define: {
@@ -90,7 +91,7 @@ function createConfig(key, opts) {
     output: {
       name, format, //plugins,
       exports: 'auto',
-      file: path.resolve(dir, `dist/${FILENAME}${extname}`),
+      file: resolve(dir, `dist/${FILENAME}${extname}`),
       sourcemap: true,
       externalLiveBindings: false,
     },
@@ -128,4 +129,25 @@ exports.rollPackage = async function rollPackage(target, opts) {
   });
 
   return Promise.all(promises);
+};
+
+exports.resolvePackages = function resolvePackages(rootDir, private = false) {
+  const packages = readdirSync(rootDir);
+
+  // filter packages by name?
+  return packages.reduce((acc, name) => {
+    const dir = resolve(rootDir, name);
+    const stats = statSync(dir);
+
+    // Only publish directories with package.json set to public
+    if (stats.isDirectory()) {
+      const package = require(resolve(dir, 'package.json'));
+
+      if (private || package.private !== true) {
+        acc.set(package.name, { package, dir });
+      }
+    }
+
+    return acc;
+  }, new Map());
 };

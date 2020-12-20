@@ -12,37 +12,24 @@ import type { ReactiveEffect } from '@vue/reactivity';
 import type { Directive } from './compiler';
 import type { InjectionKey } from './api/inject';
 import type {
-  IKireiElement,
-  IKireiInstance,
-  NormalizedElementOptions,
+  IComponent,
+  IComponentInstance,
+  NormalizedComponentOptions,
   NormalizedProps,
   PropsData,
-  SetupResult
+  SetupResult,
+  SetupContext
 } from './interfaces';
-import { applications } from './app';
+import { applications } from './api/app';
 
-interface IKireiContext {
-  readonly el: IKireiElement;
-  readonly attrs: Record<string, string>;
-  readonly props: NormalizedProps;
+const instanceStack: ComponentInstance[] = [];
+const instances = new WeakMap<Element, ComponentInstance>();
 
-  /**
-   * Dispatches an event from the host element
-   * @param eventName - Event to emit
-   * @param detail - Custom event value
-   * @param options - Custom event value
-   */
-  emit(eventName: string, detail?: any|EventInit, options?: EventInit): void;
-}
-
-const instanceStack: KireiInstance[] = [];
-const instances = new WeakMap<Element, KireiInstance>();
-
-export function getCurrentInstance(): KireiInstance|null {
+export function getCurrentInstance(): ComponentInstance|null {
   return instanceStack.length ? instanceStack[instanceStack.length - 1] : null;
 }
 
-export function setCurrentInstance(instance: KireiInstance | null): void {
+export function setCurrentInstance(instance: ComponentInstance | null): void {
   if (instance == null) {
     instanceStack.pop();
   } else {
@@ -51,17 +38,17 @@ export function setCurrentInstance(instance: KireiInstance | null): void {
 }
 
 /**
- * Instance to sandbox functionality of a KireiElement
+ * Instance to sandbox functionality of a Component
  * @private
  */
-export class KireiInstance implements IKireiInstance {
+export class ComponentInstance implements IComponentInstance {
   private shimAdoptedStyleSheets = false;
   private hooks: Map<string, Set<Function>>;
   readonly effect: ReactiveEffect;
-  readonly root: IKireiInstance;
-  readonly el: IKireiElement;
-  readonly parent?: IKireiInstance;
-  options: NormalizedElementOptions;
+  readonly root: IComponentInstance;
+  readonly el: IComponent;
+  readonly parent?: IComponentInstance;
+  options: NormalizedComponentOptions;
   template: Promise<SetupResult>|SetupResult;
   shadowRoot: ShadowRoot;
   props: PropsData;
@@ -72,19 +59,19 @@ export class KireiInstance implements IKireiInstance {
 
   /**
    * Gets an instance from its element
-   * @param el - Element to get instance from
+   * @param el - Component to get instance for
    * @returns The requested instance, or null if not found
    */
-  static get(el: Element): KireiInstance|null {
+  static get(el: Element): ComponentInstance|null {
     return instances.get(el);
   }
 
   /**
    * Constructs a new element instance, holds all the functionality to avoid polluting element
-   * @param el - Element to create instance from
+   * @param el - Component to create instance from
    * @param opts - Normalized element options
    */
-  constructor(el: IKireiElement, opts: NormalizedElementOptions) {
+  constructor(el: IComponent, opts: NormalizedComponentOptions) {
     const parent = getCurrentInstance();
 
     this.options = opts;
@@ -238,7 +225,7 @@ export class KireiInstance implements IKireiInstance {
       setCurrentInstance(this);
 
       let props: Readonly<Record<string, unknown>>;
-      let ctx: IKireiContext;
+      let ctx: SetupContext;
 
       // No need for props or ctx if not in the arguments of the setup method
       if (setup.length >= 1) {
@@ -352,6 +339,7 @@ export class KireiInstance implements IKireiInstance {
    * Runs all the specified hooks on the Fx instance
    * @param hook - Specified hook name
    * @param args - Arguments to pass to every hook
+   * TODO: Ditch args for config to do something on every run (for errorCaptured)
    */
   runHooks(hook: string, ...args: any[]): void {
     const hooks: Set<Function> = this.hooks[hook];

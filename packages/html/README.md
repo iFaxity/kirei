@@ -30,31 +30,31 @@ import { html, svg, render, customize } from '@kirei/html';
 
 ${method.description}
 
-**Returns:** KireiElement class
+**Returns:** Component class
 
 #### Parameters
 * `filename {string}` - Unique id for the element,
-* `opts {ElementOptions}`-
+* `opts {ComponentOptions}`-
 
 ### [svg( strings, ...values )](#svg)
 
 ${method.description}
 
-**Returns:** KireiElement class
+**Returns:** Component class
 
 #### Parameters
 * `filename {string}` -
-* `opts {ElementOptions}`-
+* `opts {ComponentOptions}`-
 
 ### [render( template, root [, scopeName] )](#render)
 
 ${method.description}
 
-**Returns:** KireiElement class
+**Returns:** Component class
 
 #### Parameters
 * `filename {string}`-
-* `opts {ElementOptions}`-
+* `opts {ComponentOptions}`-
 
 ### [customize( opts )](#customize)
 

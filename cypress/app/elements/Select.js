@@ -1,6 +1,6 @@
-import { defineElement, html, css, computed } from '@kirei/element';
+import { defineComponent, html, css, computed } from '@kirei/element';
 
-export default defineElement({
+export default defineComponent({
   name: 'AppSelect',
   props: {
     id: String,

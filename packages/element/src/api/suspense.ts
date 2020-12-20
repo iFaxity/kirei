@@ -1,13 +1,13 @@
 import type { Template } from '@kirei/html';
-import { KireiInstance } from '../instance';
-import { KireiElement } from '../element';
+import { ComponentInstance } from '../instance';
+import { Component } from '../component';
 import { KireiError } from '../logging';
-import { defineElement, html } from '../index';
+import { defineComponent, html } from '../index';
 import { compiler } from '../compiler';
 
 // TODO: maybe clean up this code, and change it up a bit
-type SuspenseFallback = (typeof KireiElement|Template);
-type SuspenseTarget = typeof KireiElement|Promise<Template>;
+type SuspenseFallback = (typeof Component|Template);
+type SuspenseTarget = typeof Component|Promise<Template>;
 
 // TODO multiple fallbacks?
 
@@ -18,7 +18,7 @@ type SuspenseTarget = typeof KireiElement|Promise<Template>;
  * @returns The resulting proxy node
  * @private
  */
-export function suspense(fallback: Template | typeof KireiElement): Node {
+export function suspense(fallback: Template | typeof Component): Node {
   /*const instance = getCurrentInstance();
 
   if (!instance) {
@@ -52,8 +52,8 @@ export function suspense(fallback: Template | typeof KireiElement): Node {
 
   // if not promise, try get instance to get template property
   const promises = target.map(el => {
-    if (el instanceof KireiElement) {
-      const instance = KireiInstance.get(el);
+    if (el instanceof Component) {
+      const instance = ComponentInstance.get(el);
 
       return Promise.resolve(instance.template).then(() => instance);
     }
@@ -62,7 +62,7 @@ export function suspense(fallback: Template | typeof KireiElement): Node {
   });
 
   // Wait for all to complete
-  Promise.all<Node|KireiInstance>(promises).then(results => {
+  Promise.all<Node|ComponentInstance>(promises).then(results => {
     // replace fallback content with contents of x
     if (multiple) {
       node.childNodes.length;

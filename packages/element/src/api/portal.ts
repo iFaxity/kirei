@@ -4,12 +4,12 @@ import { Template } from '@kirei/html';
 import { render } from '../compiler';
 import { onUnmount } from './lifecycle';
 import * as Queue from '../queue';
-import { getCurrentInstance, setCurrentInstance, KireiInstance } from '../instance';
+import { getCurrentInstance, setCurrentInstance, ComponentInstance } from '../instance';
 
 const roots = new Map<string, Element>();
 const portals = new WeakMap<Element, Portal>();
 interface Portal {
-  instance: KireiInstance;
+  instance: ComponentInstance;
   fx: ReactiveEffect;
 }
 

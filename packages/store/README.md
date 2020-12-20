@@ -65,7 +65,7 @@ Examples
 --------------------------
 
 ```js
-import { defineElement, createApp, html, ref, computed, toRef } from '@kirei/element';
+import { defineComponent, createApp, html, ref, computed, toRef } from '@kirei/element';
 import { createStore, defineStore, useStore } from '@kirei/store';
 
 const app = createApp('app');
@@ -95,7 +95,7 @@ const CounterStore = defineStore('appStore', () => {
   };
 });
 
-defineElement({
+defineComponent({
   name: 'AppCounter',
   setup() {
     const store = useStore(CounterStore);
@@ -110,11 +110,10 @@ defineElement({
   },
 });
 
-// then somewhere in your html code add the element <app-counter id='app'></app-counter>, or:
+// then somewhere in your html code add the component: <app-counter id='app'></app-counter>, or:
 // const $root = document.createElement('app-counter');
 // $root.id = 'app';
 // document.body.appendChild($root);
-
 ```
 
 Testing

@@ -22,17 +22,16 @@ The goal of this library is to provide a modern approach to Front-End with moder
 
 Transpiling is not required as most modern browsers supports all the required, and some features could be polyfilled. But could be added to automatically instrument the application with Hot Module Reload.
 
-The performance of the framework is surprisingly fast, checkout the [benchmark suite](https://github.com/ifaxity/js-framework-benchmark) to see how both the HTML parser and the element library compares to Vue, React, lit-element, etc.
+The performance of the framework is surprisingly fast, checkout the [benchmark suite](https://github.com/ifaxity/js-framework-benchmark) to see how both the HTML parser and the full component library compares to Vue, React, lit-element, etc.
 
-Example button element.
+Example button component.
 
 ```js
-import { defineElement, html, css, ref } from '@kirei/element';
+import { defineComponent, html, css, ref } from '@kirei/element';
 
-defineElement({
+defineComponent({
   name: 'AppExample',
   props: {},
-  closed: false,
   styles: css`
     button {
       background-color: red;
@@ -42,7 +41,6 @@ defineElement({
       color: blue;
     }
   `,
-
   setup(props, ctx) {
     const count = ref(0);
 
@@ -54,25 +52,22 @@ defineElement({
 });
 ```
 
-Defining an Element
+Defining a component
 -------------------
 
-Every element requires defineElement to be called in order to define a custom element.
+Every component requires defineComponent to be called in order to define a custom component.
 
-defineElement returns the element class constructor to.
+The **only** required options is the *name* property and *setup* function. The name property should strictly be the `PascalCased` or `snake-cased` component name.
 
-The **only** required options is the *name* property and *setup* function. The name property should strictly be the `PascalCased` or `snake-cased` element name.
+The setup function is where all the reactivity and component interactivity gets set-up. It has two optional arguments `props` and `ctx`. Props is a special reactive object which holds the current value of the props. As it is reactive it is possible to set or get values.
 
-The setup function is where all the reactivity and element interactivity gets set-up. It has two optional arguments `props` and `ctx`. Props is a special reactive object which holds the current value of the props. As it is reactive it is possible to set or get values.
-
-`ctx` is a special object that contains certain helper functions for the element.
+`ctx` is a special object that contains certain helpers for the setup function.
 
 The return value requires a function which returns a HTML template via the packages `html` template literal.
 
 
 ```js
-defineElement()
-const AppElement = defineElement({
+const AppComponent = defineComponent({
   name: string,
   props: Props,
   closed: boolean,
@@ -118,16 +113,16 @@ TODO:
 
 ### Provide & Inject
 
-Provide/inject is identical to Vue. It is used for an element to share functionality to child elements.
+Provide/inject is identical to Vue. It is used for an component to share functionality to child components.
 
 As provided members only flows downward it is not possible for them to flow upward to any parents.
-As it only flows to children it is not possible to leak members to parent elements.
+As it only flows to children it is not possible to leak members to parent components.
 
 ```js
-import { html, defineElement, provide, inject } from '@kirei/element';
+import { html, defineComponent, provide, inject } from '@kirei/element';
 
-defineElement({
-  name: 'ParentElement',
+defineComponent({
+  name: 'ParentComponent',
   setup() {
     const count = ref(0);
     provide('count', count);
@@ -135,17 +130,17 @@ defineElement({
     return () => html`
       <label for="counter">Counter</label>
       <input id="counter" &=${count}>
-      <child-element></child-element>
+      <child-component></child-component>
     `;
   }
 });
 
-defineElement({
-  name: 'ChildElement',
+defineComponent({
+  name: 'ChildComponent',
   setup() {
     const count = inject('count');
 
-    // count is now injected from ParentElement
+    // count is now injected from ParentComponent
     return () => html`<p>Count is ${count}</p>`;
   }
 });
@@ -170,37 +165,34 @@ TODO:
 Directives
 ----------
 
-Directives acts totally differently from Vue, as the only supported way as of now is to run on update. As there is no way to identify if the directive is bound or unbound. Therefore the sole way to use the directive is through getting updates when the element is re-rendered.
+Directives acts totally differently from Vue, as the only supported way as of now is to run on update. As there is no way to identify if the directive is bound or unbound. Therefore the sole way to use the directive is through getting updates when the component is re-rendered.
 
 ### Custom Directive
 
-Of course you can create your own directives, they can either be defined globally or just within the scope of a single element. However the Directive argument is the same. `{ el: HTMLElement, args: string[], name: string }`
+Of course you can create your own directives, they can either be defined globally or just within the scope of a single component. However the Directive arguments is the same. `{ el: HTMLElement, args: string[], name: string }`
 
 ```js
-import { directive } from '@kirei/element';
+import { directive, createApp } from '@kirei/element';
+
+const app = createApp();
 
 // Registers the global directive "text"
-directive('text', dir => {
-  return (newValue) => {
-    dir.el.textContent = String(newValue);
-  };
+app.directive('text', {
+  updated(el, { value }) {
+    el.textContent = value;
+  },
 });
 
-// Registers the scoped directive "focus"
-defineElement({
+// Registers the component scoped directive "focus", focuses on the targeted element after mount
+defineComponent({
   name: 'BaseExample',
 
   directives: {
-    focus(dir) {
-      let initial = true;
-
-      return (newValue) => {
-        if (initial) {
-          dir.el.focus();
-          initial = false;
-        }
-      };
-    }
+    focus: {
+      mounted(el) {
+        el.focus();
+      }
+    },
   }
 });
 ```

@@ -86,11 +86,11 @@ export type SetupResult = () => Template | Node;
 /**
  * @private
  */
-export interface ElementOptions<P = Props, T = ResolvePropTypes<P>> {
+export interface ComponentOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
   closed?: boolean;
   props?: P;
-  setup(this: void, props: T, ctx: IKireiContext): SetupResult|Promise<SetupResult>;
+  setup(this: void, props: T, ctx: SetupContext): SetupResult|Promise<SetupResult>;
   styles?: CSSResult | CSSResult[];
   directives?: Record<string, Directive>;
   emits: EmitsOptions;
@@ -99,7 +99,7 @@ export interface ElementOptions<P = Props, T = ResolvePropTypes<P>> {
 /**
  * @private
  */
-export interface NormalizedElementOptions<P = Props> extends Omit<ElementOptions<P>, 'props'|'emits'> {
+export interface NormalizedComponentOptions<P = Props> extends Omit<ComponentOptions<P>, 'props'|'emits'> {
   props: NormalizedProps<P>;
   styles: CSSResult[];
   emits: NormalizedEmitsOptions;
@@ -114,14 +114,13 @@ export interface NormalizedElementOptions<P = Props> extends Omit<ElementOptions
 /**
  * @private
  */
-export interface IKireiContext {
-  readonly el: IKireiElement;
+export interface SetupContext {
+  readonly el: IComponent;
   readonly attrs: Record<string, string>;
   readonly props: NormalizedProps;
-  readonly emits: string[];
 
   /**
-   * Dispatches an event from the host element
+   * Dispatches an event from the host Component
    * @param event Event to emit
    */
   emit(event: string, ...args: any[]): void;
@@ -130,11 +129,11 @@ export interface IKireiContext {
 /**
  * @private
  */
-export interface IKireiInstance {
-  readonly root: IKireiInstance;
-  readonly el: IKireiElement;
-  readonly parent?: IKireiInstance;
-  options: NormalizedElementOptions;
+export interface IComponentInstance {
+  readonly root: IComponentInstance;
+  readonly el: IComponent;
+  readonly parent?: IComponentInstance;
+  options: NormalizedComponentOptions;
   events: Record<string, Function>;
   props: PropsData;
   provides: Record<string | number | symbol, any>;
@@ -143,8 +142,8 @@ export interface IKireiInstance {
   emitted?: Record<string, boolean>;
 
   /**
-   * Checks if the element instance is currently mounted
-   * @returns If the element is mounted
+   * Checks if the Component instance is currently mounted
+   * @returns If the Component is mounted
    */
   readonly mounted: boolean;
 
@@ -201,7 +200,7 @@ export interface IKireiInstance {
 /**
  * @private
  */
-export interface IKireiElement extends HTMLElement {
+export interface IComponent extends HTMLElement {
   /**
    * Runs when mounted from DOM
    */

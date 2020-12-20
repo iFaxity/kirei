@@ -1,7 +1,7 @@
 import { customize, defaultCompiler } from '@kirei/html';
 import type { TemplateCompiler } from '@kirei/html';
 import { unref, isRef } from '@vue/reactivity';
-import { KireiInstance, getCurrentInstance } from './instance';
+import { ComponentInstance, getCurrentInstance } from './instance';
 import { HookTypes } from './api/lifecycle';
 
 // load directives
@@ -69,7 +69,7 @@ export interface Directive<T = any> {
 }
 
 export interface DirectiveBinding<T = any> {
-  instance: KireiInstance;
+  instance: ComponentInstance;
   value: T;
   oldValue: T;
   arg: string;

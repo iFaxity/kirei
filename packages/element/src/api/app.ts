@@ -1,8 +1,8 @@
-import type { Directive } from './compiler';
-import type { InjectionKey } from './api/inject';
-import type { KireiInstance } from './instance';
-import { isFunction } from '@vue/shared';
-import { warn } from './logging';
+import type { Directive } from '../compiler';
+import type { InjectionKey } from './inject';
+import type { ComponentInstance } from '../instance';
+import { hyphenate, isFunction } from '@vue/shared';
+import { warn } from '../logging';
 //import { version } from '../package.json';
 const version = '1.1.3';
 
@@ -13,7 +13,7 @@ export type Plugin =
   | { install: PluginInstallFunction };
 
 export interface App {
-  container: KireiInstance|null;
+  container: ComponentInstance|null;
   context: AppContext;
   version: string;
   config: AppConfig;
@@ -27,12 +27,12 @@ export interface AppConfig {
   performance: boolean;
   errorHandler?(
     err: unknown,
-    instance: KireiInstance | null,
+    instance: ComponentInstance | null,
     info: string
   ): void;
   warnHandler?(
     msg: string,
-    instance: KireiInstance | null,
+    instance: ComponentInstance | null,
     trace: string
   ): void;
 }
@@ -58,7 +58,7 @@ export function createApp(root: string): App {
     config: {
       performance: false,
       errorHandler: null,
-      warnHandler: null
+      warnHandler: null,
     },
     directives: {},
     provides: Object.create(null)
@@ -101,6 +101,8 @@ export function createApp(root: string): App {
       if (__DEV__) {
         //validateDirectiveName(name);
       }
+
+      name = hyphenate(name);
 
       if (!directive) {
         return context.directives[name] as any;

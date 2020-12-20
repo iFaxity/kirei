@@ -1,6 +1,6 @@
-import { defineElement, html, shallowRef, computed, css, onMount, onUnmount } from '@kirei/element';
+import { defineComponent, html, shallowRef, computed, css, onMount, onUnmount } from '@kirei/element';
 
-export default defineElement({
+export default defineComponent({
   name: 'AppClock',
   props: {
     

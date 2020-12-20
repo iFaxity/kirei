@@ -9,7 +9,7 @@
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/min/@kirei/element?label=Bundle%20size&style=for-the-badge)](https://npmjs.org/package/@kirei/element)
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/@kirei/element?label=Bundle%20size%20%28gzip%29&style=for-the-badge)](https://npmjs.org/package/@kirei/element)
 
-Vue Composition API mixed with LitElement to create a Web Components elements with Vue's syntax.
+Vue Composition API mixed with LitElement to create a Custom Element with with Vue's syntax in browser, no compilation required.
 Super lightweight, super fast. Of course with full TypeScript support.
 
 As this module is heavily based on Vue Composition API inspired syntax, Vue's documentation can apply to most developer level APIs. With there being some key differences among some of the functions.
@@ -43,12 +43,12 @@ Examples
 --------------------------
 
 ```js
-import { defineElement, html } from '@kirei/element';
+import { defineComponent, html } from '@kirei/element';
 
 // Simple hello-world element
 // When the "name" attribute changes in the DOM the element will update
 // Defaults to 'World'
-defineElement({
+defineComponent({
   name: 'HelloWorld',
   props: {
     name: {

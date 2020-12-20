@@ -1,6 +1,6 @@
-import { defineElement, html, css } from '@kirei/element';
+import { defineComponent, html, css } from '@kirei/element';
 
-export default defineElement({
+export default defineComponent({
   name: 'AppButton',
   props: {
     modelValue: {

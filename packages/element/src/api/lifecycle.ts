@@ -1,10 +1,10 @@
 import { isFunction } from '@kirei/shared';
-import { getCurrentInstance, KireiInstance } from '../instance';
+import { getCurrentInstance } from '../instance';
 import { exception } from '../logging';
 const HOOKS = new Set<string>();
 
 /**
- * @enum
+ * An enumerator of the standard lifecycle hooks
  * @private
  */
 export enum HookTypes {
@@ -14,6 +14,7 @@ export enum HookTypes {
   UPDATED = 'updated',
   BEFORE_UNMOUNT = 'beforeUnmount',
   UNMOUNTED = 'unmounted',
+  ERROR_CAPTURED = 'errorCaptured',
 }
 
 /**
@@ -54,3 +55,6 @@ export const onUpdate = defineHook(HookTypes.UPDATED);
 export const onBeforeUnmount = defineHook(HookTypes.BEFORE_UNMOUNT);
 /** Registers a new hook it runs after instance is unmounted */
 export const onUnmount = defineHook(HookTypes.UNMOUNTED);
+
+/** */
+export const onErrorCaptured = defineHook(HookTypes.ERROR_CAPTURED);

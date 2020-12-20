@@ -1,7 +1,7 @@
 import { isString } from '@kirei/shared';
-import type { IKireiInstance } from './interfaces';
-import { getCurrentInstance, KireiInstance } from './instance';
-import { execPath } from 'process';
+import type { IComponentInstance } from './interfaces';
+import { getCurrentInstance, ComponentInstance } from './instance';
+import { HookTypes } from './api/lifecycle';
 
 // Constants for stack trace
 const INDENT_STEP = 2;
@@ -57,7 +57,7 @@ export class KireiError extends Error {
    * @returns A generator to walk the instance tree upwards
    * @private
    */
-  private *walkInstanceTree(instance: IKireiInstance): Generator<IKireiInstance> {
+  private *walkInstanceTree(instance: IComponentInstance): Generator<IComponentInstance> {
     while (instance) {
       yield instance;
       instance = instance.parent;
@@ -72,7 +72,7 @@ export class KireiError extends Error {
    * @returns The element name as a formatted string
    * @private
    */
-  private formatElementName(instance: KireiInstance, indent: number, recursiveCount?: number): string {
+  private formatComponentName(instance: ComponentInstance, indent: number, recursiveCount?: number): string {
     const { name, filename } = instance.options;
     let res = `${indent ? ' '.repeat(INDENT + INDENT_STEP * indent) : '--> '}<${name}>`;
 
@@ -90,7 +90,7 @@ export class KireiError extends Error {
    * @param instance - Instance where stack trace should start
    * @returns Stack trace of the Kirei instance tree
    */
-  private createStackTrace(instance: KireiInstance): string {
+  private createStackTrace(instance: ComponentInstance): string {
     if (!instance.parent) {
       return `\n\n(found in <${instance.options.name}>)`;
     }
@@ -114,8 +114,8 @@ export class KireiError extends Error {
 
     return `\n\nfound in:\n\n` + tree.map((res, idx) => {
       return Array.isArray(res)
-        ? this.formatElementName(res[0], idx, res[1])
-        : this.formatElementName(res, idx);
+        ? this.formatComponentName(res[0], idx, res[1])
+        : this.formatComponentName(res, idx);
     }).join('\n');
   }
 }
@@ -127,6 +127,12 @@ export class KireiError extends Error {
  * @private
  */
 export function exception(message: string | Error, context?: string): never {
+  const instance = getCurrentInstance();
+
+  if (instance) {
+    instance.runHooks(HookTypes.ERROR_CAPTURED);
+  }
+
   throw new KireiError(message.toString(), 'error', context);
 }
 

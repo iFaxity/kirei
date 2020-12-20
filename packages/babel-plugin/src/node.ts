@@ -29,5 +29,5 @@ export function assignVarExpr(operator: string, name: string, expr: t.Expression
 }
 
 export function generateUids(node: NodePath<t.CallExpression>): [ string, string ] {
-  return [ node.scope.generateUid('kireiElement'), node.scope.generateUid('kireiOptions') ];
+  return [ node.scope.generateUid('kireiComponent'), node.scope.generateUid('kireiOptions') ];
 }

@@ -1,5 +1,5 @@
 import {
-  defineElement, ref, html, css,
+  defineComponent, ref, html, css,
   onMount, onBeforeUpdate, onUpdate, onUnmount,
   provide, inject, watch
 } from '@kirei/element';
@@ -11,7 +11,7 @@ import '../elements/Select.js';
 import '../elements/Textarea.js';
 import '../elements/Textfield.js';
 
-export const Button = defineElement({
+export const Button = defineComponent({
   name: 'AppButton',
   props: {
     /*count: {
@@ -60,7 +60,7 @@ export const Button = defineElement({
 });
 
 // app root view
-export default defineElement({
+export default defineComponent({
   name: 'AppRoot',
   props: {
     count: {
