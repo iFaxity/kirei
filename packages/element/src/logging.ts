@@ -1,6 +1,6 @@
 import { isString } from '@kirei/shared';
-import type { IComponentInstance } from './interfaces';
-import { getCurrentInstance, ComponentInstance } from './instance';
+import type { IComponentInstance } from './types';
+import { getCurrentInstance, ComponentInstance } from './runtime/instance';
 import { HookTypes } from './api/lifecycle';
 
 // Constants for stack trace

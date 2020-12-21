@@ -1,7 +1,7 @@
 import type { Template } from "@kirei/html";
-import type { CSSResult } from "./css";
+import type { CSSResult } from "./runtime/css";
 import type { InjectionKey } from "./api/inject";
-import type { Directive } from "./compiler";
+import type { Directive } from "./runtime/compiler";
 
 /**
  * @private

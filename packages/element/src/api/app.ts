@@ -1,6 +1,6 @@
-import type { Directive } from '../compiler';
+import type { Directive } from '../runtime/compiler';
 import type { InjectionKey } from './inject';
-import type { ComponentInstance } from '../instance';
+import type { ComponentInstance } from '../runtime/instance';
 import { hyphenate, isFunction } from '@vue/shared';
 import { warn } from '../logging';
 //import { version } from '../package.json';

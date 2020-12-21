@@ -1,4 +1,4 @@
-import { getCurrentInstance } from '../instance';
+import { getCurrentInstance } from '../runtime/instance';
 import { warn } from '../logging';
 
 /**

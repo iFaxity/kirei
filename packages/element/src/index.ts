@@ -1,19 +1,19 @@
-import { Component, normalizeOptions } from './component';
+import { Component, normalizeOptions } from './runtime/component';
 import { warn } from './logging';
-import type { ComponentOptions, Props } from './interfaces';
+import type { ComponentOptions, Props } from './types';
 
 export * from '@vue/reactivity';
-export { ComponentInstance, setCurrentInstance, getCurrentInstance } from './instance';
-export { Component, normalizeOptions } from './component';
-export { nextTick } from './queue';
-export { css, CSSResult } from './css';
-export { html, svg } from './compiler';
+export { ComponentInstance, setCurrentInstance, getCurrentInstance } from './runtime/instance';
+export { Component, normalizeOptions } from './runtime/component';
+export { nextTick } from './runtime/queue';
+export { css, CSSResult } from './runtime/css';
+export { html, svg } from './runtime/compiler';
 export * from './api/lifecycle';
 export * from './api/inject';
 export * from './api/portal';
 export * from './api/watch';
 export * from './api/app';
-export type { ComponentOptions } from './interfaces';
+export type { ComponentOptions } from './types';
 
 /**
  * Defines a new component

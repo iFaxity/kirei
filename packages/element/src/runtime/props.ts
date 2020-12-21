@@ -1,7 +1,7 @@
 import { mapObject, isFunction, isObject, isUndefined } from '@kirei/shared';
-import { warn } from './logging';
+import { warn } from '../logging';
 
-import type { Props, PropsData, NormalizedProps, NormalizedProp, PropInstance, PropConstructor } from './interfaces';
+import type { Props, PropsData, NormalizedProps, NormalizedProp, PropInstance, PropConstructor } from '../types';
 
 /**
  * Normalizes a props model, making it more predictable

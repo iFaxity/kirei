@@ -1,5 +1,5 @@
 import { isFunction } from '@kirei/shared';
-import { getCurrentInstance } from '../instance';
+import { getCurrentInstance } from '../runtime/instance';
 import { exception } from '../logging';
 const HOOKS = new Set<string>();
 

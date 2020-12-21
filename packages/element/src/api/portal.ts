@@ -1,10 +1,10 @@
 import { effect, stop } from '@vue/reactivity';
 import type { ReactiveEffect } from '@vue/reactivity';
 import { Template } from '@kirei/html';
-import { render } from '../compiler';
+import { render } from '../runtime/compiler';
 import { onUnmount } from './lifecycle';
-import * as Queue from '../queue';
-import { getCurrentInstance, setCurrentInstance, ComponentInstance } from '../instance';
+import * as Queue from '../runtime/queue';
+import { getCurrentInstance, setCurrentInstance, ComponentInstance } from '../runtime/instance';
 
 const roots = new Map<string, Element>();
 const portals = new WeakMap<Element, Portal>();

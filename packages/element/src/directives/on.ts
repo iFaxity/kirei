@@ -1,7 +1,7 @@
 import type { TemplatePatcher } from '@kirei/html';
 import { isFunction, isString } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
-import { ComponentInstance } from '../instance';
+import { ComponentInstance } from '../runtime/instance';
 import { warn } from '../logging';
 
 type EventListener = (e: Event) => any;

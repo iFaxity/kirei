@@ -2,14 +2,14 @@ import { customize, defaultCompiler } from '@kirei/html';
 import type { TemplateCompiler } from '@kirei/html';
 import { unref, isRef } from '@vue/reactivity';
 import { ComponentInstance, getCurrentInstance } from './instance';
-import { HookTypes } from './api/lifecycle';
+import { HookTypes } from '../api/lifecycle';
 
 // load directives
-import { bind } from './directives/bind';
-import { conditionalUnless, conditionalIf } from './directives/conditional';
-import { on } from './directives/on';
-import { show } from './directives/show';
-import { model } from './directives/model';
+import { bind } from '../directives/bind';
+import { conditionalUnless, conditionalIf } from '../directives/conditional';
+import { on } from '../directives/on';
+import { show } from '../directives/show';
+import { model } from '../directives/model';
 
 /**
  * String of allowed characters to use as a directive alias

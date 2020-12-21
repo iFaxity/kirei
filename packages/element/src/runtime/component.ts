@@ -3,10 +3,10 @@ import type { TriggerOpTypes } from '@vue/reactivity';
 import { mapObject, isObject } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
 import { ComponentInstance, setCurrentInstance } from './instance';
-import { exception } from './logging';
+import { exception } from '../logging';
 import { validateProp, normalizeProps } from './props';
 import type { CSSResult } from './css';
-import type { IComponent, ComponentOptions, NormalizedComponentOptions } from './interfaces';
+import type { IComponent, ComponentOptions, NormalizedComponentOptions } from '../types';
 import { nextTick } from './queue';
 
 /**

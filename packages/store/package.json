@@ -22,7 +22,6 @@
     "configs": [
       "cjs",
       "esm",
-      "global",
       "esm-browser"
     ]
   },

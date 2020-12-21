@@ -2,8 +2,8 @@ import { isString } from '@kirei/shared';
 import { isRef } from '@vue/reactivity';
 import type { Ref } from '@vue/reactivity';
 import type { TemplatePatcher } from '@kirei/html';
-import { push } from '../queue';
-import { ComponentInstance } from '../instance';
+import { push } from '../runtime/queue';
+import { ComponentInstance } from '../runtime/instance';
 
 const DEFAULT_PROP = 'modelValue';
 

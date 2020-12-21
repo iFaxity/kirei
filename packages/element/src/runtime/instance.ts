@@ -1,8 +1,8 @@
 import { effect, pauseTracking, resetTracking, shallowReadonly, shallowReactive } from '@vue/reactivity';
 import { hyphenate } from '@vue/shared';
 import { isFunction, isPromise } from '@kirei/shared';
-import { exception, warn, KireiError } from './logging';
-import { HookTypes } from './api/lifecycle';
+import { exception, warn, KireiError } from '../logging';
+import { HookTypes } from '../api/lifecycle';
 import * as Queue from './queue';
 import { CSSResult } from './css';
 import { render } from './compiler';
@@ -10,7 +10,7 @@ import { propDefaults } from './props';
 
 import type { ReactiveEffect } from '@vue/reactivity';
 import type { Directive } from './compiler';
-import type { InjectionKey } from './api/inject';
+import type { InjectionKey } from '../api/inject';
 import type {
   IComponent,
   IComponentInstance,
@@ -19,8 +19,8 @@ import type {
   PropsData,
   SetupResult,
   SetupContext
-} from './interfaces';
-import { applications } from './api/app';
+} from '../types';
+import { applications } from '../api/app';
 
 const instanceStack: ComponentInstance[] = [];
 const instances = new WeakMap<Element, ComponentInstance>();
@@ -56,6 +56,12 @@ export class ComponentInstance implements IComponentInstance {
   directives?: Record<string, Directive>;
   emitted?: Record<string, boolean>;
   events: Record<string, Function>;
+
+  /**
+   * Checks if the component instance is currently mounted
+   * @returns True if element is mounted
+   */
+  mounted: boolean = false;
 
   /**
    * Gets an instance from its element
@@ -97,14 +103,6 @@ export class ComponentInstance implements IComponentInstance {
 
     // setup function is run on mount to fix the issue with the app mounting
     instances.set(el, this);
-  }
-
-  /**
-   * Checks if the element instance is currently mounted
-   * @returns True if element is mounted
-   */
-  get mounted(): boolean {
-    return !!this.el?.parentNode;
   }
 
   /**
@@ -325,6 +323,7 @@ export class ComponentInstance implements IComponentInstance {
     }
 
     this.effect();
+    this.mounted = true;
   }
 
   /**
@@ -332,6 +331,7 @@ export class ComponentInstance implements IComponentInstance {
    */
   unmount(): void {
     this.runHooks(HookTypes.BEFORE_UNMOUNT);
+    this.mounted = false;
     Queue.push(() => this.runHooks(HookTypes.UNMOUNTED));
   }
 
