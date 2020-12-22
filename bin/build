@@ -88,12 +88,6 @@ async function checkSize(dir, name) {
 async function build(target, opts) {
   const { dir, package } = target;
 
-  /* only build published packages for release
-  if (isRelease && package.private) {
-    console.log(`\u001B[36;1mSkipping: ${package.name}\u001B[0m`);
-    return;
-  }*/
-
   // if building a specific format, do not remove dist.
   if (!formats) {
     await rmrf(`${dir}/dist`);
