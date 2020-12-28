@@ -16,7 +16,7 @@ Browser support ([with WebComponents.js polyfills](https://github.com/webcompone
 The beautiful front-end framework
 ---------------------------------
 
-Now also uses the same reactivity as Vue 3 (**@vue/reactivity**) instead of the custom fork (**@kirei/fx**).
+An in browser implementation of Vue 3 (limited to Composition API) powered by Web Components.
 
 The goal of this library is to provide a modern approach to Front-End with modern web standards such as Custom Elements, Constructable Stylesheets, HTML Templates, Template Literals, etc. But with the familiar syntax of Vue.
 
@@ -52,7 +52,55 @@ defineComponent({
 });
 ```
 
-Defining a component
+Then to use the element just include the script on the webpage and add the element (app-example) in the html code:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Kirei example</title>
+
+    <!-- Change app.js to your script file -->
+    <script src="https://unpkg.com/@kirei/element@1.1.3/dist/element.global.js"></script>
+    <script src="/app.js"></script>
+  </head>
+  <body>
+    <h1>Kirei example element</h1>
+
+    <app-example></app-example>
+  </body>
+</html>
+```
+
+Features
+--------
+✔️ = Done, ⏳ = In progress, 📅 = Planned.
+
+* ✔️ Custom Directives
+* ✔️ Standard directives
+  * ✔️ ref
+  * ✔️ v-attrs
+  * ✔️ v-if & v-unless
+  * ✔️ v-show
+  * ✔️ v-model
+* ✔️ Events directive
+* ✔️ Element emitters
+* ✔️ Reactivity (with watch)
+  * ✔️ WatchEffect
+  * ✔️ Watch
+* ✔️ Provide/inject
+* ✔️ Central app instance
+* ✔️ Scoped stylesheets
+* ✔️ Hot Module reload (see the hmr-api package)
+* ⏳ Lifecycle hooks (mount, update, unmount), error capture planned
+* ⏳ Router
+* 📅 Portal
+* 📅 Suspense
+
+Defining an Element
 -------------------
 
 Every component requires defineComponent to be called in order to define a custom component.
@@ -79,120 +127,77 @@ const AppComponent = defineComponent({
 HTML & SVG Templates
 --------------------
 
-TODO:
+There are 2 specific template literals that are exposed by the library *html* and *svg*, *svg* is used to render SVG content within a SVG namespace. Therefore any strict SVG content should be rendered within this literal. However *html* can also do SVG rendering if all SVG content has an SVG element as it's parent. Like normal inline SVG.
 
 ### Keyed templates
 
-TODO:
+If you are rendering content often or in a loop it can be beneficial to use the key helper. As it caches the template and its values to prevent unnecessary compilations. 
 
-### Directives
+As of now this is the only helper for the literals, more helpers might come later to help with specific pitfalls or just syntax sugar for the developer. A very basic but practical example:
 
-TODO:
+```js
+import { defineComponent, html, reactive, ref } from '@kirei/element';
 
-### Standard directives
+const SimpleList = defineComponent({
+  name: 'SimpleList',
+  setup(props, ctx) {
+    const list = reactive([]);
+    const input = ref('');
 
-TODO:
+    function add() {
+      list.push({ id: list.length, text: input.value });
+      input.value = '';
+    }
+
+    return () => html`
+      <h1>Simple list</h1>
+      <ul>
+        ${list.map(x => html.key(x, x.id, html`
+          <li>${x.text}</li>
+        `))}
+      </ul>
+
+      <label>Write something</label>
+      <input v-model=${input} @keyup.enter=${add}>
+      <button @click=${add}>Add to list</button>
+    `;
+  },
+});
+```
 
 Scoped Styles
 -------------
 
-TODO:
+As Chrome has support for Constructible stylesheets these are used when applicable. Otherwise it is shimmed with regular style elements in other browsers. If the browser does not support Shadow DOM, the library looks for the ShadyDOM polyfill to achieve similar results.
+
+Therefore all the styles for every component is scoped. But could leak out if applied incorrectly. TODO: add examples of leaky styles.
 
 Composition API
 ---------------
 
-All reactivity is the same as of Version 1.2.0 as Kirei uses the @vue/reactivity package. However there are some Composition API's that are not in the reactivity package, and therefore implemented
+All reactivity is the same as of Version 1.2.0 as Kirei uses the @vue/reactivity package. However there are some Composition API's that are not in the reactivity package, and therefore implemented to emulate the same functionality. This means there is some limitations/differences.
 
-### watch
+### Watch
 
 Note: Does not yet support the `deep` option, may come in a release further. But is not yet prioritised.
 
-### watchEffect
+### Lifecycle hooks
 
-TODO:
+The supported lifecycle hooks are **onMount**, **onMounted**, **onUpdate**, **onUpdated**, **onUnmount**, **onUnmounted**.
+However there is a slight difference to how the *onUnmount* hook works, it is called when the component is *unmounted* from the DOM, not before. So both of the unmount hooks are run after each other synchronously.
 
-### Provide & Inject
+There is also no is no onDestroy/onDestroyed hooks due to how WebComponents work and due to not having KeepAlive component yet.
+Could be added for compatability but would just run in the same execution as onUnmount/onUnmounted and run after they have completed.
 
-Provide/inject is identical to Vue. It is used for an component to share functionality to child components.
+### Directives
 
-As provided members only flows downward it is not possible for them to flow upward to any parents.
-As it only flows to children it is not possible to leak members to parent components.
+Should be the same as Vue, except all directive names are hyphenated so all camelCased and PascalCased directives are hyphenated.
+Also as they use the same lifecycle hooks as the component they have the same limitations as mentioned [here](#lifecycle-hooks).
 
-```js
-import { html, defineComponent, provide, inject } from '@kirei/element';
+### Portal
 
-defineComponent({
-  name: 'ParentComponent',
-  setup() {
-    const count = ref(0);
-    provide('count', count);
+Not finished yet.
 
-    return () => html`
-      <label for="counter">Counter</label>
-      <input id="counter" &=${count}>
-      <child-component></child-component>
-    `;
-  }
-});
+### Suspense
 
-defineComponent({
-  name: 'ChildComponent',
-  setup() {
-    const count = inject('count');
-
-    // count is now injected from ParentComponent
-    return () => html`<p>Count is ${count}</p>`;
-  }
-});
-```
-
-Lifecycle hooks
----------------
-
-TODO:
-
-### onMount/onMounted
-### onUpdate/onUpdated
-### onUnmount/onUnmounted
-
-There is no onDestroy/onDestroyed hooks due to how custom elements does not have a way to track garbage collected elements.
-
-Portal
-------
-
-TODO:
-
-Directives
-----------
-
-Directives acts totally differently from Vue, as the only supported way as of now is to run on update. As there is no way to identify if the directive is bound or unbound. Therefore the sole way to use the directive is through getting updates when the component is re-rendered.
-
-### Custom Directive
-
-Of course you can create your own directives, they can either be defined globally or just within the scope of a single component. However the Directive arguments is the same. `{ el: HTMLElement, args: string[], name: string }`
-
-```js
-import { directive, createApp } from '@kirei/element';
-
-const app = createApp();
-
-// Registers the global directive "text"
-app.directive('text', {
-  updated(el, { value }) {
-    el.textContent = value;
-  },
-});
-
-// Registers the component scoped directive "focus", focuses on the targeted element after mount
-defineComponent({
-  name: 'BaseExample',
-
-  directives: {
-    focus: {
-      mounted(el) {
-        el.focus();
-      }
-    },
-  }
-});
-```
+Not finished yet.
