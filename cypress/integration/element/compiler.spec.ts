@@ -1,6 +1,6 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { directive, directives, aliases, html, render } from '@kirei/element/src/compiler';
+import { html, render } from '@kirei/element/src/runtime/compiler';
 import { ref } from '@kirei/element/src';
 
 function renderTemplate(template) {
@@ -19,45 +19,7 @@ function renderTemplate(template) {
   return node;
 }
 
-const defaultDirectives = [...directives.keys()];
-
 describe('compiler', () => {
-  // Ensure only standard directives are loaded
-  afterEach(() => {
-    [...directives.keys()]
-      .filter(x => !defaultDirectives.includes(x))
-      .forEach(key => directives.delete(key));
-
-    for (const key of aliases.keys()) {
-      aliases.delete(key);
-    }
-  });
-
-  // directives tested in app, only test inputs here
-  describe('#directive()', () => {
-    it('define directive', () => {
-      assert.doesNotThrow(() => directive('text', {}));
-    });
-    it('alias named', () => {
-      assert.doesNotThrow(() => directive('?', {}));
-    });
-    it('invalid name', () => {
-      assert.throws(() => directive(100, {}));
-      assert.throws(() => directive(null, {}));
-      assert.throws(() => directive([], {}));
-    });
-    it('prevent overwriting', () => {
-      directive('item', {});
-      assert.throws(() => directive('item', {}));
-    });
-    it('invalid directive', () => {
-      assert.throws(() => directive('hello', () => {}));
-      assert.throws(() => directive('world', null));
-      assert.throws(() => directive('foo', true));
-      assert.throws(() => directive(100, {}));
-    });
-  });
-
   describe('#compiler.attr()', () => {
     it('implicit unref', () => {
       const r = ref('active text')

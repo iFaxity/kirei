@@ -1,6 +1,6 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { CSSResult, css } from '@kirei/element/src/css';
+import { CSSResult, css } from '@kirei/element/src/runtime/css';
 
 const SUPPORTS_ADOPTING_STYLE_SHEETS = CSSResult.supportsAdoptingStyleSheets;
 

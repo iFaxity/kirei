@@ -1,6 +1,6 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import * as queue from '@kirei/element/src/queue';
+import * as queue from '@kirei/element/src/runtime/queue';
 
 const UNDEFINED = void 0; // undefined
 

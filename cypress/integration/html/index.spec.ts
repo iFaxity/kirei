@@ -4,11 +4,7 @@ import { Template, customize, html, svg, render } from '@kirei/html/src';
 
 describe('#customize()', () => {
   it('without options', () => {
-    const res = customize();
-
-    assert.isFunction(res.render);
-    assert.isFunction(res.html);
-    assert.isFunction(res.svg);
+    assert.throws(() => customize());
   });
   it('with custom literals', () => {
     const fn = () => {};
@@ -25,7 +21,6 @@ describe('#customize()', () => {
     const key = () => {};
     assert.throws(() => customize({ literals: { key } }));
   });
-  it('with custom compiler', () => {});
 
   describe('#render()', () => {
     it('with template', () => {
