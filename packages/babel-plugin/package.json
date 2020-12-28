@@ -45,5 +45,11 @@
   },
   "devDependencies": {
     "@types/babel__core": "7.1.12"
+  },
+  "optionalDependencies": {
+    "sass": "^1.27.0",
+    "less": "^3.12.2",
+    "stylus": "^0.54.8",
+    "postcss": "^8.1.10"
   }
 }

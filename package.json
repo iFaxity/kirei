@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "node ./bin/build",
-    "ci": "node ./bin/build",
+    "ci": "node ./bin/build --release",
     "clean": "rm -rf packages/*/dist",
     "docs": "typedoc packages/*/src",
     "dev": "vite serve cypress/app --config ./cypress/app/vite.config.js",

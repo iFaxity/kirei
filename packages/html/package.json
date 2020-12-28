@@ -17,7 +17,7 @@
       "cjs",
       "esm",
       "global",
-      "esm-browser"
+      "module"
     ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/html",

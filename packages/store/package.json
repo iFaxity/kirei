@@ -22,7 +22,7 @@
     "configs": [
       "cjs",
       "esm",
-      "esm-browser"
+      "module"
     ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/store",
