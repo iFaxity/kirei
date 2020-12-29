@@ -1,5 +1,5 @@
 module.exports = {
-  extends: 'semantic-release-monorepo',
+  extends: ['semantic-release-monorepo'],
   branches: [ 'master' ],
   plugins: [
     [
@@ -13,8 +13,14 @@ module.exports = {
       },
     ],
     '@semantic-release/release-notes-generator',
-    '@semantic-release/changelog',
-    '@semantic-release/npm',
-    '@semantic-release/github',
-  ]
+    ['@semantic-release/changelog', {
+      changelogFile: 'CHANGELOG.md',
+    }],
+    //'@semantic-release/npm',
+    /*'@semantic-release/github',
+    ['@semantic-release/git', {
+      assets: [ './CHANGELOG.md' ],
+      message: 'chore(release): ${nextRelease.gitTag} [skip ci]',
+    }],*/
+  ],
 };
