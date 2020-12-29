@@ -16,11 +16,11 @@ module.exports = {
     ['@semantic-release/changelog', {
       changelogFile: 'CHANGELOG.md',
     }],
-    //'@semantic-release/npm',
-    /*'@semantic-release/github',
+    '@semantic-release/npm',
+    '@semantic-release/github',
     ['@semantic-release/git', {
       assets: [ './CHANGELOG.md' ],
       message: 'chore(release): ${nextRelease.gitTag} [skip ci]',
-    }],*/
+    }],
   ],
 };

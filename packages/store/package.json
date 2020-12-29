@@ -21,8 +21,7 @@
     "name": "KireiStore",
     "configs": [
       "cjs",
-      "esm",
-      "module"
+      "esm"
     ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/store",
@@ -43,6 +42,6 @@
     "shadow dom"
   ],
   "peerDependencies": {
-    "@kirei/element": "^1.1.3"
+    "@kirei/element": "^2.0.0"
   }
 }

@@ -22,7 +22,8 @@
     "pretest": "rm -rf .nyc_output",
     "test": "cypress run -C cypress/cypress.json",
     "test:docker": "docker-compose run --rm cypress",
-    "deploy": "node ./scripts/deploy.js"
+    "deploy": "node ./scripts/deploy.js",
+    "deploy:dry": "node ./scripts/deploy.js"
   },
   "devDependencies": {
     "@babel/core": "7.12.9",

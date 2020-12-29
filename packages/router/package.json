@@ -17,8 +17,7 @@
     "name": "KireiRouter",
     "configs": [
       "cjs",
-      "esm",
-      "module"
+      "esm"
     ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/router",
@@ -39,8 +38,8 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@kirei/element": "^1.0.0",
-    "@kirei/shared": "^1.0.0",
+    "@kirei/element": "^2.0.0",
+    "@kirei/shared": "^1.2.1",
     "path-to-regexp": "6.2.0"
   }
 }

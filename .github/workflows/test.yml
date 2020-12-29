@@ -1,6 +1,11 @@
 name: Test and Deploy
 on:
-  - push
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 # Tweak these to alter config
 env:
@@ -13,12 +18,12 @@ env:
   CACHE_PATHS: |
     **/node_modules
     ~/.cache/Cypress
-    packages/*/dist
 
 jobs:
   # Install yarn packages and setup project
   setup:
     name: Setup (${{ matrix.os }})
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
@@ -26,7 +31,7 @@ jobs:
         os: [ macos-latest, windows-latest, ubuntu-latest ]
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v1
         with:
           node-version: 14
       - name: Cache dependencies
@@ -41,8 +46,9 @@ jobs:
         run: yarn --frozen-lockfile --non-interactive
 
   # Testing through cypress
-  cypress:
-    name: Cypress (${{ matrix.os }}, ${{ matrix.browser }})
+  test:
+    name: Test (${{ matrix.os }}, ${{ matrix.browser }})
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
     needs: setup
     runs-on: ${{ matrix.os }}
     continue-on-error: ${{ matrix.experimental }}
@@ -67,7 +73,7 @@ jobs:
     steps:
       # Restore packages from cache
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v1
         with:
           node-version: 14
       - name: Restore cache
@@ -104,3 +110,26 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: ${{ env.CY_COVERAGE_OUTPUT }}
 
+  # Release verison if tests succeeded
+  release:
+    name: Deploy
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+
+      # Install fresh dependencies (don't reuse from setup)
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --non-interactive
+      - name: Build
+        run: yarn ci
+
+      - name: Release
+        run: yarn deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

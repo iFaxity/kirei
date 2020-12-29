@@ -34,9 +34,9 @@
     "shadow dom"
   ],
   "peerDependencies": {
-    "@kirei/element": "^1.1.4",
-    "@kirei/hmr-api": "^1.1.4",
-    "@kirei/shared": "^1.1.4"
+    "@kirei/element": "^2.0.0",
+    "@kirei/hmr-api": "^2.0.0",
+    "@kirei/shared": "^1.2.1"
   },
   "dependencies": {
     "@babel/core": "7.12.9",

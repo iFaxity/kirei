@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-// Runs semantic release in every package
 const { execSync } = require('child_process');
 const { resolve } = require('path');
 const { resolvePackages } = require('./roll');
 
-const PACKAGES_ROOT = resolve(__dirname, '../packages');
-const COMMAND = `npx semantic-release -d`;
-
+// Runs semantic release in every package to publish versions
 function main() {
+  const PACKAGES_ROOT = resolve(__dirname, '../packages');
+  const COMMAND = `npx semantic-release ${process.argv.slice(2).join(' ')}`;
+
   const packages = resolvePackages(PACKAGES_ROOT, false);
 
   for (const pkg of packages.values()) {
@@ -20,7 +20,8 @@ function main() {
     try {
       execSync(COMMAND, {
         cwd: dir,
-        stdio: 'inherit'
+        stdio: 'inherit',
+        env: process.env,
       });
     } catch (ex) {
       process.exit(1);
