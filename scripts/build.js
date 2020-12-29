@@ -25,12 +25,13 @@ const args = require('yargs')
     type: 'boolean',
     alias: 't',
     default: false,
-    description: '',
+    description: 'Generate type declarations after build',
   })
   .option('release', {
     type: 'boolean',
+    alias: 'r',
     default: false,
-    description: 'Builds for release, ignores any private packages',
+    description: 'Builds for release with types, ignores any private packages',
   })
   .option('formats', {
     type: 'array',
