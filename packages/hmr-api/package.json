@@ -1,6 +1,6 @@
 {
   "name": "@kirei/hmr-api",
-  "version": "1.1.4",
+  "version": "2.0.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "dist/hmr-api.cjs.js",
@@ -34,7 +34,7 @@
     "shadow dom"
   ],
   "peerDependencies": {
-    "@kirei/element": "^1.1.4",
-    "@kirei/shared": "^1.1.4"
+    "@kirei/element": "^2.0.0",
+    "@kirei/shared": "^1.2.1"
   }
 }
