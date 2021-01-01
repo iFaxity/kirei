@@ -1,6 +1,6 @@
 {
   "name": "@kirei/html",
-  "version": "1.1.4",
+  "version": "2.0.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
@@ -38,7 +38,7 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@kirei/shared": "^1.1.4",
+    "@kirei/shared": "^1.2.1",
     "udomdiff": "^1.0.9",
     "uparser": "^0.2.0"
   }
