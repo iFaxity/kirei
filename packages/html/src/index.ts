@@ -18,7 +18,15 @@ const { html, svg, render } = customize({});
 export { html, svg, render };
 
 interface RenderOptions {
+  /**
+   * Scope name to inform what tagName the targeted root has, only required for Shady shims.
+   */
   scopeName?: string;
+
+  /**
+   * If false render will only compile the template and not render to root.
+   * Essentially preparing for a render but not actually applying it, defaults to true
+   */
   mount?: boolean;
 }
 
@@ -30,7 +38,7 @@ export interface TemplateLiteral {
   /**
    * Creates a template from a string literal
    * @param strings - String glue
-   * @param values - Interpolated string values
+   * @param values - Interpolated values
    * @returns A template class
    */
   (strings: TemplateStringsArray, ...values: any[]): Template;
@@ -61,7 +69,7 @@ interface CompilerOptions<T extends Partial<TemplateLiteral>> {
   compiler?: TemplateCompiler;
 
   /**
-   * Literals to assign to the returned TemplateLiteral as static members
+   * Helper methods to assign to the returned TemplateLiteral as static members
    */
   literals?: T;
 }
@@ -84,18 +92,18 @@ interface TemplateRenderer<T extends TemplateLiteral> {
    * Renders a template to a specific root container
    * @param template - Template or Node to render from
    * @param root - Root node to render content to
-   * @param opts Custom render options, not rquired but used for web components shims
+   * @param renderOptions - Custom render options, not rquired but used for web components shims
    * @returns Rendered node
    */
-  render(template: Template|Node, root: RootContainer, opts?: RenderOptions): Node;
-  render(template: null, root: RootContainer, opts?: RenderOptions): void;
-  render(template: Template|Node|null, root: RootContainer, opts?: RenderOptions): Node|null;
+  render(template: Template|Node, root: RootContainer, renderOptions?: RenderOptions): Node;
+  render(template: null, root: RootContainer, renderOptions?: RenderOptions): void;
+  render(template: Template|Node|null, root: RootContainer, renderOptions?: RenderOptions): Node|null;
 }
 
 /**
  * Customizes a template rendered to define a compiler and static literals
  * @param opts - Custom compiler options
- * @returns
+ * @returns Custom template renderer
  */
 export function customize<T extends TemplateLiteral>(opts: CompilerOptions<T>): TemplateRenderer<T> {
   const { compiler } = opts;

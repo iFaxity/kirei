@@ -1,7 +1,7 @@
 import { ComponentInstance, Component, HookTypes, CSSResult, defineComponent, normalizeOptions, ComponentOptions } from '@kirei/element';
 
 /**
- * Cache for an element and its instances
+ * Cache for a component and its instances
  */
 const hmrCache = new Map<string, HMRCache>();
 
@@ -21,7 +21,7 @@ interface HMRCache {
 }
 
 /**
- * Injects a global hook on the element,
+ * Injects a global hook on the component,
  * will last throughout every instances lifecycle
  * @param ctor - Constructor of a Component
  * @param key - Lifecycle hook key
@@ -55,19 +55,19 @@ function stylesChanged(oldStyles: CSSResult[], newStyles: CSSResult[]): boolean 
 }
 
 /**
- * Generates an ID for an element
- * @param filename - Filename where element was defined
- * @param opts - Kirei element options
- * @returns Generated element name
+ * Generates an ID for a component
+ * @param filename - Filename where component was defined
+ * @param opts - Component options
+ * @returns Generated component id
  */
 function generateId(filename: string, opts: ComponentOptions): string {
   return `${filename}#${opts.name}`;
 }
 
 /**
- * Checks if HMR already has element with the same id stored
- * @param filename - Filename where element was defined
- * @param opts - Kirei element options
+ * Checks if HMR already has component with the same id stored
+ * @param filename - Filename where component was defined
+ * @param opts - Component options
  * @returns True if instance is already in the cache
  */
 export function has(filename: string, opts: ComponentOptions): boolean {
@@ -75,19 +75,19 @@ export function has(filename: string, opts: ComponentOptions): boolean {
 }
 
 /**
- * Stores an Element to cache or updates it and all of its active instances
- * @param id - Id of the element constructor
- * @param opts - Options to update to
+ * Stores a component to cache or updates it and all of its active instances
+ * @param filename - Filename where component was defined
+ * @param opts - Options to update
  * @returns Component constructor
  */
-export function createOrUpdate(id: string, opts: ComponentOptions): typeof Component {
-  return has(id, opts) ? update(id, opts) : create(id, opts);
+export function createOrUpdate(filename: string, opts: ComponentOptions): typeof Component {
+  return has(filename, opts) ? update(filename, opts) : create(filename, opts);
 }
 
 /**
- * Solely creates a new element, if element already exists, it will return its constructor
- * @param filename - Filename where element was defined
- * @param opts - Options to define element with
+ * Solely creates a new component, if component already exists, it will return its constructor
+ * @param filename - Filename where component was defined
+ * @param opts - Options to define component with
  * @returns Component constructor
  */
 export function create(filename: string, opts: ComponentOptions): typeof Component {
@@ -109,9 +109,9 @@ export function create(filename: string, opts: ComponentOptions): typeof Compone
 }
 
 /**
- * Updates element options and all of its instances
- * @param filename - Filename where element was defined
- * @param opts - Options to update element with
+ * Updates component options and all of its instances
+ * @param filename - Filename where component was defined
+ * @param opts - Options to update component with
  * @returns Component constructor
  */
 export function update(filename: string, opts: ComponentOptions): typeof Component {
@@ -142,6 +142,7 @@ export function update(filename: string, opts: ComponentOptions): typeof Compone
   for (const instance of instances) {
     instance.options = ctor.options;
 
+    // TODO: instead of recreating setup, why not just recrate the entire instance?
     instance.setup();
     instance.effect.options.scheduler(instance.effect);
 
