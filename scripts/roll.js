@@ -1,4 +1,4 @@
-const { readdirSync, statSync } = require('fs');
+const { readdirSync, statSync, readFileSync, writeFileSync } = require('fs');
 const { resolve } = require('path');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
@@ -34,6 +34,7 @@ const CONFIGS = {
     format: 'esm',
   },
 };
+const skipProd = false;
 
 function createConfig(key, opts) {
   // Unpack options
@@ -98,8 +99,7 @@ function createConfig(key, opts) {
   };
 }
 
-const skipProd = false;
-exports.rollPackage = async function rollPackage(target, opts) {
+async function rollPackage(target, opts) {
   const { formats } = opts;
   const { dir, package } = target;
   let { name, configs } = package.build;
@@ -129,9 +129,9 @@ exports.rollPackage = async function rollPackage(target, opts) {
   });
 
   return Promise.all(promises);
-};
+}
 
-exports.resolvePackages = function resolvePackages(rootDir, private = false) {
+function resolvePackages(rootDir, private = false) {
   const packages = readdirSync(rootDir);
 
   // filter packages by name?
@@ -141,7 +141,7 @@ exports.resolvePackages = function resolvePackages(rootDir, private = false) {
 
     // Only publish directories with package.json set to public
     if (stats.isDirectory()) {
-      const package = require(resolve(dir, 'package.json'));
+      const package = readPackage(dir);
 
       if (private || package.private !== true) {
         acc.set(package.name, { package, dir });
@@ -150,4 +150,18 @@ exports.resolvePackages = function resolvePackages(rootDir, private = false) {
 
     return acc;
   }, new Map());
-};
+}
+
+function readPackage(dir) {
+  const data = readFileSync(resolve(dir, 'package.json'), 'utf8');
+  return JSON.parse(data);
+}
+
+function writePackage(dir, data) {
+  writeFileSync(resolve(dir, 'package.json'), JSON.stringify(data), 'utf8');
+}
+
+exports.rollPackage = rollPackage;
+exports.resolvePackages = resolvePackages;
+exports.readPackage = readPackage;
+exports.writePackage = writePackage;

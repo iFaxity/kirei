@@ -1,6 +1,6 @@
 module.exports = {
   extends: ['semantic-release-monorepo'],
-  branches: [ 'master' ],
+  branches: ['master'],
   plugins: [
     [
       '@semantic-release/commit-analyzer', {
@@ -19,7 +19,7 @@ module.exports = {
     '@semantic-release/npm',
     '@semantic-release/github',
     ['@semantic-release/git', {
-      assets: [ './CHANGELOG.md' ],
+      assets: [ 'CHANGELOG.md', 'package.json' ],
       message: 'chore(release): ${nextRelease.gitTag} [skip ci]',
     }],
   ],
