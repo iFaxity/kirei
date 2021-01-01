@@ -1,6 +1,6 @@
 {
   "name": "@kirei/element",
-  "version": "1.1.4",
+  "version": "2.0.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
@@ -42,8 +42,8 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@kirei/html": "^1.1.4",
-    "@kirei/shared": "^1.1.4",
+    "@kirei/html": "^2.0.0",
+    "@kirei/shared": "^1.2.1",
     "@vue/reactivity": "^3.0.0",
     "@vue/shared": "^3.0.0"
   }
