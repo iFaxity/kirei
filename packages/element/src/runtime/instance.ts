@@ -7,20 +7,18 @@ import * as Queue from './queue';
 import { CSSResult } from './css';
 import { render } from './compiler';
 import { propDefaults } from './props';
+import { applications } from '../api/app';
 
-import type { ReactiveEffect } from '@vue/reactivity';
-import type { Directive } from './compiler';
 import type { InjectionKey } from '../api/inject';
+import type { Directive } from './compiler';
 import type {
   IComponent,
-  IComponentInstance,
+  ComponentInstance,
   NormalizedComponentOptions,
-  NormalizedProps,
-  PropsData,
+  SetupContext,
   SetupResult,
-  SetupContext
+  PropsData,
 } from '../types';
-import { applications } from '../api/app';
 
 const instanceStack: ComponentInstance[] = [];
 const instances = new WeakMap<Element, ComponentInstance>();
@@ -38,125 +36,114 @@ export function setCurrentInstance(instance: ComponentInstance | null): void {
 }
 
 /**
- * Instance to sandbox functionality of a Component
- * @private
+* Gets an instance from its element
+* @param el - Component to get instance for
+* @returns The requested instance, or null if not found
+*/
+export function getComponentInstance(el: Element): ComponentInstance|null {
+  return instances.get(el);
+}
+
+/**
+ * Creates a component instance to bind to a Kirei Element
+ * @param el - element to attach component instance to
+ * @param options - component options to configure the instance
  */
-export class ComponentInstance implements IComponentInstance {
-  private shimAdoptedStyleSheets = false;
-  private hooks: Map<string, Set<Function>>;
-  readonly effect: ReactiveEffect;
-  readonly root: IComponentInstance;
-  readonly el: IComponent;
-  readonly parent?: IComponentInstance;
-  options: NormalizedComponentOptions;
-  template: Promise<SetupResult>|SetupResult;
-  shadowRoot: ShadowRoot;
-  props: PropsData;
-  provides: Record<string | symbol, unknown>;
-  directives?: Record<string, Directive>;
-  emitted?: Record<string, boolean>;
-  events: Record<string, Function>;
+export function createComponentInstance(el: IComponent, options: NormalizedComponentOptions): ComponentInstance {
+  const { ShadyCSS, ShadowRoot } = window;
+  let shimAdoptedStyleSheets = false;
+  const parent = getCurrentInstance();
+  const instanceEffect = effect(update, { lazy: true, scheduler: Queue.push });
+  const hooks: Record<string, Set<Function>> = Object.create(null);
 
-  /**
-   * Checks if the component instance is currently mounted
-   * @returns True if element is mounted
-   */
-  mounted: boolean = false;
+  // props immutable due to how WebComponents load props
+  // TODO: create workaround for this
+  const props = shallowReactive(options.props ? propDefaults(options.props) : {});
 
-  /**
-   * Gets an instance from its element
-   * @param el - Component to get instance for
-   * @returns The requested instance, or null if not found
-   */
-  static get(el: Element): ComponentInstance|null {
-    return instances.get(el);
-  }
+  // mutable
+  let mounted = false;
+  let template: Promise<SetupResult> | SetupResult = null;
+  let shadowRoot: ShadowRoot = null;
+  let provides: Record<string | symbol, unknown> = parent?.provides ?? Object.create(null);
+  let directives: Record<string, Directive> = null;
+  let emitted: Record<string, boolean> = null;
+  let events: Record<string, Function> = null;
 
-  /**
-   * Constructs a new element instance, holds all the functionality to avoid polluting element
-   * @param el - Component to create instance from
-   * @param opts - Normalized element options
-   */
-  constructor(el: IComponent, opts: NormalizedComponentOptions) {
-    const parent = getCurrentInstance();
+  // Assign used to have root reference itself
+  // TODO: writable values should be getters
+  const instance: ComponentInstance = Object.create(null);
+  instances.set(el, Object.defineProperties(instance, {
+    // immutable
+    el: { value: el },
+    hooks: { value: hooks },
+    effect: { value: instanceEffect },
+    root: { value: (parent?.root ?? instance) },
+    parent: { value: parent },
+    props: { value: props },
 
-    this.options = opts;
-    this.el = el;
-    this.shimAdoptedStyleSheets = false;
-    this.hooks = Object.create(null);
+    // internally mutable
+    template: { get: () => template },
+    shadowRoot: { get: () => shadowRoot },
+    provides: { get: () => provides },
+    directives: { get: () => directives },
+    emitted: { get: () => emitted },
+    events: { get: () => events },
+    mounted: { get: () => mounted, },
 
-    if (parent) {
-      this.parent = parent;
-      this.root = parent.root;
-      this.provides = parent.provides;
-    } else {
-      this.parent = null;
-      this.root = this;
-      this.provides = Object.create(null);
+    // externally mutable
+    options: { get: () => options, set: (value) => (options = value) },
+
+    // immutable actions
+    on: { value: on },
+    once: { value: once },
+    off: { value: off },
+    emit: { value: emit },
+    setup: { value: setup },
+    provide: { value: provide },
+    reflowStyles: { value: reflowStyles },
+    mount: { value: mount },
+    unmount: { value: unmount },
+    runHooks: { value: runHooks },
+    injectHook: { value: injectHook },
+    update: { value: update },
+  }));
+
+  function on(event: string, listener: Function): void {
+    if (!events) {
+      events = {};
     }
-
-    this.props = shallowReactive(opts.props ? propDefaults(opts.props) : {});
-    this.effect = effect(this.update.bind(this), {
-      lazy: true,
-      scheduler: Queue.push,
-    });
-
-    // setup function is run on mount to fix the issue with the app mounting
-    instances.set(el, this);
-  }
-
-  /**
-   * Binds event to element
-   * @param event - Event to bind
-   * @param listener - Function to run when event is fired
-   */
-  on(event: string, listener: Function): void {
-    const events = this.events ?? (this.events = {});
-
     events[event] = listener;
   }
 
-  /**
-   * Binds event to element which is only called once
-   * @param event - Event to bind
-   * @param listener - Function to run when event is fired
-   */
-  once(event: string, listener: Function): void {
-    const emitted = this.emitted ?? (this.emitted = {});
+  function once(event: string, listener: Function): void {
+    if (!emitted) {
+      emitted = {};
+    }
+
     if (emitted[event] != null) {
       emitted[event] = false;
     }
 
-    this.on(event, listener);
+    on(event, listener);
   }
 
-  /**
-   * Unbind event(s) from the element
-   * @param event - Event to unbind
-   * @param listener - Specific listener to unbind
-   */
-  off(event: string, listener?: Function): void {
-    const res = this.events[event];
+  function off(event: string, listener?: Function): void {
+    const res = events?.[event];
 
     if (res && (listener == null || res === listener)) {
-      this.events[event] = null;
+      events[event] = null;
     }
   }
 
-  /**
-   * Dispatches an event to parent instance
-   * @param eventName - Event to emit
-   * @param detail - Custom event value
-   */
-  emit(event: string, ...args: any[]): void {
-    const handler = this.events[event];
+  function emit(event: string, ...args: any[]): void {
+    const handler = events?.[event];
     if (!handler) {
       return;
     }
 
     if (__DEV__ && !event.startsWith('update:')) {
       const name = hyphenate(event);
-      const validator = this.options.emits[name];
+      const validator = options.emits[name];
 
       if (isFunction(validator)) {
         if (!validator(...args)) {
@@ -170,9 +157,7 @@ export class ComponentInstance implements IComponentInstance {
 
     // emitted (if once handler will be false or true)
     //   if they have been called or not
-    if (this.emitted) {
-      const { emitted } = this;
-
+    if (emitted) {
       if (emitted[event] === true) {
         return;
       } else if (emitted[event] === false) {
@@ -183,68 +168,58 @@ export class ComponentInstance implements IComponentInstance {
     handler.call(null, ...args);
   }
 
-  /**
-   * Runs the setup function to collect dependencies and run logic
-   */
-  setup(): void {
-    const { options, el, parent } = this;
-    const { setup, directives, hooks, emits } = options;
-
-    this.directives = Object.create(null);
-    this.events = emits ? Object.create(null) : null;
+  function setup(): void {
+    directives = Object.create(null);
+    events = options.emits ? Object.create(null) : null;
     // Inherit provides from parent or app context
-    this.provides = parent ? parent.provides : Object.create(null);
+    provides = parent ? parent.provides : Object.create(null);
 
     // TODO: this really needs a refactor
-    const app = applications.get(this.root.el.id);
+    const app = applications.get(instance.root.el.id);
     if (app) {
-      if (this.root == this) {
-        app.container = this;
-        this.provides = Object.create(app.context.provides);
+      if (instance.root == instance) {
+        app.container = instance;
+        provides = Object.create(app.context.provides);
       }
 
-      this.directives = Object.create(app.context.directives);
+      directives = Object.create(app.context.directives);
     }
 
     // Inject global hooks to instance
-    if (hooks) {
-      Object.keys(hooks).forEach(key => {
-        this.hooks[key] = new Set(hooks[key]);
+    if (options.hooks) {
+      Object.keys(options.hooks).forEach(key => {
+        hooks[key] = new Set(options.hooks[key]);
       });
     }
 
-    if (directives) {
-      Object.keys(directives).forEach(key => {
-        this.directives[key] = directives[key];
+    if (options.directives) {
+      Object.keys(options.directives).forEach(key => {
+        directives[key] = options.directives[key];
       });
     }
 
     try {
-      setCurrentInstance(this);
+      const { setup } = options;
+      setCurrentInstance(instance);
 
-      let props: Readonly<Record<string, unknown>>;
-      let ctx: SetupContext;
+      let setupProps: Readonly<Record<string, unknown>>;
+      let setupContext: SetupContext;
 
       // No need for props or ctx if not in the arguments of the setup method
       if (setup.length >= 1) {
         // Create setup context
         if (setup.length >= 2) {
-          let emitter: Function;
-          const self = this;
-
-          ctx = {
+          setupContext = {
             get attrs() { return options.attrs; },
             get el() { return el; },
             get props() { return options.props; },
-            get emit() {
-              return emitter ?? (emitter = self.emit.bind(self));
-            },
+            get emit() { return emit; },
           };
         }
 
         // Create a custom Proxy for the props
         // TODO: if production use shallowReactive instead
-        props = __DEV__ ? shallowReadonly(this.props) : shallowReactive(this.props);
+        setupProps = __DEV__ ? shallowReadonly(props) : shallowReactive(props);
       }
 
       // Run setup function to gather reactive data
@@ -252,9 +227,9 @@ export class ComponentInstance implements IComponentInstance {
       pauseTracking();
 
       // Result might be async, expose promise to the outside?
-      const res = setup.call(null, props, ctx);
+      const res = setup.call(null, setupProps, setupContext);
       if (isFunction(res)) {
-        this.template = res;
+        template = res;
       } else if (res != null) {
         throw new TypeError('Setup function must return a TemplateFactory');
       }
@@ -270,112 +245,83 @@ export class ComponentInstance implements IComponentInstance {
     }
   }
 
-  /**
-   * Provides a value for the instance
-   * @param key - Key of provider
-   * @param value - Provider value
-   */
-  provide<T>(key: InjectionKey<T>|string, value: T): void {
-    const { parent } = this;
-    if (parent?.provides === this.provides) {
-      this.provides = Object.create(parent.provides);
+  function provide<T>(key: InjectionKey<T>|string, value: T): void {
+    if (parent?.provides === provides) {
+      provides = Object.create(parent.provides);
     }
 
-    this.provides[key as string] = value;
+    provides[key as string] = value;
   }
 
-  /**
-   * Reflows styles with shady shims or adopted stylesheets
-   * @param mount - True If mounting or false if updating
-   */
-  async reflowStyles(mount?: boolean): Promise<void> {
-    const { ShadyCSS, ShadowRoot } = window;
-    const { tag, styles } = this.options;
+  async function reflowStyles(mount?: boolean): Promise<void> {
+    const { tag, styles } = options;
 
     if (styles?.length) {
-      // stylesubtree on updates, as per ShadyCSS documentation
+      // styleSubtree on updates, as per ShadyCSS documentation
       if (mount) {
-        ShadyCSS?.styleElement(this.el);
+        ShadyCSS?.styleElement(el);
       } else {
-        ShadyCSS?.styleSubtree(this.el);
+        ShadyCSS?.styleSubtree(el);
       }
 
-      if (ShadowRoot && this.shadowRoot instanceof ShadowRoot) {
-        const res = await CSSResult.adoptStyleSheets(this.shadowRoot, tag, styles);
-        this.shimAdoptedStyleSheets = !res;
+      if (ShadowRoot && shadowRoot instanceof ShadowRoot) {
+        const res = await CSSResult.adoptStyleSheets(shadowRoot, tag, styles);
+        shimAdoptedStyleSheets = !res;
       }
     }
   }
 
-  /**
-   * Create shadow root and shim styles
-   */
-  mount(): void {
+  function mount(): void {
     // Collect props from attributes and props
     // if the setup function returns a promise, wait for it before mounting.
-    this.setup();
+    setup();
 
     // Only run shady shims on first mount
-    const { closed } = this.options;
-    if (!this.shadowRoot) {
-      this.shadowRoot = this.el.attachShadow({ mode: closed ? 'closed' : 'open' });
-      this.reflowStyles(true);
+    if (!shadowRoot) {
+      shadowRoot = el.attachShadow({ mode: 'open' });
+      reflowStyles(true);
     }
 
-    this.effect();
-    this.mounted = true;
+    instanceEffect();
+    mounted = true;
   }
 
-  /**
-   * Call unmounting lifecycle hooks
-   */
-  unmount(): void {
-    this.runHooks(HookTypes.BEFORE_UNMOUNT);
-    this.mounted = false;
-    Queue.push(() => this.runHooks(HookTypes.UNMOUNTED));
+  function unmount(): void {
+    runHooks(HookTypes.BEFORE_UNMOUNT);
+    mounted = false;
+    Queue.push(() => runHooks(HookTypes.UNMOUNTED));
   }
 
-  /**
-   * Runs all the specified hooks on the Fx instance
-   * @param hook - Specified hook name
-   * @param args - Arguments to pass to every hook
-   * TODO: Ditch args for config to do something on every run (for errorCaptured)
-   */
-  runHooks(hook: string, ...args: any[]): void {
-    const hooks: Set<Function> = this.hooks[hook];
-    if (hooks?.size) {
+  function runHooks(hook: string, ...args: any[]): void {
+    // TODO: Ditch args for config to do something on every run (for errorCaptured)
+    // Errorcaptured is special, should be on another function or have a if statement for it
+    const _hooks = hooks[hook];
+
+    if (_hooks?.size) {
       pauseTracking();
-      hooks.forEach(hook => hook.apply(this, args));
+      _hooks.forEach(hook => hook.apply(instance, args));
       resetTracking();
     }
   }
 
-  /**
-   * Adds a lifecycle hook to instance
-   * @param name - Specified hook name
-   * @param hook - Hook function to attach to the lifecycle
-   */
-  injectHook(name: string, hook: Function): void {
-    const { hooks } = this;
-    hooks[name] = hooks[name] ?? new Set();
+  function injectHook(name: string, hook: Function): void {
+    if (!hooks[name]) {
+      hooks[name] = new Set();
+    }
     hooks[name].add(hook);
   }
 
-  /**
-   * Renders shadow root content
-   */
-  update(): void {
-    const { shadowRoot, options, template, mounted } = this;
+  function update(): void {
     if (template == null || isPromise(template)) {
       // Only update template if it is set or not a promise
-      // If a promise then it will be resolved in the future
+      // If a promise then it will be resolved in the future by suspense
       return;
     }
 
-    this.runHooks(mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
+    runHooks(mounted ? HookTypes.BEFORE_UPDATE : HookTypes.BEFORE_MOUNT);
 
     try {
-      setCurrentInstance(this);
+      setCurrentInstance(instance);
       render(template(), shadowRoot, { scopeName: options.tag });
     } catch (ex) {
       exception(ex);
@@ -384,15 +330,17 @@ export class ComponentInstance implements IComponentInstance {
     }
 
     // Adopted stylesheets not supported, shim with style element
-    if (this.shimAdoptedStyleSheets) {
+    if (shimAdoptedStyleSheets) {
       const style = document.createElement('style');
       style.textContent = options.styles.join('\n');
 
       shadowRoot.insertBefore(style, shadowRoot.firstChild);
-      this.shimAdoptedStyleSheets = false;
+      shimAdoptedStyleSheets = false;
     }
 
     // Run update hook
-    this.runHooks(mounted ? HookTypes.UPDATED : HookTypes.MOUNTED);
+    runHooks(mounted ? HookTypes.UPDATED : HookTypes.MOUNTED);
   }
+
+  return instance;
 }

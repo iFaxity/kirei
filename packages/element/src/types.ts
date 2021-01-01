@@ -1,7 +1,8 @@
-import type { Template } from "@kirei/html";
-import type { CSSResult } from "./runtime/css";
-import type { InjectionKey } from "./api/inject";
-import type { Directive } from "./runtime/compiler";
+import type { Template } from '@kirei/html';
+import type { CSSResult } from './runtime/css';
+import type { InjectionKey } from './api/inject';
+import type { Directive } from './runtime/compiler';
+import type { ReactiveEffect } from '@vue/reactivity';
 
 /**
  * @private
@@ -88,7 +89,6 @@ export type SetupResult = () => Template | Node;
  */
 export interface ComponentOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
-  closed?: boolean;
   props?: P;
   setup(this: void, props: T, ctx: SetupContext): SetupResult|Promise<SetupResult>;
   styles?: CSSResult | CSSResult[];
@@ -129,23 +129,54 @@ export interface SetupContext {
 /**
  * @private
  */
-export interface IComponentInstance {
-  readonly root: IComponentInstance;
+export interface ComponentInstance {
+  readonly hooks: Record<string, Set<Function>>;
+  readonly effect: ReactiveEffect;
+  readonly root: ComponentInstance;
   readonly el: IComponent;
-  readonly parent?: IComponentInstance;
+  readonly parent: ComponentInstance;
+  readonly props: PropsData;
+  readonly template: Promise<SetupResult>|SetupResult;
+  readonly shadowRoot: ShadowRoot;
+  readonly provides: Record<string | symbol, unknown>;
+  readonly directives?: Record<string, Directive>;
+  readonly emitted?: Record<string, boolean>;
+  readonly events: Record<string, Function>;
   options: NormalizedComponentOptions;
-  events: Record<string, Function>;
-  props: PropsData;
-  provides: Record<string | number | symbol, any>;
-  directives?: Record<string, Directive>;
-  template?: Promise<SetupResult>|SetupResult;
-  emitted?: Record<string, boolean>;
 
   /**
    * Checks if the Component instance is currently mounted
    * @returns If the Component is mounted
    */
-  readonly mounted: boolean;
+  mounted: boolean;
+
+  /**
+   * Binds event to element
+   * @param event - Event to bind
+   * @param listener - Function to run when event is fired
+   */
+  on(event: string, listener: Function): void;
+
+  /**
+   * Binds event to element which is only called once
+   * @param event - Event to bind
+   * @param listener - Function to run when event is fired
+   */
+  once(event: string, listener: Function): void;
+
+  /**
+   * Unbind event(s) from the element
+   * @param event - Event to unbind
+   * @param listener - Specific listener to unbind
+   */
+  off(event: string, listener?: Function): void;
+
+  /**
+   * Dispatches an event to parent instance
+   * @param eventName - Event to emit
+   * @param detail - Custom event value
+   */
+  emit(event: string, ...args: any[]): void;
 
   /**
    * Runs the setup function to collect dependencies and run logic
@@ -158,17 +189,10 @@ export interface IComponentInstance {
   provide<T>(key: InjectionKey<T> | string, value: T): void;
 
   /**
-   * Pushes this instance to the front of the active stack
-   *
-  activate(): void;
-  */
-
-  /**
-   * Removes this instance from the front of the active stack
-   * Will be no-op of the instance is not at the front
-   *
-  deactivate(): void;
-  */
+   * Reflows styles with shady shims or adopted stylesheets
+   * @param mount - True If mounting or false if updating
+   */
+  reflowStyles(mount?: boolean): Promise<void>;
 
   /**
    * Create shadow root and shim styles
@@ -214,9 +238,5 @@ export interface IComponent extends HTMLElement {
   /**
    * Observes attribute changes, triggers updates on props
    */
-  attributeChangedCallback(
-    attr: string,
-    oldValue: string,
-    newValue: string
-  ): void;
+  attributeChangedCallback(attr: string, oldValue: string, newValue: string): void;
 }

@@ -1,9 +1,10 @@
 import type { Template } from '@kirei/html';
-import { ComponentInstance } from '../instance';
-import { Component } from '../component';
 import { KireiError } from '../logging';
 import { defineComponent, html } from '../index';
-import { compiler } from '../compiler';
+import { Component } from '../runtime/component';
+import { compiler } from '../runtime/compiler';
+import { getComponentInstance } from '../runtime/instance';
+import type { ComponentInstance } from '../types';
 
 // TODO: maybe clean up this code, and change it up a bit
 type SuspenseFallback = (typeof Component|Template);
@@ -53,7 +54,7 @@ export function suspense(fallback: Template | typeof Component): Node {
   // if not promise, try get instance to get template property
   const promises = target.map(el => {
     if (el instanceof Component) {
-      const instance = ComponentInstance.get(el);
+      const instance = getComponentInstance(el);
 
       return Promise.resolve(instance.template).then(() => instance);
     }

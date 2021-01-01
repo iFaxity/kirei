@@ -1,27 +1,12 @@
 import { trigger, reactive } from '@vue/reactivity';
-import type { TriggerOpTypes } from '@vue/reactivity';
 import { mapObject, isObject } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
-import { ComponentInstance, setCurrentInstance } from './instance';
+import { setCurrentInstance, createComponentInstance, getComponentInstance } from './instance';
 import { exception } from '../logging';
 import { validateProp, normalizeProps } from './props';
-import type { CSSResult } from './css';
-import type { IComponent, ComponentOptions, NormalizedComponentOptions } from '../types';
 import { nextTick } from './queue';
-
-/**
- * Collects an array of CSSResults into a Set of CSSResults to ensure they are unique
- * @param styles - Stylesheets to collect
- * @param set - Set to hold all stylesheets
- * @returns A set of unique CSS Stylesheets
- * @private
- */
-function collectStyles(styles: CSSResult[], set?: Set<CSSResult>): Set<CSSResult> {
-  set = set ?? new Set();
-  return styles.reduceRight((set, s) => {
-    return Array.isArray(s) ? collectStyles(s, set) : (set.add(s), set);
-  }, set);
-}
+import type { TriggerOpTypes } from '@vue/reactivity';
+import type { IComponent, ComponentOptions, NormalizedComponentOptions } from '../types';
 
 /**
  * Normalizes the raw options object to a more predictable format
@@ -36,14 +21,13 @@ export function normalizeOptions(options: ComponentOptions): NormalizedComponent
   // Reuse same object to avoid unnecessary GC
   const normalized = options as NormalizedComponentOptions;
   normalized.props = props;
-  normalized.closed = !!options.closed;
   normalized.setup = options.setup ?? null;
   normalized.tag = hyphenate(options.name);
   normalized.attrs = mapObject((key) => [hyphenate(key), key], props);
   normalized.attributes = Object.keys(normalized.attrs);
 
   if (styles != null) {
-    normalized.styles = Array.isArray(styles) ? [...collectStyles(styles)] : [styles];
+    normalized.styles = Array.isArray(styles) ? [...new Set(styles)] : [styles];
   }
 
   if (directives != null) {
@@ -90,7 +74,7 @@ export class Component extends HTMLElement implements IComponent {
   constructor() {
     super();
     const { options } = this.constructor as typeof Component;
-    const instance = new ComponentInstance(this, options);
+    const instance = createComponentInstance(this, options);
     const { props } = instance;
 
     // Set props on the element
@@ -128,8 +112,8 @@ export class Component extends HTMLElement implements IComponent {
    * Runs when mounted from DOM
    */
   connectedCallback(): void {
-    const instance = ComponentInstance.get(this);
-    // to leave teh app to get a chance to mount, push the connect to next paint cycle
+    const instance = getComponentInstance(this);
+    // to leave the app to get a chance to mount, push the connect to next paint cycle
     nextTick(() => instance.mount());
   }
 
@@ -137,7 +121,7 @@ export class Component extends HTMLElement implements IComponent {
    * Runs when unmounted from DOM
    */
   disconnectedCallback(): void {
-    const instance = ComponentInstance.get(this);
+    const instance = getComponentInstance(this);
     instance.unmount();
   }
 

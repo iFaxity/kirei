@@ -3,7 +3,7 @@ import { warn } from './logging';
 import type { ComponentOptions, Props } from './types';
 
 export * from '@vue/reactivity';
-export { ComponentInstance, setCurrentInstance, getCurrentInstance } from './runtime/instance';
+export { setCurrentInstance, getCurrentInstance } from './runtime/instance';
 export { Component, normalizeOptions } from './runtime/component';
 export { nextTick } from './runtime/queue';
 export { css, CSSResult } from './runtime/css';
@@ -13,7 +13,7 @@ export * from './api/inject';
 export * from './api/portal';
 export * from './api/watch';
 export * from './api/app';
-export type { ComponentOptions } from './types';
+export type { ComponentOptions, ComponentInstance } from './types';
 
 /**
  * Defines a new component

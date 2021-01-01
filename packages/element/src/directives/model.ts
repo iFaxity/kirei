@@ -3,7 +3,7 @@ import { isRef } from '@vue/reactivity';
 import type { Ref } from '@vue/reactivity';
 import type { TemplatePatcher } from '@kirei/html';
 import { push } from '../runtime/queue';
-import { ComponentInstance } from '../runtime/instance';
+import { getComponentInstance } from '../runtime/instance';
 
 const DEFAULT_PROP = 'modelValue';
 
@@ -150,7 +150,7 @@ function nativeModel(el: HTMLElement, arg: string, modifiers: string[]): Templat
 
 // directive format &[value.number.trim.lazy]=${ref}
 export function model(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
-  const instance = ComponentInstance.get(el);
+  const instance = getComponentInstance(el);
 
   // TODO: if instance, pass as prop (update:propName)
   if (instance) {

@@ -1,8 +1,9 @@
 import { customize, defaultCompiler } from '@kirei/html';
 import type { TemplateCompiler } from '@kirei/html';
 import { unref, isRef } from '@vue/reactivity';
-import { ComponentInstance, getCurrentInstance } from './instance';
+import { getCurrentInstance } from './instance';
 import { HookTypes } from '../api/lifecycle';
+import type { ComponentInstance } from '../types';
 
 // load directives
 import { bind } from '../directives/bind';

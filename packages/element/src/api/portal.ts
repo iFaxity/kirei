@@ -4,7 +4,8 @@ import { Template } from '@kirei/html';
 import { render } from '../runtime/compiler';
 import { onUnmount } from './lifecycle';
 import * as Queue from '../runtime/queue';
-import { getCurrentInstance, setCurrentInstance, ComponentInstance } from '../runtime/instance';
+import { getCurrentInstance, setCurrentInstance } from '../runtime/instance';
+import type { ComponentInstance } from '../types';
 
 const roots = new Map<string, Element>();
 const portals = new WeakMap<Element, Portal>();

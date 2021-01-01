@@ -1,6 +1,6 @@
 import { isString } from '@kirei/shared';
-import type { IComponentInstance } from './types';
-import { getCurrentInstance, ComponentInstance } from './runtime/instance';
+import type { ComponentInstance } from './types';
+import { getCurrentInstance } from './runtime/instance';
 import { HookTypes } from './api/lifecycle';
 
 // Constants for stack trace
@@ -57,7 +57,7 @@ export class KireiError extends Error {
    * @returns A generator to walk the instance tree upwards
    * @private
    */
-  private *walkInstanceTree(instance: IComponentInstance): Generator<IComponentInstance> {
+  private *walkInstanceTree(instance: ComponentInstance): Generator<ComponentInstance> {
     while (instance) {
       yield instance;
       instance = instance.parent;
