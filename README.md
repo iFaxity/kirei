@@ -113,7 +113,6 @@ The setup function is where all the reactivity and component interactivity gets 
 
 The return value requires a function which returns a HTML template via the packages `html` template literal.
 
-
 ```js
 const AppComponent = defineComponent({
   name: string,
@@ -140,7 +139,7 @@ import { defineComponent, html, reactive, ref } from '@kirei/element';
 
 const SimpleList = defineComponent({
   name: 'SimpleList',
-  setup(props, ctx) {
+  setup() {
     const list = reactive([]);
     const input = ref('');
 
@@ -179,7 +178,9 @@ All reactivity is the same as of Version 1.2.0 as Kirei uses the @vue/reactivity
 
 ### Watch
 
-Note: Does not yet support the `deep` option, may come in a release further. But is not yet prioritised.
+~~Note: Does not yet support the `deep` option, may come in a release further. But is not yet prioritised.~~
+
+As of Version 2.0.0 the deep option is supported.
 
 ### Lifecycle hooks
 

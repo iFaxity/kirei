@@ -38,8 +38,8 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@kirei/element": "^2.0.0",
-    "@kirei/shared": "^1.2.1",
+    "@kirei/element": "^1.1.4",
+    "@kirei/shared": "^1.1.4",
     "path-to-regexp": "6.2.0"
   }
 }

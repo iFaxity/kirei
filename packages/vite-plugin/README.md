@@ -13,11 +13,11 @@ Vite plugin for Kirei to instrument Kirei elements to add Hot Module Replacement
 
 Installation
 --------------------------
-`$ npm i -D @kirei/vite-plugin`
+`npm i -D @kirei/vite-plugin`
 
 or if you use yarn
 
-`$ yarn add -D @kirei/vite-plugin`
+`yarn add -D @kirei/vite-plugin`
 
 API
 --------------------------
@@ -32,7 +32,7 @@ Constructs the vite plugin from a set of optional plugin options.
 
 **Returns:** Vite Plugin
 
-#### Parameters
+**Parameters:**
 * `opts {KireiPluginOptions}` - Object of optional options to pass to the plugin
   * `include {string|string[]}` - Optional string or array of strings of glob patterns to include
   * `exclude {string|string[]}` - Optional string or array of strings of glob patterns to exclude
@@ -62,7 +62,7 @@ module.exports = {
 Testing (TODO: not yet finished)
 --------------------------
 
-`$ npm run test`
+`npm run test`
 
 License
 --------------------------

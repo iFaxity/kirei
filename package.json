@@ -1,6 +1,6 @@
 {
   "private": true,
-  "version": "1.1.4",
+  "version": "0.0.0",
   "name": "kirei",
   "workspaces": [
     "packages/*"
@@ -23,7 +23,7 @@
     "test": "cypress run -C cypress/cypress.json",
     "test:docker": "docker-compose run --rm cypress",
     "deploy": "node ./scripts/deploy.js",
-    "deploy:dry": "node ./scripts/deploy.js"
+    "deploy:dry": "node ./scripts/deploy.js -d"
   },
   "devDependencies": {
     "@babel/core": "7.12.9",

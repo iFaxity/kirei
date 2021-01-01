@@ -9,12 +9,7 @@
   "unpkg": "dist/element.global.js",
   "jsdelivr": "dist/element.global.js",
   "sideEffects": [
-    "./src/directives/attrs",
-    "./src/directives/bind",
-    "./src/directives/conditional",
-    "./src/directives/model",
-    "./src/directives/on",
-    "./src/directives/show"
+    "./src/directives/*"
   ],
   "files": [
     "dist/*"
@@ -37,6 +32,7 @@
     "url": "https://github.com/ifaxity/kirei/issues"
   },
   "keywords": [
+    "kirei",
     "vue",
     "vue3",
     "composition",
@@ -46,8 +42,8 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@kirei/html": "^2.0.0",
-    "@kirei/shared": "^1.2.1",
+    "@kirei/html": "^1.1.4",
+    "@kirei/shared": "^1.1.4",
     "@vue/reactivity": "^3.0.0",
     "@vue/shared": "^3.0.0"
   }

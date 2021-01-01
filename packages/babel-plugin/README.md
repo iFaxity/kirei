@@ -11,15 +11,13 @@ babel-plugin-kirei
 
 Babel plugin for Kirei to instrument Kirei components to add Hot Module Replacement
 
-
 Installation
 --------------------------
-`$ npm i -D babel-plugin-kirei`
+`npm i -D babel-plugin-kirei`
 
 or if you use yarn
 
-`$ yarn add -D babel-plugin-kirei`
-
+`yarn add -D babel-plugin-kirei`
 
 API
 --------------------------
@@ -34,12 +32,11 @@ Creates the Babel plugin from a set of optional plugin options.
 
 **Returns:** Babel Plugin
 
-#### Parameters
+**Parameters:**
 * `opts {KireiPluginOptions}` - Object of optional options to pass to the plugin
   * `include {string|string[]}` - Optional string or array of strings of glob patterns to include
   * `exclude {string|string[]}` - Optional string or array of strings of glob patterns to exclude
   * `extension {string|string[]}` - Optional string or array of strings of extensions to include (dot prefixed like .js or .ts)
-
 
 Examples
 --------------------------
@@ -64,12 +61,10 @@ module.exports = {
 };
 ```
 
-
 Testing (TODO: not yet finished)
 --------------------------
 
-`$ npm run test`
-
+`npm run test`
 
 License
 --------------------------

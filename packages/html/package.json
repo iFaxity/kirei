@@ -38,7 +38,7 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@kirei/shared": "^1.2.1",
+    "@kirei/shared": "^1.1.4",
     "udomdiff": "^1.0.9",
     "uparser": "^0.2.0"
   }

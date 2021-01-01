@@ -42,6 +42,6 @@
     "shadow dom"
   ],
   "peerDependencies": {
-    "@kirei/element": "^2.0.0"
+    "@kirei/element": "^1.1.4"
   }
 }

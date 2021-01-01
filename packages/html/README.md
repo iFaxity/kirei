@@ -13,11 +13,11 @@ A uhtml inspired render library with customizable directives, built in TypeScrip
 
 Installation
 --------------------------
-`$ npm i @kirei/html`
+`npm i @kirei/html`
 
 or if you use yarn
 
-`$ yarn add @kirei/html`
+`yarn add @kirei/html`
 
 API
 --------------------------
@@ -28,56 +28,96 @@ import { html, svg, render, customize } from '@kirei/html';
 
 ### [html( strings, ...values )](#html)
 
-${method.description}
+Creates a html template from a string literal
 
-**Returns:** Component class
+**Returns:** Template instance of type html
 
-#### Parameters
-* `filename {string}` - Unique id for the element,
-* `opts {ComponentOptions}`-
+**Parameters:**
+* `strings {TemplateStringsArray}` - String glue
+* `values {any[]}` - Interpolated values
 
 ### [svg( strings, ...values )](#svg)
 
-${method.description}
+Creates a svg template from a string literal
 
-**Returns:** Component class
+**Returns:** Template instance of type svg
 
-#### Parameters
-* `filename {string}` -
-* `opts {ComponentOptions}`-
+**Parameters:**
+* `strings {TemplateStringsArray}` - String glue
+* `values {any[]}` - Interpolated values
 
-### [render( template, root [, scopeName] )](#render)
+### [render( template, root [, renderOptions] )](#render)
 
-${method.description}
+Renders a template to a specific root container
 
-**Returns:** Component class
+**Returns:** TemplateRenderer, object with 3 properties: html, svg and render.
 
-#### Parameters
-* `filename {string}`-
-* `opts {ComponentOptions}`-
+**Parameters:**
+* `template {Template|Node}` - Template or Node to render from
+* `root {Element|ShadowRoot|DocumentFragment}` - Root node to render content to
+* `renderOptions {RenderOptions}` - Custom render options, not rquired but used for web components shims
+* `renderOptions.scopeName {string}` - Scope name to inform what tagName the targeted root has, only required if the root is a ShadowRoot for ShadyDOM/ShadyCSS to apply correctly.
+* `renderOptions.mount {boolean}` - If false render will only compile the template and not render to root. Essentially preparing for a render but not actually applying it, defaults to true
 
 ### [customize( opts )](#customize)
 
-${method.description}
+Customizes a template rendered to define a compiler and static literals
 
-**Returns:** A boolean indicating if the ElementInstance is defined within the HMR cache.
+**Returns:** Custom template renderer
 
-#### Parameters
-* `opts {CustomizeOptions}` -
-* `opts.compiler {TemplateCompiler}` -
-* `opts.literals {TemplateLiteral}` -
+**Parameters:**
+* `opts {CustomizeOptions}` - Custom compiler options
+* `opts.compiler {TemplateCompiler}` - Custom compiler to use instead of the default, will fallback to defaults if compiler does not implement all the members
+* `opts.literals {TemplateLiteral}` - Helper methods to assign to the returned TemplateLiteral as static members
 
 Examples
 --------------------------
 
 ```js
-```
+import { html, render } from '@kirei/html';
 
-Testing
---------------------------
+// variables to hold state
+const title = 'Hello world!';
+const list = [ 'foo', 'bar', 'baz' ];
+let count = 0;
+let value = '';
 
-```sh
-$ npm run test
+// Event handlers
+function onClick(e) {
+  // Click handler to update the counter
+  count++;
+  update();
+}
+
+function onInput(e) {
+  // Update "value" on input event
+  value = e.currentTarget.value;
+  update();
+}
+
+// Function to run updates on the template
+function update() {
+  const template = html`
+    <h1>${title}</h1>
+    <button @click=${onClick}>Clicked ${count} times</button>
+
+    <p>Checkout this cool list</p>
+    <ul>
+      ${list.map(item => html`<li>${item}</li>`)}
+    </ul>
+
+    <label for="input">Write something</label>
+    <input id="input" .value=${value} @input=${onInput}>
+    <p>Input: ${value}</p>
+  `;
+
+  // Change document.body to valid Node that support childNodes
+  // render remembers the last render cycle and only patches the dynamic data
+  render(template, document.body);
+}
+
+// run initial render
+update();
 ```
 
 License

@@ -15,11 +15,11 @@ Most of the code is adapted from [vuex-composition-api](https://github.com/Patry
 
 Installation
 --------------------------
-`$ npm i @kirei/store`
+`npm i @kirei/store`
 
 or if you use yarn
 
-`$ yarn add @kirei/store`
+`yarn add @kirei/store`
 
 API
 --------------------------
@@ -34,7 +34,7 @@ Creates a new root store to install to a Kirei app instance.
 
 **Returns:** A new root store instance
 
-#### Parameters
+**Parameters:**
 * `options {StoreOptions}` - Optional store options to customise the store, such as plugins.
   * `options.plugins {Plugin[]}` - Store plugins to add external functionality, such as data fetching.
 
@@ -44,7 +44,7 @@ Defines a new store instance, used as an argument to any store hook.
 
 **Returns:** The defined store instance.
 
-#### Parameters
+**Parameters:**
 * `name {string}` - Store name, used when debugging and when mounting the store to a root store.
 * `setup {Setup<T>}` - Setup function, just like the composition api's setup function.
 
@@ -56,7 +56,7 @@ Keep in mind that the root store has to be installed into the app for the useSto
 
 **Returns:** A reactive object where all refs are automatically unwrapped (essentially a reactive from @vue/reactivity).
 
-#### Parameters
+**Parameters:**
 * `store {Store<T>}` - Store to extract functionality from.
   * `store.name {string}` - Store name, used when debugging and when mounting the store to a root store.
   * `store.setup {Setup<T>}` - Setup function, just like the composition api's setup function.
@@ -114,13 +114,6 @@ defineComponent({
 // const $root = document.createElement('app-counter');
 // $root.id = 'app';
 // document.body.appendChild($root);
-```
-
-Testing
---------------------------
-
-```sh
-$ npm run test
 ```
 
 License

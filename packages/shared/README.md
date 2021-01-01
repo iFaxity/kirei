@@ -9,48 +9,17 @@
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/min/@kirei/shared?label=Bundle%20size&style=for-the-badge)](https://npmjs.org/package/@kirei/shared)
 [![npm bundle size (scoped)](https://img.shields.io/bundlephobia/minzip/@kirei/shared?label=Bundle%20size%20%28gzip%29&style=for-the-badge)](https://npmjs.org/package/@kirei/shared)
 
-Utility functions shared between different packages in the Kirei ecosystem
+Utility functions shared between different packages in the Kirei ecosystem. Link to documentation will deploy as soon as possible.
 
 Installation
 --------------------------
-`$ npm i @kirei/shared`
+`npm i @kirei/shared`
 
 or if you use yarn
 
-`$ yarn add @kirei/shared`
-
-API
---------------------------
-
-```js
-import * as shared from '@kirei/shared';
-```
-
-### [{method}( {param1} [, {param2} ] )](#{link})
-
-{method.description}
-
-**Returns:** {returns}
-
-#### Parameters
-* `{param.name} {{type}}`- {param.description}
-
-
-Examples
---------------------------
-
-```js
-```
-
-Testing
---------------------------
-
-```sh
-$ npm run test
-```
+`yarn add @kirei/shared`
 
 License
 --------------------------
 
 [MIT](./LICENSE)
-
