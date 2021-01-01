@@ -6,7 +6,7 @@ Ensures that all the packages runs the latest compatible version of a linked pac
 */
 const { execSync } = require('child_process');
 const { resolve } = require('path');
-const { resolvePackages } = require('./roll');
+const { resolvePackages, writePackage } = require('./roll');
 
 const { dryRun } = require('yargs')
   .option('dryRun', {

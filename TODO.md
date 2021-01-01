@@ -6,6 +6,7 @@ tests
 * [o] Create tests using Cypress
 * [o] Unit & integration tests, maybe e2e for whole cases (e.g making an app)
 * [o] Test browsers with shimming (es6 compatible only)
+* [] Move unit tests to each package (maybe ditch cypress only use for e2e)
 
 element
 -----------
@@ -19,7 +20,7 @@ element
 html
 -----------
 * [ ] Optimize partial updates
-* [ ]
+* [ ] Render without mount, compile only
 
 router
 -----------
