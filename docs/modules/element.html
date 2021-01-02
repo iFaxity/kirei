@@ -1,0 +1,2111 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>element | Kirei</title>
+	<meta name="description" content="Documentation for Kirei">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">Kirei</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="element.html">element</a>
+				</li>
+			</ul>
+			<h1>Package element</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<a href="#kireielement" id="kireielement" style="color: inherit; text-decoration: none;">
+						<h1>@kirei/element</h1>
+					</a>
+					<p><a href="https://github.com/iFaxity/kirei/actions"><img src="https://img.shields.io/github/workflow/status/ifaxity/kirei/Test%20and%20Deploy?style=for-the-badge&logo=github" alt="GitHub Workflow Status"></a>
+						<a href="https://codecov.io/gh/iFaxity/kirei"><img src="https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge&logo=codecov" alt="Codecov"></a>
+						<a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard"><img src="https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy grade"></a>
+						<a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard"><img src="https://img.shields.io/codacy/coverage/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy coverage"></a>
+						<a href="https://npmjs.org/package/@kirei/element"><img src="https://img.shields.io/npm/v/@kirei/element?style=for-the-badge&logo=npm" alt="npm (scoped)"></a>
+						<a href="https://npmjs.org/package/@kirei/element"><img src="https://img.shields.io/bundlephobia/min/@kirei/element?label=Bundle%20size&style=for-the-badge" alt="npm bundle size (scoped)"></a>
+					<a href="https://npmjs.org/package/@kirei/element"><img src="https://img.shields.io/bundlephobia/minzip/@kirei/element?label=Bundle%20size%20%28gzip%29&style=for-the-badge" alt="npm bundle size (scoped)"></a></p>
+					<a href="#browser-support-with-webcomponentsjs-polyfills" id="browser-support-with-webcomponentsjs-polyfills" style="color: inherit; text-decoration: none;">
+						<h2>Browser support (<a href="https://github.com/webcomponents/polyfills/tree/master/packages/webcomponentsjs">with WebComponents.js polyfills</a>)</h2>
+					</a>
+					<table>
+						<thead>
+							<tr>
+								<th><a href="http://godban.github.io/browsers-support-badges/"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/edge/edge_48x48.png" alt="IE / Edge" width="24px" height="24px" /></a></br>Edge</th>
+								<th><a href="http://godban.github.io/browsers-support-badges/"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/firefox/firefox_48x48.png" alt="Firefox" width="24px" height="24px" /></a></br>Firefox</th>
+								<th><a href="http://godban.github.io/browsers-support-badges/"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/chrome/chrome_48x48.png" alt="Chrome" width="24px" height="24px" /></a></br>Chrome</th>
+								<th><a href="http://godban.github.io/browsers-support-badges/"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari/safari_48x48.png" alt="Safari" width="24px" height="24px" /></a></br>Safari</th>
+								<th><a href="http://godban.github.io/browsers-support-badges/"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/safari-ios/safari-ios_48x48.png" alt="iOS Safari" width="24px" height="24px" /></a></br>iOS Safari</th>
+								<th><a href="http://godban.github.io/browsers-support-badges/"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/samsung-internet/samsung-internet_48x48.png" alt="Samsung" width="24px" height="24px" /></a></br>Samsung</th>
+								<th><a href="http://godban.github.io/browsers-support-badges/"><img src="https://raw.githubusercontent.com/alrra/browser-logos/master/src/opera/opera_48x48.png" alt="Opera" width="24px" height="24px" /></a></br>Opera</th>
+							</tr>
+						</thead>
+						<tbody><tr>
+								<td>Edge 15+</td>
+								<td>22+</td>
+								<td>35+</td>
+								<td>10+</td>
+								<td>10+</td>
+								<td>5+</td>
+								<td>36+</td>
+							</tr>
+					</tbody></table>
+					<a href="#the-beautiful-front-end-framework" id="the-beautiful-front-end-framework" style="color: inherit; text-decoration: none;">
+						<h2>The beautiful front-end framework</h2>
+					</a>
+					<p>An in browser implementation of Vue 3 (limited to Composition API) powered by Web Components.</p>
+					<p>The goal of this library is to provide a modern approach to Front-End with modern web standards such as Custom Elements, Constructable Stylesheets, HTML Templates, Template Literals, etc. But with the familiar syntax of Vue.</p>
+					<p>Transpiling is not required as most modern browsers supports all the required, and some features could be polyfilled. But could be added to automatically instrument the application with Hot Module Reload.</p>
+					<p>The performance of the framework is surprisingly fast, checkout the <a href="https://github.com/ifaxity/js-framework-benchmark">benchmark suite</a> to see how both the HTML parser and the full component library compares to Vue, React, lit-element, etc.</p>
+					<p>Example button component.</p>
+					<pre><code class="language-js"><span class="hljs-keyword">import</span> { defineComponent, html, css, ref } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@kirei/element&#x27;</span>;
+
+defineComponent({
+  <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;AppExample&#x27;</span>,
+  <span class="hljs-attr">props</span>: {},
+  <span class="hljs-attr">styles</span>: css`<span class="css">
+    <span class="hljs-selector-tag">button</span> {
+      <span class="hljs-attribute">background-color</span>: red;
+    }
+
+    <span class="hljs-selector-tag">p</span> {
+      <span class="hljs-attribute">color</span>: blue;
+    }
+  `</span>,
+  <span class="hljs-function"><span class="hljs-title">setup</span>(<span class="hljs-params">props, ctx</span>)</span> {
+    <span class="hljs-keyword">const</span> count = ref(<span class="hljs-number">0</span>);
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> html`<span class="xml">
+      <span class="hljs-tag">&lt;<span class="hljs-name">button</span>&gt;</span>Clicked </span><span class="hljs-subst">${count}</span><span class="xml"> times.<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    `</span>;
+  }
+});</code></pre>
+					<p>Then to use the element just include the script on the webpage and add the element (app-example) in the html code:</p>
+					<pre><code class="language-html"><span class="hljs-meta">&lt;!DOCTYPE <span class="hljs-meta-keyword">html</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-name">html</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;en&quot;</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">head</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">charset</span>=<span class="hljs-string">&quot;UTF-8&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;viewport&quot;</span> <span class="hljs-attr">content</span>=<span class="hljs-string">&quot;width=device-width, initial-scale=1.0&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">meta</span> <span class="hljs-attr">http-equiv</span>=<span class="hljs-string">&quot;X-UA-Compatible&quot;</span> <span class="hljs-attr">content</span>=<span class="hljs-string">&quot;ie=edge&quot;</span> /&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">title</span>&gt;</span>Kirei example<span class="hljs-tag">&lt;/<span class="hljs-name">title</span>&gt;</span>
+
+    <span class="hljs-comment">&lt;!-- Change app.js to your script file --&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;https://unpkg.com/@kirei/element&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">src</span>=<span class="hljs-string">&quot;/app.js&quot;</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">head</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">body</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Kirei example element<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">app-example</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">app-example</span>&gt;</span>
+  <span class="hljs-tag">&lt;/<span class="hljs-name">body</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">html</span>&gt;</span></code></pre>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<p><code>npm i @kirei/element</code></p>
+					<p>or if you use yarn</p>
+					<p><code>yarn add @kirei/element</code></p>
+					<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+						<h2>Features</h2>
+					</a>
+					<p>✔️ = Done, ⏳ = In progress, 📅 = Planned.</p>
+					<ul>
+						<li>✔️ Custom Directives</li>
+						<li>✔️ Standard directives<ul>
+								<li>✔️ ref</li>
+								<li>✔️ v-attrs</li>
+								<li>✔️ v-if &amp; v-unless</li>
+								<li>✔️ v-show</li>
+								<li>✔️ v-model</li>
+							</ul>
+						</li>
+						<li>✔️ Events directive</li>
+						<li>✔️ Element emitters</li>
+						<li>✔️ Reactivity (with watch)<ul>
+								<li>✔️ watchEffect</li>
+								<li>✔️ watch</li>
+							</ul>
+						</li>
+						<li>✔️ Provide/inject</li>
+						<li>✔️ Central app instance</li>
+						<li>✔️ Scoped stylesheets</li>
+						<li>✔️ Hot Module reload (see the hmr-api package)</li>
+						<li>⏳ Lifecycle hooks (mount, update, unmount finished), error capture planned</li>
+						<li>📅 Portal</li>
+						<li>📅 Suspense</li>
+					</ul>
+					<a href="#defining-an-element" id="defining-an-element" style="color: inherit; text-decoration: none;">
+						<h2>Defining an Element</h2>
+					</a>
+					<p>Every component requires defineComponent to be called in order to define a custom component.</p>
+					<p>The <strong>only</strong> required options is the <em>name</em> property and <em>setup</em> function. The name property should strictly be the <code>PascalCased</code> or <code>snake-cased</code> component name.</p>
+					<p>The setup function is where all the reactivity and component interactivity gets set-up. It has two optional arguments <code>props</code> and <code>ctx</code>. Props is a special reactive object which holds the current value of the props. As it is reactive it is possible to set or get values.</p>
+					<p><code>ctx</code> is a special object that contains certain helpers for the setup function.</p>
+					<p>The return value requires a function which returns a HTML template via the packages <code>html</code> template literal.</p>
+					<pre><code class="language-js"><span class="hljs-keyword">const</span> AppComponent = defineComponent({
+  <span class="hljs-attr">name</span>: string,
+  <span class="hljs-attr">props</span>: Props,
+  <span class="hljs-attr">closed</span>: boolean,
+  <span class="hljs-attr">styles</span>: CSSStyleSheet|CSSStyleSheet[],
+  setup(props: KireiProps, <span class="hljs-attr">ctx</span>: KireiContext): <span class="hljs-function">() =&gt;</span> HTMLTemplate;
+});</code></pre>
+					<a href="#html-amp-svg-templates" id="html-amp-svg-templates" style="color: inherit; text-decoration: none;">
+						<h2>HTML &amp; SVG Templates</h2>
+					</a>
+					<p>There are 2 specific template literals that are exposed by the library <em>html</em> and <em>svg</em>, <em>svg</em> is used to render SVG content within a SVG namespace. Therefore any strict SVG content should be rendered within this literal. However <em>html</em> can also do SVG rendering if all SVG content has an SVG element as it&#39;s parent. Like normal inline SVG.</p>
+					<a href="#keyed-templates" id="keyed-templates" style="color: inherit; text-decoration: none;">
+						<h3>Keyed templates</h3>
+					</a>
+					<p>If you are rendering content often or in a loop it can be beneficial to use the key helper. As it caches the template and its values to prevent unnecessary compilations. </p>
+					<p>As of now this is the only helper for the literals, more helpers might come later to help with specific pitfalls or just syntax sugar for the developer. A very basic but practical example:</p>
+					<pre><code class="language-js"><span class="hljs-keyword">import</span> { defineComponent, html, reactive, ref } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@kirei/element&#x27;</span>;
+
+<span class="hljs-keyword">const</span> SimpleList = defineComponent({
+  <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;SimpleList&#x27;</span>,
+  <span class="hljs-function"><span class="hljs-title">setup</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> list = reactive([]);
+    <span class="hljs-keyword">const</span> input = ref(<span class="hljs-string">&#x27;&#x27;</span>);
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">add</span>(<span class="hljs-params"></span>) </span>{
+      list.push({ <span class="hljs-attr">id</span>: list.length, <span class="hljs-attr">text</span>: input.value });
+      input.value = <span class="hljs-string">&#x27;&#x27;</span>;
+    }
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> html`<span class="xml">
+      <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span>Simple list<span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+        </span><span class="hljs-subst">${list.map(x =&gt; html.key(x, x.id, html`<span class="xml">
+          <span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span></span><span class="hljs-subst">${x.text}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>
+        `</span>))}</span><span class="xml">
+      <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;<span class="hljs-name">label</span>&gt;</span>Write something<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">v-model</span>=</span></span><span class="hljs-subst">${input}</span><span class="xml"><span class="hljs-tag"> @<span class="hljs-attr">keyup.enter</span>=</span></span><span class="hljs-subst">${add}</span><span class="xml"><span class="hljs-tag">&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=</span></span><span class="hljs-subst">${add}</span><span class="xml"><span class="hljs-tag">&gt;</span>Add to list<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    `</span>;
+  },
+});</code></pre>
+					<a href="#scoped-styles" id="scoped-styles" style="color: inherit; text-decoration: none;">
+						<h2>Scoped Styles</h2>
+					</a>
+					<p>As Chrome has support for Constructible stylesheets these are used when applicable. Otherwise it is shimmed with regular style elements in other browsers. If the browser does not support Shadow DOM, the library looks for the ShadyDOM polyfill to achieve similar results.</p>
+					<p>Therefore all the styles for every component is scoped. But could leak out if applied incorrectly. TODO: add examples of leaky styles.</p>
+					<a href="#composition-api" id="composition-api" style="color: inherit; text-decoration: none;">
+						<h2>Composition API</h2>
+					</a>
+					<p>All reactivity is the same as of Version 1.2.0 as Kirei uses the @vue/reactivity package. However there are some Composition API&#39;s that are not in the reactivity package, and therefore implemented to emulate the same functionality. This means there is some limitations/differences.</p>
+					<a href="#watch" id="watch" style="color: inherit; text-decoration: none;">
+						<h3>Watch</h3>
+					</a>
+					<p><del>Note: Does not yet support the <code>deep</code> option, may come in a release further. But is not yet prioritised.</del></p>
+					<p>As of Version 2.0.0 the deep option is supported.</p>
+					<a href="#lifecycle-hooks" id="lifecycle-hooks" style="color: inherit; text-decoration: none;">
+						<h3>Lifecycle hooks</h3>
+					</a>
+					<p>The supported lifecycle hooks are <strong>onMount</strong>, <strong>onMounted</strong>, <strong>onUpdate</strong>, <strong>onUpdated</strong>, <strong>onUnmount</strong>, <strong>onUnmounted</strong>.
+					However there is a slight difference to how the <em>onUnmount</em> hook works, it is called when the component is <em>unmounted</em> from the DOM, not before. So both of the unmount hooks are run after each other synchronously.</p>
+					<p>There is also no is no onDestroy/onDestroyed hooks due to how WebComponents work and due to not having KeepAlive component yet.
+					Could be added for compatability but would just run in the same execution as onUnmount/onUnmounted and run after they have completed.</p>
+					<a href="#directives" id="directives" style="color: inherit; text-decoration: none;">
+						<h3>Directives</h3>
+					</a>
+					<p>Should be the same as Vue, except all directive names are hyphenated so all camelCased and PascalCased directives are hyphenated.
+					Also as they use the same lifecycle hooks as the component they have the same limitations as mentioned <a href="#lifecycle-hooks">here</a>.</p>
+					<a href="#portal" id="portal" style="color: inherit; text-decoration: none;">
+						<h3>Portal</h3>
+					</a>
+					<p>Not yet finished.</p>
+					<a href="#suspense" id="suspense" style="color: inherit; text-decoration: none;">
+						<h3>Suspense</h3>
+					</a>
+					<p>Not yet finished.</p>
+					<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+						<h2>License</h2>
+					</a>
+					<p><a href="./LICENSE">MIT</a></p>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Classes</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/element.cssresult.html" class="tsd-kind-icon">CSSResult</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/element.component.html" class="tsd-kind-icon">Component</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/element.app.html" class="tsd-kind-icon">App</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/element.appconfig.html" class="tsd-kind-icon">App<wbr>Config</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/element.appcontext.html" class="tsd-kind-icon">App<wbr>Context</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter"><a href="../interfaces/element.directive.html" class="tsd-kind-icon">Directive</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter"><a href="../interfaces/element.directivebinding.html" class="tsd-kind-icon">Directive<wbr>Binding</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter"><a href="../interfaces/element.injectionkey.html" class="tsd-kind-icon">Injection<wbr>Key</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Type aliases</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="element.html#emitsoptions" class="tsd-kind-icon">Emits<wbr>Options</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="element.html#normalizedemitsoptions" class="tsd-kind-icon">Normalized<wbr>Emits<wbr>Options</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="element.html#plugin" class="tsd-kind-icon">Plugin</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="element.html#setupresult" class="tsd-kind-icon">Setup<wbr>Result</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#applications" class="tsd-kind-icon">applications</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#devtools" class="tsd-kind-icon">devtools</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#devtoolscomponentadded" class="tsd-kind-icon">devtools<wbr>Component<wbr>Added</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#devtoolscomponentremoved" class="tsd-kind-icon">devtools<wbr>Component<wbr>Removed</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#devtoolscomponentupdated" class="tsd-kind-icon">devtools<wbr>Component<wbr>Updated</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#html" class="tsd-kind-icon">html</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#onbeforemount" class="tsd-kind-icon">on<wbr>Before<wbr>Mount</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#onbeforeunmount" class="tsd-kind-icon">on<wbr>Before<wbr>Unmount</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#onbeforeupdate" class="tsd-kind-icon">on<wbr>Before<wbr>Update</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#onerrorcaptured" class="tsd-kind-icon">on<wbr>Error<wbr>Captured</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#onmount" class="tsd-kind-icon">on<wbr>Mount</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#onunmount" class="tsd-kind-icon">on<wbr>Unmount</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#onupdate" class="tsd-kind-icon">on<wbr>Update</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#render" class="tsd-kind-icon">render</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="element.html#svg" class="tsd-kind-icon">svg</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#attrs" class="tsd-kind-icon">attrs</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#bind" class="tsd-kind-icon">bind</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#conditionalif" class="tsd-kind-icon">conditional<wbr>If</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#conditionalunless" class="tsd-kind-icon">conditional<wbr>Unless</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#createapp" class="tsd-kind-icon">create<wbr>App</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#createcomponentinstance" class="tsd-kind-icon">create<wbr>Component<wbr>Instance</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#css" class="tsd-kind-icon">css</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="element.html#defineasynccomponent" class="tsd-kind-icon">define<wbr>Async<wbr>Component</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="element.html#definecomponent" class="tsd-kind-icon">define<wbr>Component</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="element.html#definehook" class="tsd-kind-icon">define<wbr>Hook</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#devtoolscomponentemit" class="tsd-kind-icon">devtools<wbr>Component<wbr>Emit</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#devtoolsinitapp" class="tsd-kind-icon">devtools<wbr>Init<wbr>App</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#devtoolsunmountapp" class="tsd-kind-icon">devtools<wbr>Unmount<wbr>App</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#getcomponentinstance" class="tsd-kind-icon">get<wbr>Component<wbr>Instance</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#getcurrentinstance" class="tsd-kind-icon">get<wbr>Current<wbr>Instance</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#initcustomformatter" class="tsd-kind-icon">init<wbr>Custom<wbr>Formatter</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#initdev" class="tsd-kind-icon">init<wbr>Dev</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="element.html#inject" class="tsd-kind-icon">inject</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#model" class="tsd-kind-icon">model</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#nexttick" class="tsd-kind-icon">next<wbr>Tick</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#on" class="tsd-kind-icon">on</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#portal" class="tsd-kind-icon">portal</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="element.html#provide" class="tsd-kind-icon">provide</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#setcurrentinstance" class="tsd-kind-icon">set<wbr>Current<wbr>Instance</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#setdevtoolshook" class="tsd-kind-icon">set<wbr>Devtools<wbr>Hook</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#show" class="tsd-kind-icon">show</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="element.html#watch" class="tsd-kind-icon">watch</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="element.html#watcheffect" class="tsd-kind-icon">watch<wbr>Effect</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Object literals</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal tsd-parent-kind-module"><a href="element.html#compiler" class="tsd-kind-icon">compiler</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="emitsoptions" class="tsd-anchor"></a>
+					<h3>Emits<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">Emits<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">EmitsValidator</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/types.ts#L78">packages/element/src/types.ts:78</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="normalizedemitsoptions" class="tsd-anchor"></a>
+					<h3>Normalized<wbr>Emits<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">Normalized<wbr>Emits<wbr>Options<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Record</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">EmitsValidator</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/types.ts#L79">packages/element/src/types.ts:79</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="plugin" class="tsd-anchor"></a>
+					<h3>Plugin</h3>
+					<div class="tsd-signature tsd-kind-icon">Plugin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">PluginInstallFunction</span><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span>install<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">PluginInstallFunction</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>install<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">PluginInstallFunction</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/app.ts#L11">packages/element/src/api/app.ts:11</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="setupresult" class="tsd-anchor"></a>
+					<h3>Setup<wbr>Result</h3>
+					<div class="tsd-signature tsd-kind-icon">Setup<wbr>Result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="../classes/html.template.html" class="tsd-signature-type">Template</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Node</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/types.ts#L85">packages/element/src/types.ts:85</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Setup function result type</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/html.template.html" class="tsd-signature-type">Template</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Node</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-returns-title">Returns <a href="../classes/html.template.html" class="tsd-signature-type">Template</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Node</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="applications" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> applications</h3>
+					<div class="tsd-signature tsd-kind-icon">applications<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="../interfaces/element.app.html" class="tsd-signature-type">App</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new Map&lt;string, App&gt;()</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/app.ts#L52">packages/element/src/api/app.ts:52</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="devtools" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagLet">Let</span> devtools</h3>
+					<div class="tsd-signature tsd-kind-icon">devtools<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">DevtoolsHook</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/element/src/devtool/index.ts:32</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="devtoolscomponentadded" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> devtools<wbr>Component<wbr>Added</h3>
+					<div class="tsd-signature tsd-kind-icon">devtools<wbr>Component<wbr>Added<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">(Anonymous function)</span><span class="tsd-signature-symbol"> = createDevtoolsComponentHook(DevtoolsHooks.COMPONENT_ADDED)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/element/src/devtool/index.ts:54</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="devtoolscomponentremoved" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> devtools<wbr>Component<wbr>Removed</h3>
+					<div class="tsd-signature tsd-kind-icon">devtools<wbr>Component<wbr>Removed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">(Anonymous function)</span><span class="tsd-signature-symbol"> = createDevtoolsComponentHook(DevtoolsHooks.COMPONENT_REMOVED)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/element/src/devtool/index.ts:62</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="devtoolscomponentupdated" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> devtools<wbr>Component<wbr>Updated</h3>
+					<div class="tsd-signature tsd-kind-icon">devtools<wbr>Component<wbr>Updated<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">(Anonymous function)</span><span class="tsd-signature-symbol"> = createDevtoolsComponentHook(DevtoolsHooks.COMPONENT_UPDATED)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/element/src/devtool/index.ts:58</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="html" class="tsd-anchor"></a>
+					<h3>html</h3>
+					<div class="tsd-signature tsd-kind-icon">html<span class="tsd-signature-symbol">:</span> <a href="../interfaces/html.templateliteral.html" class="tsd-signature-type">TemplateLiteral</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/compiler.ts#L177">packages/element/src/runtime/compiler.ts:177</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="onbeforemount" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> on<wbr>Before<wbr>Mount</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Before<wbr>Mount<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> = defineHook(HookTypes.BEFORE_MOUNT)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/lifecycle.ts#L47">packages/element/src/api/lifecycle.ts:47</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Registers a new hook it runs before instance is mounted</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>hook: <span class="tsd-signature-type">T</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="onbeforeunmount" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> on<wbr>Before<wbr>Unmount</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Before<wbr>Unmount<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> = defineHook(HookTypes.BEFORE_UNMOUNT)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/lifecycle.ts#L55">packages/element/src/api/lifecycle.ts:55</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Registers a new hook it runs before instance is unmounted</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>hook: <span class="tsd-signature-type">T</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="onbeforeupdate" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> on<wbr>Before<wbr>Update</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Before<wbr>Update<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> = defineHook(HookTypes.BEFORE_UPDATE)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/lifecycle.ts#L51">packages/element/src/api/lifecycle.ts:51</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Registers a new hook it runs before instance is updated</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>hook: <span class="tsd-signature-type">T</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="onerrorcaptured" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> on<wbr>Error<wbr>Captured</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Error<wbr>Captured<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> = defineHook(HookTypes.ERROR_CAPTURED)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/lifecycle.ts#L60">packages/element/src/api/lifecycle.ts:60</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>hook: <span class="tsd-signature-type">T</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="onmount" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> on<wbr>Mount</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Mount<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> = defineHook(HookTypes.MOUNTED)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/lifecycle.ts#L49">packages/element/src/api/lifecycle.ts:49</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Registers a new hook it runs after instance is mounted</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>hook: <span class="tsd-signature-type">T</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="onunmount" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> on<wbr>Unmount</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Unmount<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> = defineHook(HookTypes.UNMOUNTED)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/lifecycle.ts#L57">packages/element/src/api/lifecycle.ts:57</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Registers a new hook it runs after instance is unmounted</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>hook: <span class="tsd-signature-type">T</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="onupdate" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> on<wbr>Update</h3>
+					<div class="tsd-signature tsd-kind-icon">on<wbr>Update<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol"> = defineHook(HookTypes.UPDATED)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/lifecycle.ts#L53">packages/element/src/api/lifecycle.ts:53</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Registers a new hook it runs after instance is updated</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-variable">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>hook: <span class="tsd-signature-type">T</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="render" class="tsd-anchor"></a>
+					<h3>render</h3>
+					<div class="tsd-signature tsd-kind-icon">render<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">render</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/compiler.ts#L177">packages/element/src/runtime/compiler.ts:177</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="svg" class="tsd-anchor"></a>
+					<h3>svg</h3>
+					<div class="tsd-signature tsd-kind-icon">svg<span class="tsd-signature-symbol">:</span> <a href="../interfaces/html.templateliteral.html" class="tsd-signature-type">TemplateLiteral</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/compiler.ts#L177">packages/element/src/runtime/compiler.ts:177</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="attrs" class="tsd-anchor"></a>
+					<h3>attrs</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">attrs<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, modifiers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/directives/attrs.ts#L5">packages/element/src/directives/attrs.ts:5</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">HTMLElement</span></h5>
+								</li>
+								<li>
+									<h5>arg: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>modifiers: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="bind" class="tsd-anchor"></a>
+					<h3>bind</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">bind<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, modifiers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/directives/bind.ts#L5">packages/element/src/directives/bind.ts:5</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">HTMLElement</span></h5>
+								</li>
+								<li>
+									<h5>arg: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>modifiers: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="conditionalif" class="tsd-anchor"></a>
+					<h3>conditional<wbr>If</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">conditional<wbr>If<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, modifiers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/directives/conditional.ts#L19">packages/element/src/directives/conditional.ts:19</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">HTMLElement</span></h5>
+								</li>
+								<li>
+									<h5>arg: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>modifiers: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="conditionalunless" class="tsd-anchor"></a>
+					<h3>conditional<wbr>Unless</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">conditional<wbr>Unless<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, modifiers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/directives/conditional.ts#L4">packages/element/src/directives/conditional.ts:4</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">HTMLElement</span></h5>
+								</li>
+								<li>
+									<h5>arg: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>modifiers: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createapp" class="tsd-anchor"></a>
+					<h3>create<wbr>App</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>App<span class="tsd-signature-symbol">(</span>root<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/element.app.html" class="tsd-signature-type">App</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/app.ts#L54">packages/element/src/api/app.ts:54</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>root: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/element.app.html" class="tsd-signature-type">App</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createcomponentinstance" class="tsd-anchor"></a>
+					<h3>create<wbr>Component<wbr>Instance</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Component<wbr>Instance<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">IComponent</span>, options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">NormalizedComponentOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentInstance</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/instance.ts#L52">packages/element/src/runtime/instance.ts:52</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a component instance to bind to a Kirei Element</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">IComponent</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>element to attach component instance to</p>
+									</div>
+								</li>
+								<li>
+									<h5>options: <span class="tsd-signature-type">NormalizedComponentOptions</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>component options to configure the instance</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ComponentInstance</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="css" class="tsd-anchor"></a>
+					<h3>css</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">css<span class="tsd-signature-symbol">(</span>strings<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">TemplateStringsArray</span>, <span class="tsd-signature-symbol">...</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/element.cssresult.html" class="tsd-signature-type">CSSResult</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/css.ts#L108">packages/element/src/runtime/css.ts:108</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a new CSS result from a template literal</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>strings: <span class="tsd-signature-type">TemplateStringsArray</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Template strings as a glue for the values</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagRest">Rest</span> <span class="tsd-signature-symbol">...</span>values: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Dynamic values to interpolate</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../classes/element.cssresult.html" class="tsd-signature-type">CSSResult</a></h4>
+							<p>An object that represents a CSS Stylesheet</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="defineasynccomponent" class="tsd-anchor"></a>
+					<h3>define<wbr>Async<wbr>Component</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">define<wbr>Async<wbr>Component&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/index.ts#L45">packages/element/src/index.ts:45</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Defines a asynchronously loaded component</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Props</span><span class="tsd-signature-symbol">&gt;</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Raw element options</p>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A promise that returns the created element class that extends HTMLElement</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="definecomponent" class="tsd-anchor"></a>
+					<h3>define<wbr>Component</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">define<wbr>Component&lt;T&gt;<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/index.ts#L23">packages/element/src/index.ts:23</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Defines a new component</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Readonly</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Props</span><span class="tsd-signature-symbol">&gt;</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>options: <span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Raw element options</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span></h4>
+							<p>A constructor to create a new Component element</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="definehook" class="tsd-anchor"></a>
+					<h3>define<wbr>Hook</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">define<wbr>Hook&lt;T&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/lifecycle.ts#L25">packages/element/src/api/lifecycle.ts:25</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a new hook to set on the active instance</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h4>
+							<p>The defined hook factory</p>
+							<ul class="tsd-parameters">
+								<li class="tsd-parameter-signature">
+									<ul class="tsd-signatures tsd-kind-type-literal">
+										<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+									</ul>
+									<ul class="tsd-descriptions">
+										<li class="tsd-description">
+											<h4 class="tsd-parameters-title">Parameters</h4>
+											<ul class="tsd-parameters">
+												<li>
+													<h5>hook: <span class="tsd-signature-type">T</span></h5>
+													<div class="tsd-comment tsd-typography">
+														<p>Hook name</p>
+													</div>
+												</li>
+											</ul>
+											<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="devtoolscomponentemit" class="tsd-anchor"></a>
+					<h3>devtools<wbr>Component<wbr>Emit</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">devtools<wbr>Component<wbr>Emit<span class="tsd-signature-symbol">(</span>component<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentInstance</span>, event<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in packages/element/src/devtool/index.ts:79</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>component: <span class="tsd-signature-type">ComponentInstance</span></h5>
+								</li>
+								<li>
+									<h5>event: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>params: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="devtoolsinitapp" class="tsd-anchor"></a>
+					<h3>devtools<wbr>Init<wbr>App</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">devtools<wbr>Init<wbr>App<span class="tsd-signature-symbol">(</span>app<span class="tsd-signature-symbol">: </span><a href="../interfaces/element.app.html" class="tsd-signature-type">App</a>, version<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in packages/element/src/devtool/index.ts:38</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>app: <a href="../interfaces/element.app.html" class="tsd-signature-type">App</a></h5>
+								</li>
+								<li>
+									<h5>version: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="devtoolsunmountapp" class="tsd-anchor"></a>
+					<h3>devtools<wbr>Unmount<wbr>App</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">devtools<wbr>Unmount<wbr>App<span class="tsd-signature-symbol">(</span>app<span class="tsd-signature-symbol">: </span><a href="../interfaces/element.app.html" class="tsd-signature-type">App</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in packages/element/src/devtool/index.ts:49</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>app: <a href="../interfaces/element.app.html" class="tsd-signature-type">App</a></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="getcomponentinstance" class="tsd-anchor"></a>
+					<h3>get<wbr>Component<wbr>Instance</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Component<wbr>Instance<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentInstance</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/instance.ts#L43">packages/element/src/runtime/instance.ts:43</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets an instance from its element</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">Element</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Component to get instance for</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ComponentInstance</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h4>
+							<p>The requested instance, or null if not found</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="getcurrentinstance" class="tsd-anchor"></a>
+					<h3>get<wbr>Current<wbr>Instance</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Current<wbr>Instance<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentInstance</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/instance.ts#L26">packages/element/src/runtime/instance.ts:26</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ComponentInstance</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="initcustomformatter" class="tsd-anchor"></a>
+					<h3>init<wbr>Custom<wbr>Formatter</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">init<wbr>Custom<wbr>Formatter<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in packages/element/src/devtool/formatter.ts:5</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="initdev" class="tsd-anchor"></a>
+					<h3>init<wbr>Dev</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">init<wbr>Dev<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in packages/element/src/devtool/index.ts:94</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="inject" class="tsd-anchor"></a>
+					<h3>inject</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">inject&lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><a href="../interfaces/element.injectionkey.html" class="tsd-signature-type">InjectionKey</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span>, defaultValue<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/inject.ts#L34">packages/element/src/api/inject.ts:34</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Gets a inherited value shared by any parent in the instance tree</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>key: <a href="../interfaces/element.injectionkey.html" class="tsd-signature-type">InjectionKey</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Key of injected value</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> defaultValue: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Fallback value in case of not being provided, defaults to undefined</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h4>
+							<p>Default value if value waw not found otherwise undefined</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="model" class="tsd-anchor"></a>
+					<h3>model</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">model<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, modifiers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/directives/model.ts#L152">packages/element/src/directives/model.ts:152</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">HTMLElement</span></h5>
+								</li>
+								<li>
+									<h5>arg: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>modifiers: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="nexttick" class="tsd-anchor"></a>
+					<h3>next<wbr>Tick</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">next<wbr>Tick<span class="tsd-signature-symbol">(</span>fn<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/queue.ts#L48">packages/element/src/runtime/queue.ts:48</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Wait for next flush of the queue, as a Promise or as a callback function</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> fn: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional callback function</p>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="on" class="tsd-anchor"></a>
+					<h3>on</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">on<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, modifiers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/directives/on.ts#L107">packages/element/src/directives/on.ts:107</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">HTMLElement</span></h5>
+								</li>
+								<li>
+									<h5>arg: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>modifiers: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="portal" class="tsd-anchor"></a>
+					<h3>portal</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">portal<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, templateFn<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="../classes/html.template.html" class="tsd-signature-type">Template</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/portal.ts#L24">packages/element/src/api/portal.ts:24</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Portals content to a element, useful for dialogs</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>target: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Target element as querySelector string</p>
+									</div>
+								</li>
+								<li>
+									<h5>templateFn: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="../classes/html.template.html" class="tsd-signature-type">Template</a></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../classes/html.template.html" class="tsd-signature-type">Template</a></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-returns-title">Returns <a href="../classes/html.template.html" class="tsd-signature-type">Template</a></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="provide" class="tsd-anchor"></a>
+					<h3>provide</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">provide&lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><a href="../interfaces/element.injectionkey.html" class="tsd-signature-type">InjectionKey</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/inject.ts#L19">packages/element/src/api/inject.ts:19</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Provides a value to itself and children, used to flow data down, such as stores</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>key: <a href="../interfaces/element.injectionkey.html" class="tsd-signature-type">InjectionKey</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Key to provide value as, can be a InjectionKey for type inference</p>
+									</div>
+								</li>
+								<li>
+									<h5>value: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Value to set to the provider</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="setcurrentinstance" class="tsd-anchor"></a>
+					<h3>set<wbr>Current<wbr>Instance</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Current<wbr>Instance<span class="tsd-signature-symbol">(</span>instance<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentInstance</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/instance.ts#L30">packages/element/src/runtime/instance.ts:30</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>instance: <span class="tsd-signature-type">ComponentInstance</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">null</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="setdevtoolshook" class="tsd-anchor"></a>
+					<h3>set<wbr>Devtools<wbr>Hook</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Devtools<wbr>Hook<span class="tsd-signature-symbol">(</span>hook<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DevtoolsHook</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in packages/element/src/devtool/index.ts:34</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>hook: <span class="tsd-signature-type">DevtoolsHook</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="show" class="tsd-anchor"></a>
+					<h3>show</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">show<span class="tsd-signature-symbol">(</span>el<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">HTMLElement</span>, arg<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, modifiers<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/directives/show.ts#L4">packages/element/src/directives/show.ts:4</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>el: <span class="tsd-signature-type">HTMLElement</span></h5>
+								</li>
+								<li>
+									<h5>arg: <span class="tsd-signature-type">string</span></h5>
+								</li>
+								<li>
+									<h5>modifiers: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="watch" class="tsd-anchor"></a>
+					<h3>watch</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">watch&lt;T&gt;<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferWatchValues</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span>, oldValues<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferWatchValues</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">WatchOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">StopWatcher</span></li>
+						<li class="tsd-signature tsd-kind-icon">watch&lt;T&gt;<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">WatchTarget</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span>, callback<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, oldValues<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">WatchOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">StopWatcher</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/watch.ts#L68">packages/element/src/api/watch.ts:68</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Watches one or multiple sources for changes, to easily consume the updates with a before and after value.
+										Has an option to trigger an immediate call (with oldValue set to undefined or empty array).
+									Returns a function to effectivly stop the watcher.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">WatchTarget</span><span class="tsd-signature-symbol">[]</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>target: <span class="tsd-signature-type">T</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Target or targets to watch</p>
+									</div>
+								</li>
+								<li>
+									<h5>callback: <span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferWatchValues</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span>, oldValues<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferWatchValues</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Callback to run when a target is updated</p>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferWatchValues</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span>, oldValues<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">InferWatchValues</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>values: <span class="tsd-signature-type">InferWatchValues</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+														</li>
+														<li>
+															<h5>oldValues: <span class="tsd-signature-type">InferWatchValues</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">WatchOptions</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional watcher options</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">StopWatcher</span></h4>
+							<p>A function to stop the effect from watching</p>
+						</li>
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/watch.ts#L73">packages/element/src/api/watch.ts:73</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">WatchTarget</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>target: <span class="tsd-signature-type">WatchTarget</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+								<li>
+									<h5>callback: <span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, oldValues<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>values<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span>, oldValues<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-parameters-title">Parameters</h4>
+													<ul class="tsd-parameters">
+														<li>
+															<h5>values: <span class="tsd-signature-type">T</span></h5>
+														</li>
+														<li>
+															<h5>oldValues: <span class="tsd-signature-type">T</span></h5>
+														</li>
+													</ul>
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <span class="tsd-signature-type">WatchOptions</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">StopWatcher</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="watcheffect" class="tsd-anchor"></a>
+					<h3>watch<wbr>Effect</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">watch<wbr>Effect<span class="tsd-signature-symbol">(</span>target<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">StopWatcher</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/api/watch.ts#L50">packages/element/src/api/watch.ts:50</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a function that runs anytime a reactive dependency updates.
+										Runs immediately to collect dependencies.
+									Returns a function to effectivly stop the watcher.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>target: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Function to run when an update is triggered</p>
+									</div>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter-signature">
+											<ul class="tsd-signatures tsd-kind-type-literal">
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+											</ul>
+											<ul class="tsd-descriptions">
+												<li class="tsd-description">
+													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+												</li>
+											</ul>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">StopWatcher</span></h4>
+							<p>A function to stop the effect from watching</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-module">
+					<a name="compiler" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> compiler</h3>
+					<div class="tsd-signature tsd-kind-icon">compiler<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/compiler.ts#L98">packages/element/src/runtime/compiler.ts:98</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Custom compiler for directives and to unpack reactives</p>
+						</div>
+					</div>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="compiler.attr" class="tsd-anchor"></a>
+						<h3>attr</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">attr<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, attr<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/compiler.ts#L99">packages/element/src/runtime/compiler.ts:99</a></li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>node: <span class="tsd-signature-type">Element</span></h5>
+									</li>
+									<li>
+										<h5>attr: <span class="tsd-signature-type">string</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="compiler.node" class="tsd-anchor"></a>
+						<h3>node</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">node<span class="tsd-signature-symbol">(</span>ref<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Comment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">(Anonymous function)</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/compiler.ts#L167">packages/element/src/runtime/compiler.ts:167</a></li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>ref: <span class="tsd-signature-type">Comment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">(Anonymous function)</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="compiler.text" class="tsd-anchor"></a>
+						<h3>text</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">text<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Text</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">(Anonymous function)</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/element/src/runtime/compiler.ts#L171">packages/element/src/runtime/compiler.ts:171</a></li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>node: <span class="tsd-signature-type">Text</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">(Anonymous function)</span></h4>
+							</li>
+						</ul>
+					</section>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="element.html">element</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="hmr_api.html">hmr-<wbr>api</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="html.html">html</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="router.html">router</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="shared.html">shared</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="store.html">store</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="element.html" class="tsd-kind-icon">element</a>
+						<ul>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/element.cssresult.html" class="tsd-kind-icon">CSSResult</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/element.component.html" class="tsd-kind-icon">Component</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/element.app.html" class="tsd-kind-icon">App</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/element.appconfig.html" class="tsd-kind-icon">App<wbr>Config</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/element.appcontext.html" class="tsd-kind-icon">App<wbr>Context</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../interfaces/element.directive.html" class="tsd-kind-icon">Directive</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../interfaces/element.directivebinding.html" class="tsd-kind-icon">Directive<wbr>Binding</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../interfaces/element.injectionkey.html" class="tsd-kind-icon">Injection<wbr>Key</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="element.html#emitsoptions" class="tsd-kind-icon">Emits<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="element.html#normalizedemitsoptions" class="tsd-kind-icon">Normalized<wbr>Emits<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="element.html#plugin" class="tsd-kind-icon">Plugin</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="element.html#setupresult" class="tsd-kind-icon">Setup<wbr>Result</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#applications" class="tsd-kind-icon">applications</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#devtools" class="tsd-kind-icon">devtools</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#devtoolscomponentadded" class="tsd-kind-icon">devtools<wbr>Component<wbr>Added</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#devtoolscomponentremoved" class="tsd-kind-icon">devtools<wbr>Component<wbr>Removed</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#devtoolscomponentupdated" class="tsd-kind-icon">devtools<wbr>Component<wbr>Updated</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#html" class="tsd-kind-icon">html</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#onbeforemount" class="tsd-kind-icon">on<wbr>Before<wbr>Mount</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#onbeforeunmount" class="tsd-kind-icon">on<wbr>Before<wbr>Unmount</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#onbeforeupdate" class="tsd-kind-icon">on<wbr>Before<wbr>Update</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#onerrorcaptured" class="tsd-kind-icon">on<wbr>Error<wbr>Captured</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#onmount" class="tsd-kind-icon">on<wbr>Mount</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#onunmount" class="tsd-kind-icon">on<wbr>Unmount</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#onupdate" class="tsd-kind-icon">on<wbr>Update</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#render" class="tsd-kind-icon">render</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="element.html#svg" class="tsd-kind-icon">svg</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#attrs" class="tsd-kind-icon">attrs</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#bind" class="tsd-kind-icon">bind</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#conditionalif" class="tsd-kind-icon">conditional<wbr>If</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#conditionalunless" class="tsd-kind-icon">conditional<wbr>Unless</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#createapp" class="tsd-kind-icon">create<wbr>App</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#createcomponentinstance" class="tsd-kind-icon">create<wbr>Component<wbr>Instance</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#css" class="tsd-kind-icon">css</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="element.html#defineasynccomponent" class="tsd-kind-icon">define<wbr>Async<wbr>Component</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="element.html#definecomponent" class="tsd-kind-icon">define<wbr>Component</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="element.html#definehook" class="tsd-kind-icon">define<wbr>Hook</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#devtoolscomponentemit" class="tsd-kind-icon">devtools<wbr>Component<wbr>Emit</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#devtoolsinitapp" class="tsd-kind-icon">devtools<wbr>Init<wbr>App</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#devtoolsunmountapp" class="tsd-kind-icon">devtools<wbr>Unmount<wbr>App</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#getcomponentinstance" class="tsd-kind-icon">get<wbr>Component<wbr>Instance</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#getcurrentinstance" class="tsd-kind-icon">get<wbr>Current<wbr>Instance</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#initcustomformatter" class="tsd-kind-icon">init<wbr>Custom<wbr>Formatter</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#initdev" class="tsd-kind-icon">init<wbr>Dev</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="element.html#inject" class="tsd-kind-icon">inject</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#model" class="tsd-kind-icon">model</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#nexttick" class="tsd-kind-icon">next<wbr>Tick</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#on" class="tsd-kind-icon">on</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#portal" class="tsd-kind-icon">portal</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="element.html#provide" class="tsd-kind-icon">provide</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#setcurrentinstance" class="tsd-kind-icon">set<wbr>Current<wbr>Instance</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#setdevtoolshook" class="tsd-kind-icon">set<wbr>Devtools<wbr>Hook</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#show" class="tsd-kind-icon">show</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="element.html#watch" class="tsd-kind-icon">watch</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="element.html#watcheffect" class="tsd-kind-icon">watch<wbr>Effect</a>
+							</li>
+							<li class=" tsd-kind-object-literal tsd-parent-kind-module">
+								<a href="element.html#compiler" class="tsd-kind-icon">compiler</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-module">
+						<a href="hmr_api.html" class="tsd-kind-icon">hmr-<wbr>api</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="html.html" class="tsd-kind-icon">html</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="router.html" class="tsd-kind-icon">router</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="shared.html" class="tsd-kind-icon">shared</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="store.html" class="tsd-kind-icon">store</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

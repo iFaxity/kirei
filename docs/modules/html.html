@@ -1,0 +1,570 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>html | Kirei</title>
+	<meta name="description" content="Documentation for Kirei">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">Kirei</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="html.html">html</a>
+				</li>
+			</ul>
+			<h1>Package html</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<a href="#kireihtml" id="kireihtml" style="color: inherit; text-decoration: none;">
+						<h1>@kirei/html</h1>
+					</a>
+					<p><a href="https://github.com/iFaxity/kirei/actions"><img src="https://img.shields.io/github/workflow/status/ifaxity/kirei/Test%20and%20Deploy?style=for-the-badge&logo=github" alt="GitHub Workflow Status"></a>
+						<a href="https://codecov.io/gh/iFaxity/kirei"><img src="https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge&logo=codecov" alt="Codecov"></a>
+						<a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard"><img src="https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy grade"></a>
+						<a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard"><img src="https://img.shields.io/codacy/coverage/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy coverage"></a>
+						<a href="https://npmjs.org/package/@kirei/html"><img src="https://img.shields.io/npm/v/@kirei/html?style=for-the-badge&logo=npm" alt="npm (scoped)"></a>
+						<a href="https://npmjs.org/package/@kirei/html"><img src="https://img.shields.io/bundlephobia/min/@kirei/html?label=Bundle%20size&style=for-the-badge" alt="npm bundle size (scoped)"></a>
+					<a href="https://npmjs.org/package/@kirei/html"><img src="https://img.shields.io/bundlephobia/minzip/@kirei/html?label=Bundle%20size%20%28gzip%29&style=for-the-badge" alt="npm bundle size (scoped)"></a></p>
+					<p>A uhtml inspired render library with customizable directives, built in TypeScript.</p>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<p><code>npm i @kirei/html</code></p>
+					<p>or if you use yarn</p>
+					<p><code>yarn add @kirei/html</code></p>
+					<a href="#api" id="api" style="color: inherit; text-decoration: none;">
+						<h2>API</h2>
+					</a>
+					<pre><code class="language-js"><span class="hljs-keyword">import</span> { html, svg, render, customize } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@kirei/html&#x27;</span>;</code></pre>
+					<a href="#html-strings-values-" id="html-strings-values-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#html">html( strings, ...values )</a></h3>
+					</a>
+					<p>Creates a html template from a string literal</p>
+					<p><strong>Returns:</strong> Template instance of type html</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>strings {TemplateStringsArray}</code> - String glue</li>
+						<li><code>values {any[]}</code> - Interpolated values</li>
+					</ul>
+					<a href="#svg-strings-values-" id="svg-strings-values-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#svg">svg( strings, ...values )</a></h3>
+					</a>
+					<p>Creates a svg template from a string literal</p>
+					<p><strong>Returns:</strong> Template instance of type svg</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>strings {TemplateStringsArray}</code> - String glue</li>
+						<li><code>values {any[]}</code> - Interpolated values</li>
+					</ul>
+					<a href="#render-template-root--renderoptions-" id="render-template-root--renderoptions-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#render">render( template, root [, renderOptions] )</a></h3>
+					</a>
+					<p>Renders a template to a specific root container</p>
+					<p><strong>Returns:</strong> TemplateRenderer, object with 3 properties: html, svg and render.</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>template {Template|Node}</code> - Template or Node to render from</li>
+						<li><code>root {Element|ShadowRoot|DocumentFragment}</code> - Root node to render content to</li>
+						<li><code>renderOptions {RenderOptions}</code> - Custom render options, not rquired but used for web components shims</li>
+						<li><code>renderOptions.scopeName {string}</code> - Scope name to inform what tagName the targeted root has, only required if the root is a ShadowRoot for ShadyDOM/ShadyCSS to apply correctly.</li>
+						<li><code>renderOptions.mount {boolean}</code> - If false render will only compile the template and not render to root. Essentially preparing for a render but not actually applying it, defaults to true</li>
+					</ul>
+					<a href="#customize-opts-" id="customize-opts-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#customize">customize( opts )</a></h3>
+					</a>
+					<p>Customizes a template rendered to define a compiler and static literals</p>
+					<p><strong>Returns:</strong> Custom template renderer</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>opts {CustomizeOptions}</code> - Custom compiler options</li>
+						<li><code>opts.compiler {TemplateCompiler}</code> - Custom compiler to use instead of the default, will fallback to defaults if compiler does not implement all the members</li>
+						<li><code>opts.literals {TemplateLiteral}</code> - Helper methods to assign to the returned TemplateLiteral as static members</li>
+					</ul>
+					<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+						<h2>Examples</h2>
+					</a>
+					<pre><code class="language-js"><span class="hljs-keyword">import</span> { html, render } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@kirei/html&#x27;</span>;
+
+<span class="hljs-comment">// variables to hold state</span>
+<span class="hljs-keyword">const</span> title = <span class="hljs-string">&#x27;Hello world!&#x27;</span>;
+<span class="hljs-keyword">const</span> list = [ <span class="hljs-string">&#x27;foo&#x27;</span>, <span class="hljs-string">&#x27;bar&#x27;</span>, <span class="hljs-string">&#x27;baz&#x27;</span> ];
+<span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;
+<span class="hljs-keyword">let</span> value = <span class="hljs-string">&#x27;&#x27;</span>;
+
+<span class="hljs-comment">// Event handlers</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onClick</span>(<span class="hljs-params">e</span>) </span>{
+  <span class="hljs-comment">// Click handler to update the counter</span>
+  count++;
+  update();
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">onInput</span>(<span class="hljs-params">e</span>) </span>{
+  <span class="hljs-comment">// Update &quot;value&quot; on input event</span>
+  value = e.currentTarget.value;
+  update();
+}
+
+<span class="hljs-comment">// Function to run updates on the template</span>
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">update</span>(<span class="hljs-params"></span>) </span>{
+  <span class="hljs-keyword">const</span> template = html`<span class="xml">
+    <span class="hljs-tag">&lt;<span class="hljs-name">h1</span>&gt;</span></span><span class="hljs-subst">${title}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">h1</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=</span></span><span class="hljs-subst">${onClick}</span><span class="xml"><span class="hljs-tag">&gt;</span>Clicked </span><span class="hljs-subst">${count}</span><span class="xml"> times<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Checkout this cool list<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">ul</span>&gt;</span>
+      </span><span class="hljs-subst">${list.map(item =&gt; html`<span class="xml"><span class="hljs-tag">&lt;<span class="hljs-name">li</span>&gt;</span></span><span class="hljs-subst">${item}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">li</span>&gt;</span>`</span>)}</span><span class="xml">
+    <span class="hljs-tag">&lt;/<span class="hljs-name">ul</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-name">label</span> <span class="hljs-attr">for</span>=<span class="hljs-string">&quot;input&quot;</span>&gt;</span>Write something<span class="hljs-tag">&lt;/<span class="hljs-name">label</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;input&quot;</span> <span class="hljs-attr">.value</span>=</span></span><span class="hljs-subst">${value}</span><span class="xml"><span class="hljs-tag"> @<span class="hljs-attr">input</span>=</span></span><span class="hljs-subst">${onInput}</span><span class="xml"><span class="hljs-tag">&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Input: </span><span class="hljs-subst">${value}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  `</span>;
+
+  <span class="hljs-comment">// Change document.body to valid Node that support childNodes</span>
+  <span class="hljs-comment">// render remembers the last render cycle and only patches the dynamic data</span>
+  render(template, <span class="hljs-built_in">document</span>.body);
+}
+
+<span class="hljs-comment">// run initial render</span>
+update();</code></pre>
+					<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+						<h2>License</h2>
+					</a>
+					<p><a href="./LICENSE">MIT</a></p>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Enumerations</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-enum tsd-parent-kind-module"><a href="../enums/html.patchtype.html" class="tsd-kind-icon">Patch<wbr>Type</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Classes</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter"><a href="../classes/html.lruweakmap.html" class="tsd-kind-icon">LRUWeak<wbr>Map</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/html.template.html" class="tsd-kind-icon">Template</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/html.templatecache.html" class="tsd-kind-icon">Template<wbr>Cache</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter"><a href="../interfaces/html.templatecompiler.html" class="tsd-kind-icon">Template<wbr>Compiler</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/html.templateliteral.html" class="tsd-kind-icon">Template<wbr>Literal</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Type aliases</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="html.html#templatepatcher" class="tsd-kind-icon">Template<wbr>Patcher</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="html.html#html-1" class="tsd-kind-icon">html</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="html.html#render" class="tsd-kind-icon">render</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="html.html#svg" class="tsd-kind-icon">svg</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="html.html#customize" class="tsd-kind-icon">customize</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Object literals</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal tsd-parent-kind-module"><a href="html.html#defaultcompiler" class="tsd-kind-icon">default<wbr>Compiler</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="templatepatcher" class="tsd-anchor"></a>
+					<h3>Template<wbr>Patcher</h3>
+					<div class="tsd-signature tsd-kind-icon">Template<wbr>Patcher<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>pending<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/compiler.ts#L7">packages/html/src/compiler.ts:7</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Template patcher function to update a dynamic value in the DOM</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>pending<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>pending: <span class="tsd-signature-type">unknown</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="html-1" class="tsd-anchor"></a>
+					<h3>html</h3>
+					<div class="tsd-signature tsd-kind-icon">html<span class="tsd-signature-symbol">:</span> <a href="../interfaces/html.templateliteral.html" class="tsd-signature-type">TemplateLiteral</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/index.ts#L17">packages/html/src/index.ts:17</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="render" class="tsd-anchor"></a>
+					<h3>render</h3>
+					<div class="tsd-signature tsd-kind-icon">render<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">render</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/index.ts#L17">packages/html/src/index.ts:17</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="svg" class="tsd-anchor"></a>
+					<h3>svg</h3>
+					<div class="tsd-signature tsd-kind-icon">svg<span class="tsd-signature-symbol">:</span> <a href="../interfaces/html.templateliteral.html" class="tsd-signature-type">TemplateLiteral</a></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/index.ts#L17">packages/html/src/index.ts:17</a></li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="customize" class="tsd-anchor"></a>
+					<h3>customize</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">customize&lt;T&gt;<span class="tsd-signature-symbol">(</span>opts<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">CompilerOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">TemplateRenderer</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/index.ts#L108">packages/html/src/index.ts:108</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Customizes a template rendered to define a compiler and static literals</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><a href="../interfaces/html.templateliteral.html" class="tsd-signature-type">TemplateLiteral</a></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>opts: <span class="tsd-signature-type">CompilerOptions</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Custom compiler options</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">TemplateRenderer</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>Custom template renderer</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal tsd-parent-kind-module">
+					<a name="defaultcompiler" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> default<wbr>Compiler</h3>
+					<div class="tsd-signature tsd-kind-icon">default<wbr>Compiler<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/compiler.ts#L111">packages/html/src/compiler.ts:111</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Default template compiler</p>
+						</div>
+					</div>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="defaultcompiler.attr" class="tsd-anchor"></a>
+						<h3>attr</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">attr<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Element</span>, attr<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/compiler.ts#L112">packages/html/src/compiler.ts:112</a></li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>node: <span class="tsd-signature-type">Element</span></h5>
+									</li>
+									<li>
+										<h5>attr: <span class="tsd-signature-type">string</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="defaultcompiler.node" class="tsd-anchor"></a>
+						<h3>node</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">node<span class="tsd-signature-symbol">(</span>ref<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Comment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/compiler.ts#L134">packages/html/src/compiler.ts:134</a></li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>ref: <span class="tsd-signature-type">Comment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <a href="html.html#templatepatcher" class="tsd-signature-type">TemplatePatcher</a></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="defaultcompiler.text" class="tsd-anchor"></a>
+						<h3>text</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">text<span class="tsd-signature-symbol">(</span>node<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Text</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">(Anonymous function)</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/html/src/compiler.ts#L183">packages/html/src/compiler.ts:183</a></li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>node: <span class="tsd-signature-type">Text</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">(Anonymous function)</span></h4>
+							</li>
+						</ul>
+					</section>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="element.html">element</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="hmr_api.html">hmr-<wbr>api</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="html.html">html</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="router.html">router</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="shared.html">shared</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="store.html">store</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-module">
+						<a href="element.html" class="tsd-kind-icon">element</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="hmr_api.html" class="tsd-kind-icon">hmr-<wbr>api</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="html.html" class="tsd-kind-icon">html</a>
+						<ul>
+							<li class=" tsd-kind-enum tsd-parent-kind-module">
+								<a href="../enums/html.patchtype.html" class="tsd-kind-icon">Patch<wbr>Type</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../classes/html.lruweakmap.html" class="tsd-kind-icon">LRUWeak<wbr>Map</a>
+							</li>
+							<li class=" tsd-kind-class tsd-parent-kind-module">
+								<a href="../classes/html.template.html" class="tsd-kind-icon">Template</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/html.templatecache.html" class="tsd-kind-icon">Template<wbr>Cache</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../interfaces/html.templatecompiler.html" class="tsd-kind-icon">Template<wbr>Compiler</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/html.templateliteral.html" class="tsd-kind-icon">Template<wbr>Literal</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="html.html#templatepatcher" class="tsd-kind-icon">Template<wbr>Patcher</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="html.html#html-1" class="tsd-kind-icon">html</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="html.html#render" class="tsd-kind-icon">render</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="html.html#svg" class="tsd-kind-icon">svg</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="html.html#customize" class="tsd-kind-icon">customize</a>
+							</li>
+							<li class=" tsd-kind-object-literal tsd-parent-kind-module">
+								<a href="html.html#defaultcompiler" class="tsd-kind-icon">default<wbr>Compiler</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-module">
+						<a href="router.html" class="tsd-kind-icon">router</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="shared.html" class="tsd-kind-icon">shared</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="store.html" class="tsd-kind-icon">store</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

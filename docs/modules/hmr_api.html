@@ -1,0 +1,409 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>hmr-api | Kirei</title>
+	<meta name="description" content="Documentation for Kirei">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">Kirei</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="hmr_api.html">hmr-api</a>
+				</li>
+			</ul>
+			<h1>Package hmr-api</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<a href="#kireihmr-api" id="kireihmr-api" style="color: inherit; text-decoration: none;">
+						<h1>@kirei/hmr-api</h1>
+					</a>
+					<p><a href="https://github.com/iFaxity/kirei/actions"><img src="https://img.shields.io/github/workflow/status/ifaxity/kirei/Test%20and%20Deploy?style=for-the-badge&logo=github" alt="GitHub Workflow Status"></a>
+						<a href="https://codecov.io/gh/iFaxity/kirei"><img src="https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge&logo=codecov" alt="Codecov"></a>
+						<a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard"><img src="https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy grade"></a>
+						<a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard"><img src="https://img.shields.io/codacy/coverage/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy coverage"></a>
+						<a href="https://npmjs.org/package/@kirei/hmr-api"><img src="https://img.shields.io/npm/v/@kirei/hmr-api?style=for-the-badge&logo=npm" alt="npm (scoped)"></a>
+						<a href="https://npmjs.org/package/@kirei/hmr-api"><img src="https://img.shields.io/bundlephobia/min/@kirei/hmr-api?label=Bundle%20size&style=for-the-badge" alt="npm bundle size (scoped)"></a>
+					<a href="https://npmjs.org/package/@kirei/hmr-api"><img src="https://img.shields.io/bundlephobia/minzip/@kirei/hmr-api?label=Bundle%20size%20%28gzip%29&style=for-the-badge" alt="npm bundle size (scoped)"></a></p>
+					<p>Hot Module Replacement API for Kirei Component. This only includes the API and does not offer any automatic instrumentation. Consider using the babel plugin instead (babel-plugin-kirei).</p>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<p><code>npm i @kirei/hmr-api</code></p>
+					<p>or if you use yarn</p>
+					<p><code>yarn add @kirei/hmr-api</code></p>
+					<a href="#api" id="api" style="color: inherit; text-decoration: none;">
+						<h2>API</h2>
+					</a>
+					<pre><code class="language-js"><span class="hljs-keyword">import</span> * <span class="hljs-keyword">as</span> hmr <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@kirei/hmr-api&#x27;</span>;</code></pre>
+					<a href="#hmrcreate-filename-opts-" id="hmrcreate-filename-opts-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#create">hmr.create( filename, opts )</a></h3>
+					</a>
+					<p>Solely creates a new component, if component already exists, it will return its constructor.</p>
+					<p><strong>Returns:</strong> Component constructor</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>filename {string}</code> - Filename where component was defined</li>
+						<li><code>opts {ComponentOptions}</code> - Options to define component with</li>
+					</ul>
+					<a href="#hmrupdate-filename-opts-" id="hmrupdate-filename-opts-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#update">hmr.update( filename, opts )</a></h3>
+					</a>
+					<p>Updates element options and all of its instances.</p>
+					<p><strong>Returns:</strong> Component constructor</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>filename {string}</code> - Filename where component was defined</li>
+						<li><code>opts {ComponentOptions}</code> - Options to update component with</li>
+					</ul>
+					<a href="#hmrcreateorupdate-filename-opts-" id="hmrcreateorupdate-filename-opts-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#createOrUpdate">hmr.createOrUpdate( filename, opts )</a></h3>
+					</a>
+					<p>Stores a component to cache or updates it and all of its active instances</p>
+					<p><strong>Returns:</strong> Component constructor</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>filename {string}</code> - Filename where component was defined</li>
+						<li><code>opts {ComponentOptions}</code> - Options to update</li>
+					</ul>
+					<a href="#hmrhas-filename-opts-" id="hmrhas-filename-opts-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#has">hmr.has( filename, opts )</a></h3>
+					</a>
+					<p>Checks if HMR already has component with the same id stored.</p>
+					<p><strong>Returns:</strong> True if instance is already in the cache.</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>filename {string}</code> - Filename where component was defined</li>
+						<li><code>opts {ComponentOptions}</code> - Component options</li>
+					</ul>
+					<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+						<h2>License</h2>
+					</a>
+					<p><a href="./LICENSE">MIT</a></p>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="hmr_api.html#create" class="tsd-kind-icon">create</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="hmr_api.html#createorupdate" class="tsd-kind-icon">create<wbr>OrUpdate</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="hmr_api.html#has" class="tsd-kind-icon">has</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="hmr_api.html#update" class="tsd-kind-icon">update</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="create" class="tsd-anchor"></a>
+					<h3>create</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">create<span class="tsd-signature-symbol">(</span>filename<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, opts<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/hmr-api/src/index.ts#L93">packages/hmr-api/src/index.ts:93</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Solely creates a new component, if component already exists, it will return its constructor</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>filename: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Filename where component was defined</p>
+									</div>
+								</li>
+								<li>
+									<h5>opts: <span class="tsd-signature-type">ComponentOptions</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Options to define component with</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span></h4>
+							<p>Component constructor</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createorupdate" class="tsd-anchor"></a>
+					<h3>create<wbr>OrUpdate</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>OrUpdate<span class="tsd-signature-symbol">(</span>filename<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, opts<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/hmr-api/src/index.ts#L83">packages/hmr-api/src/index.ts:83</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Stores a component to cache or updates it and all of its active instances</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>filename: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Filename where component was defined</p>
+									</div>
+								</li>
+								<li>
+									<h5>opts: <span class="tsd-signature-type">ComponentOptions</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Options to update</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span></h4>
+							<p>Component constructor</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="has" class="tsd-anchor"></a>
+					<h3>has</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">has<span class="tsd-signature-symbol">(</span>filename<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, opts<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/hmr-api/src/index.ts#L73">packages/hmr-api/src/index.ts:73</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Checks if HMR already has component with the same id stored</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>filename: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Filename where component was defined</p>
+									</div>
+								</li>
+								<li>
+									<h5>opts: <span class="tsd-signature-type">ComponentOptions</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Component options</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+							<p>True if instance is already in the cache</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="update" class="tsd-anchor"></a>
+					<h3>update</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">update<span class="tsd-signature-symbol">(</span>filename<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, opts<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ComponentOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/hmr-api/src/index.ts#L117">packages/hmr-api/src/index.ts:117</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Updates component options and all of its instances</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>filename: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Filename where component was defined</p>
+									</div>
+								</li>
+								<li>
+									<h5>opts: <span class="tsd-signature-type">ComponentOptions</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Options to update component with</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">typeof </span><span class="tsd-signature-type">Component</span></h4>
+							<p>Component constructor</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="element.html">element</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="hmr_api.html">hmr-<wbr>api</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="html.html">html</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="router.html">router</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="shared.html">shared</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="store.html">store</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-module">
+						<a href="element.html" class="tsd-kind-icon">element</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="hmr_api.html" class="tsd-kind-icon">hmr-<wbr>api</a>
+						<ul>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="hmr_api.html#create" class="tsd-kind-icon">create</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="hmr_api.html#createorupdate" class="tsd-kind-icon">create<wbr>OrUpdate</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="hmr_api.html#has" class="tsd-kind-icon">has</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="hmr_api.html#update" class="tsd-kind-icon">update</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+					<li class=" tsd-kind-module">
+						<a href="html.html" class="tsd-kind-icon">html</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="router.html" class="tsd-kind-icon">router</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="shared.html" class="tsd-kind-icon">shared</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="store.html" class="tsd-kind-icon">store</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

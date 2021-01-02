@@ -1,0 +1,854 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>store | Kirei</title>
+	<meta name="description" content="Documentation for Kirei">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">Kirei</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../globals.html">Globals</a>
+				</li>
+				<li>
+					<a href="store.html">store</a>
+				</li>
+			</ul>
+			<h1>Package store</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<a href="#kireistore" id="kireistore" style="color: inherit; text-decoration: none;">
+						<h1>@kirei/store</h1>
+					</a>
+					<p><a href="https://github.com/iFaxity/kirei/actions"><img src="https://img.shields.io/github/workflow/status/ifaxity/kirei/Test%20and%20Deploy?style=for-the-badge&logo=github" alt="GitHub Workflow Status"></a>
+						<a href="https://codecov.io/gh/iFaxity/kirei"><img src="https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge&logo=codecov" alt="Codecov"></a>
+						<a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard"><img src="https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy grade"></a>
+						<a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard"><img src="https://img.shields.io/codacy/coverage/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy coverage"></a>
+						<a href="https://npmjs.org/package/@kirei/store"><img src="https://img.shields.io/npm/v/@kirei/store?style=for-the-badge&logo=npm" alt="npm (scoped)"></a>
+						<a href="https://npmjs.org/package/@kirei/store"><img src="https://img.shields.io/bundlephobia/min/@kirei/store?label=Bundle%20size&style=for-the-badge" alt="npm bundle size (scoped)"></a>
+					<a href="https://npmjs.org/package/@kirei/store"><img src="https://img.shields.io/bundlephobia/minzip/@kirei/store?label=Bundle%20size%20%28gzip%29&style=for-the-badge" alt="npm bundle size (scoped)"></a></p>
+					<p>A Vuex inspired store implementation with Composition API and full TypeScript support.</p>
+					<p>Most of the code is adapted from <a href="https://github.com/PatrykWalach/vuex-composition-api/blob/master/src/composition.ts">vuex-composition-api</a> with some modifications to the structure, but the functionality is basically the same.</p>
+					<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+						<h2>Installation</h2>
+					</a>
+					<p><code>npm i @kirei/store</code></p>
+					<p>or if you use yarn</p>
+					<p><code>yarn add @kirei/store</code></p>
+					<a href="#api" id="api" style="color: inherit; text-decoration: none;">
+						<h2>API</h2>
+					</a>
+					<pre><code class="language-js"><span class="hljs-keyword">import</span> { createStore, defineStore, useStore } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@kirei/store&#x27;</span>;</code></pre>
+					<a href="#createstore-options-" id="createstore-options-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#create-store">createStore( [options] )</a></h3>
+					</a>
+					<p>Creates a new root store to install to a Kirei app instance.</p>
+					<p><strong>Returns:</strong> A new root store instance</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>options {StoreOptions}</code> - Optional store options to customise the store, such as plugins.<ul>
+								<li><code>options.plugins {Plugin[]}</code> - Store plugins to add external functionality, such as data fetching.</li>
+							</ul>
+						</li>
+					</ul>
+					<a href="#definestore-name-setup-" id="definestore-name-setup-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#define-store">defineStore<T extends object>( name, setup )</a></h3>
+					</a>
+					<p>Defines a new store instance, used as an argument to any store hook.</p>
+					<p><strong>Returns:</strong> The defined store instance.</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>name {string}</code> - Store name, used when debugging and when mounting the store to a root store.</li>
+						<li><code>setup {Setup&lt;T&gt;}</code> - Setup function, just like the composition api&#39;s setup function.</li>
+					</ul>
+					<a href="#usestore-store-" id="usestore-store-" style="color: inherit; text-decoration: none;">
+						<h3><a href="#use-store">useStore<T extends object>( store )</a></h3>
+					</a>
+					<p>Composition hook to import a specified store into the current Kirei instance.</p>
+					<p>Keep in mind that the root store has to be installed into the app for the useStore hook to work. Also DO NOT deconstruct properties, it wont work as expected and removes the reactivity from the importer properties.</p>
+					<p><strong>Returns:</strong> A reactive object where all refs are automatically unwrapped (essentially a reactive from @vue/reactivity).</p>
+					<p><strong>Parameters:</strong></p>
+					<ul>
+						<li><code>store {Store&lt;T&gt;}</code> - Store to extract functionality from.<ul>
+								<li><code>store.name {string}</code> - Store name, used when debugging and when mounting the store to a root store.</li>
+								<li><code>store.setup {Setup&lt;T&gt;}</code> - Setup function, just like the composition api&#39;s setup function.</li>
+							</ul>
+						</li>
+					</ul>
+					<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
+						<h2>Examples</h2>
+					</a>
+					<pre><code class="language-js"><span class="hljs-keyword">import</span> { defineComponent, createApp, html, ref, computed, toRef } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@kirei/element&#x27;</span>;
+<span class="hljs-keyword">import</span> { createStore, defineStore, useStore } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;@kirei/store&#x27;</span>;
+
+<span class="hljs-keyword">const</span> app = createApp(<span class="hljs-string">&#x27;app&#x27;</span>);
+app.install(createStore());
+
+<span class="hljs-keyword">const</span> CounterStore = defineStore(<span class="hljs-string">&#x27;appStore&#x27;</span>, <span class="hljs-function">() =&gt;</span> {
+  <span class="hljs-comment">// state</span>
+  <span class="hljs-keyword">const</span> count = ref(<span class="hljs-number">0</span>);
+
+  <span class="hljs-comment">// getters</span>
+  <span class="hljs-keyword">const</span> isEven = computed(<span class="hljs-function">() =&gt;</span> count.value % <span class="hljs-number">2</span> == <span class="hljs-number">0</span>);
+
+  <span class="hljs-comment">// actions</span>
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">increment</span>(<span class="hljs-params"></span>) </span>{
+    count.value += <span class="hljs-number">1</span>;
+  }
+
+  <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">decrement</span>(<span class="hljs-params"></span>) </span>{
+    count.value -= <span class="hljs-number">1</span>;
+  }
+
+  <span class="hljs-keyword">return</span> {
+    count,
+    isEven,
+    increment,
+    decrement,
+  };
+});
+
+defineComponent({
+  <span class="hljs-attr">name</span>: <span class="hljs-string">&#x27;AppCounter&#x27;</span>,
+  <span class="hljs-function"><span class="hljs-title">setup</span>(<span class="hljs-params"></span>)</span> {
+    <span class="hljs-keyword">const</span> store = useStore(CounterStore);
+    <span class="hljs-keyword">const</span> text = toRef(store, <span class="hljs-string">&#x27;text&#x27;</span>); <span class="hljs-comment">// v-model in Kirei requires a ref</span>
+
+    <span class="hljs-keyword">return</span> <span class="hljs-function">() =&gt;</span> html`<span class="xml">
+      <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Count is: </span><span class="hljs-subst">${store.count}</span><span class="xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Count is </span><span class="hljs-subst">${store.isEven ? <span class="hljs-string">&#x27;even&#x27;</span> : <span class="hljs-string">&#x27;odd&#x27;</span>}</span><span class="xml">.<span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=</span></span><span class="hljs-subst">${store.increment}</span><span class="xml"><span class="hljs-tag">&gt;</span>Increment<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=</span></span><span class="hljs-subst">${store.decrement}</span><span class="xml"><span class="hljs-tag">&gt;</span>Decrement<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+    `</span>;
+  },
+});
+
+<span class="hljs-comment">// then somewhere in your html code add the component: &lt;app-counter id=&#x27;app&#x27;&gt;&lt;/app-counter&gt;, or:</span>
+<span class="hljs-comment">// const $root = document.createElement(&#x27;app-counter&#x27;);</span>
+<span class="hljs-comment">// $root.id = &#x27;app&#x27;;</span>
+<span class="hljs-comment">// document.body.appendChild($root);</span></code></pre>
+					<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+						<h2>License</h2>
+					</a>
+					<p><a href="./LICENSE">MIT</a></p>
+				</div>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Interfaces</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/store.context.html" class="tsd-kind-icon">Context</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/store.context-1.html" class="tsd-kind-icon">Context</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter"><a href="../interfaces/store.store-1.html" class="tsd-kind-icon">Store</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter"><a href="../interfaces/store.store-2.html" class="tsd-kind-icon">Store</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/store.storeoptions.html" class="tsd-kind-icon">Store<wbr>Options</a></li>
+								<li class="tsd-kind-interface tsd-parent-kind-module"><a href="../interfaces/store.storeoptions-1.html" class="tsd-kind-icon">Store<wbr>Options</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Type aliases</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="store.html#plugin" class="tsd-kind-icon">Plugin</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="store.html#plugin-1" class="tsd-kind-icon">Plugin</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="store.html#setup" class="tsd-kind-icon">Setup</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="store.html#setup-1" class="tsd-kind-icon">Setup</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="store.html#unwrapnestedrefs" class="tsd-kind-icon">Unwrap<wbr>Nested<wbr>Refs</a></li>
+								<li class="tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter"><a href="store.html#unwrapnestedrefs-1" class="tsd-kind-icon">Unwrap<wbr>Nested<wbr>Refs</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="store.html#injection_key" class="tsd-kind-icon">INJECTION_<wbr>KEY</a></li>
+								<li class="tsd-kind-variable tsd-parent-kind-module"><a href="store.html#injection_key-1" class="tsd-kind-icon">INJECTION_<wbr>KEY</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Functions</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="store.html#createstore" class="tsd-kind-icon">create<wbr>Store</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="store.html#createstore-1" class="tsd-kind-icon">create<wbr>Store</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="store.html#definestore" class="tsd-kind-icon">define<wbr>Store</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module"><a href="store.html#devtoolplugin" class="tsd-kind-icon">devtool<wbr>Plugin</a></li>
+								<li class="tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter"><a href="store.html#usestore" class="tsd-kind-icon">use<wbr>Store</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="plugin" class="tsd-anchor"></a>
+					<h3>Plugin</h3>
+					<div class="tsd-signature tsd-kind-icon">Plugin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>provide<span class="tsd-signature-symbol">: </span>&lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/store/src/index.ts#L15">packages/store/src/index.ts:15</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Plugin function.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>param</dt>
+							<dd><p>Provider function set a value to the store context.</p>
+							</dd>
+						</dl>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>provide<span class="tsd-signature-symbol">: </span>&lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>provide: &lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+												<ul class="tsd-parameters">
+													<li class="tsd-parameter-signature">
+														<ul class="tsd-signatures tsd-kind-type-literal tsd-has-type-parameter">
+															<li class="tsd-signature tsd-kind-icon">&lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+														</ul>
+														<ul class="tsd-descriptions">
+															<li class="tsd-description">
+																<h4 class="tsd-type-parameters-title">Type parameters</h4>
+																<ul class="tsd-type-parameters">
+																	<li>
+																		<h4>T</h4>
+																	</li>
+																</ul>
+																<h4 class="tsd-parameters-title">Parameters</h4>
+																<ul class="tsd-parameters">
+																	<li>
+																		<h5>key: <span class="tsd-signature-type">string</span></h5>
+																	</li>
+																	<li>
+																		<h5>value: <span class="tsd-signature-type">T</span></h5>
+																	</li>
+																</ul>
+																<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+															</li>
+														</ul>
+													</li>
+												</ul>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="plugin-1" class="tsd-anchor"></a>
+					<h3>Plugin</h3>
+					<div class="tsd-signature tsd-kind-icon">Plugin<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>provide<span class="tsd-signature-symbol">: </span>&lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/store/src/store.ts:15</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Plugin function.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>param</dt>
+							<dd><p>Provider function set a value to the store context.</p>
+							</dd>
+						</dl>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>provide<span class="tsd-signature-symbol">: </span>&lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>provide: &lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span></h5>
+												<ul class="tsd-parameters">
+													<li class="tsd-parameter-signature">
+														<ul class="tsd-signatures tsd-kind-type-literal tsd-has-type-parameter">
+															<li class="tsd-signature tsd-kind-icon">&lt;T&gt;<span class="tsd-signature-symbol">(</span>key<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, value<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+														</ul>
+														<ul class="tsd-descriptions">
+															<li class="tsd-description">
+																<h4 class="tsd-type-parameters-title">Type parameters</h4>
+																<ul class="tsd-type-parameters">
+																	<li>
+																		<h4>T</h4>
+																	</li>
+																</ul>
+																<h4 class="tsd-parameters-title">Parameters</h4>
+																<ul class="tsd-parameters">
+																	<li>
+																		<h5>key: <span class="tsd-signature-type">string</span></h5>
+																	</li>
+																	<li>
+																		<h5>value: <span class="tsd-signature-type">T</span></h5>
+																	</li>
+																</ul>
+																<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+															</li>
+														</ul>
+													</li>
+												</ul>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="setup" class="tsd-anchor"></a>
+					<h3>Setup</h3>
+					<div class="tsd-signature tsd-kind-icon">Setup&lt;T&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>context<span class="tsd-signature-symbol">: </span><a href="../interfaces/store.context.html" class="tsd-signature-type">Context</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">T</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/store/src/index.ts#L22">packages/store/src/index.ts:22</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Store setup function, used to setup the state, getters and actions.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>param</dt>
+							<dd><p>Store context where plugins are populated to.</p>
+							</dd>
+							<dt>returns</dt>
+							<dd><p>An object with state, getters and actions.</p>
+							</dd>
+						</dl>
+					</div>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></h4>
+						</li>
+					</ul>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>context<span class="tsd-signature-symbol">: </span><a href="../interfaces/store.context.html" class="tsd-signature-type">Context</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>context: <a href="../interfaces/store.context.html" class="tsd-signature-type">Context</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="setup-1" class="tsd-anchor"></a>
+					<h3>Setup</h3>
+					<div class="tsd-signature tsd-kind-icon">Setup&lt;T&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>context<span class="tsd-signature-symbol">: </span><a href="../interfaces/store.context-1.html" class="tsd-signature-type">Context</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">T</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/store/src/store.ts:22</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Store setup function, used to setup the state, getters and actions.</p>
+						</div>
+						<dl class="tsd-comment-tags">
+							<dt>param</dt>
+							<dd><p>Store context where plugins are populated to.</p>
+							</dd>
+							<dt>returns</dt>
+							<dd><p>An object with state, getters and actions.</p>
+							</dd>
+						</dl>
+					</div>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></h4>
+						</li>
+					</ul>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter-signature">
+								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>context<span class="tsd-signature-symbol">: </span><a href="../interfaces/store.context-1.html" class="tsd-signature-type">Context</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>context: <a href="../interfaces/store.context-1.html" class="tsd-signature-type">Context</a></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">T</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="unwrapnestedrefs" class="tsd-anchor"></a>
+					<h3>Unwrap<wbr>Nested<wbr>Refs</h3>
+					<div class="tsd-signature tsd-kind-icon">Unwrap<wbr>Nested<wbr>Refs&lt;T&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">Ref</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">UnwrapRef</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/store/src/index.ts#L9">packages/store/src/index.ts:9</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Unwraps refs recursively, essentially a reactive() from @vue/reactivity.</p>
+						</div>
+					</div>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>T</h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="unwrapnestedrefs-1" class="tsd-anchor"></a>
+					<h3>Unwrap<wbr>Nested<wbr>Refs</h3>
+					<div class="tsd-signature tsd-kind-icon">Unwrap<wbr>Nested<wbr>Refs&lt;T&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> extends </span><span class="tsd-signature-type">Ref</span><span class="tsd-signature-symbol"> ? </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> : </span><span class="tsd-signature-type">UnwrapRef</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/store/src/store.ts:9</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Unwraps refs recursively, essentially a reactive() from @vue/reactivity.</p>
+						</div>
+					</div>
+					<h4 class="tsd-type-parameters-title">Type parameters</h4>
+					<ul class="tsd-type-parameters">
+						<li>
+							<h4>T</h4>
+						</li>
+					</ul>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="injection_key" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> INJECTION_<wbr>KEY</h3>
+					<div class="tsd-signature tsd-kind-icon">INJECTION_<wbr>KEY<span class="tsd-signature-symbol">:</span> <a href="../interfaces/element.injectionkey.html" class="tsd-signature-type">InjectionKey</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KireiStore</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = Symbol(&#x27;kirei::store&#x27;)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/store/src/index.ts#L4">packages/store/src/index.ts:4</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-module">
+					<a name="injection_key-1" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> INJECTION_<wbr>KEY</h3>
+					<div class="tsd-signature tsd-kind-icon">INJECTION_<wbr>KEY<span class="tsd-signature-symbol">:</span> <a href="../interfaces/element.injectionkey.html" class="tsd-signature-type">InjectionKey</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">KireiStore</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = Symbol(&#x27;kirei::store&#x27;)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in packages/store/src/store.ts:4</li>
+						</ul>
+					</aside>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createstore" class="tsd-anchor"></a>
+					<h3>create<wbr>Store</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Store<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/store.storeoptions.html" class="tsd-signature-type">StoreOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">KireiStore</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/store/src/index.ts#L84">packages/store/src/index.ts:84</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a new root store to install to a Kirei app instance.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../interfaces/store.storeoptions.html" class="tsd-signature-type">StoreOptions</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional store options to customise the store, such as plugins.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">KireiStore</span></h4>
+							<p>A new root store instance</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="createstore-1" class="tsd-anchor"></a>
+					<h3>create<wbr>Store</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Store<span class="tsd-signature-symbol">(</span>options<span class="tsd-signature-symbol">?: </span><a href="../interfaces/store.storeoptions-1.html" class="tsd-signature-type">StoreOptions</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">KireiStore</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in packages/store/src/store.ts:84</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Creates a new root store to install to a Kirei app instance.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> options: <a href="../interfaces/store.storeoptions-1.html" class="tsd-signature-type">StoreOptions</a></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional store options to customise the store, such as plugins.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">KireiStore</span></h4>
+							<p>A new root store instance</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="definestore" class="tsd-anchor"></a>
+					<h3>define<wbr>Store</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">define<wbr>Store&lt;T&gt;<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, setup<span class="tsd-signature-symbol">: </span><a href="store.html#setup" class="tsd-signature-type">Setup</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/store.store-1.html" class="tsd-signature-type">Store</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/store/src/index.ts#L129">packages/store/src/index.ts:129</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Defines a new store instance, used as an argument to any store hook.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Store name, used when debugging and when mounting the store to a root store.</p>
+									</div>
+								</li>
+								<li>
+									<h5>setup: <a href="store.html#setup" class="tsd-signature-type">Setup</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Setup function, just like the composition api&#39;s setup function.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/store.store-1.html" class="tsd-signature-type">Store</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>The defined store instance.</p>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module">
+					<a name="devtoolplugin" class="tsd-anchor"></a>
+					<h3>devtool<wbr>Plugin</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module">
+						<li class="tsd-signature tsd-kind-icon">devtool<wbr>Plugin<span class="tsd-signature-symbol">(</span>store<span class="tsd-signature-symbol">: </span><a href="store.html#unwrapnestedrefs" class="tsd-signature-type">UnwrapNestedRefs</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in packages/store/src/devtool.ts:14</li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>store: <a href="store.html#unwrapnestedrefs" class="tsd-signature-type">UnwrapNestedRefs</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">unknown</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+					<a name="usestore" class="tsd-anchor"></a>
+					<h3>use<wbr>Store</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">use<wbr>Store&lt;T&gt;<span class="tsd-signature-symbol">(</span>store<span class="tsd-signature-symbol">: </span><a href="../interfaces/store.store-1.html" class="tsd-signature-type">Store</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="store.html#unwrapnestedrefs" class="tsd-signature-type">UnwrapNestedRefs</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/iFaxity/kirei/blob/337fb85/packages/store/src/index.ts#L138">packages/store/src/index.ts:138</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Composition hook to import a specified store into the current Kirei instance.</p>
+								</div>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">object</span></h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>store: <a href="../interfaces/store.store-1.html" class="tsd-signature-type">Store</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Store to extract functionality from.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="store.html#unwrapnestedrefs" class="tsd-signature-type">UnwrapNestedRefs</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<p>A reactive object where all refs are automatically unwrapped (essentially a reactive from @vue/reactivity).</p>
+						</li>
+					</ul>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="../globals.html"><em>Globals</em></a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="element.html">element</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="hmr_api.html">hmr-<wbr>api</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="html.html">html</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="router.html">router</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="shared.html">shared</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="store.html">store</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-module">
+						<a href="element.html" class="tsd-kind-icon">element</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="hmr_api.html" class="tsd-kind-icon">hmr-<wbr>api</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="html.html" class="tsd-kind-icon">html</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="router.html" class="tsd-kind-icon">router</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="shared.html" class="tsd-kind-icon">shared</a>
+					</li>
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-module">
+						<a href="store.html" class="tsd-kind-icon">store</a>
+						<ul>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/store.context.html" class="tsd-kind-icon">Context</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/store.context-1.html" class="tsd-kind-icon">Context</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../interfaces/store.store-1.html" class="tsd-kind-icon">Store</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="../interfaces/store.store-2.html" class="tsd-kind-icon">Store</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/store.storeoptions.html" class="tsd-kind-icon">Store<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-interface tsd-parent-kind-module">
+								<a href="../interfaces/store.storeoptions-1.html" class="tsd-kind-icon">Store<wbr>Options</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="store.html#plugin" class="tsd-kind-icon">Plugin</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+								<a href="store.html#plugin-1" class="tsd-kind-icon">Plugin</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="store.html#setup" class="tsd-kind-icon">Setup</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="store.html#setup-1" class="tsd-kind-icon">Setup</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="store.html#unwrapnestedrefs" class="tsd-kind-icon">Unwrap<wbr>Nested<wbr>Refs</a>
+							</li>
+							<li class=" tsd-kind-type-alias tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="store.html#unwrapnestedrefs-1" class="tsd-kind-icon">Unwrap<wbr>Nested<wbr>Refs</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="store.html#injection_key" class="tsd-kind-icon">INJECTION_<wbr>KEY</a>
+							</li>
+							<li class=" tsd-kind-variable tsd-parent-kind-module">
+								<a href="store.html#injection_key-1" class="tsd-kind-icon">INJECTION_<wbr>KEY</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="store.html#createstore" class="tsd-kind-icon">create<wbr>Store</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="store.html#createstore-1" class="tsd-kind-icon">create<wbr>Store</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="store.html#definestore" class="tsd-kind-icon">define<wbr>Store</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module">
+								<a href="store.html#devtoolplugin" class="tsd-kind-icon">devtool<wbr>Plugin</a>
+							</li>
+							<li class=" tsd-kind-function tsd-parent-kind-module tsd-has-type-parameter">
+								<a href="store.html#usestore" class="tsd-kind-icon">use<wbr>Store</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>
