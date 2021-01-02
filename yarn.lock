@@ -1229,6 +1229,31 @@
   resolved "https://registry.yarnpkg.com/@istanbuljs/schema/-/schema-0.1.2.tgz#26520bf09abe4a5644cd5414e37125a8954241dd"
   integrity sha512-tsAQNx32a8CoFhjhijUIhI4kccIAgmGhy8LZMZgGfmXcpMbPRUqn5LWmgRttILi6yeGmBJd2xsPkFMs0PzgPCw==
 
+"@kirei/element@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@kirei/element/-/element-1.1.3.tgz#7e88d9f7eba4d45eba81430be99d6ca88686c9b6"
+  integrity sha512-XRXdfXlX0BU5D/dFMIK9CbB9IMCI2YzZNpWQJcvdoOrAmjVaUHcwyNa8sk7bL1/CEgMIcx1puuCItZUeXFIrig==
+  dependencies:
+    "@kirei/fx" "^1.1.3"
+    "@kirei/html" "^1.1.3"
+    "@kirei/shared" "^1.1.3"
+
+"@kirei/fx@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@kirei/fx/-/fx-1.1.3.tgz#bc65d245f3d891da7db4b2336a2edb5cfffc0c5b"
+  integrity sha512-xtjNhEvy9Wf5rh/UA7S2tUHOCNZaUAwvlswGBJkr02Nz+7GIMdp1w766pbkoYlEo2lOJL7uXVyxDr6OCgqxelw==
+  dependencies:
+    "@kirei/shared" "^1.1.3"
+
+"@kirei/html@^1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@kirei/html/-/html-1.1.3.tgz#049bcac2be4b00103e824694ce0f76f75a92e668"
+  integrity sha512-Ew8/GIfNEvVlhbO1xcVRtOa1pGXsHOBUP+Z2AvJtGwW7nnNwBHVUZFHWJvWpIXEibzJ9ijGpC3rUkUHeDcoSOA==
+  dependencies:
+    "@kirei/shared" "^1.1.3"
+    udomdiff "^1.0.9"
+    uparser "^0.2.0"
+
 "@koa/cors@^3.1.0":
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@koa/cors/-/cors-3.1.0.tgz#618bb073438cfdbd3ebd0e648a76e33b84f3a3b2"
