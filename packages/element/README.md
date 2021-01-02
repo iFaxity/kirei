@@ -47,7 +47,6 @@ defineComponent({
   setup(props, ctx) {
     const count = ref(0);
 
-    // Refs gets unwrapped unlike Vue
     return () => html`
       <button>Clicked ${count} times.</button>
     `;
