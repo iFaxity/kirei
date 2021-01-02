@@ -66,7 +66,7 @@ Then to use the element just include the script on the webpage and add the eleme
     <title>Kirei example</title>
 
     <!-- Change app.js to your script file -->
-    <script src="https://unpkg.com/@kirei/element@1.1.3/dist/element.global.js"></script>
+    <script src="https://unpkg.com/@kirei/element"></script>
     <script src="/app.js"></script>
   </head>
   <body>
