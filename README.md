@@ -5,15 +5,28 @@
 </a>
 
 <p align="center">
-
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ifaxity/kirei/Test%20and%20Deploy?style=for-the-badge&logo=github)](https://github.com/iFaxity/kirei/actions)
-[![Codecov](https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge&logo=codecov)](https://codecov.io/gh/iFaxity/kirei)
-[![Codacy grade](https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy)](https://app.codacy.com/manual/iFaxity/kirei/dashboard)
-[![Codacy coverage](https://img.shields.io/codacy/coverage/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy)](https://app.codacy.com/manual/iFaxity/kirei/dashboard)
-
+  <a href="https://github.com/iFaxity/kirei/actions">
+    <img src="https://img.shields.io/github/workflow/status/ifaxity/kirei/Test%20and%20Deploy?style=for-the-badge&logo=github" alt="GitHub Workflow Status" />
+  </a>
+  <a href="https://codecov.io/gh/iFaxity/kirei">
+    <img src="https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge&logo=codecov" alt="Codecov" />
+  </a>
+  <a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard">
+    <img src="https://img.shields.io/codacy/grade/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy grade" />
+  </a>
+  <a href="https://app.codacy.com/manual/iFaxity/kirei/dashboard">
+    <img src="https://img.shields.io/codacy/coverage/dbdf69a34ba64733ace9d8aa204248ab?style=for-the-badge&logo=codacy" alt="Codacy coverage" />
+  </a>
+  <a href="https://npmjs.org/package/@kirei/element">
+    <img src="https://img.shields.io/npm/v/@kirei/element?style=for-the-badge&logo=npm" alt="npm (scoped)" />
+  </a>
+  <a href="https://npmjs.org/package/@kirei/element">
+    <img src="https://img.shields.io/bundlephobia/min/@kirei/element?label=Bundle%20size&style=for-the-badge" alt="npm bundle size (scoped)" />
+  </a>
+  <a href="https://npmjs.org/package/@kirei/element">
+    <img src="https://img.shields.io/bundlephobia/minzip/@kirei/element?label=Bundle%20size%20%28gzip%29&style=for-the-badge" alt="npm bundle size (scoped)" />
+  </a>
 </p>
-
-<p align="center">
 
 Browser support ([with WebComponents.js polyfills](https://github.com/webcomponents/polyfills/tree/master/packages/webcomponentsjs))
 ------------------
@@ -22,10 +35,8 @@ Browser support ([with WebComponents.js polyfills](https://github.com/webcompone
 | -------- | --- | --- | --- | --- | -- | --- |
 | Edge 15+ | 22+ | 35+ | 10+ | 10+ | 5+ | 36+ |
 
-</p>
-
-The beautiful front-end framework
----------------------------------
+Kirei: The beautiful front-end framework
+----------------------------------------
 
 An in browser implementation of Vue 3 (limited to Composition API) powered by Web Components.
 
