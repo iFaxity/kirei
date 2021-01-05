@@ -1,8 +1,8 @@
 <p style="text-align: center">
-
-  [![Kirei logo](https://raw.githubusercontent.com/iFaxity/kirei/master/logo.svg)](https://github.com/iFaxity/kirei)
-
-</p>
+  <a href="https://github.com/iFaxity/kirei">
+    <img width="80" src="https://raw.githubusercontent.com/iFaxity/kirei/master/logo.svg" alt="Kirei logo">
+  </a>
+</a>
 
 <p style="text-align: center">
 
