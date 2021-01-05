@@ -1,10 +1,10 @@
-<p class="center" style="text-align: center">
+<p align="center">
   <a href="https://github.com/iFaxity/kirei">
     <img width="80" src="https://raw.githubusercontent.com/iFaxity/kirei/master/logo.svg" alt="Kirei logo">
   </a>
 </a>
 
-<p class="center" style="text-align: center">
+<p align="center">
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/ifaxity/kirei/Test%20and%20Deploy?style=for-the-badge&logo=github)](https://github.com/iFaxity/kirei/actions)
 [![Codecov](https://img.shields.io/codecov/c/github/ifaxity/kirei?style=for-the-badge&logo=codecov)](https://codecov.io/gh/iFaxity/kirei)
@@ -16,7 +16,7 @@
 
 </p>
 
-<p class="center" style="text-align: center">
+<p align="center">
 
 Browser support ([with WebComponents.js polyfills](https://github.com/webcomponents/polyfills/tree/master/packages/webcomponentsjs))
 ------------------
