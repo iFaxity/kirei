@@ -5,7 +5,7 @@
   "license": "MIT",
   "main": "index.js",
   "types": "dist/element.d.ts",
-  "module": "dist/element.esm.js",
+  "module": "dist/element.mjs",
   "unpkg": "dist/element.global.js",
   "jsdelivr": "dist/element.global.js",
   "sideEffects": [

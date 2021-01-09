@@ -6,7 +6,7 @@ Ensures that all the packages runs the latest compatible version of a linked pac
 */
 const { execSync } = require('child_process');
 const { resolve } = require('path');
-const { resolvePackages, writePackage } = require('./roll');
+const { resolvePackages, writePackage, PACKAGE_DEP_KEYS } = require('./roll');
 
 const { dryRun } = require('yargs')
   .option('dryRun', {
@@ -19,24 +19,6 @@ const { dryRun } = require('yargs')
 
 const PACKAGES_ROOT = resolve(__dirname, '../packages');
 const COMMAND = `npx semantic-release ${process.argv.slice(2).join(' ')}`;
-
-// Manually for now.
-// before every deploy cehck next package version of dependent packages, and extract the new version
-const PACKAGE_ORDER = [
-  '@kirei/shared',
-  '@kirei/html',
-  '@kirei/element',
-  '@kirei/hmr-api',
-  '@kirei/router',
-  '@kirei/store',
-  'babel-plugin-kirei',
-  '@kirei/vite-plugin',
-];
-const PACKAGE_DEP_KEYS = [
-  'dependencies',
-  'devDependencies',
-  'peerDependencies',
-];
 
 function bumpVersions(dir, package) {
   const updatedPackages = []
@@ -79,25 +61,22 @@ function main() {
     console.log('Dry run activated, no changes will be commited.');
   }
 
-  PACKAGE_ORDER
-    .filter(key => packages.has(key))
-    .forEach(key => {
-      const { dir, package } = packages.get(key);
+  for (const { package, dir } of packages.values()) {
+    console.log(`Deploying ${package.name}`);
 
-      console.log(`Deploying ${package.name}`);
+    try {
+      bumpVersions(dir, package);
 
-      try {
-        bumpVersions(dir, package);
-
-        if (!dryRun) {
-          execSync(COMMAND, { cwd: dir, stdio: 'inherit' });
-        }
-        console.log();
-      } catch (ex) {
-        console.error(ex);
-        process.exit(1);
-      }
-    });
+      //if (!dryRun) {
+      console.log(COMMAND);
+      execSync(COMMAND, { cwd: dir, stdio: 'inherit' });
+      //}
+      console.log();
+    } catch (ex) {
+      console.error(ex);
+      process.exit(1);
+    }
+  }
 }
 
 main();

@@ -40,6 +40,12 @@ const args = require('yargs')
     default: [],
     description: 'Formats to solely build targeted types',
   })
+  .option('setVersion', {
+    type: 'string',
+    alias: 's',
+    default: '0.0.0',
+    description: 'Version to explicity set in the build, intended for CI',
+  })
   // Special config
   .help('help').alias('h', 'help').argv;
 
@@ -47,18 +53,22 @@ const isRelease = args.release;
 const buildTypes = isRelease || args.types;
 const formats = args.formats.length ? args.formats : null;
 const targets = args._.length ? args._ : null;
+const version = args.setVersion;
 
-// Manually for now.
-const PACKAGE_ORDER = [
-  '@kirei/shared',
-  '@kirei/html',
-  '@kirei/element',
-  '@kirei/hmr-api',
-  '@kirei/router',
-  '@kirei/store',
-  'babel-plugin-kirei',
-  '@kirei/vite-plugin',
-];
+
+function filterPackages() {
+  const packages = resolvePackages(PACKAGES_ROOT, !isRelease);
+
+  if (targets) {
+    for (const { dir, package } of packages.values()) {
+      if (!targets.includes(package.name) && !targets.includes(basename(dir))) {
+        packages.delete(package.name);
+      }
+    }
+  }
+
+  return packages;
+}
 
 async function exists(path) {
   try {
@@ -75,7 +85,7 @@ function rmrf(path) {
 
 async function checkSize(dir, name) {
   const filename = name.includes('/') ? name.split('/', 2)[1] : name;
-  const filePath = resolve(dir, `dist/${filename}.global.prod.js`);
+  const filePath = resolve(dir, `dist/${filename}.global.prod.cjs`);
 
   if (await exists(filePath)) {
     const file = await readFile(filePath);
@@ -86,7 +96,7 @@ async function checkSize(dir, name) {
   }
 }
 
-async function build(target, opts) {
+async function build(target, opts, packages) {
   const { dir, package } = target;
 
   // if building a specific format, do not remove dist.
@@ -99,7 +109,7 @@ async function build(target, opts) {
   let completed = false;
   try {
     console.log(`\u001B[36;1mBuilding: ${package.name}\u001B[0m`);
-    await rollPackage(target, opts);
+    await rollPackage(target, opts, packages);
 
     completed = true;
   } finally {
@@ -153,25 +163,12 @@ async function build(target, opts) {
 }
 
 async function main() {
-  const opts = { formats };
-  const matched = resolvePackages(PACKAGES_ROOT, !isRelease); // true when prod
-  const pkgs = PACKAGE_ORDER.reduce((acc, key) => {
-    const item = matched.get(key);
+  const opts = { formats, version };
+  const pkgs = filterPackages();
 
-    if (item) {
-      const dirname = basename(item.dir);
-      if (!targets || targets.includes(key) || targets.includes(dirname)) {
-        // if targets is defined, check if includes dir or package name
-        acc.push([ key, item ]);
-      }
-    }
-
-    return acc;
-  }, []);
-
-  for (const [ _, target ] of pkgs) {
+  for (const target of pkgs.values()) {
     try {
-      await build(target, opts);
+      await build(target, opts, pkgs);
     } catch (ex) {
       console.error(ex);
     }
@@ -182,7 +179,7 @@ async function main() {
   const results = [];
   const size = (value) => `${(value / 1024).toFixed(1)}kb`;
 
-  for (const [ _, target ] of pkgs) {
+  for (const target of pkgs.values()) {
     const pkgName = target.package.name;
     const res = await checkSize(target.dir, pkgName);
 

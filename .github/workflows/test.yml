@@ -125,8 +125,9 @@ jobs:
       # Install fresh dependencies (don't reuse from setup)
       - name: Install dependencies
         run: yarn --frozen-lockfile --non-interactive
-      - name: Build
-        run: yarn ci
+      # Build happens in semantic-release as each package has to be built after the new version has been created
+      #- name: Build
+      #  run: yarn ci
 
       - name: Release
         run: yarn deploy

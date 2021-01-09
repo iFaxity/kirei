@@ -4,7 +4,7 @@
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "dist/hmr-api.cjs.js",
-  "module": "dist/hmr-api.esm.js",
+  "module": "dist/hmr-api.mjs",
   "types": "dist/hmr-api.d.ts",
   "sideEffects": false,
   "files": [
@@ -34,7 +34,6 @@
     "shadow dom"
   ],
   "peerDependencies": {
-    "@kirei/element": "^2.0.0",
-    "@kirei/shared": "^1.2.1"
+    "@kirei/element": "^2.0.0"
   }
 }

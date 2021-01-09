@@ -1,3 +1,6 @@
+const { basename } = require('path');
+const packageName = basename(process.cwd());
+
 module.exports = {
   extends: ['semantic-release-monorepo'],
   branches: ['master'],
@@ -15,6 +18,11 @@ module.exports = {
     '@semantic-release/release-notes-generator',
     ['@semantic-release/changelog', {
       changelogFile: 'CHANGELOG.md',
+    }],
+    // Build after next version has been 
+    ['@semantic-release/exec', {
+      execCwd: __dirname,
+      prepareCmd: `node ./scripts/build.js -rv \${nextRelease.version} ${packageName}`,
     }],
     '@semantic-release/npm',
     '@semantic-release/github',

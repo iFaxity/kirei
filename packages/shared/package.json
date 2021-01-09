@@ -4,7 +4,7 @@
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
-  "module": "dist/shared.esm.js",
+  "module": "dist/shared.mjs",
   "types": "dist/shared.d.ts",
   "sideEffects": false,
   "files": [
@@ -13,8 +13,7 @@
   "build": {
     "configs": [
       "cjs",
-      "esm",
-      "module"
+      "esm"
     ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/shared",

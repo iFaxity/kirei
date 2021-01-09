@@ -4,7 +4,7 @@
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
-  "module": "dist/store.esm.js",
+  "module": "dist/store.mjs",
   "types": "dist/store.d.ts",
   "unpkg": "dist/store.global.js",
   "jsdelivr": "dist/store.global.js",
@@ -16,7 +16,9 @@
     "name": "KireiStore",
     "configs": [
       "cjs",
-      "esm"
+      "esm",
+      "global",
+      "module"
     ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/store",

@@ -4,7 +4,7 @@
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
-  "module": "dist/babel-plugin-kirei.esm.js",
+  "module": "dist/babel-plugin-kirei.mjs",
   "types": "dist/babel-plugin-kirei.d.ts",
   "sideEffects": false,
   "files": [
@@ -35,8 +35,7 @@
   ],
   "peerDependencies": {
     "@kirei/element": "^2.0.0",
-    "@kirei/hmr-api": "^2.0.0",
-    "@kirei/shared": "^1.2.1"
+    "@kirei/hmr-api": "^2.0.0"
   },
   "dependencies": {
     "@babel/core": "7.12.9",

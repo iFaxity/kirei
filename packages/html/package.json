@@ -4,7 +4,7 @@
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
-  "module": "dist/html.esm.js",
+  "module": "dist/html.mjs",
   "types": "dist/html.d.ts",
   "unpkg": "dist/html.global.js",
   "jsdelivr": "dist/html.global.js",

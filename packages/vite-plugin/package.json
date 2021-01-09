@@ -4,7 +4,7 @@
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
-  "module": "dist/vite-plugin.esm.js",
+  "module": "dist/vite-plugin.mjs",
   "types": "dist/vite-plugin.d.ts",
   "sideEffects": false,
   "files": [

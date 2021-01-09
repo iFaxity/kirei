@@ -5,7 +5,7 @@
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
-  "module": "dist/router.esm.js",
+  "module": "dist/router.mjs",
   "types": "dist/router.d.ts",
   "unpkg": "dist/router.global.js",
   "jsdelivr": "dist/router.global.js",
@@ -17,7 +17,9 @@
     "name": "KireiRouter",
     "configs": [
       "cjs",
-      "esm"
+      "esm",
+      "global",
+      "module"
     ]
   },
   "homepage": "https://github.com/ifaxity/kirei/tree/master/packages/router",

@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV == 'production') {
-  module.exports = require('./dist/vite-plugin.cjs.prod.js');
+  module.exports = require('./dist/vite-plugin.prod.cjs');
 } else {
-  module.exports = require('./dist/vite-plugin.cjs.js');
+  module.exports = require('./dist/vite-plugin.cjs');
 }
