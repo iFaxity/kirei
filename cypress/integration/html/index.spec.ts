@@ -1,6 +1,6 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { Template, customize, html, svg, render } from '@kirei/html/src';
+import { Template, customize, html, svg, render } from '@kirei/html';
 
 describe('#customize()', () => {
   it('without options', () => {

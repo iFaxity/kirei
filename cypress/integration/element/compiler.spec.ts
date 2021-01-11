@@ -1,7 +1,7 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { html, render } from '@kirei/element/src/runtime/compiler';
-import { ref } from '@kirei/element/src';
+import { html, render } from '@kirei/element/runtime/compiler';
+import { ref } from '@kirei/element';
 
 function renderTemplate(template) {
   // Clear content & append new node

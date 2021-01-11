@@ -11,8 +11,7 @@ on:
 env:
   DEBUG: code-coverage
   CY_URL: http://localhost:3000
-  CY_CFG_FILE: ./cypress/cypress.json
-  CY_BOOTSTRAP: ./cypress/integration/bootstrap.ts
+  CY_CFG_FILE: ./cypress.json
   CY_COVERAGE_OUTPUT: ./cypress/coverage/lcov.info
   CYPRESS_CACHE_FOLDER: ~/.cache/Cypress
   CACHE_PATHS: |
@@ -90,7 +89,6 @@ jobs:
           build: yarn ci
           wait-on: ${{ env.CY_URL }}
           config-file: ${{ env.CY_CFG_FILE }}
-          spec: ${{ env.CY_BOOTSTRAP }}
 
       # Upload coverage report to codecov and codacy
       - name: Upload coverage to Codecov

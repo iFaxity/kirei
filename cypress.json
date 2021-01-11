@@ -1,14 +1,12 @@
 {
-  "$schema":"https://raw.githubusercontent.com/cypress-io/cypress/develop/cli/schema/cypress.schema.json",
-  "testFiles": "*/*.spec.ts",
-  "env": {
-    "coverage": false
-  },
+  "$schema": "https://raw.githubusercontent.com/cypress-io/cypress/develop/cli/schema/cypress.schema.json",
+  "reporter": "spec",
+  "testFiles": "**/*.spec.ts",
+  "baseUrl": "http://localhost:3000",
   "screenshotOnRunFailure": false,
   "video": false,
   "includeShadowDom": true,
   "experimentalFetchPolyfill": true,
-  "baseUrl": "http://localhost:3000",
   "defaultCommandTimeout": 4000,
   "execTimeout": 5000,
   "taskTimeout": 5000,

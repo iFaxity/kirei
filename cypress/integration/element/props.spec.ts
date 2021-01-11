@@ -1,6 +1,6 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { normalizeProps, propDefaults, validateProp } from '@kirei/element/src/runtime/props';
+import { normalizeProps, propDefaults, validateProp } from '@kirei/element/runtime/props';
 
 const UNDEFINED = void 0; // undefined
 

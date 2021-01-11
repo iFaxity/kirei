@@ -1,6 +1,6 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { clearNode, persistent, diff, createTemplate } from '@kirei/html/src/shared';
+import { clearNode, persistent, diff, createTemplate } from '@kirei/html/shared';
 
 function createDiffable(preNodes, nodes, postNodes) {
   const node = document.createElement('div');

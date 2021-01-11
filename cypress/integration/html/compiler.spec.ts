@@ -1,8 +1,8 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { defaultCompiler } from '@kirei/html/src';
+import { defaultCompiler } from '@kirei/html';
 
-function assertText(value, expected) {
+function assertText(value: any, expected: any): void {
   const node = document.createComment('');
   const patcher = defaultCompiler.text(node);
 
@@ -10,7 +10,7 @@ function assertText(value, expected) {
   assert.equal(node.textContent, expected);
 }
 
-function assertAttr(name, value, expected) {
+function assertAttr(name: string, value: any, expected: any): void {
   const node = document.createElement('div');
   const patcher = defaultCompiler.attr(node, name);
 

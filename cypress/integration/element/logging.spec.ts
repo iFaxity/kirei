@@ -1,6 +1,6 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { exception, error, warn } from '@kirei/element/src/logging';
+import { exception, error, warn } from '@kirei/element/logging';
 
 const assertWarn = (callback, expected) => assertConsole('warn', callback, expected);
 const assertError = (callback, expected) => assertConsole('error', callback, expected);
