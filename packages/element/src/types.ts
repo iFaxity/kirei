@@ -1,8 +1,14 @@
 import type { Template } from '@kirei/html';
-import type { CSSResult } from './runtime/css';
+import type { StyleSheet } from './runtime/css';
 import type { InjectionKey } from './api/inject';
 import type { Directive } from './runtime/compiler';
-import type { ReactiveEffect } from '@vue/reactivity';
+import type { ReactiveEffect, Ref, UnwrapRef } from '@vue/reactivity';
+
+/**
+ * Unwraps refs recursively, essentially a reactive() from @vue/reactivity.
+ * @private
+ */
+export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 
 /**
  * @private
@@ -11,7 +17,14 @@ export type PropConstructor<T = any> =
   | { new (...args: any[]): T & object }
   | { (): T };
 
+/**
+ * @private
+ */
 type PropType<T> = PropConstructor<T> | PropConstructor<T>[];
+
+/**
+ * @private
+ */
 type DefaultFactory<T = any> = () => T | null | undefined;
 
 /**
@@ -24,7 +37,11 @@ export interface PropInstance<T = any> {
   default?: DefaultFactory<T> | T;
 }
 
+/**
+ * @private
+ */
 type Prop<T> = PropInstance<T> | PropType<T> | null;
+
 /**
  * @private
  */
@@ -91,7 +108,7 @@ export interface ComponentOptions<P = Props, T = ResolvePropTypes<P>> {
   name: string;
   props?: P;
   setup(this: void, props: T, ctx: SetupContext): SetupResult|Promise<SetupResult>;
-  styles?: CSSResult | CSSResult[];
+  styles?: StyleSheet | StyleSheet[];
   directives?: Record<string, Directive>;
   emits: EmitsOptions;
 }
@@ -101,7 +118,7 @@ export interface ComponentOptions<P = Props, T = ResolvePropTypes<P>> {
  */
 export interface NormalizedComponentOptions<P = Props> extends Omit<ComponentOptions<P>, 'props'|'emits'> {
   props: NormalizedProps<P>;
-  styles: CSSResult[];
+  styles: StyleSheet[];
   emits: NormalizedEmitsOptions;
   tag: string;
   attrs: Record<string, string>;

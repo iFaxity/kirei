@@ -3,8 +3,6 @@ import type { InjectionKey } from './inject';
 import type { ComponentInstance } from '../types';
 import { hyphenate, isFunction } from '@vue/shared';
 import { warn } from '../logging';
-//import { version } from '../package.json';
-const version = '1.1.3';
 
 type PluginInstallFunction = (app: App, ...args: any[]) => any;
 
@@ -67,8 +65,8 @@ export function createApp(root: string): App {
   // if instance has no parentNode, check for entry in app
   const app: App = (context.app = {
     container: null,
+    version: __VERSION__,
     context,
-    version,
 
     get config() {
       return context.config;

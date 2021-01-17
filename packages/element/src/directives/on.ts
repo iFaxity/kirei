@@ -1,6 +1,5 @@
 import type { TemplatePatcher } from '@kirei/html';
-import { isFunction, isString } from '@kirei/shared';
-import { hyphenate } from '@vue/shared';
+import { hyphenate, isFunction, isString } from '@vue/shared';
 import { getComponentInstance } from '../runtime/instance';
 import { warn } from '../logging';
 

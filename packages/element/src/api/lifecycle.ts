@@ -1,4 +1,4 @@
-import { isFunction } from '@kirei/shared';
+import { isFunction } from '@vue/shared';
 import { getCurrentInstance } from '../runtime/instance';
 import { exception } from '../logging';
 const HOOKS = new Set<string>();

@@ -1,4 +1,4 @@
-import { isString } from '@kirei/shared';
+import { isString } from '@vue/shared';
 import { isRef } from '@vue/reactivity';
 import type { Ref } from '@vue/reactivity';
 import type { TemplatePatcher } from '@kirei/html';

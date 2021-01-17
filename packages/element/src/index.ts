@@ -13,7 +13,7 @@ export * from './api/inject';
 export * from './api/portal';
 export * from './api/watch';
 export * from './api/app';
-export type { ComponentOptions, ComponentInstance } from './types';
+export type { ComponentOptions, ComponentInstance, UnwrapNestedRefs } from './types';
 
 /**
  * Defines a new component

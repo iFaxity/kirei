@@ -1,4 +1,4 @@
-import { isFunction } from '@kirei/shared';
+import { isFunction } from '@vue/shared';
 
 let queue: Function[] = [];
 const tickPromise = Promise.resolve();

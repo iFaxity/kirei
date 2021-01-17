@@ -4,10 +4,10 @@
  * Copyright(c) 2020 Christian Norrman
  * MIT Licensed
  */
-import { isFunction, isObject } from '@kirei/shared';
+import { isObject } from '@kirei/shared';
 import { stop, effect, isRef, isReactive } from '@vue/reactivity';
 import type { Ref } from '@vue/reactivity';
-import { isMap, isSet } from '@vue/shared';
+import { isMap, isSet, isFunction } from '@vue/shared';
 
 /**
  * Function to stop a reactive watcher

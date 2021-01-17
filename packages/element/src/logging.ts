@@ -1,4 +1,4 @@
-import { isString } from '@kirei/shared';
+import { isString } from '@vue/shared';
 import type { ComponentInstance } from './types';
 import { getCurrentInstance } from './runtime/instance';
 import { HookTypes } from './api/lifecycle';
