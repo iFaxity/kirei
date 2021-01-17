@@ -34,10 +34,13 @@
     "shadow dom"
   ],
   "dependencies": {
-    "@babel/core": "7.12.9",
+    "@babel/core": "7.12.10",
     "babel-plugin-kirei": "^2.0.0"
   },
   "peerDependencies": {
-    "vite": "^1.0.0-rc.4"
+    "vite": "^2.0.0-beta.12"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.1.12"
   }
 }
