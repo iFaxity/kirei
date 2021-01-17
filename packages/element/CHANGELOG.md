@@ -1,3 +1,5 @@
+# [@kirei/element-v2.0.1](https://github.com/ifaxity/kirei/compare/@kirei/element-v2.0.0...@kirei/element-v2.0.1) (2021-01-17)
+
 # [@kirei/element-v2.0.0](https://github.com/ifaxity/kirei/compare/@kirei/element-v1.2.0...@kirei/element-v2.0.0) (2021-01-01)
 
 
