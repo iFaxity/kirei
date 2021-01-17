@@ -17,7 +17,10 @@ import Users from './views/Users';
 import Clock from './views/Clock';
 import Todo from './views/Todo';
 
-const routes = {
+const store = createStore({
+  plugins: [ storagePlugin ],
+});
+const router = createRouter({
   base: '',
   root: '#app',
   routes: [
@@ -34,11 +37,8 @@ const routes = {
     { path: '/user/:user', element: User },
     { path: '/clock', element: Clock },
     { path: '/todo', element: Todo },
-  ]
-};
-
-const router = createRouter(routes);
-const store = createStore({ plugins: [ storagePlugin ] });
+  ],
+});
 
 app.use(store);
-//app.install(router);
+app.use(router);

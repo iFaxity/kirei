@@ -1,6 +1,8 @@
 // runs cypress tests
 // todo, add arguments to load another config file
+const { resolve} = require('path');
 const { spawn } = require('child_process');
+const { rmdir, rm } = require('fs');
 const waitOn = require('wait-on');
 const cypress = require('cypress');
 
@@ -9,6 +11,18 @@ const opts = {
   timeout: 30000,
   resources: [ 'http-get://localhost:3000' ],
 };
+
+function rmrf(path) {
+  return new Promise((resolve, reject) => {
+    const callback = (ex) => ex ? reject() : resolve();
+
+    if (rm) {
+      rm(path, { recursive: true, force: true }, callback);
+    } else {
+      rmdir(path, { recursive: true }, callback);
+    }
+  });
+}
 
 // if arg is given, pipe it into testFiles option
 async function main() {
@@ -35,6 +49,14 @@ async function main() {
     process.exit(1);
   } finally {
     serve.kill();
+  }
+
+  // Remove nyc cache directory
+  try {
+    await rmrf(resolve('./.nyc_output'));
+  } catch (ex) {
+    console.warn('Removal of nyc output directory failed.');
+    console.error(ex);
   }
 }
 
