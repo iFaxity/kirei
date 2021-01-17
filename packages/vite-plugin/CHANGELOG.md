@@ -1,3 +1,5 @@
+# [@kirei/vite-plugin-v2.0.0](https://github.com/ifaxity/kirei/compare/@kirei/vite-plugin-v1.2.1...@kirei/vite-plugin-v2.0.0) (2021-01-17)
+
 # [@kirei/vite-plugin-v1.2.1](https://github.com/ifaxity/kirei/compare/@kirei/vite-plugin-v1.2.0...@kirei/vite-plugin-v1.2.1) (2021-01-01)
 
 

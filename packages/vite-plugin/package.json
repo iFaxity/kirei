@@ -1,6 +1,6 @@
 {
   "name": "@kirei/vite-plugin",
-  "version": "1.2.1",
+  "version": "2.0.0",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
@@ -35,7 +35,7 @@
   ],
   "dependencies": {
     "@babel/core": "7.12.10",
-    "babel-plugin-kirei": "^2.0.0"
+    "babel-plugin-kirei": "^2.0.1"
   },
   "peerDependencies": {
     "vite": "^2.0.0-beta.12"
