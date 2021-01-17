@@ -13,8 +13,12 @@ function disableAdoptingStyleSheets(): void {
 }
 
 function createStyleSheet(rule: string|string[]): CSSStyleSheet {
-  const sheet = new CSSStyleSheet();
+  // Workaround for if browser doesn't support CSSStyleSheet
+  if (!SUPPORTS_ADOPTING_STYLE_SHEETS) {
+    return new CSSResult(Array.isArray(rule) ? rule : [ rule ], []);
+  }
 
+  const sheet = new CSSStyleSheet();
   if (Array.isArray(rule)) {
     rule.forEach((r, i) => sheet.insertRule(r, i));
   } else {
