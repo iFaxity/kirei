@@ -1,64 +1,98 @@
 import { isUndefined } from '@kirei/shared';
+import { warn } from '../logging';
+
+/**
+ * StyleSheets to use with adoptStyleSheets
+ */
+export type StyleSheet = CSSResult | CSSStyleSheet;
+
+/**
+ * Maps a stylesheet into a string of css rules
+ * @private
+ */
+function mapStyleSheetsToCssText(sheet: StyleSheet): string {
+  if (sheet instanceof CSSStyleSheet) {
+    // TODO: performance?
+    let cssText = '';
+    for (let i = 0; i < sheet.cssRules.length; i++) {
+      cssText += `${sheet.cssRules[i].cssText}\n`;
+    }
+
+    return cssText;
+  } else if (sheet instanceof CSSResult) {
+    return sheet.toString();
+  } else if (__DEV__) {
+    warn(`Invlaid stylesheet, expected a css literal or a native CSSStyleSheet, got ${typeof sheet}`);
+  }
+}
+
+/**
+ * Maps a Stylesheet into a native CSSStyleSheet
+ * @private
+ */
+async function mapStyleSheetToCssStyleSheet(sheet: StyleSheet): Promise<CSSStyleSheet> {
+  if (sheet instanceof CSSStyleSheet) {
+    return sheet;
+  } else if (sheet instanceof CSSResult) {
+    return sheet.generate();
+  } else if (__DEV__) {
+    warn(`Invlaid stylesheet, expected a css literal or a native CSSStyleSheet, got ${typeof sheet}`);
+  }
+}
+
+/**
+* Applies adopted stylesheets if available or tries to shim,
+*   returns false if shim has to be done manually through a style tag.
+* if adopted stylesheets is supported in the browser, they will be loaded async
+* @param shadowRoot - Shadow root to apply styles to
+* @param tag - Tag of the parent of the shadow root
+* @param styles - Styles to apply
+* @returns If adopting is supported returns true
+* @private
+*/
+export async function adoptStyleSheets(shadowRoot: ShadowRoot, tag: string, styles: StyleSheet[]): Promise<boolean> {
+  if (styles != null && styles.length) {
+    const { ShadyCSS } = window;
+
+    if (ShadyCSS?.nativeShadow === false) {
+      // styles can be a native CSSStyleSheet, we then need to map it
+      const cssTexts = styles.map(mapStyleSheetsToCssText)
+        .filter(sheet => sheet);
+
+      ShadyCSS.ScopingShim.prepareAdoptedCssText(cssTexts, tag);
+    } else if (CSSResult.supportsAdoptingStyleSheets) {
+      // Stylesheets are loaded async to support @import rules
+      const styleSheets = await Promise.all(styles.map(mapStyleSheetToCssStyleSheet));
+      shadowRoot.adoptedStyleSheets = styleSheets.filter(sheet => sheet);
+    } else {
+      return false; // notifies to shim manually using style elements
+    }
+  }
+
+  return true;
+}
 
 /**
  * Class to easily construct and cache style sheets, through template literals
  */
 export class CSSResult {
   /**
-   * Boolean to indicate if client supports adopting style sheets,
-   *   exposed as static for testing purposes
+   * Only used for testing, changing this could create problems
    * @private
    */
-  static readonly supportsAdoptingStyleSheets =
+  static supportsAdoptingStyleSheets =
     'adoptedStyleSheets' in Document.prototype &&
     'replace' in CSSStyleSheet.prototype;
 
   /**
    * Cached stylesheet, created by the generate() method
    */
-  private styleSheet: Promise<CSSStyleSheet>;
+  private styleSheet: CSSStyleSheet;
 
   /**
    * Raw CSS styles, as passed in to the template literal
    */
   readonly cssText: string;
-
-  /**
-   * Applies adopted stylesheets if available or tries to shim,
-   *   returns false if shim has to be done manually through a style tag.
-   * if adopted stylesheets is supported in the browser, they will be loaded async
-   * @param shadowRoot - Shadow root to apply styles to
-   * @param tag - Tag of the parent of the shadow root
-   * @param styles - Styles to apply
-   * @returns If adopting is supported returns true
-   * @private
-   */
-  static async adoptStyleSheets(
-    shadowRoot: ShadowRoot,
-    tag: string,
-    styles: CSSResult[]
-  ): Promise<boolean> {
-    if (styles != null && styles.length) {
-      const { ShadyCSS } = window;
-
-      if (ShadyCSS?.nativeShadow === false) {
-        ShadyCSS.ScopingShim.prepareAdoptedCssText(styles.map(String), tag);
-      } else if (this.supportsAdoptingStyleSheets) {
-        // Stylesheets are loaded async
-        const styleSheets = await Promise.all(styles.map(s => s.generate()));
-        shadowRoot.adoptedStyleSheets = styleSheets;
-
-        /*const promises = styles.map(s => s.generate());
-        await Promise.all(promises).then(res => {
-          shadowRoot.adoptedStyleSheets = res;
-        });*/
-      } else {
-        return false; // notifies to shim manually using style elements
-      }
-    }
-
-    return true;
-  }
 
   /**
    * Constructs a new CSSResult instance
@@ -76,14 +110,14 @@ export class CSSResult {
    * Generates the constructible stylesheet, singleton cached
    * @returns A promise that returns a stylesheet
    */
-  generate(): Promise<CSSStyleSheet> {
+  async generate(): Promise<CSSStyleSheet> {
     if (isUndefined(this.styleSheet)) {
       if (CSSResult.supportsAdoptingStyleSheets) {
-        const styleSheet = new CSSStyleSheet();
+        this.styleSheet = new CSSStyleSheet();
 
-        this.styleSheet = styleSheet.replace(this.cssText).then(() => styleSheet);
+        await this.styleSheet.replace(this.cssText);
       } else {
-        this.styleSheet = Promise.resolve(null);
+        this.styleSheet = null;
       }
     }
 
@@ -105,6 +139,6 @@ export class CSSResult {
   * @param values - Dynamic values to interpolate
   * @returns An object that represents a CSS Stylesheet
   */
-export function css(strings: TemplateStringsArray, ...values: any[]): CSSResult {
+export function css(strings: TemplateStringsArray, ...values: readonly any[]): CSSResult {
   return new CSSResult(strings, values);
 }

@@ -1,6 +1,6 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { CSSResult, css } from '@kirei/element/runtime/css';
+import { CSSResult, css, adoptStyleSheets, StyleSheet } from '@kirei/element/runtime/css';
 
 const SUPPORTS_ADOPTING_STYLE_SHEETS = CSSResult.supportsAdoptingStyleSheets;
 
@@ -12,6 +12,24 @@ function disableAdoptingStyleSheets(): void {
   CSSResult.supportsAdoptingStyleSheets = false;
 }
 
+function createStyleSheet(rule: string|string[]): CSSStyleSheet {
+  const sheet = new CSSStyleSheet();
+
+  if (Array.isArray(rule)) {
+    rule.forEach((r, i) => sheet.insertRule(r, i));
+  } else {
+    sheet.insertRule(rule, 0);
+  }
+
+  return sheet;
+}
+
+function generateStyleSheets(sheets: StyleSheet[]): Promise<CSSStyleSheet> {
+  return Promise.all(sheets.map(sheet => {
+    return sheet instanceof CSSResult ? sheet.generate() : Promise.resolve(sheet);
+  }));
+}
+
 describe('css', () => {
   it('#css()', () => {
     const res = css`.red { color: ${'red'}; } div { top: ${100}px; }`;
@@ -20,52 +38,53 @@ describe('css', () => {
     assert.equal(res.cssText, '.red { color: red; } div { top: 100px; }');
   });
 
-  describe('class CSSResult', () => {
-    describe('#static adoptStyleSheets()', () => {
-      afterEach(resetAdoptingStyleSheets);
+  //TODO actually test if styles are applied
+  describe('#adoptStyleSheets()', () => {
+    afterEach(resetAdoptingStyleSheets);
 
-      it('with shadow', async () => {
-        const styleSheets = [
-          css`.blue { color: blue; }`,
-          css`div { padding: 1em 0.5em; }`,
-          css`span.icon { font-size: 1.2em; }`,
-        ];
+    it('with shadow', async () => {
+      const styleSheets = [
+        css`.blue { color: blue; }`,
+        css`div { padding: 1em 0.5em; }`,
+        createStyleSheet('span.icon { font-size: 1.2em; }'),
+      ];
 
-        const $div = document.createElement('div');
-        const $shadow = $div.attachShadow({ mode: 'open' });
-        const res = await CSSResult.adoptStyleSheets($shadow, 'span', styleSheets);
-        const styles = await Promise.all(styleSheets.map(s => s.generate()));
+      const $div = document.createElement('div');
+      const $shadow = $div.attachShadow({ mode: 'open' });
+      const res = await adoptStyleSheets($shadow, 'span', styleSheets);
+      const styles = await generateStyleSheets(styleSheets);
 
-        if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
-          assert.isTrue(res);
-          assert.deepEqual($shadow.adoptedStyleSheets, styles);
-        } else {
-          assert.isFalse(res);
-          assert.deepEqual([ null, null, null ], styles);
-        }
-      });
-      it('without adopt support', async () => {
-        disableAdoptingStyleSheets();
-        const styleSheets = [
-          css`.blue { color: blue; }`,
-          css`div { padding: 1em 0.5em; }`,
-          css`span.icon { font-size: 1.2em; }`,
-        ];
-
-        const $span = document.createElement('span');
-        const $shadow = $span.attachShadow({ mode: 'open' });
-        const res = await CSSResult.adoptStyleSheets($shadow, 'span', styleSheets);
-
-        if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
-          assert.isEmpty($shadow.adoptedStyleSheets);
-        } else {
-          assert.notProperty($shadow, 'adoptedStyleSheets');
-        }
-
+      if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
+        assert.isTrue(res);
+        assert.deepEqual($shadow.adoptedStyleSheets, styles);
+      } else {
         assert.isFalse(res);
-      });
+        assert.deepEqual([ null, null, null ], styles);
+      }
     });
+    it('without adopt support', async () => {
+      disableAdoptingStyleSheets();
+      const styleSheets = [
+        createStyleSheet('.blue { color: blue; }'),
+        css`div { padding: 1em 0.5em; }`,
+        css`span.icon { font-size: 1.2em; }`,
+      ];
 
+      const $span = document.createElement('span');
+      const $shadow = $span.attachShadow({ mode: 'open' });
+      const res = await adoptStyleSheets($shadow, 'span', styleSheets);
+
+      if (SUPPORTS_ADOPTING_STYLE_SHEETS) {
+        assert.isEmpty($shadow.adoptedStyleSheets);
+      } else {
+        assert.notProperty($shadow, 'adoptedStyleSheets');
+      }
+
+      assert.isFalse(res);
+    });
+  });
+
+  describe('class CSSResult', () => {
     describe('#constructor()', () => {
       it('with empty strings & values', () => {
         const res = new CSSResult([], []);
@@ -98,7 +117,7 @@ describe('css', () => {
       assert.equal(res.toString(), 'Hello World! Todays lucky number: 7. [object Object]');
     });
 
-    describe('#styleSheet()', () => {
+    describe('#generate()', () => {
       afterEach(resetAdoptingStyleSheets);
 
       it('with adopting shim', async () => {
@@ -142,7 +161,7 @@ describe('css', () => {
           assert.isNull(styles);
         }
 
-        // Stylesheets should be singletons, aka equal on second get
+        // Stylesheets should be singletons
         assert.equal(styles, await res.generate());
       });
     });

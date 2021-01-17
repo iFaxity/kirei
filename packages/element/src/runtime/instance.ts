@@ -1,10 +1,9 @@
 import { effect, pauseTracking, resetTracking, shallowReadonly, shallowReactive } from '@vue/reactivity';
-import { hyphenate } from '@vue/shared';
-import { isFunction, isPromise } from '@kirei/shared';
+import { hyphenate, isFunction, isPromise } from '@vue/shared';
 import { exception, warn, KireiError } from '../logging';
 import { HookTypes } from '../api/lifecycle';
 import * as Queue from './queue';
-import { CSSResult } from './css';
+import { adoptStyleSheets } from './css';
 import { render } from './compiler';
 import { propDefaults } from './props';
 import { applications } from '../api/app';
@@ -17,16 +16,23 @@ import type {
   NormalizedComponentOptions,
   SetupContext,
   SetupResult,
-  PropsData,
 } from '../types';
 
 const instanceStack: ComponentInstance[] = [];
 const instances = new WeakMap<Element, ComponentInstance>();
 
+/**
+ * Gets the current active component instance, or null if there is no active instance
+ * @returns The current active component instance or null if there isn't any
+ */
 export function getCurrentInstance(): ComponentInstance|null {
   return instanceStack.length ? instanceStack[instanceStack.length - 1] : null;
 }
 
+/**
+ * Sets the current active instance to the stack, if instance is null the last element is popped
+ * @param instance - Component instance to push to the stack
+ */
 export function setCurrentInstance(instance: ComponentInstance | null): void {
   if (instance == null) {
     instanceStack.pop();
@@ -90,7 +96,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
     events: { get: () => events },
     mounted: { get: () => mounted, },
 
-    // externally mutable
+    // externally mutable (for hmr-api)
     options: { get: () => options, set: (value) => (options = value) },
 
     // immutable actions
@@ -265,7 +271,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
       }
 
       if (ShadowRoot && shadowRoot instanceof ShadowRoot) {
-        const res = await CSSResult.adoptStyleSheets(shadowRoot, tag, styles);
+        const res = await adoptStyleSheets(shadowRoot, tag, styles);
         shimAdoptedStyleSheets = !res;
       }
     }
