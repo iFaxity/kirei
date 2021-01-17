@@ -1,5 +1,7 @@
 import { types as t, NodePath } from '@babel/core';
 
+// helper methods for the main script
+
 export function declareVar(kind: 'const'|'let', id: string, expr?: t.Expression): t.VariableDeclaration {
   const declarator = t.variableDeclarator(t.identifier(id), expr);
   return t.variableDeclaration(kind, [ declarator ]);

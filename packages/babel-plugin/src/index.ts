@@ -36,8 +36,7 @@ export default declare((api: ConfigAPI) => {
   let exclude: (filename: string) => boolean;
 
   // disable plugin in production and test
-  const { NODE_ENV } = process.env;
-  if (NODE_ENV === 'production' || NODE_ENV === 'test') {
+  if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test') {
     return { visitor: {} };
   }
 

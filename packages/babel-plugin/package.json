@@ -38,7 +38,7 @@
     "@kirei/hmr-api": "^2.0.0"
   },
   "dependencies": {
-    "@babel/core": "7.12.9",
+    "@babel/core": "7.12.10",
     "@babel/helper-plugin-utils": "7.10.4",
     "test-exclude": "6.0.0"
   },
@@ -46,9 +46,9 @@
     "@types/babel__core": "7.1.12"
   },
   "optionalDependencies": {
-    "sass": "^1.27.0",
-    "less": "^3.12.2",
-    "stylus": "^0.54.8",
-    "postcss": "^8.1.10"
+    "less": "^4.1.0",
+    "postcss": "^8.2.4",
+    "sass": "^1.32.2",
+    "stylus": "^0.54.8"
   }
 }
