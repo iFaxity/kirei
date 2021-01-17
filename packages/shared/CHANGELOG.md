@@ -1,3 +1,5 @@
+# [@kirei/shared-v2.0.0](https://github.com/ifaxity/kirei/compare/@kirei/shared-v1.2.1...@kirei/shared-v2.0.0) (2021-01-17)
+
 # [@kirei/shared-v1.2.1](https://github.com/ifaxity/kirei/compare/@kirei/shared-v1.2.0...@kirei/shared-v1.2.1) (2021-01-01)
 
 
