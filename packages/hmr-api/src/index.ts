@@ -1,4 +1,4 @@
-import { ComponentInstance, Component, HookTypes, CSSResult, defineComponent, normalizeOptions, ComponentOptions } from '@kirei/element';
+import { ComponentInstance, Component, HookTypes, StyleSheet, CSSResult, defineComponent, normalizeOptions, ComponentOptions } from '@kirei/element';
 
 /**
  * Cache for a component and its instances
@@ -46,12 +46,21 @@ function injectHook(ctor: typeof Component, key: string, fn: Function): void {
  * @param newStyles - New stylesheets to swap to
  * @returns True if any stylesheet has changed
  */
-function stylesChanged(oldStyles: CSSResult[], newStyles: CSSResult[]): boolean {
+function stylesChanged(oldStyles: StyleSheet[], newStyles: StyleSheet[]): boolean {
   if (oldStyles.length != newStyles.length) {
     return true;
   }
 
-  return !oldStyles.every((style, idx) => style.cssText === newStyles[idx].cssText);
+  return !oldStyles.every((style, idx) => {
+    const other = newStyles[idx];
+
+    // Only check equality for style, not for CSSStyleSheet
+    if ((style instanceof CSSResult) && (other instanceof CSSResult)) {
+      return style.cssText === other.cssText;
+    }
+
+    return style === other;
+  });
 }
 
 /**
