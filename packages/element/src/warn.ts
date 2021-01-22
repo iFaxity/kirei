@@ -6,6 +6,14 @@ import type { ComponentInstance } from './types';
 const INDENT_STEP = 2;
 const INDENT = 4;
 
+class KireiError extends Error {
+  constructor(message: string, context?: string) {
+    super();
+    this.message = formatMessage(message, context);
+    this.name = '[Kirei error]';
+  }
+}
+
 /**
  * Creates an iterator to walk the instance tree
  * @param instance - Instance to walk up from
@@ -114,11 +122,14 @@ function formatMessage(message: string|Error, context?: string): string {
  * @param context - Optional context (instance name, function name)
  * @private
  */
-export function exception(message: string | Error, context?: string): never {
-  const error = new Error(formatMessage(message, context));
-  error.name = `[Kirei error]`;
+export function exception(message: string|Error, context?: string): never {
+  if (message instanceof KireiError) {
+    throw message;
+  } else if (message instanceof Error) {
+    message = message.message;
+  }
 
-  throw error;
+  throw new KireiError(message, context);
 }
 
 /**

@@ -31,12 +31,12 @@ export function defineHook<T extends Function>(name: string): (hook: T) => void 
   HOOKS.add(name);
   return (hook) => {
     if (!isFunction(hook)) {
-      exception('Lifecycle hooks requires the parameter to be a function.', `${hook}()`);
+      exception('Lifecycle hooks requires the parameter to be a function.', `${name}()`);
     }
 
-    const instance = getCurrentInstance()
+    const instance = getCurrentInstance();
     if (!instance) {
-      exception(`Lifecycle hooks needs have a setup function in its call stack.`, `${hook}()`);
+      exception('Lifecycle hooks needs have a setup function in its call stack.', `${name}()`);
     }
 
     instance.injectHook(name, hook);
@@ -56,5 +56,5 @@ export const onBeforeUnmount = defineHook(HookTypes.BEFORE_UNMOUNT);
 /** Registers a new hook it runs after instance is unmounted */
 export const onUnmount = defineHook(HookTypes.UNMOUNTED);
 
-/** */
+/** Registers a hook it runs when an error occurs in the component or any of it's children */
 export const onErrorCaptured = defineHook(HookTypes.ERROR_CAPTURED);

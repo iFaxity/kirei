@@ -1,6 +1,6 @@
 import { effect, pauseTracking, resetTracking, shallowReadonly, shallowReactive } from '@vue/reactivity';
 import { hyphenate, isFunction, isPromise } from '@vue/shared';
-import { exception, warn, KireiError } from '../warn';
+import { exception, warn } from '../warn';
 import { HookTypes } from '../api/lifecycle';
 import * as Queue from './queue';
 import { adoptStyleSheets } from './css';
@@ -240,10 +240,6 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
         throw new TypeError('Setup function must return a TemplateFactory');
       }
     } catch (ex) {
-      if (ex instanceof KireiError) {
-        throw ex;
-      }
-
       exception(ex, 'setup()');
     } finally {
       resetTracking();
