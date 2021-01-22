@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
-  "schedule": [ "every weekend" ],
+  "schedule": [ "before 3am on Sunday" ],
   "automerge": true,
   "prCreation": "status-success",
   "groupName": "all",

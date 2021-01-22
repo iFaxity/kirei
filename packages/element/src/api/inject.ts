@@ -1,5 +1,5 @@
 import { getCurrentInstance } from '../runtime/instance';
-import { warn } from '../logging';
+import { warn } from '../warn';
 
 /**
  * Value to track if parameter is unset

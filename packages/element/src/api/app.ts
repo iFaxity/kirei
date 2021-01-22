@@ -2,7 +2,7 @@ import type { Directive } from '../runtime/compiler';
 import type { InjectionKey } from './inject';
 import type { ComponentInstance } from '../types';
 import { hyphenate, isFunction } from '@vue/shared';
-import { warn } from '../logging';
+import { warn } from '../warn';
 
 type PluginInstallFunction = (app: App, ...args: any[]) => any;
 

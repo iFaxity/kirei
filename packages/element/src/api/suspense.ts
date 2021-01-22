@@ -1,5 +1,5 @@
 import type { Template } from '@kirei/html';
-import { KireiError } from '../logging';
+import { KireiError } from '../warn';
 import { defineComponent, html } from '../index';
 import { Component } from '../runtime/component';
 import { compiler } from '../runtime/compiler';

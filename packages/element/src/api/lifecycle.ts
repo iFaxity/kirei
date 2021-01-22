@@ -1,6 +1,6 @@
 import { isFunction } from '@vue/shared';
 import { getCurrentInstance } from '../runtime/instance';
-import { exception } from '../logging';
+import { exception } from '../warn';
 const HOOKS = new Set<string>();
 
 /**

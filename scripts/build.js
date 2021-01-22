@@ -14,7 +14,7 @@ yarn build core --formats cjs
 const { resolve, basename } = require('path');
 const zlib = require('zlib');
 const { promisify } = require('util');
-const { readFile, writeFile, access, rmdir } = require('fs/promises');
+const { readFile, writeFile, access, rmdir, rm } = require('fs/promises');
 const gzip = promisify(zlib.gzip);
 const brotli = promisify(zlib.brotliCompress);
 const { rollPackage, resolvePackages } = require('./roll');
@@ -55,21 +55,6 @@ const formats = args.formats.length ? args.formats : null;
 const targets = args._.length ? args._ : null;
 const version = args.setVersion;
 
-
-function filterPackages() {
-  const packages = resolvePackages(PACKAGES_ROOT, !isRelease);
-
-  if (targets) {
-    for (const { dir, package } of packages.values()) {
-      if (!targets.includes(package.name) && !targets.includes(basename(dir))) {
-        packages.delete(package.name);
-      }
-    }
-  }
-
-  return packages;
-}
-
 async function exists(path) {
   try {
     await access(path);
@@ -80,6 +65,10 @@ async function exists(path) {
 }
 
 function rmrf(path) {
+  if (rm) {
+    return rm(path, { recursive: true, force: true });
+  }
+
   return rmdir(path, { recursive: true });
 }
 
@@ -106,12 +95,14 @@ async function build(target, opts, packages) {
 
   // Build package, with package execution time
   const start = Date.now();
-  let completed = false;
+  let completed = true;
   try {
     console.log(`\u001B[36;1mBuilding: ${package.name}\u001B[0m`);
     await rollPackage(target, opts, packages);
-
-    completed = true;
+  } catch (ex) {
+    console.error(String(ex));
+    process.exitCode = 1;
+    completed = false;
   } finally {
     const diff = (Date.now() - start) / 1000;
     const status = completed ? 'completed' : 'errored';
@@ -120,14 +111,13 @@ async function build(target, opts, packages) {
   }
 
   // Not currently working with import/export type
-  if (buildTypes && package.types) {
+  if (completed && buildTypes && package.types) {
     await rmrf(`${dir}/${package.types}`);
 
     const { generateDtsBundle } = require('dts-bundle-generator');
     console.log(`\u001B[36;1mGenerating type declaration\u001B[0m`);
 
     const start = Date.now();
-    let completed = false;
 
     // list all .ts files
     try {
@@ -150,7 +140,9 @@ async function build(target, opts, packages) {
       await writeFile(resolve(dir, package.types), output.pop(), 'utf8');
       completed = true;
     } catch (ex) {
-      console.error(ex);
+      console.error(String(ex));
+      process.exitCode = 1;
+      completed = false;
     }
 
     const diff = (Date.now() - start) / 1000;
@@ -164,13 +156,15 @@ async function build(target, opts, packages) {
 
 async function main() {
   const opts = { formats, version };
-  const pkgs = filterPackages();
+  const pkgs = resolvePackages(PACKAGES_ROOT, !isRelease, targets);
+  //const pkgs = filterPackages();
 
   for (const target of pkgs.values()) {
     try {
       await build(target, opts, pkgs);
     } catch (ex) {
       console.error(ex);
+      process.exitCode = 1;
     }
   }
 
@@ -193,4 +187,7 @@ async function main() {
   }
 }
 
-main().catch(err => console.error(err));
+main().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

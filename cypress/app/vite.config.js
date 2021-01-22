@@ -5,6 +5,6 @@ const include = [ 'elements/', 'views/' ];
 
 module.exports = {
   port: 3000,
-  plugins: [ kirei({ include, cwd: __dirname }), /*istanbul({ exclude: [ 'cypress' ] }),*/ ],
+  plugins: [ kirei({ include, cwd: __dirname }), istanbul({ exclude: [ 'cypress' ] }), ],
 };
 

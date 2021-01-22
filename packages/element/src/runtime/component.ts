@@ -2,7 +2,7 @@ import { trigger, reactive } from '@vue/reactivity';
 import { mapObject, isObject } from '@kirei/shared';
 import { hyphenate } from '@vue/shared';
 import { setCurrentInstance, createComponentInstance, getComponentInstance } from './instance';
-import { exception } from '../logging';
+import { exception } from '../warn';
 import { validateProp, normalizeProps } from './props';
 import { nextTick } from './queue';
 import type { TriggerOpTypes } from '@vue/reactivity';

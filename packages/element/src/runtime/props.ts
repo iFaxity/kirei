@@ -1,6 +1,6 @@
 import { mapObject, isObject, isUndefined } from '@kirei/shared';
 import { isFunction } from '@vue/shared';
-import { warn } from '../logging';
+import { warn } from '../warn';
 
 import type { Props, PropsData, NormalizedProps, NormalizedProp, PropInstance, PropConstructor } from '../types';
 

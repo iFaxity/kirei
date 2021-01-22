@@ -1,5 +1,5 @@
 import { Component, normalizeOptions } from '../runtime/component';
-import { warn } from '../logging';
+import { warn } from '../warn';
 import type { ComponentOptions, Props } from '../types';
 
 /**

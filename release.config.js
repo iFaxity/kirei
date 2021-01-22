@@ -19,7 +19,7 @@ module.exports = {
     ['@semantic-release/changelog', {
       changelogFile: 'CHANGELOG.md',
     }],
-    // Build after next version has been 
+    // Build after next version has been prepared
     ['@semantic-release/exec', {
       execCwd: __dirname,
       prepareCmd: `node ./scripts/build.js -rv \${nextRelease.version} ${packageName}`,

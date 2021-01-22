@@ -190,7 +190,7 @@ async function rollPackage(target, opts, packages) {
   return Promise.all(promises);
 }
 
-function resolvePackages(rootDir, private = false) {
+function resolvePackages(rootDir, private = false, targets = null) {
   const packages = readdirSync(rootDir).reduce((acc, name) => {
     const dir = resolve(rootDir, name);
     const stats = statSync(dir);
@@ -208,14 +208,15 @@ function resolvePackages(rootDir, private = false) {
   }, []);
 
   // run topological sorting on the dependencies
-  const nodes = packages.map(p => p.package.name);
   const edges = packages.map(({ package }) => {
     const deps = PACKAGE_DEP_KEYS.flatMap(key => {
       if (!package[key]) {
         return [];
       }
 
-      return [ ...Object.keys(package[key]) ].filter(p => nodes.includes(p));
+      return [ ...Object.keys(package[key]) ].filter(name => {
+        return packages.find(p => name == p.package.name) != null;
+      });
     });
 
     // should be safe, package can't be a dependency of itself after all
@@ -223,13 +224,32 @@ function resolvePackages(rootDir, private = false) {
   });
 
   // order package by if it is used as a dependency in another package
-  return toposort(edges)
+  let ordered = toposort(edges)
       // somehow can include undefined due to edges not having any dependencies
     .filter(name => !!name)
-    .reverse()
-    .reduce((acc, name) => {
-      return acc.set(name, packages.find(p => name == p.package.name));
-    }, new Map())
+    .reverse();
+
+  // Only keep targeted packages and its peer dependencies (deep)
+  if (targets && targets.length) {
+    // checks if name has target as a dep or itself as a package name
+    function hasDep(name, target) {
+      if (name === target) {
+        return true;
+      }
+
+      const [ _, ...deps ] = edges.find(x => x[0] == name);
+      return deps && deps.some(dep => hasDep(dep, target))
+    }
+
+    ordered = ordered.filter(name => {
+      return targets.some(target => hasDep(target, name))
+    });
+  }
+
+  // Array => Map of package metadata
+  return ordered.reduce((acc, name) => {
+    return acc.set(name, packages.find(p => name == p.package.name));
+  }, new Map());
 }
 
 function readPackage(dir) {

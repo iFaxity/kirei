@@ -1,6 +1,6 @@
 import { effect, pauseTracking, resetTracking, shallowReadonly, shallowReactive } from '@vue/reactivity';
 import { hyphenate, isFunction, isPromise } from '@vue/shared';
-import { exception, warn, KireiError } from '../logging';
+import { exception, warn, KireiError } from '../warn';
 import { HookTypes } from '../api/lifecycle';
 import * as Queue from './queue';
 import { adoptStyleSheets } from './css';

@@ -1,5 +1,5 @@
 import { isUndefined } from '@kirei/shared';
-import { warn } from '../logging';
+import { warn } from '../warn';
 
 /**
  * StyleSheets to use with adoptStyleSheets

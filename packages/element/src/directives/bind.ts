@@ -1,6 +1,6 @@
 import { isObject } from '@kirei/shared';
 import type { TemplatePatcher } from '@kirei/html';
-import { warn } from '../logging';
+import { warn } from '../warn';
 
 export function bind(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
   let attributes: string[] = [];

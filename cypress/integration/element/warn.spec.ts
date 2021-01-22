@@ -1,11 +1,11 @@
 // @ts-nocheck
 /// <reference types="cypress" />
-import { exception, error, warn } from '@kirei/element/logging';
+import { exception, error, warn } from '@kirei/element/warn';
 
-const assertWarn = (callback, expected) => assertConsole('warn', callback, expected);
-const assertError = (callback, expected) => assertConsole('error', callback, expected);
+const assertWarn = (callback: () => void, expected: string) => assertConsole('warn', callback, expected);
+const assertError = (callback: () => void, expected: string) => assertConsole('error', callback, expected);
 
-function assertConsole(name, callback, expected) {
+function assertConsole(name: string, callback: () => void, expected: string) {
   const spy = cy.spy(console, name);
   try {
     callback();
@@ -15,7 +15,7 @@ function assertConsole(name, callback, expected) {
   }
 }
 
-function assertException(callback, error) {
+function assertException(callback: () => void, error: string|Error) {
   try {
     callback();
     assert.fail('Expected exception to be thrown.');
@@ -28,7 +28,7 @@ function assertException(callback, error) {
   }
 }
 
-describe('logging', () => {
+describe('warn', () => {
   describe('#exception()', () => {
     it('with message', () => {
       assertException(() => exception('Test message'), 'Test message');

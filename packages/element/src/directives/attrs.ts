@@ -1,6 +1,6 @@
 import type { TemplatePatcher } from '@kirei/html';
 import { isObject } from '@kirei/shared';
-import { warn } from '../logging';
+import { warn } from '../warn';
 
 export function attrs(el: HTMLElement, arg: string, modifiers: string[]): TemplatePatcher {
   return (pending) => {
