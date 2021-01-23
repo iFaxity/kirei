@@ -1,5 +1,5 @@
 const { readdirSync, statSync, readFileSync, writeFileSync } = require('fs');
-const { resolve } = require('path');
+const { resolve, basename } = require('path');
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
@@ -230,15 +230,24 @@ function resolvePackages(rootDir, private = false, targets = null) {
     .reverse();
 
   // Only keep targeted packages and its peer dependencies (deep)
+  // TODO: target an be a directory name too
   if (targets && targets.length) {
+    targets = edges
+      .map(e => e[0])
+      .filter(e => targets.some(t => e.includes(t)));
+
     // checks if name has target as a dep or itself as a package name
     function hasDep(name, target) {
       if (name === target) {
         return true;
       }
 
-      const [ _, ...deps ] = edges.find(x => x[0] == name);
-      return deps && deps.some(dep => hasDep(dep, target))
+      const deps = edges.find(x => x[0] == name);
+      if (!deps) {
+        return false;
+      }
+
+      return deps.slice(1).some(dep => hasDep(dep, target))
     }
 
     ordered = ordered.filter(name => {

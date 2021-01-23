@@ -11,7 +11,7 @@ yarn build dom
 # specify the format to output
 yarn build core --formats cjs
 */
-const { resolve, basename } = require('path');
+const { resolve } = require('path');
 const zlib = require('zlib');
 const { promisify } = require('util');
 const { readFile, writeFile, access, rmdir, rm } = require('fs/promises');
@@ -157,33 +157,37 @@ async function build(target, opts, packages) {
 async function main() {
   const opts = { formats, version };
   const pkgs = resolvePackages(PACKAGES_ROOT, !isRelease, targets);
-  //const pkgs = filterPackages();
 
-  for (const target of pkgs.values()) {
-    try {
-      await build(target, opts, pkgs);
-    } catch (ex) {
-      console.error(ex);
-      process.exitCode = 1;
+  if (pkgs.size) {
+    for (const target of pkgs.values()) {
+      try {
+        await build(target, opts, pkgs);
+      } catch (ex) {
+        console.error(ex);
+        process.exitCode = 1;
+      }
     }
-  }
-
-  // Interpolate numbers as kb of number
-  // calculate sizes of the bundles
-  const results = [];
-  const size = (value) => `${(value / 1024).toFixed(1)}kb`;
-
-  for (const target of pkgs.values()) {
-    const pkgName = target.package.name;
-    const res = await checkSize(target.dir, pkgName);
-
-    if (res) {
-      results.push(`${pkgName} production build: min: ${size(res[0])} / gzip: ${size(res[1])} / brotli: ${size(res[2])}`);
+  
+    // Interpolate numbers as kb of number
+    // calculate sizes of the bundles
+    const results = [];
+    const size = (value) => `${(value / 1024).toFixed(1)}kb`;
+  
+    for (const target of pkgs.values()) {
+      const pkgName = target.package.name;
+      const res = await checkSize(target.dir, pkgName);
+  
+      if (res) {
+        results.push(`${pkgName} production build: min: ${size(res[0])} / gzip: ${size(res[1])} / brotli: ${size(res[2])}`);
+      }
     }
-  }
-
-  if (results.length) {
-    console.log(results.join('\n'));
+  
+    if (results.length) {
+      console.log(results.join('\n'));
+    }
+  } else {
+    console.error('ERROR:No packages matched by filter!\n');
+    process.exitCode = 1;
   }
 }
 
