@@ -1,3 +1,10 @@
+# [@kirei/element-v2.0.2](https://github.com/ifaxity/kirei/compare/@kirei/element-v2.0.1...@kirei/element-v2.0.2) (2021-01-23)
+
+
+### Bug Fixes
+
+* **element:** Cleanup in index + defineAsyncComponent disabled ([44f05e7](https://github.com/ifaxity/kirei/commit/44f05e728fe4a2249f196f4675ab7d995618fe36))
+
 # [@kirei/element-v2.0.1](https://github.com/ifaxity/kirei/compare/@kirei/element-v2.0.0...@kirei/element-v2.0.1) (2021-01-17)
 
 # [@kirei/element-v2.0.0](https://github.com/ifaxity/kirei/compare/@kirei/element-v1.2.0...@kirei/element-v2.0.0) (2021-01-01)
