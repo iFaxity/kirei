@@ -68,7 +68,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
 
   // mutable
   let mounted = false;
-  let template: Promise<SetupResult> | SetupResult = null;
+  let setupResult: Promise<SetupResult> | SetupResult = null;
   let shadowRoot: ShadowRoot = null;
   let provides: Record<string | symbol, unknown> = parent?.provides ?? Object.create(null);
   let directives: Record<string, Directive> = null;
@@ -88,7 +88,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
     props: { value: props },
 
     // internally mutable
-    template: { get: () => template },
+    setupResult: { get: () => setupResult },
     shadowRoot: { get: () => shadowRoot },
     provides: { get: () => provides },
     directives: { get: () => directives },
@@ -208,7 +208,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
       const { setup } = options;
       setCurrentInstance(instance);
 
-      let setupProps: Readonly<Record<string, unknown>>;
+      let setupProps: Record<string, unknown>;
       let setupContext: SetupContext;
 
       // No need for props or ctx if not in the arguments of the setup method
@@ -218,7 +218,6 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
           setupContext = {
             get attrs() { return options.attrs; },
             get el() { return el; },
-            get props() { return options.props; },
             get emit() { return emit; },
           };
         }
@@ -235,7 +234,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
       // Result might be async, expose promise to the outside?
       const res = setup.call(null, setupProps, setupContext);
       if (isFunction(res)) {
-        template = res;
+        setupResult = res;
       } else if (res != null) {
         throw new TypeError('Setup function must return a TemplateFactory');
       }
@@ -314,7 +313,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
   }
 
   function update(): void {
-    if (template == null || isPromise(template)) {
+    if (setupResult == null || isPromise(setupResult)) {
       // Only update template if it is set or not a promise
       // If a promise then it will be resolved in the future by suspense
       return;
@@ -324,7 +323,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
 
     try {
       setCurrentInstance(instance);
-      render(template(), shadowRoot, { scopeName: options.tag });
+      render(setupResult(), shadowRoot, { scopeName: options.tag });
     } catch (ex) {
       exception(ex);
     } finally {

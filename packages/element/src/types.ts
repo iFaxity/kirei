@@ -110,7 +110,7 @@ export interface ComponentOptions<P = Props, T = ResolvePropTypes<P>> {
   setup(this: void, props: T, ctx: SetupContext): SetupResult|Promise<SetupResult>;
   styles?: StyleSheet | StyleSheet[];
   directives?: Record<string, Directive>;
-  emits: EmitsOptions;
+  emits?: EmitsOptions;
 }
 
 /**
@@ -134,7 +134,6 @@ export interface NormalizedComponentOptions<P = Props> extends Omit<ComponentOpt
 export interface SetupContext {
   readonly el: IComponent;
   readonly attrs: Record<string, string>;
-  readonly props: NormalizedProps;
 
   /**
    * Dispatches an event from the host Component
@@ -153,7 +152,7 @@ export interface ComponentInstance {
   readonly el: IComponent;
   readonly parent: ComponentInstance;
   readonly props: PropsData;
-  readonly template: Promise<SetupResult>|SetupResult;
+  readonly setupResult: Promise<SetupResult>|SetupResult;
   readonly shadowRoot: ShadowRoot;
   readonly provides: Record<string | symbol, unknown>;
   readonly directives?: Record<string, Directive>;
