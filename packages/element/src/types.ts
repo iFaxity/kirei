@@ -20,7 +20,7 @@ export type PropConstructor<T = any> =
 /**
  * @private
  */
-type PropType<T> = PropConstructor<T> | PropConstructor<T>[];
+export type PropType<T> = PropConstructor<T> | PropConstructor<T>[];
 
 /**
  * @private
