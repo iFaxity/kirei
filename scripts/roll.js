@@ -1,11 +1,12 @@
 const { readdirSync, statSync, readFileSync, writeFileSync } = require('fs');
-const { resolve, basename } = require('path');
+const { resolve } = require('path');
+const { builtinModules: BUILTIN_MODULES } = require('module');
+
 const { nodeResolve } = require('@rollup/plugin-node-resolve');
 const commonjs = require('@rollup/plugin-commonjs');
 const replace = require('@rollup/plugin-replace');
 const esbuild = require('rollup-plugin-esbuild');
 const { rollup } = require('rollup');
-const { builtinModules: BUILTIN_MODULES } = require('module');
 const toposort = require('toposort');
 
 const PACKAGE_DEP_KEYS = [
@@ -63,38 +64,27 @@ function createConfig(opts) {
     // add .prod key before the last extension
     const extensions = extname.split('.');
     extensions.splice(-1, 0, 'prod');
-
     extension = extensions.join('.');
   }
 
-  // External modules should not be built
-  if (!isBundled) {
-    resolvedExternal.push(...external);
-  } else if (format == 'iife') {
-    // external only for global dependencies
-    resolvedGlobals = globals;
-    resolvedExternal.push(...Object.keys(globals));
-  }
-
-  // if is production, set esbuild variables, and only NODE_ENV in replace()
-  // else, no esbuild variables, add to replace
+  // replace with NODE_ENV for the bundler builds
   const replaceVariables = {
     __DEV__: isBundled ? JSON.stringify(isProdBuild) : '(process.env.NODE_ENV !== "production")',
   };
-  /*const defineVariables = {
-    __BROWSER__: JSON.stringify(!isNodeBuild),
-    __NODE_JS__: JSON.stringify(isNodeBuild),
-    __VERSION__: JSON.stringify(version),//package.version),
-  };*/
 
+  // External modules should not be built
   if (isBundled) {
-    //defineVariables.__DEV__ = JSON.stringify(isProdBuild);
+    if (format == 'iife') {
+      // external only for global dependencies
+      resolvedGlobals = globals;
+      resolvedExternal.push(...Object.keys(globals));
+    }
+
+    // replace with NODE_ENV for the bundler builds, to tree shake env specific functionality
     replaceVariables['process.env.NODE_ENV'] = JSON.stringify(isProdBuild);
   } else {
-    //replaceVariables.__DEV__ = '(process.env.NODE_ENV !== "production")';
+    resolvedExternal.push(...external);
   }
-
-  // if bundled send replacers into define to tree shake it
 
   // Return rollup config
   return {

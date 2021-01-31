@@ -186,7 +186,7 @@ async function main() {
       console.log(results.join('\n'));
     }
   } else {
-    console.error('ERROR:No packages matched by filter!\n');
+    console.error('ERROR: No packages matched by filter!\n');
     process.exitCode = 1;
   }
 }
