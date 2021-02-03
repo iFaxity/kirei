@@ -1,3 +1,11 @@
+# [@kirei/element-v2.0.4](https://github.com/ifaxity/kirei/compare/@kirei/element-v2.0.3...@kirei/element-v2.0.4) (2021-02-03)
+
+
+### Bug Fixes
+
+* **element:** Added experimental portal component (v-portal) ([aacb267](https://github.com/ifaxity/kirei/commit/aacb267f9da416a1470fc5ac77816705a166ae9e))
+* **element:** Lifecycle hooks now being flused on consecutive setup calls ([f42ba05](https://github.com/ifaxity/kirei/commit/f42ba05b5d01fc1b0fa9927ceffd3a4a11a6f127))
+
 # [@kirei/element-v2.0.3](https://github.com/ifaxity/kirei/compare/@kirei/element-v2.0.2...@kirei/element-v2.0.3) (2021-01-31)
 
 
