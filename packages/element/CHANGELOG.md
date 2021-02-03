@@ -1,3 +1,11 @@
+# [@kirei/element-v2.0.3](https://github.com/ifaxity/kirei/compare/@kirei/element-v2.0.2...@kirei/element-v2.0.3) (2021-01-31)
+
+
+### Bug Fixes
+
+* **element:** Emits option now optional in component definition ([8d4dae0](https://github.com/ifaxity/kirei/commit/8d4dae04401af4c30d2f38e3b90e3d86ef689dc7))
+* **element:** Exported PropType for explicit type inferance ([fab3acf](https://github.com/ifaxity/kirei/commit/fab3acfbc3f3e1646b6bc5b651341b934b751928))
+
 # [@kirei/element-v2.0.2](https://github.com/ifaxity/kirei/compare/@kirei/element-v2.0.1...@kirei/element-v2.0.2) (2021-01-23)
 
 
