@@ -9,7 +9,8 @@
   "unpkg": "dist/element.global.js",
   "jsdelivr": "dist/element.global.js",
   "sideEffects": [
-    "./src/directives/*"
+    "./src/directives/*",
+    "./src/api/portal.ts"
   ],
   "files": [
     "dist/*"
