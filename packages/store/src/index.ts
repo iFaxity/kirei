@@ -1,12 +1,7 @@
 // Adapted from https://github.com/PatrykWalach/vuex-composition-api/blob/master/src/composition.ts
-import { inject, reactive } from '@kirei/element';
-import type { InjectionKey, UnwrapRef, Ref, App } from '@kirei/element';
+import { inject, reactive, UnwrapNestedRefs } from '@kirei/element';
+import type { InjectionKey, App } from '@kirei/element';
 export const INJECTION_KEY: InjectionKey<KireiStore> = Symbol('kirei::store');
-
-/**
- * Unwraps refs recursively, essentially a reactive() from @vue/reactivity.
- */
-export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRef<T>;
 
 /**
  * Plugin function.
