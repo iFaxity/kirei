@@ -60,7 +60,6 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
   let shimAdoptedStyleSheets = false;
   const parent = getCurrentInstance();
   const instanceEffect = effect(update, { lazy: true, scheduler: Queue.push });
-  const hooks: Record<string, Set<Function>> = Object.create(null);
 
   // props immutable due to how WebComponents load props
   // TODO: create workaround for this
@@ -68,12 +67,14 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
 
   // mutable
   let mounted = false;
+  let suspensible = false;
   let setupResult: Promise<SetupResult> | SetupResult = null;
   let shadowRoot: ShadowRoot = null;
   let provides: Record<string | symbol, unknown> = parent?.provides ?? Object.create(null);
   let directives: Record<string, Directive> = null;
   let emitted: Record<string, boolean> = null;
   let events: Record<string, Function> = null;
+  let hooks: Record<string, Set<Function>> = null;
 
   // Assign used to have root reference itself
   // TODO: writable values should be getters
@@ -81,7 +82,6 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
   instances.set(el, Object.defineProperties(instance, {
     // immutable
     el: { value: el },
-    hooks: { value: hooks },
     effect: { value: instanceEffect },
     root: { value: (parent?.root ?? instance) },
     parent: { value: parent },
@@ -95,6 +95,8 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
     emitted: { get: () => emitted },
     events: { get: () => events },
     mounted: { get: () => mounted, },
+    suspensible: { get: () => suspensible },
+    hooks: { get: () => hooks },
 
     // externally mutable (for hmr-api)
     options: { get: () => options, set: (value) => (options = value) },
@@ -176,9 +178,13 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
 
   function setup(): void {
     directives = Object.create(null);
+    hooks = Object.create(null);
     events = options.emits ? Object.create(null) : null;
+
     // Inherit provides from parent or app context
     provides = parent ? parent.provides : Object.create(null);
+
+    // clear hooks
 
     // TODO: this really needs a refactor
     const app = applications.get(instance.root.el.id);
@@ -315,7 +321,7 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
   function update(): void {
     if (setupResult == null || isPromise(setupResult)) {
       // Only update template if it is set or not a promise
-      // If a promise then it will be resolved in the future by suspense
+      // If a promise then it could be resolved later by suspense
       return;
     }
 
@@ -323,7 +329,16 @@ export function createComponentInstance(el: IComponent, options: NormalizedCompo
 
     try {
       setCurrentInstance(instance);
-      render(setupResult(), shadowRoot, { scopeName: options.tag });
+
+      // Only render if setupResult is non-nullable
+      const template = setupResult();
+
+      if (template != null) {
+        render(template, shadowRoot, { scopeName: options.tag });
+      } else if (__DEV__) {
+        // TODO: Don't warn if intentional? Somehow add an escape hatch for this
+        warn('Nullable returned from setup, this could be intential when using Portal or Suspense', '#update()');
+      }
     } catch (ex) {
       exception(ex);
     } finally {
