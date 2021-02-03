@@ -1,3 +1,5 @@
+# [@kirei/store-v2.0.1](https://github.com/ifaxity/kirei/compare/@kirei/store-v2.0.0...@kirei/store-v2.0.1) (2021-02-03)
+
 # [@kirei/store-v2.0.0](https://github.com/ifaxity/kirei/compare/@kirei/store-v1.2.0...@kirei/store-v2.0.0) (2021-01-01)
 
 
