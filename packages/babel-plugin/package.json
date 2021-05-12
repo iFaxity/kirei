@@ -47,7 +47,7 @@
   },
   "optionalDependencies": {
     "less": "^4.1.0",
-    "postcss": "^8.2.4",
+    "postcss": "^8.2.10",
     "sass": "^1.32.2",
     "stylus": "^0.54.8"
   }
