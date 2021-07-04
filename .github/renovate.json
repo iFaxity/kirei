@@ -1,34 +1,34 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:base"],
-  "schedule": [ "before 3am on Sunday" ],
+  "schedule": ["before 3am on Sunday"],
   "automerge": true,
   "prCreation": "status-success",
   "groupName": "all",
   "packageRules": [
     {
-      "depTypeList": ["devDependencies"],
-      "updateTypes": ["minor", "patch", "pin", "digest"],
       "groupName": "devDependencies",
-      "groupSlug": "dev-dependencies"
+      "groupSlug": "dev-dependencies",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
     },
     {
-      "depTypeList": ["devDependencies"],
-      "updateTypes": ["major"],
       "groupName": "devDependencies (major)",
       "groupSlug": "dev-dependencies-major",
-      "automerge": false
+      "automerge": false,
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["major"]
     },
     {
-      "depTypeList": ["dependencies"],
-      "updateTypes": ["minor", "patch", "pin", "digest"],
-      "groupName": "dependencies"
+      "groupName": "dependencies",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"]
     },
     {
-      "depTypeList": ["dependencies"],
-      "updateTypes": ["major"],
       "groupName": "dependencies (major)",
-      "automerge": false
+      "automerge": false,
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["major"]
     }
   ]
 }
