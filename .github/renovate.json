@@ -5,6 +5,9 @@
   "automerge": true,
   "prCreation": "not-pending",
   "groupName": "all",
+  "vulnerabilityAlerts": {
+    "labels": ["security"]
+  },
   "packageRules": [
     {
       "groupName": "devDependencies",
