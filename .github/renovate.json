@@ -3,7 +3,7 @@
   "extends": ["config:base"],
   "schedule": ["before 3am on Sunday"],
   "automerge": true,
-  "prCreation": "status-success",
+  "prCreation": "not-pending",
   "groupName": "all",
   "packageRules": [
     {
