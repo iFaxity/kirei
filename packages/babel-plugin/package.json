@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-kirei",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "author": "iFaxity (christian@faxity.se)",
   "license": "MIT",
   "main": "index.js",
@@ -34,7 +34,7 @@
     "shadow dom"
   ],
   "peerDependencies": {
-    "@kirei/element": "^2.0.1",
+    "@kirei/element": "^2.0.4",
     "@kirei/hmr-api": "^2.0.0"
   },
   "dependencies": {
